@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:flex="http://www.springframework.org/schema/flex" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/flex 
+        http://www.springframework.org/schema/flex/spring-flex-1.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+
+
+	<flex:message-broker>
+		<flex:remoting-service default-channels="my-amf" />
+	</flex:message-broker>
+
+	<bean id="defaultMessageTemplate" class="org.springframework.flex.messaging.MessageTemplate" />
+
+	<flex:message-broker>
+		<flex:message-service default-channels="my-amf, my-polling-amf" />
+	</flex:message-broker>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<tx:annotation-driven />
+	
+	<context:component-scan base-package="br.com.sose" />
+	
+	
+	<!-- Hibernate -->
+
+	<!-- Bean com as configuracoes de conexao com o banco, estamos utilizando
+	        <property name="maxConnectionAge" value="1" />
+	 
+		o CommonsDBCP da Apache para gerenciar nosso pool de conexão -->
+	<bean id="dataSource" class = "com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/sosedb_migrado?autoReconnect=true" />
+		<property name="user" value="root" />
+		<property name="password" value="root" />
+		
+		<property name="acquireIncrement" value="1" />
+        <property name="minPoolSize" value="5" />
+        <property name="maxPoolSize" value="30" />
+        <property name="maxIdleTime" value="600" />        
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="br.com.sose" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">false</prop>
+				<prop key="use_sql_comments">false</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</prop>
+				<prop key="hibernate.generate_statistics">false</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">/ehcache.xml</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- Enable Annotations for Spring --><!-- <tx:annotation-driven proxy-target-class="true"/> <context:annotation-config 
+		/> <aop:aspectj-autoproxy proxy-target-class="true"/> -->
+
+
+	
+
+
+	<bean id="exceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.Exception">/error/default</prop>
+			</props>
+		</property>
+		<property name="defaultErrorView" value="/error/default" />
+		<property name="warnLogCategory"
+			value="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" />
+	</bean>
+
+
+</beans>
+
