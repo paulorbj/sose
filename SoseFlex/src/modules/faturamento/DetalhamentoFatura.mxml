@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*" 
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%" >
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.faturamento.Faturamento;
+			import entities.recebimento.OrdemServico;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.Formatador;
+			
+			
+			[Bindable]
+			private var _fatura:Faturamento;
+			
+			[Bindable]
+			private var _ordemServico:OrdemServico;
+			
+			[Bindable]
+			private var _listaOrdemServico:ArrayCollection = new ArrayCollection();;
+			
+			[Bindable]
+			private var _listaOrdemServicoEdicao:ArrayCollection = new ArrayCollection();
+			
+			private var _modalObservacao:ObservacaoModal = new ObservacaoModal();
+			
+			private var app:SoseFlex = FlexGlobals.topLevelApplication as SoseFlex;
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				//				dataSaidaNotaFiscal.required = true
+				//				validatorArr.push(dataSaidaNotaFiscal.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			public function validarFinalizacao():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				validatorArr.push(dataPagamento.stringValidator);
+				valorPago.required = true;
+				validatorArr.push(valorPago.stringValidator);
+				validatorArr.push(nFatura.stringValidator);
+				validatorArr.push(cbCliente.comboBox.comboValidator);
+				validatorArr.push(dataEmissao.stringValidator);
+				validatorArr.push(dataVencimento.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			public function validarCamposEmissao():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				if(_fatura.cobrarFrete){
+					valorFreteCobrado.required = true;
+					validatorArr.push(valorFreteCobrado.stringValidator);
+				}else{
+					valorFreteCobrado.required = false;
+					valorFreteCobrado.input.errorString = "";
+				}
+				
+				validatorArr.push(nFatura.stringValidator);
+				validatorArr.push(cbCliente.comboBox.comboValidator);
+				validatorArr.push(dataEmissao.stringValidator);
+				validatorArr.push(dataVencimento.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;	
+				
+				
+				return isValidForm;
+			}
+			
+			
+			public function get fatura():Faturamento
+			{
+				_fatura.valorPago = valorPago.valor;
+				return _fatura;
+			}
+			
+			public function set fatura(value:Faturamento):void
+			{
+				_fatura = value;
+				if(_fatura.cliente){
+					cbCliente.clienteSelecionado = _fatura.cliente;
+				}else{
+					cbCliente.limpar();
+					cbCliente.clienteSelecionado = null;
+					cbCliente.comboBox.combobox.textInput.text = "";
+				}
+				valorFatura.setValorWithFixed(_fatura.totalFatura);
+				valorFreteProposta.setValor(_fatura.totalFreteProposta);
+				valorFreteExpedicao.setValor(_fatura.totalFreteExpedicao);
+				valorFreteFaturado.setValor(_fatura.totalFrete);
+				valorPago.setValor(_fatura.valorPago);
+				valorFreteCobrado.setValor(_fatura.freteCobrado);
+				if(!isNaN(_fatura.freteCobrado)){
+					valorTotalFatura.setValorWithFixed(_fatura.totalFatura + _fatura.freteCobrado);
+				}
+			}
+			
+			private function recalcularValorTotalFatura():void
+			{
+				_fatura.freteCobrado = valorFreteCobrado.getValor();
+				valorTotalFatura.setValorWithFixed(_fatura.totalFatura + _fatura.freteCobrado);
+			}
+			
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{
+				this.currentState = "editarOrdemServico";
+				_ordemServico = data as OrdemServico;
+				observacao.entidade = _ordemServico;
+				observacao.listarObservacoes();
+				_listaOrdemServicoEdicao.removeAll();
+				_listaOrdemServicoEdicao.addItem(_ordemServico);
+			}
+			
+			private function voltarNormal(event:MouseEvent):void
+			{
+				this.currentState = "normal";
+			}
+			
+			private function labelCondicao(item:Object, column:DataGridColumn):String
+			{	
+				if(item.reparo){
+					var str:String = item.reparo.condicao;
+					if(str == "Com condição de reparo"){
+						return "Reparado";
+					}
+					if(str == "Sem condição de reparo"){
+						return "Irreparável";
+					}
+					if(str == "Devolução sem reparo"){
+						return "Devolução sem reparo";
+					}
+				}else if(item.orcamento){
+					var str:String = item.orcamento.condicao;
+					if(str == "Com condição de reparo"){
+						return "Reparado";
+					}
+					if(str == "Sem condição de reparo"){
+						return "Irreparável";
+					}
+					if(str == "Devolução sem reparo"){
+						return "Devolução sem reparo";
+					}
+				}
+				return "";
+			}
+			
+			public function habilitaCampos():void
+			{
+				if(cbCliente.clienteSelecionado != null){
+					_fatura.cliente = cbCliente.clienteSelecionado;
+					if(_fatura.cliente.tipoPessoa == 1){
+						txtNome.labelText = resourceManager.getString('ApplicationResource','NOME');
+						txtRgIe.labelText = resourceManager.getString('ApplicationResource','RG');
+						txtCpfCnpj.labelText = resourceManager.getString('ApplicationResource','CPF');
+					}else{
+						txtNome.labelText = resourceManager.getString('ApplicationResource','RAZAO_SOCIAL');
+						txtRgIe.labelText = resourceManager.getString('ApplicationResource','IE');
+						txtCpfCnpj.labelText = resourceManager.getString('ApplicationResource','CNPJ');
+					}
+				}else{
+					_fatura.cliente = new Pessoa();
+					txtNome.labelText = resourceManager.getString('ApplicationResource','NOME');
+					txtRgIe.labelText = resourceManager.getString('ApplicationResource','RG');
+					txtCpfCnpj.labelText = resourceManager.getString('ApplicationResource','CPF');
+				}
+			}
+			
+			public function atualiza(event:Event):void{
+				habilitaCampos();
+			}
+			
+			private function labelFunctionSistema(item:Object, column:DataGridColumn):String {
+				var os:OrdemServico = item as OrdemServico;
+				return Formatador.formatarValorNumber(os.valorSistema);
+			}
+			
+			private function labelFunctionFaturado(item:Object, column:DataGridColumn):String {
+				var os:OrdemServico = item as OrdemServico;
+				return Formatador.formatarValorNumber(os.valorFaturado);
+			}
+			
+			
+			protected function cobrarFrete_changeHandler(event:Event):void
+			{
+				if(!cobrarFrete.selected){
+					_fatura.freteCobrado = 0 ;
+					valorFreteCobrado.setValor(0);
+					valorTotalFatura.setValorWithFixed(_fatura.totalFatura + _fatura.freteCobrado);
+				}
+			}
+			
+			public function showModalObservacao(event:MouseEvent):void {
+				_modalObservacao = new ObservacaoModal();
+				_modalObservacao.fatura = _fatura;
+				PopUpManager.addPopUp(_modalObservacao, app, true);
+				PopUpManager.centerPopUp(_modalObservacao);
+				_modalObservacao.listarObservacoes();
+			}
+			
+			public function hideModalObservacao():void {
+				PopUpManager.removePopUp(_modalObservacao);
+			}
+			
+			public function limpar():void{
+				cbCliente.limpar();
+				cbCliente.comboBox.clean();
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="_fatura.nome" destination="nomeFatura.inputText" twoWay="true" />
+	<fx:Binding source="_fatura.numeroFatura" destination="nFatura.inputText" twoWay="true" />
+	<fx:Binding source="_fatura.dataEmissaoFatura" destination="dataEmissao.inputDate" twoWay="true" />
+	<fx:Binding source="_fatura.dataVencimentoFatura" destination="dataVencimento.inputDate" twoWay="true" />
+	<fx:Binding source="_fatura.dataPagamentoFatura" destination="dataPagamento.inputDate" twoWay="true" />
+	<fx:Binding source="_fatura.cliente.nomeRazaoSocial" destination="txtNome.inputText" twoWay="false" />
+	<fx:Binding source="_fatura.cliente.rgIe" destination="txtRgIe.inputText" twoWay="false" />
+	<fx:Binding source="_fatura.cliente.cpfCnpj" destination="txtCpfCnpj.inputText" twoWay="false" />
+	<fx:Binding source="_fatura.cobrarFrete" destination="cobrarFrete.selected" twoWay="true" />
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="editarOrdemServico"/>
+	</mx:states>
+	
+	<mx:HBox width="100%" verticalAlign="middle" >
+		<s:Spacer width="100%" />
+		<s:Label text="Status:" />
+		<s:Label id="statusNFSaida" fontSize="20" color="red" text="{_fatura.statusString}" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom" >
+		<texto:TextInput id="nomeFatura" habilitado="false" labelText="Apelido" width="20%"  />
+		<texto:TextInput id="nFatura" habilitado="{_fatura.statusString == 'Iniciada'}" required="true" labelText="Nº Fatura" width="20%"  />
+		<components:DataInput id="dataEmissao" enabled="{_fatura.statusString == 'Iniciada'}" required="true" labelText="Data emissão" width="20%" inputHeight="20" />
+		<components:DataInput id="dataVencimento" enabled="{_fatura.statusString == 'Iniciada'}" required="true" labelText="Data vencimento" width="20%" inputHeight="20" />
+		<components:DataInput id="dataPagamento" enabled="{_fatura.statusString == 'Emitida'}" required="true" labelText="Data pagamento" width="20%" inputHeight="20" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom" >
+		<texto:TextInputDinheiro2d id="valorFatura" habilitado="false" labelText="Valor fatura" width="12%"  />
+		<texto:TextInputDinheiro2d id="valorFreteProposta" habilitado="false" labelText="Frete proposta" width="12%"  />
+		<texto:TextInputDinheiro2d id="valorFreteExpedicao" enabled="false" labelText="Frete expedição" width="12%"  />
+		<texto:TextInputDinheiro2d id="valorFreteFaturado" enabled="false"  labelText="Frete faturado" width="14%" />
+		<mx:CheckBox id="cobrarFrete" label="Cobrar frete" enabled="{_fatura.statusString == 'Iniciada'}" change="cobrarFrete_changeHandler(event)" />
+		<texto:TextInputDinheiro2d id="valorFreteCobrado" enabled="{_fatura.statusString == 'Iniciada'}" change="recalcularValorTotalFatura" labelText="Frete cobrado" width="14%" />
+		<texto:TextInputDinheiro2d id="valorTotalFatura" enabled="false"  labelText="Valor total fatura" width="14%"  />
+		<texto:TextInputDinheiro2d id="valorPago" enabled="{_fatura.statusString == 'Emitida'}" required="true"  labelText="Valor pago" width="12%"  />
+		
+	</mx:HBox>
+	
+	
+	<mx:HBox width="100%" verticalAlign="bottom" >
+		<combos:ComboCliente id="cbCliente" enabled="{_fatura.statusString == 'Iniciada'}" required="true" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="22%"  changeFunction="atualiza" />
+		<texto:TextInput id="txtNome" labelText="{resourceManager.getString('ApplicationResource','NOME')}" habilitado="false" width="46%"  />
+		<texto:TextInput id="txtRgIe" labelText="{resourceManager.getString('ApplicationResource','RG')}" habilitado="false" width="16%"  />
+		<texto:TextInput id="txtCpfCnpj" labelText="{resourceManager.getString('ApplicationResource','CPF')}" habilitado="false" width="16%"  />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
+		<s:Label textAlign="left" id="linkObservacao" textDecoration="underline" click="showModalObservacao(event)" text="Observações faturamento" />
+	</mx:HBox>
+	
+	<mx:Accordion id="accordion"  width="100%" height="100%">
+		<s:NavigatorContent label="Ordens de serviço" enabled="{_fatura.statusString == 'Iniciada'}" width="100%" height="100%">
+			
+			<mx:VBox paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="100%" height="100%" >
+				
+				
+				<grid:MantisTable id="tabelaItens"
+								  width="100%"
+								  height="100%"
+								  height.editarOrdemServico="48"
+								  verticalScrollPolicy.editarOrdemServico="off"
+								  draggableColumns="true"
+								  dataProvider="{_fatura.listaOrdemServico}"
+								  dataProvider.editarOrdemServico="{_listaOrdemServicoEdicao}"
+								  doubleClickEnabled="false"
+								  >
+					<grid:columns>
+						
+						<!-- CHANGE HERE THE ENTITY COLUMNS -->
+						
+						<!-- EDIT/REMOVE COLUMNS -->
+						
+						<mx:DataGridColumn id="numeroNF" width=".10"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="notaFiscal.numero"							   
+										   />
+						
+						<mx:DataGridColumn id="numeroOs" width=".10"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="numeroOrdemServico"							   
+										   />
+						
+						<mx:DataGridColumn id="numeroNFSaida" width=".10"
+										   headerText = "Nº NF Saída"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="notaFiscalSaida.numero"							   
+										   />
+						
+						<mx:DataGridColumn id="unidade" width=".20"
+										   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="unidade.nome"							   
+										   />
+						
+						<mx:DataGridColumn id="analiseTecnica"  width=".10"
+										   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
+										   labelFunction="labelCondicao"
+										   />
+						
+						<mx:DataGridColumn id="origemFaturamento" width=".10" textAlign="center"
+										   headerText = "Origem"
+										   dataField = "origemFaturamento"
+										   />
+						
+						<mx:DataGridColumn id="valorSistema" width=".10" textAlign="center"
+										   headerText = "Valor Sistema"
+										   labelFunction="labelFunctionSistema"
+										   />
+						
+						<mx:DataGridColumn id="valorFaturado" width=".10" textAlign="center"
+										   headerText = "Valor Faturado"
+										   labelFunction="labelFunctionFaturado"
+										   />
+						
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+										   draggable="false"	excludeFrom="editarOrdemServico"						 
+										   editable="false" width=".05"
+										   sortable="false">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center"
+											 verticalAlign="middle"
+											 >
+										
+										<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+												  click="parentDocument.visualizarDetalhe(data, event)"
+												  buttonMode="true"
+												  useHandCursor="true"
+												  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+												  />						
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+					</grid:columns>
+				</grid:MantisTable>
+				
+				<components:Observacoes id="observacao" origem="Faturamento" entidade="{_ordemServico}" heigthTable="190" widthTable="900" widthText="795" includeIn="editarOrdemServico" />
+				
+				<mx:Button id="btVoltar2"
+						   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+						   height="25" includeIn="editarOrdemServico"
+						   icon="@Embed(source='/assets/icons/back.png')"
+						   click="voltarNormal(event)"/>
+			</mx:VBox>
+		</s:NavigatorContent>
+	</mx:Accordion>
+	
+</mx:VBox>

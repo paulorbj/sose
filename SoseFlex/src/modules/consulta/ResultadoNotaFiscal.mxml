@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="center"
+		 xmlns:components="components.*" width="100%"  height="100%"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="consultaService" destination="consultaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.recebimento.NotaFiscal;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+				
+			[Bindable]
+			private var listaNotaFiscal:ArrayCollection = new ArrayCollection;
+			
+			public function setListaNotaFiscal(lista:ArrayCollection):void
+			{
+				listaNotaFiscal = lista;
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = listaNotaFiscal.getItemAt(event2.rowIndex);				
+				}	
+				
+			}
+			
+			public function labeTipoNF(item:Object, column:DataGridColumn):String
+			{
+				var tipoId:Number = (item as NotaFiscal).tipo;
+				switch (tipoId){
+					case 1:
+						return 'Normal';
+					case 2:
+						return 'Estoque';
+					case 3:
+						return 'Substituição';
+					case 4:
+						return 'Padrão';
+					case 5:
+						return 'Avaya';		
+					default:
+						return '';
+				}
+			}
+			
+			private function getRowColor(item:Object,
+										 rowIndex:int,
+										 dataIndex:int,
+										 color:uint):uint
+			{
+				if(item.statusString == "Aberta"){
+					return 0xFF0000;
+				}
+				if(item.statusString == "Nova"){
+					return 0xFDFF00;
+				}
+				if(item.statusString == "Processada"){
+					return 0xFF9900;
+				}
+				if(item.statusString == "Finalizada"){
+					return 0xFFFFFF;
+				}	
+				return 0x5FA6BF;
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="100%"
+					  draggableColumns="true"
+					  rowColorFunction="getRowColor"
+					  dataProvider="{listaNotaFiscal}"
+					  itemDoubleClick="editItem(data, event,false)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			
+			<mx:DataGridColumn id="numero"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="numero"							   
+							   />
+			
+			<mx:DataGridColumn id="cliente" dataField="cliente.nomeSistema"
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+							   textAlign="center"
+							   sortable="false"					   
+							   />
+			
+			<mx:DataGridColumn id="tipo" labelFunction="labeTipoNF"
+							   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
+							   textAlign="center"
+							   sortable="false"							   
+							   />
+			
+			<mx:DataGridColumn id="status" 
+							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+							   dataField = "statusString"
+							   width="80"
+							   />
+			
+			<mx:DataGridColumn id="dataNotaFiscal" 
+							   headerText = "{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}"
+							   dataField = "dataNotaFiscal"
+							   width="80"
+							   />
+			
+			<mx:DataGridColumn id="dataChegada" 
+							   headerText = "{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}"
+							   dataField = "dataChegada"
+							   width="80"
+							   />
+			
+			<mx:DataGridColumn id="caseAvaya" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CASE_AVAYA')}"
+							   dataField = "caseAvaya"
+							   width="80"
+							   />
+			
+			<mx:DataGridColumn id="clienteAvaya" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE_AVAYA')}"
+							   dataField = "clienteAvaya"
+							   width="80"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+	
+	
+	</mx:VBox>

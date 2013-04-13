@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" height="300">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+	<mx:HBox>
+		<s:Label text="Registros 1 até 50 de 468. Página 1 de 10"/>
+		<s:Spacer width="5" />	
+		
+		<s:Spacer width="5" />
+		<s:Image source="assets/icons/printer.png" />
+		<s:Image source="assets/icons/printer.png" />
+		<s:Image source="assets/icons/printer.png" />
+		<s:Image source="assets/icons/printer.png" />
+		<s:Spacer width="5" />	
+		
+		<s:Spacer width="5" />
+		<s:Label text="Ir para página: " />
+		<s:ComboBox prompt="Testando default">
+			<s:dataProvider>
+				<s:ArrayCollection>
+					<fx:Number>1</fx:Number>
+					<fx:Number>2</fx:Number>
+					<fx:Number>3</fx:Number>
+				</s:ArrayCollection>
+			</s:dataProvider>
+		</s:ComboBox>
+		<s:Spacer width="5" />	
+		
+		<s:Spacer width="5" />
+		<mx:Image source="assets/icons/printer.png" />
+		<mx:Image source="assets/icons/printer.png" />	
+		<s:Spacer width="5" />	
+		
+		<s:Spacer width="5" />
+		<mx:Image source="assets/icons/printer.png" />
+		<mx:Image source="assets/icons/printer.png" />
+		<s:Spacer width="5" />	
+		
+		<s:Spacer width="5" />
+		<mx:Image source="assets/icons/printer.png" />
+	</mx:HBox>
+	<mx:DataGrid>
+		
+	</mx:DataGrid>
+</mx:VBox>

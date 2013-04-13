@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="Confimação" 
+				xmlns:componentes="components.*" 
+				xmlns:grid="components.grid.*"
+				showCloseButton="true"
+				close="close()"
+				mouseDownOutside="close()"
+				initialize="addListeners()"
+				creationPolicy="all"
+				xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="faturamentoService" destination="faturamentoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="cancelarFaturamento"      
+					   fault="onCancelarFaturaFault(event)" 
+					   result="onCancelarFaturaResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[		
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.faturamento.Faturamento;
+			
+			import modules.view.Login;
+			
+			import mx.core.FlexGlobals;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			[Bindable]
+			private var _fatura:Faturamento;
+			
+			public var myParentObject:DisplayObject;
+			
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			}
+			
+			public function get fatura():Faturamento
+			{
+				return _fatura;
+			}
+
+			public function set fatura(value:Faturamento):void
+			{
+				_fatura = value;
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}
+			}
+			
+			
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			public function onCancelarFaturaResult(event:ResultEvent):void
+			{
+				_fatura = event.result as Faturamento;
+				myParentObject.dispatchEvent(new MensagemEvent("Fatura cancelada com sucesso", MessageType.SUCCESS, 3000));
+				(myParentObject as ListagemFatura)._fatura = _fatura;
+				(myParentObject as ListagemFatura).detalhamentoFatura.fatura = _fatura;
+				(myParentObject as ListagemFatura).adicionarFatura(_fatura);
+				close();
+			}
+			
+			public function onCancelarFaturaFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[DeletarFaturaFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				myParentObject.dispatchEvent(new MensagemEvent("Erro ao cancelar fatura", MessageType.ERROR, 3000));
+			}
+			
+			private function confirm(event:MouseEvent = null):void
+			{
+				faturamentoService.cancelarFaturamento(_fatura,Login.usuarioAutenticado);
+			}
+
+		]]>
+	</fx:Script>
+	
+	<mx:VBox horizontalAlign="center">
+		<mx:Text text="Você realmente deseja cancelar essa fatura?"
+				 height="40"
+				 width="200"
+				 fontSize="12"/>
+		<mx:Text text="O prazo de cancelamento foi excedido!"
+				 height="40"
+				 width="200" color="0xFF0000"
+				 fontSize="12"/>
+	</mx:VBox>
+	
+	<mx:ControlBar horizontalAlign="center">
+		<mx:HBox>
+			<mx:Button click="confirm()"
+					   label="Sim"
+					   icon="@Embed(source='/assets/icons/yes.png')"/>
+			<mx:Button click="close()"
+					   label="Não"
+					   icon="@Embed(source='/assets/icons/no.png')"/>
+		</mx:HBox>
+	</mx:ControlBar>	
+</mx:TitleWindow>

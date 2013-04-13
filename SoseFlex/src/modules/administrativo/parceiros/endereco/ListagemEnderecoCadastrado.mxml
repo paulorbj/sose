@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:components="components.*" width="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			
+			import entities.administrativo.parceiros.Endereco;
+			
+			import modules.administrativo.parceiros.endereco.eventos.EnderecoEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+		
+			[Bindable]
+			public var listaEndereco:ArrayCollection = new ArrayCollection;
+			
+			private var endereco:Endereco;
+			
+			public function setListaEndereco(lista:ArrayCollection):void
+			{
+				listaEndereco = lista;
+			}
+			
+			public function adicionarEndereco(endereco:Endereco,indice:int):void
+			{
+				if(indice == -1){
+					listaEndereco.addItem(endereco);
+				}else{
+					listaEndereco.setItemAt(endereco,indice);
+				}
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaEndereco.getItemAt(event2.rowIndex);				
+				}
+				
+				var index:int = listaEndereco.getItemIndex(data);
+				dispatchEvent(new EnderecoEvent(EnderecoEvent.EDITAR_ENDERECO, data as Endereco, index));
+			}
+
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{			
+				endereco = data as Endereco;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				dispatchEvent(new EnderecoEvent(EnderecoEvent.EXCLUIR_ENDERECO,endereco));
+				endereco = null;
+			}
+			
+			public function labelFunction(item:Object, column:DataGridColumn):String
+			{
+				return (item as Endereco).logradouro + ", " + (item as Endereco).numero;
+			}
+			
+			public function limpar():void
+			{
+				listaEndereco = new ArrayCollection();	
+			}
+
+		]]>
+	</fx:Script>		
+
+		<grid:MantisTable id="viewTable"
+						  width="100%"
+						  height="100%"
+						  draggableColumns="true"
+						  dataProvider="{listaEndereco}"
+						  itemDoubleClick="editItem(data, event,false)"	>
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"	
+								   draggable="false" width="70"	textAlign="center"						 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+							
+								<mx:Image source="@Embed(source='/assets/icons/house.png')" visible="{data.enderecoComercial}"
+										  toolTip="{resourceManager.getString('ApplicationResource','COMERCIAL')}"
+										  />
+								
+								<mx:Image source="@Embed(source='/assets/icons/money_dollar.png')" visible="{data.enderecoCobranca}"
+										  toolTip="{resourceManager.getString('ApplicationResource','COBRANCA')}"
+										  />
+								
+								<mx:Image source="@Embed(source='/assets/icons/car.png')" visible="{data.enderecoEntrega}"
+										  toolTip="{resourceManager.getString('ApplicationResource','ENTREGA')}"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn id="logradouro" labelFunction="labelFunction"
+								   headerText = "{resourceManager.getString('ApplicationResource','LOGRADOURO')}"
+								   textAlign="center" width="290"
+								   sortable="false"
+								   dataField="logradouro"							   
+								   />
+				
+				<mx:DataGridColumn id="cep" textAlign="center"
+								   headerText = "{resourceManager.getString('ApplicationResource','CEP')}"
+								   dataField = "cep"
+								   width="78"
+								   />
+				
+				<mx:DataGridColumn id="cidade" textAlign="center"
+								   headerText = "{resourceManager.getString('ApplicationResource','CIDADE')}"
+								   dataField = "cidade"
+								   width="138"
+								   />
+				
+				<mx:DataGridColumn id="estado" textAlign="center"
+								   headerText = "{resourceManager.getString('ApplicationResource','ESTADO')}"
+								   dataField = "estado"
+								   width="130"
+								   />
+				
+				<mx:DataGridColumn id="telefone" textAlign="center"
+								   headerText = "{resourceManager.getString('ApplicationResource','TELEFONE')}"
+								   dataField = "telefone"
+								   width="100"
+								   />
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false" textAlign="center"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.editItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />
+								
+								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+										  click="parentDocument.excluirItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</grid:columns>
+		</grid:MantisTable>
+
+</mx:VBox>

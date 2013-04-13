@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0" width="200"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarFornecedores"      
+					   fault="onListarFornecedoresFault(event)" 
+					   result="onListarFornecedoresResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Pessoa;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			private function onCreationComplete():void
+			{
+				pessoaService.listarFornecedores();
+				comboBox.labelField = "nome";
+				comboBox.textoPadrao = "Selecione um fornecedor...";
+			}
+			
+			private function onListarFornecedoresResult(event:ResultEvent = null):void
+			{
+				comboBox.dataProvider = event.result as ArrayCollection;
+			}
+			
+			private function onListarFornecedoresFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo fornecedor] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function get fornecedorSelecionado():Pessoa 
+			{
+				if(comboBox.selectedItem == null)
+					return null;
+				else
+					return comboBox.selectedItem as Pessoa; 
+			}
+			
+			public function set fornecedorSelecionado(fornecedor:Pessoa):void 
+			{
+				comboBox.selectedItem = fornecedor;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox" />
+</mx:VBox>

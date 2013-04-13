@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				title="{resourceManager.getString('ApplicationResource','MODAL_TITTE_OVERWRITE')}"
+				>
+	<mx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			
+			private function confirm():void {
+				var event:OverwriteModalEvent = new OverwriteModalEvent();
+				dispatchEvent(event);
+				PopupModalController.getInstance().hideOverwriteModal();
+			}
+			
+			private function close():void {
+				PopupModalController.getInstance().hideOverwriteModal();
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox horizontalAlign="center">
+		<mx:Text text="{resourceManager.getString('ApplicationResource','MODAL_CONFIRMATION_OVERWRITE')}"
+				 height="40"
+				 width="200"
+				 fontSize="12"/>
+	</mx:VBox>
+	
+	<mx:ControlBar horizontalAlign="center">
+		<mx:HBox>
+			<mx:Button click="confirm()"
+					   label="Sim"
+					   icon="@Embed(source='/assets/icons/yes.png')"/>
+			<mx:Button click="close()"
+					   label="Não"
+					   icon="@Embed(source='/assets/icons/no.png')"/>
+		</mx:HBox>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

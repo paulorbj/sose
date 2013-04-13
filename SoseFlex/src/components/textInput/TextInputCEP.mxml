@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 horizontalAlign="left" width="200"
+		 verticalGap="0">
+	
+	<!-- Action Scripts -->
+	<fx:Script>
+		<![CDATA[
+			/** Exposed text property */
+			[Bindable]
+			public var labelText:String;
+			
+			/** Exposed input width property */
+			
+			[Bindable]
+			public var inputText:String = 0000000;
+			
+			[Bindable]
+			public var editableFlag:Boolean = true;
+			
+			[Bindable]
+			public var change:Function;
+			
+			[Bindable]
+			public var restrict:String;
+			
+			[Bindable]
+			public var maxLength:int = 255;
+			
+			[Bindable]
+			public var minLength:int;
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			[Bindable]
+			public var validateEmail:Boolean = false;
+			
+			private function onChange():void
+			{
+				if(change != null){
+					change();	
+				}
+				
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="inputText" destination="input.text" twoWay="true"/>
+	
+	<fx:Declarations>
+	 
+		<mx:ZipCodeFormatter id="ZipCodeDisplay" formatString="#####-###"/>
+	</fx:Declarations>
+
+	
+	<s:Label text="{labelText}"/>
+	
+	<s:TextInput maxChars="{maxLength}" id="input" width="100%" height="25" text="{ZipCodeDisplay.format(inputText)}"  editable="{editableFlag}" restrict="{restrict}" change="onChange()"/>
+	
+</mx:VBox>

@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" paddingBottom="5"
+		 xmlns:grid="components.grid.*" xmlns:componentes="components.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="observacaoService" destination="observacaoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarObservacao"      
+					   fault="onSalvarObservacaoFault(event)" 
+					   result="onSalvarObservacaoResult(event)"
+					   />			
+			<mx:method name="listarObservacoes"      
+					   fault="onListarObservacoesFault(event)" 
+					   result="onListarObservacoesResult(event)"
+					   />
+			<mx:method name="listarObservacoesFaturamento"      
+					   fault="onListarObservacoesFault(event)" 
+					   result="onListarObservacoesResult(event)"
+					   />
+			<mx:method name="listarObservacoesProposta"      
+					   fault="onListarObservacoesFault(event)" 
+					   result="onListarObservacoesResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.events.UserRegisterNumberModalEvent;
+			
+			import entities.administrativo.Observacao;
+			import entities.administrativo.Usuario;
+			import entities.expedicao.NotaFiscalRemessa;
+			import entities.faturamento.Faturamento;
+			import entities.laudoTecnico.LaudoTecnico;
+			import entities.orcamentoreparo.Orcamento;
+			import entities.orcamentoreparo.Reparo;
+			import entities.proposta.ItemProposta;
+			import entities.proposta.Proposta;
+			import entities.recebimento.NotaFiscal;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var _observacao:Observacao = new Observacao();
+			
+			[Bindable]
+			private var _listaObservacao:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var origem:String;
+			
+			[Bindable]
+			public var widthTable:int = 880;
+			
+			[Bindable]
+			public var heigthTable:Number = 200;
+			
+			[Bindable]
+			public var widthText:int = 775;
+			
+			[Bindable]
+			public var habilitado:Boolean = true;
+			
+			private var _entidade:Object;
+			
+			private var _ordemServico:OrdemServico;
+			
+			private var _notaFiscal:NotaFiscal;
+			
+			private var _notaFiscalSaida:NotaFiscalRemessa;
+			
+			private var _fatura:Faturamento;
+			
+			private var _proposta:Proposta;
+			
+			[Bindable]
+			private var validatorArr:Array;
+			
+			private function validateAdicionar():Boolean {	
+				validatorArr = new Array();
+				validatorArr.push(txtObservacao.stringValidator);
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				
+				return isValidForm;
+			}
+			
+			public function adicionarObservacao(event:MouseEvent = null):void
+			{	
+				if(validateAdicionar()){
+					var usr:Usuario = Login.usuarioAutenticado;
+					if(usr){
+						_observacao.usuario = Login.usuarioAutenticado;
+						_observacao.origem = origem;
+						_observacao.escopo = 3;
+						_observacao.texto = txtObservacao.inputText;
+						_observacao.sigiloso = sigiloso.selected;
+						_observacao.data = new Date();
+						setarEntidade(_entidade);						
+						observacaoService.salvarObservacao(_observacao);
+					}else{
+						PopupModalController.getInstance().showModalAutenticacaoUsuario(onAdicionarObservacaoAutenticar);
+					}
+				}
+			}
+			
+			private function setarEntidade(objeto:Object):void
+			{
+				if(objeto is OrdemServico){
+					_observacao.ordemServico = objeto as OrdemServico;
+				}
+				if(objeto is Orcamento){
+					_observacao.orcamento = objeto as Orcamento;
+				}
+				if(objeto is Reparo){
+					_observacao.reparo = objeto as Reparo;
+				}
+				if(objeto is NotaFiscal){
+					_observacao.notaFiscal = objeto as NotaFiscal;
+				}
+				if(objeto is Proposta){
+					_observacao.proposta = objeto as Proposta;
+				}
+				if(objeto is ItemProposta){
+					_observacao.itemProposta = objeto as ItemProposta;
+				}
+				if(objeto is NotaFiscalRemessa){
+					_observacao.notaFiscalSaida = objeto as NotaFiscalRemessa;
+				}
+				if(objeto is Faturamento){
+					_observacao.faturamento = objeto as Faturamento;
+				}
+				if(objeto is LaudoTecnico){
+					_observacao.laudoTecnico = objeto as LaudoTecnico;
+				}
+				
+			}
+			
+			
+			public function onAdicionarObservacaoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				adicionarObservacao();
+			}
+			
+			public function listarObservacoes():void
+			{
+				limpar();
+				_listaObservacao = new ArrayCollection();
+				observacaoService.listarObservacoes(_ordemServico,_notaFiscal,_notaFiscalSaida);
+			}
+			
+			public function listarObservacoesFaturamento():void
+			{
+				limpar();
+				_listaObservacao = new ArrayCollection();
+				observacaoService.listarObservacoesFaturamento(_fatura);
+			}
+			
+			public function listarObservacoesProposta():void
+			{
+				limpar();
+				_listaObservacao = new ArrayCollection();
+				observacaoService.listarObservacoesProposta(_proposta);
+			}
+			
+			public function editObservacao(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaObservacao.getItemAt(event2.rowIndex);				
+				}
+				_observacao = data as Observacao;
+			}
+			
+			public function onListarObservacoesResult(event:ResultEvent):void
+			{
+				_listaObservacao.removeAll();
+				_listaObservacao = event.result as ArrayCollection;
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(_listaObservacao != null && _listaObservacao.length > 0){
+					if(usr != null && !usr.perfil.acaoPermitirVisulizarObservacaoSigilosa){
+						_listaObservacao.filterFunction = function stateFilterFunc(item:Object):Boolean 
+						{			
+							return (item as Observacao).sigiloso == false;
+						};
+						_listaObservacao.refresh();
+					}
+				}
+			}
+			
+			public function onListarObservacoesFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarObservacoesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");	
+			}
+			
+			public function onSalvarObservacaoResult(event:ResultEvent):void
+			{
+				_observacao = event.result as Observacao;
+				_listaObservacao.addItem(_observacao);
+				limpar();
+			}
+			
+			public function onSalvarObservacaoFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");	
+			}
+			
+			public function get entidade():Object
+			{
+				return _entidade;
+			}
+			
+			public function set entidade(value:Object):void
+			{
+				_entidade = value;
+				if(value is OrdemServico){
+					_ordemServico = value as OrdemServico;
+					if(_ordemServico.notaFiscal){
+						_notaFiscal = _ordemServico.notaFiscal;
+					}else{
+						_notaFiscal = null;
+					}
+					if(_ordemServico.notaFiscalSaida){
+						_notaFiscalSaida = _ordemServico.notaFiscalSaida;
+					}else{
+						_notaFiscalSaida = null;
+					}
+				}
+				if(value is Orcamento){
+					_ordemServico = (value as Orcamento).ordemServico;
+					if(_ordemServico.notaFiscal){
+						_notaFiscal = _ordemServico.notaFiscal;
+					}else{
+						_notaFiscal = null;
+					}
+					if(_ordemServico.notaFiscalSaida){
+						_notaFiscalSaida = _ordemServico.notaFiscalSaida;
+					}else{
+						_notaFiscalSaida = null;
+					}
+				}
+				if(value is Reparo){
+					_ordemServico = (value as Reparo).ordemServico;
+					if(_ordemServico.notaFiscal){
+						_notaFiscal = _ordemServico.notaFiscal;
+					}else{
+						_notaFiscal = null;
+					}
+					if(_ordemServico.notaFiscalSaida){
+						_notaFiscalSaida = _ordemServico.notaFiscalSaida;
+					}else{
+						_notaFiscalSaida = null;
+					}
+				}
+				if(value is NotaFiscal){
+					_notaFiscal = value as NotaFiscal;
+					_ordemServico = null;
+					_notaFiscalSaida = null
+				}
+				//				if(value is Proposta){
+				//					_observacao.proposta = value as Proposta;
+				//					
+				//				}
+				if(value is ItemProposta){
+					_ordemServico = (value as ItemProposta).ordemServico;
+					if(_ordemServico.notaFiscal){
+						_notaFiscal = _ordemServico.notaFiscal;
+					}else{
+						_notaFiscal = null;
+					}
+					if(_ordemServico.notaFiscalSaida){
+						_notaFiscalSaida = _ordemServico.notaFiscalSaida;
+					}else{
+						_notaFiscalSaida = null;
+					}
+					
+				}
+				if(value is NotaFiscalRemessa){
+					_observacao.notaFiscalSaida = value as NotaFiscalRemessa;
+					_notaFiscal = null;
+					_ordemServico = null;
+				}
+				if(value is Faturamento){
+					_observacao.faturamento = (value as Faturamento);
+					_fatura = (value as Faturamento);
+					_notaFiscal = null;
+					_ordemServico = null;
+				}
+				if(value is Proposta){
+					_observacao.proposta = (value as Proposta);
+					_proposta = (value as Proposta);
+					_notaFiscal = null;
+					_ordemServico = null;
+				}
+				if(value is LaudoTecnico){
+					_ordemServico = (value as LaudoTecnico).ordemServico;
+					if(_ordemServico.notaFiscal){
+						_notaFiscal = _ordemServico.notaFiscal;
+					}else{
+						_notaFiscal = null;
+					}
+					if(_ordemServico.notaFiscalSaida){
+						_notaFiscalSaida = _ordemServico.notaFiscalSaida;
+					}else{
+						_notaFiscalSaida = null;
+					}
+				}
+			}
+			
+			public function limpar():void
+			{
+				_observacao = new Observacao();
+				txtObservacao.input.text = "";
+				txtObservacao.inputText = "";
+				sigiloso.selected = false;
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<componentes:TextAreaInput width="70%" id="txtObservacao"  enabled="{habilitado}" required="true"
+								   heightInLines="2" labelText="{resourceManager.getString('ApplicationResource','OBSERVACAO')}" />
+		<mx:CheckBox id="sigiloso" label="Sigiloso" />
+		
+		<mx:Button id="btAdicionarObservacao" enabled="{habilitado}"
+				   label="{resourceManager.getString('ApplicationResource','ADICIONAR')}"
+				   height="32" width="20%"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionarObservacao(event)"
+				   />
+	</mx:HBox>
+	<mx:HBox verticalAlign="bottom" width="100%" height="100%">
+		<grid:MantisTable id="tabelaObservacao"
+						  width="100%"
+						  height="100%"
+						  draggableColumns="true"
+						  variableRowHeight="true"
+						  dataProvider="{_listaObservacao}">
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				
+				<mx:DataGridColumn id="cData" width=".13"
+								   headerText = "{resourceManager.getString('ApplicationResource','DATA')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="dataString"							   
+								   />
+				
+				<mx:DataGridColumn id="cOrigem" dataField="origem" width=".13"
+								   headerText = "{resourceManager.getString('ApplicationResource','ORIGEM')}"
+								   textAlign="center"
+								   sortable="false"					   
+								   />
+				
+				<mx:DataGridColumn id="cUsuario" dataField="usuario.usuario" width=".13"
+								   headerText = "{resourceManager.getString('ApplicationResource','USUARIO')}"
+								   textAlign="center"
+								   sortable="false"					   
+								   />
+				
+				<mx:DataGridColumn id="cTexto" dataField="texto" width=".60"
+								   headerText = "{resourceManager.getString('ApplicationResource','TEXTO')}"
+								   textAlign="center" wordWrap="true"
+								   sortable="false"							   
+								   />
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+			</grid:columns>
+		</grid:MantisTable>				
+	</mx:HBox>
+	
+</mx:VBox>

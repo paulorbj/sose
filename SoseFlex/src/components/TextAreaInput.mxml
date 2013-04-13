@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 horizontalAlign="left"
+		 verticalGap="0">
+	
+	<!-- Action Scripts -->
+	<fx:Script>
+		<![CDATA[
+			/** Exposed text property */
+			[Bindable]
+			public var labelText:String;
+			
+			/** Exposed text property */
+			[Bindable]
+			public var inputText:String;
+			
+			/** Exposed input width property */
+			[Bindable]
+			public var inputWidth:int;
+			
+			/** Exposed input width property */
+			[Bindable]
+			public var heightInLines:int;
+			
+			[Bindable]
+			public var maxLength:int = 255;
+			
+			[Bindable]
+			public var minLength:int;
+			
+			[Bindable]
+			public var required:Boolean = false;
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:StringValidator id="stringValidator"
+							required="{required}" 
+							source="{input}" 
+							property="text" 
+							triggerEvent = "{FocusEvent.FOCUS_OUT}"
+							requiredFieldError="Campo Requirído"
+							/>
+	</fx:Declarations>
+	
+	<fx:Binding source="inputText" destination="input.text" twoWay="true"/>
+	
+	<s:Label text="{labelText}"/>
+	
+	<s:TextArea maxChars="{maxLength}" id="input" width="100%" heightInLines="{heightInLines}" text="{inputText}"/>
+	
+</mx:VBox>

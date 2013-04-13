@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:componentesReparoOrcamento="modules.reparoOrcamento.componentesReparoOrcamento.*"
+		 xmlns:texto="components.textInput.*" xmlns:combos="components.combos.*"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:componentes="components.*" horizontalAlign="center"
+		 width="100%" height="100%" >
+	<fx:Declarations>
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="reparoService" destination="reparoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarReparoFault(event)" 
+					   result="onBuscarReparoResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.orcamentoreparo.Reparo;
+			import entities.recebimento.ItemNotaFiscal;
+			
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			private var _reparo:Reparo;
+			
+			[Bindable]
+			[Embed(source='/assets/icons/tick.png')]
+			public static var tick:Class;
+			
+			[Bindable]
+			[Embed(source='/assets/icons/cross.png')]
+			public static var cross:Class;
+			
+			public function get reparo():Reparo
+			{
+				return _reparo;
+			}
+			
+			public function set reparo(value:Reparo):void
+			{
+				_reparo = value;
+				if(_reparo)
+					reparoService.buscarPorId(_reparo.id);
+				else{
+					_reparo = null;
+					cbJaReparado.selected = false;
+					tempo.tempoGasto = 0;
+				}
+			}
+			
+			private function onBuscarReparoResult(event:ResultEvent = null):void
+			{
+				_reparo = event.result as Reparo;
+				if(_reparo){
+					cbJaReparado.selected = _reparo.jaReparado;
+					tempo.tempoGasto = _reparo.tempoGasto;
+				}
+				
+			}
+			
+			private function onBuscarReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[IniciarReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATRIBUICAO_REALIZADA_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function clickAba(event:Event):void
+			{
+				if(tn.selectedIndex == 0){
+					this.currentState = "edicaoInfoNota";
+				}else if(tn.selectedIndex == 1){
+					this.currentState = "edicaoOSPendente";
+				}else if(tn.selectedIndex == 2){
+					this.currentState = "edicaoOSProcessada";
+				}
+			}
+			
+			public function limpar():void{
+				_reparo = null;
+				cbJaReparado.selected = false;
+				tempo.tempoGasto = 0;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="cbJaReparado.selected" destination="_reparo.jaReparado" twoWay="true" />
+	<fx:Binding source="dataPrioridade.inputDate" destination="_reparo.prioridade" twoWay="true" />
+	<fx:Binding source="txtAnalise.inputText" destination="_reparo.condicao" twoWay="true" />
+
+	<mx:TabNavigator id="tn" tabWidth="{tn.width/tn.numChildren}"  width="100%" height="100%" backgroundColor="0xf3f3f3"   borderStyle="none"   >
+		<s:NavigatorContent label="Informações do reparo"  width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" paddingLeft="5" paddingRight="5" paddingTop="10">
+				<mx:HBox width="100%" verticalAlign="middle">
+					<s:Label text="Status:" />
+					<s:Label id="statusOS" fontSize="20" color="red" text="{_reparo.statusString}" />
+				</mx:HBox>
+				
+				<mx:HBox verticalAlign="bottom" horizontalAlign="left" width="100%">
+					<texto:TextInput id="txtAnalise" labelText="{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}" width="30%" habilitado="false" />
+					<componentesReparoOrcamento:TempoGasto id="tempo" enabled="false"  />
+					<mx:VBox verticalGap="0">
+						<s:Label text="Garantia" />
+						<mx:HBox borderStyle="solid" verticalAlign="middle" horizontalGap="1" paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
+							<mx:Image id="comGarantia" height="25" verticalAlign="middle"  source="{_reparo.ordemServico.garantia ? tick : cross }" enabled="false" />
+							<s:Label text="{_reparo.ordemServico.garantia ? '  Com garantia' : '  Sem garantia'}" fontSize="12" fontWeight="bold" />
+						</mx:HBox>
+					</mx:VBox>	
+					<mx:CheckBox id="cbJaReparado" 
+								 label="{resourceManager.getString('ApplicationResource','JA_REPARADO')}" 
+								 enabled="false" />
+					<componentes:DataInput id="dataPrioridade" enabled="false"
+										   labelText="{resourceManager.getString('ApplicationResource','DATA_PRIORIDADE')}" 
+										   
+										   width="10%" inputHeight="20" />
+				</mx:HBox>
+			</mx:VBox>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="{resourceManager.getString('ApplicationResource','DEFEITOS')}"  width="100%" height="100%">
+			<grid:MantisTable id="viewTable"
+							  width="100%" height="100%"
+							  draggableColumns="true"
+							  dataProvider="{_reparo.listaDefeito}" >
+				<grid:columns>
+					
+					<mx:DataGridColumn id="cDefeito" width="150"
+									   headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"
+									   textAlign="center"
+									   sortable="false"
+									   dataField="defeito.nome"							   
+									   />
+					
+					<mx:DataGridColumn id="cJustificativa" dataField="justificativa" width="350"
+									   headerText = "{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}"
+									   textAlign="center"
+									   sortable="false"					   
+									   />
+					
+					<mx:DataGridColumn id="cDtInclusao" width="125" textAlign="center"
+									   headerText = "{resourceManager.getString('ApplicationResource','DATA_DEFEITO_INCLUSAO')}"
+									   dataField = "data"
+									   />
+					
+					<mx:DataGridColumn id="cUsuario" width="125" textAlign="center"
+									   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+									   dataField = "usuario.usuario"
+									   />
+					
+				</grid:columns>
+			</grid:MantisTable>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="{resourceManager.getString('ApplicationResource','ATIVIDADES')}"  width="100%" height="100%">
+			<grid:MantisTable id="viewTable1"
+							  width="100%" height="100%"
+							  draggableColumns="true"
+							  dataProvider="{_reparo.listaAtividade}"	>
+				<grid:columns>
+					
+					<mx:DataGridColumn id="cAtividade" width="150"
+									   headerText = "{resourceManager.getString('ApplicationResource','ATIVIDADE')}"
+									   textAlign="center"
+									   sortable="false"
+									   dataField="atividade.nome"							   
+									   />
+					
+					<mx:DataGridColumn id="cJustificativa1" dataField="justificativa" width="350"
+									   headerText = "{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}"
+									   textAlign="center"
+									   sortable="false"					   
+									   />
+					
+					<mx:DataGridColumn id="cDtInclusao1" width="125" textAlign="center"
+									   headerText = "{resourceManager.getString('ApplicationResource','DATA')}"
+									   dataField = "data"
+									   />
+					
+					<mx:DataGridColumn id="cUsuario1" width="125" textAlign="center"
+									   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+									   dataField = "usuario.usuario"
+									   />
+					
+				</grid:columns>
+			</grid:MantisTable>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="{resourceManager.getString('ApplicationResource','COMPONENTES')}"  width="100%" height="100%">
+			<mx:TabNavigator id="tn1"  width="100%" height="100%" tabWidth="{tn1.width/tn1.numChildren}" color="0x323232" >
+				<!-- Define each panel using a VBox container. -->
+				
+				<s:NavigatorContent label="Requisições de componentes" width="100%" height="100%" >
+					<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">						
+						<grid:MantisTable id="requisicaoTable"
+										  width="100%"
+										  height="100%" editable="true"
+										  dataProvider="{_reparo.listaRequisicao}">
+							<grid:columns>
+								
+								<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+												   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
+												   textAlign="center"
+												   sortable="false"
+												   dataField="id"							   
+												   />
+								
+								<mx:DataGridColumn id="cComponente"  editable="false"
+												   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+												   dataField = "componente.nome"
+												   />
+								
+								<mx:DataGridColumn id="quantidade" width="50"
+												   headerText = "{resourceManager.getString('ApplicationResource','QTD_REQUISICAO')}"
+												   textAlign="center"
+												   sortable="false" editable="true"
+												   dataField="quantidade"							   
+												   />
+								
+								<mx:DataGridColumn id="cStatus" width="200" editable="false"
+												   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
+												   textAlign="center"
+												   sortable="false"
+												   dataField="statusString"							   
+												   />
+							</grid:columns>
+						</grid:MantisTable>
+					</mx:VBox>
+				</s:NavigatorContent>
+				
+				<s:NavigatorContent label="Localização na placa" width="100%" height="100%">
+					<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+						<grid:MantisTable id="posicaoTable"
+										  width="100%"
+										  height="100%"
+										  dataProvider="{_reparo.listaComponente}">
+							<grid:columns>								
+								
+								<mx:DataGridColumn id="componente_posicao"  textAlign="center" editable="false"
+												   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+												   dataField = "componente.nome"
+												   />
+								
+								<mx:DataGridColumn id="posicao" width="100"
+												   headerText = "{resourceManager.getString('ApplicationResource','POSICAO')}"
+												   textAlign="center"
+												   sortable="false" editable="false"
+												   dataField="posicao"							   
+												   />
+								
+								<mx:DataGridColumn id="condicao" width="50"
+												   headerText = "{resourceManager.getString('ApplicationResource','CONDICAO')}"
+												   textAlign="center"
+												   sortable="false" editable="false"
+												   dataField="condicao"							   
+												   />
+								
+							</grid:columns>
+						</grid:MantisTable>
+					</mx:VBox>
+				</s:NavigatorContent>
+			</mx:TabNavigator>
+		</s:NavigatorContent>
+	</mx:TabNavigator>
+</mx:VBox>

@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:flextras="http://www.flextras.com/mxml"
+		 initialize="initializeListagem()"
+		 xmlns:components="components.*" width="100%" height="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="componenteService" destination="componenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarCompletoPorId"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			
+			import entities.administrativo.Componente;
+			
+			import modules.administrativo.componente.eventos.ComponenteEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var listaComponente:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaComponenteCompleta:ArrayCollection = new ArrayCollection;
+			
+			private var componente:Componente;
+			
+			[Bindable]
+			private var listaNome:ArrayCollection = new ArrayCollection;
+			private var nomeSelecionado:String;
+			
+			[Bindable]
+			private var listaTipo:ArrayCollection = new ArrayCollection;
+			private var tipoSelecionado:String;
+			
+			[Bindable]
+			private var listaEncapsulamento:ArrayCollection = new ArrayCollection;
+			private var encapsulamentoSelecionado:String;
+			
+			[Bindable]
+			private var listaFabricante:ArrayCollection = new ArrayCollection;
+			private var fabricanteSelecionado:String;
+			
+			private var sortComponente:mx.collections.Sort;
+			
+			private function initializeListagem():void
+			{
+				sortComponente = new Sort();
+				sortComponente.fields=[new SortField("nome",true,false,false)];
+			}
+			
+			private function sortListaComponente(lista:ArrayCollection):void
+			{
+				lista.sort = sortComponente;
+				lista.refresh();
+			}
+			
+			public function setListaComponente(lista:ArrayCollection):void
+			{
+				if(lista){
+					sortListaComponente(lista);
+					listaComponente = lista;
+					listaComponenteCompleta = new ArrayCollection();
+					listaComponenteCompleta.addAll(listaComponente);
+					popularFiltros();
+					atualizaCombos();
+				}
+			}
+			
+			public function adicionarComponente(componente:Componente):void
+			{
+				var componenteAux:Componente = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaComponente.length; i++){
+					componenteAux = listaComponente.getItemAt(i) as Componente; 
+					if(componenteAux.id == componente.id){	
+						var orcRepSub:Object = listaComponente.removeItemAt(i);
+						listaComponente.addItemAt(componente,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaComponente.addItem(componente);
+				}
+				
+				for(var i:int=0; i<listaComponenteCompleta.length; i++){
+					componenteAux = listaComponenteCompleta.getItemAt(i) as Componente; 
+					if(componenteAux.id == componente.id){	
+						var componenteSub:Object = listaComponenteCompleta.removeItemAt(i);
+						listaComponenteCompleta.addItemAt(componente,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaComponenteCompleta.addItem(componente);
+				}
+				
+				sortListaComponente(listaComponente);
+				sortListaComponente(listaComponenteCompleta);
+				
+				popularFiltros();
+				atualizaCombos();
+			}
+			
+			private function onBuscarPorIdResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var c:Componente = event.result as Componente;
+				
+				dispatchEvent(new ComponenteEvent(ComponenteEvent.EDITAR_COMPONENTE, c));
+
+			}
+			
+			private function onBuscarPorIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaComponente.getItemAt(event2.rowIndex);				
+				}
+				
+				componenteService.buscarCompletoPorId(data.id);
+			}
+			
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{			
+				componente = data as Componente
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				dispatchEvent(new ComponenteEvent(ComponenteEvent.EXCLUIR_COMPONENTE,componente));
+				componente = null;
+			}
+			
+			public function atualizaCombos(event:Event=null):void{
+				configurarFiltroLista();
+			}
+			
+			private function configurarFiltroLista():void
+			{
+				listaComponente.filterFunction = function stateFilterFunc(item:Object):Boolean 
+				{
+					var bolNome:Boolean;
+					if(cbNome.selectedItem == null || cbNome.selectedItem == "" || cbNome.selectedItem == 'Todos'){
+						bolNome = true;
+					}else{
+						bolNome = item.nome.toLowerCase() == cbNome.selectedItem.toLowerCase();
+					}
+					
+					var bolTipo:Boolean;
+					if(cbTipo.selectedItem == null || cbTipo.selectedItem == "" || cbTipo.selectedItem == 'Todos'){
+						bolTipo = true;
+					}else{
+						if(item != null && item.nomeTipoComponente != null){
+							bolTipo = item.nomeTipoComponente.toLowerCase() == cbTipo.selectedItem.toLowerCase();
+						}else{
+							bolTipo = false;
+						}
+					}
+					
+					var bolEncpsulamento:Boolean;
+					if(cbEncapsulamento.selectedItem == null || cbEncapsulamento.selectedItem == "" || cbEncapsulamento.selectedItem == 'Todos'){
+						bolEncpsulamento = true;
+					}else{
+						if(item != null && item.nomeEncapsulamento != null){
+							bolEncpsulamento = item.nomeEncapsulamento.toLowerCase() == cbEncapsulamento.selectedItem.toLowerCase();
+						}else{
+							bolEncpsulamento = false;
+						}
+					}
+					
+					var bolFabricante:Boolean;
+					if(cbFabricante.selectedItem == null || cbFabricante.selectedItem == "" || cbFabricante.selectedItem == 'Todos'){
+						bolFabricante = true;
+					}else{
+						if(item != null && item.nomeFabricante != null){
+							bolFabricante = item.nomeFabricante.toLowerCase() == cbFabricante.selectedItem.toLowerCase();
+						}else{
+							bolFabricante = false;
+						}
+					}
+					
+					return bolNome && bolTipo && bolEncpsulamento && bolFabricante;
+					
+				};		
+				listaComponente.refresh();
+			}
+			
+			private function popularFiltros():void
+			{
+				nomeSelecionado = cbNome.selectedItem as String;
+				listaNome = new ArrayCollection();
+				tipoSelecionado = cbTipo.selectedItem as String;
+				listaTipo = new ArrayCollection();
+				encapsulamentoSelecionado = cbEncapsulamento.selectedItem as String;
+				listaEncapsulamento = new ArrayCollection();
+				fabricanteSelecionado = cbFabricante.selectedItem as String;
+				listaFabricante = new ArrayCollection();
+				
+				for each (var componente:Componente in listaComponenteCompleta){
+					if(componente.nome != null && componente.nome.length > 0 && !listaNome.contains(componente.nome)){
+						listaNome.addItem(componente.nome);
+					}
+					if(componente.nomeTipoComponente != null && componente.nomeTipoComponente.length > 0 && !listaTipo.contains(componente.nomeTipoComponente)){
+						listaTipo.addItem(componente.nomeTipoComponente);
+					}
+					if(componente.nomeEncapsulamento != null && componente.nomeEncapsulamento.length > 0 && !listaEncapsulamento.contains(componente.nomeEncapsulamento)){
+						listaEncapsulamento.addItem(componente.nomeEncapsulamento);
+					}
+					if(componente.nomeFabricante != null && componente.nomeFabricante.length > 0 && !listaFabricante.contains(componente.nomeFabricante)){
+						listaFabricante.addItem(componente.nomeFabricante);
+					}
+				}
+				
+				
+				//Filtro nome
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaNome.sort=sortA;
+				listaNome.refresh();
+				listaNome.sort = null;
+				listaNome.addItemAt("Todos",0);
+				
+				cbNome.enabled = true;
+				cbNome.dataProvider = listaNome;
+				
+				if(listaNome.length > 0){
+					if(nomeSelecionado){
+						cbNome.selectedItem = nomeSelecionado;
+					}
+				}
+				
+				//Filtro tipo
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaTipo.sort=sortA;
+				listaTipo.refresh();
+				listaTipo.sort = null;
+				listaTipo.addItemAt("Todos",0);
+				
+				cbTipo.enabled = true;
+				cbTipo.dataProvider = listaTipo;
+				
+				if(listaTipo.length > 0){
+					if(tipoSelecionado){
+						cbTipo.selectedItem = tipoSelecionado;
+					}
+				}
+				
+				//Filtro encapsulamento
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaEncapsulamento.sort=sortA;
+				listaEncapsulamento.refresh();
+				listaEncapsulamento.sort = null;
+				listaEncapsulamento.addItemAt("Todos",0);
+				
+				cbEncapsulamento.enabled = true;
+				cbEncapsulamento.dataProvider = listaEncapsulamento;
+				
+				if(listaEncapsulamento.length > 0){
+					if(encapsulamentoSelecionado){
+						cbEncapsulamento.selectedItem = encapsulamentoSelecionado;
+					}
+				}
+				
+				//Filtro fabricante
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFabricante.sort=sortA;
+				listaFabricante.refresh();
+				listaFabricante.sort = null;
+				listaFabricante.addItemAt("Todos",0);
+				
+				cbFabricante.enabled = true;
+				cbFabricante.dataProvider = listaFabricante;
+				
+				if(listaFabricante.length > 0){
+					if(fabricanteSelecionado){
+						cbFabricante.selectedItem = fabricanteSelecionado;
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>		
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<components:DropBoxInput id="cbNome" labelText="Nome" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbTipo" labelText="Tipo" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbEncapsulamento" labelText="Encapsulamento" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbFabricante" labelText="Fabricante" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
+	</mx:HBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{listaComponente}"
+					  itemDoubleClick="editItem(data, event,false)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="nome" width=".30"
+							   headerText = "{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}"
+							   textAlign="center"
+							   sortable="true" draggable="false"
+							   dataField="nome"							   
+							   />
+			
+			<mx:DataGridColumn id="descricao" textAlign="center" sortable="true" draggable="false" width=".15"
+							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+							   dataField = "descricao"
+							   />
+			
+			<mx:DataGridColumn id="tipoComponente" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}"
+							   dataField = "nomeTipoComponente"
+							   />
+			
+			<mx:DataGridColumn id="encapsulamento" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
+							   dataField = "nomeEncapsulamento"
+							   />
+			
+			<mx:DataGridColumn id="fabricante" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
+							   dataField = "nomeFabricante"
+							   />
+			
+			<mx:DataGridColumn id="estoqueMinimo" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}"
+							   dataField = "qtdEstoqueMinimo"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".15"							 
+							   editable="false" textAlign="center"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 xmlns:combos="components.combos.*" xmlns:grid="components.grid.*"
+		 xmlns:texto="components.textInput.*" xmlns:componentes="components.*"
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 initialize="init()">
+	<fx:Declarations>
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="defeitoOrcRepService" destination="defeitoOrcRepService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarDefeitoOrcRep"      
+					   fault="onSalvarDefeitoOrcRepFault(event)" 
+					   result="onSalvarDefeitoOrcRepResult(event)"
+					   />
+			<mx:method name="excluirDefeitoOrcRep"      
+					   fault="onExcluirDefeitoOrcRepFault(event)" 
+					   result="onExcluirDefeitoOrcRepResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.UserRegisterNumberModal;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Usuario;
+			import entities.orcamentoreparo.DefeitoOrcRep;
+			import entities.orcamentoreparo.Orcamento;
+			import entities.orcamentoreparo.Reparo;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var _defeitos:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _reparo:Reparo;
+			
+			[Bindable]
+			private var _orcamento:Orcamento;
+						
+			[Bindable]
+			private var _defeito:DefeitoOrcRep = new DefeitoOrcRep();
+			
+			[Bindable]
+			private var validatorArr:Array;
+			
+			private var indexEdicao:int = -1;
+			
+			[Bindable]
+			[Embed(source='assets/icons/edit.png')]
+			public static var editIcon:Class;
+			
+			[Bindable]
+			[Embed(source='assets/icons/delete.png')]
+			public static var deleteIcon:Class;
+			
+			public function getDefeitos():ArrayCollection
+			{
+				return _defeitos;
+			}
+			
+			public function setDefeitos(defeitos:ArrayCollection,reparo:Reparo,orcamento:Orcamento):void
+			{
+				if(defeitos == null){
+					defeitos = new ArrayCollection();
+				}
+				_defeitos = defeitos;
+				_reparo = reparo;
+				_orcamento = orcamento;
+			}
+			
+			public function init():void
+			{
+				validatorArr = new Array();
+				validatorArr.push(txtJustificativa.stringValidator);
+				validatorArr.push(cbDefeito.comboBox.comboValidator);
+			}
+			
+			public function adicionar(event:MouseEvent = null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_reparo != null ? usr.id == _reparo.tecnicoResponsavel.id : usr.id == _orcamento.tecnicoResponsavel.id){
+						if(validateAdicinarDefeito()){
+							_defeito.defeito = cbDefeito.defeitoSelecionado;
+							_defeito.usuario = Login.usuarioAutenticado;
+							if(_reparo){
+								_defeito.reparo = _reparo;
+							}else{
+								_defeito.orcamento = _orcamento;
+							}
+							defeitoOrcRepService.salvarDefeitoOrcRep(_defeito);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onAdicionarAutenticar);
+				}
+			}
+			
+			public function onAdicionarAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				adicionar();
+			}
+			
+			public function atualizarCampos(event:Event):void
+			{
+				if(cbDefeito.defeitoSelecionado != null){
+					_defeito.defeito = cbDefeito.defeitoSelecionado;
+				}
+			}
+			
+			private function onSalvarDefeitoOrcRepResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				
+				if(_defeito.id == 0){
+					_defeito = event.result as DefeitoOrcRep;
+					_defeitos.addItem(_defeito);
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','DEFEITO_SALVAR_SUCESSO'), MessageType.SUCCESS, 5000));
+				}else{
+					var index:int = _defeitos.getItemIndex(_defeito);
+					_defeitos.removeItemAt(index);
+					_defeito = event.result as DefeitoOrcRep;
+					_defeitos.addItemAt(_defeito, index);
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','DEFEITO_EDITAR_SUCESSO'), MessageType.SUCCESS, 5000));
+				}
+				limpar();
+			}
+			
+			private function onSalvarDefeitoOrcRepFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarHistoricoOrcRepFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','DEFEITO_EDITAR_ERRO'), MessageType.ERROR, 5000));
+			}
+			
+			private function validateAdicinarDefeito():Boolean {	
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				return isValidForm;
+			}
+			
+			public function editDefeito(data:Object, event:Event=null):void
+			{		
+				if(this.currentState == "editar"){
+					//for double click
+					if(data==null && event is ListEvent){
+						var event2:ListEvent = event as ListEvent						
+						data = _defeitos.getItemAt(event2.rowIndex);				
+					}	
+					_defeito = data as DefeitoOrcRep;
+					cbDefeito.defeitoSelecionado = _defeito.defeito;
+					indexEdicao = _defeitos.getItemIndex(_defeito);
+				}
+			}
+			
+			public function excluirDefeito(data:Object, event:Event=null):void
+			{		
+				if(this.currentState == "editar"){
+					_defeito = data as DefeitoOrcRep;
+					var index:int = _defeitos.getItemIndex(_defeito);
+					if(_defeito != null && _defeito.id == 0){
+						_defeitos.removeItemAt(index);
+					}else{
+						defeitoOrcRepService.excluirDefeitoOrcRep(_defeito);
+					}
+				}
+			}
+			
+			private function onExcluirDefeitoOrcRepResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				
+				var index:int = _defeitos.getItemIndex(_defeito);
+				_defeitos.removeItemAt(index);
+				_defeito = event.result as DefeitoOrcRep;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','DEFEITO_EDITAR_SUCESSO'), MessageType.SUCCESS, 5000));
+				limpar();
+			}
+			
+			private function onExcluirDefeitoOrcRepFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onExcluirAtividadeOrcRepFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','DEFEITO_EDITAR_ERRO'), MessageType.ERROR, 5000));
+			}
+			
+			public function limpar():void
+			{
+				_defeito = new DefeitoOrcRep();
+				cbDefeito.limpar();
+				indexEdicao = -1;
+				txtJustificativa.inputText = "";
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="editar"/>
+		<s:State name="visualizar"/>
+	</mx:states>
+	
+	<fx:Binding destination="txtDescricao.input.text" source="_defeito.defeito.descricao" twoWay="true"/>
+	<fx:Binding destination="txtJustificativa.input.text" source="_defeito.justificativa" twoWay="true"/>
+	
+	<mx:HBox width="100%">
+		<combos:ComboDefeito id="cbDefeito" enabled.visualizar="false" required="true" labelText="{resourceManager.getString('ApplicationResource','DEFEITOS')}" width="25%" changeFunction="atualizarCampos" />
+		<texto:TextInput id="txtDescricao" habilitado.visualizar="false"  labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="75%" enabled="false" />
+	</mx:HBox>
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<componentes:TextAreaInput id="txtJustificativa" required="true" width="85%" heightInLines="2" enabled.visualizar="false" labelText="{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}" />
+		<mx:Button id="btAdicionar"
+				   label="{resourceManager.getString('ApplicationResource','ADICIONAR')}"
+				   height="32" enabled.visualizar="false" width="15%"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionar(event)"
+				   />
+	</mx:HBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_defeitos}" >
+		<grid:columns>
+			
+			<mx:DataGridColumn id="cDefeito" width="150"
+							   headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="defeito.nome"							   
+							   />
+			
+			<mx:DataGridColumn id="cJustificativa" dataField="justificativa" width="350"
+							   headerText = "{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}"
+							   textAlign="center"
+							   sortable="false"					   
+							   />
+			
+			<mx:DataGridColumn id="cDtInclusao" width="125" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','DATA_DEFEITO_INCLUSAO')}"
+							   dataField = "data"
+							   />
+			
+			<mx:DataGridColumn id="cUsuario" width="125" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+							   dataField = "usuario.usuario"
+							   />
+			
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editDefeito(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirDefeito(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true" visible="{parentDocument._reparo != null ? parentDocument._reparo.propostaReprovada == null : parentDocument._orcamento.propostaReprovada}"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

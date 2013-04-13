@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="left" initialize="onPreinitialize();"  verticalScrollPolicy="off"
+		 xmlns:components="components.*" width="100%"  height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:consulta="modules.consulta.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="consultaService" destination="consultaService" concurrency="single" showBusyCursor="true" requestTimeout="-1" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="realizarConsultaOrdemServico"      
+					   fault="onListarAtividadesFault(event)" 
+					   result="onListarAtividadesResult(event)"
+					   />
+			<mx:method name="createFile"      
+					   fault="onCreateFileFault(event)" 
+					   result="onCreateFileResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Usuario;
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.consulta.Consulta;
+			import entities.consulta.ConsultaResultado;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var consulta:Consulta;
+			
+			[Bindable]
+			private var consultaResultado:ConsultaResultado;
+			
+			[Bindable]
+			private var byteArray:ByteArray = new ByteArray();
+			
+			private var fileRef:FileReference;
+			
+			private var meuTimer:Timer;
+			
+			private function onPreinitialize():void
+			{
+				
+				fileRef = new FileReference();
+				
+				fileRef.addEventListener(Event.OPEN, openHandler);
+			}
+			
+			private function consultar(event:MouseEvent = null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					consulta = new Consulta();
+					consulta.cliente = cliente.clienteSelecionado;
+					consulta.numeroNotaFiscal = numeroNotaFiscal.inputText;
+					consulta.numeroNotaFiscalSaida = numeroNotaFiscalSaida.inputText;
+					consulta.numeroOS = numeroOrdemServico.inputText;
+					consulta.dataDe = dataDe.inputDate;
+					consulta.dataAte = dataAte.inputDate;
+					consultaService.realizarConsultaOrdemServico(consulta);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onFinalizarReparoAutenticar);
+				}
+			}
+			
+			public function onFinalizarReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				consultar();
+			}
+			
+			private function onListarAtividadesResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				consultaResultado = event.result as ConsultaResultado;
+				resultadoOrdemServico.listaOrdemServico = consultaResultado.listaOrdemServico;
+				if(consultaResultado.listaOrdemServico != null && consultaResultado.listaOrdemServico.length > 0){
+					dispatchEvent(new MensagemEvent(consultaResultado.listaOrdemServico.length + " ordem(s) de serviço encontradas", MessageType.SUCCESS, 3000));
+				}else if(consultaResultado.listaOrdemServico == null && consultaResultado.listaOrdemServico.length == 0){
+					dispatchEvent(new MensagemEvent("Nenhum registro encontrado", MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function onListarAtividadesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function consultarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					consultar();
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				//				cliente.comboBox.combobox.selectedItem = new Pessoa();
+				cliente.limpar();
+				numeroNotaFiscal.inputText = "";
+				numeroNotaFiscalSaida.inputText = "";
+				numeroOrdemServico.inputText = "";
+				dataDe.inputDate = null;
+				dataAte.inputDate = null;
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}
+			
+			
+			///////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////DOWNLOAD FILE FUNCTIONS BEGIN//////////////////////////////
+			///////////////////////////////////////////////////////////////////////////////////////
+			
+			private function downloadFile():void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					CursorManager.setBusyCursor();
+					consultaService.channelSet = parentApplication.channelSet;
+					var resultList:ArrayCollection = new ArrayCollection();
+					resultList.addAll(resultadoOrdemServico.listaOrdemServico);
+					consultaService.createFile(resultList, usr);
+//					meuTimer = new Timer(1000 * 10);
+//					meuTimer.addEventListener(TimerEvent.TIMER, prevenirTimeOut);
+//					meuTimer.start();
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onDownloadFileAutenticar);
+				}
+			}
+			
+			private function prevenirTimeOut(event:TimerEvent):void
+			{
+//				consultaService.previnirTimeOut();
+			}
+			
+			private function onPrevinirTimeOutResult(event:ResultEvent):void
+			{
+				trace("Retornou do servidor");
+			}
+			
+			private function onPrevinirTimeOutFault(event:FaultEvent):void
+			{
+				trace("Retornou do servidor");
+			}
+			
+			public function onDownloadFileAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				downloadFile();
+			}
+			
+			private function onCreateFileResult(event:ResultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				byteArray = event.result as ByteArray;
+				dispatchEvent(new MensagemEvent("Relatório criado com sucesso", MessageType.INFO, 3000));
+				Alert.noLabel = "Não";
+				Alert.yesLabel = "Sim"
+				var alert:Alert = new Alert();
+				alert = Alert.show(
+					"Deseja salvar o relatório?",
+					"Relatório criado com sucesso",
+					3, 
+					this, 
+					alertClickHandler);
+				PopUpManager.centerPopUp(alert);
+				var newY:Number = 180;
+				alert.move(alert.x, newY);
+			}
+			
+			private function openHandler(event:Event):void
+			{
+				byteArray = null;
+				dispatchEvent(new MensagemEvent("Relatório salvo", MessageType.SUCCESS, 3000));
+				
+			}
+			
+			private function onCreateFileFault(event:FaultEvent):void
+			{
+				// Return the cursor to its original state
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent("Erro na criação do relatório", MessageType.ERROR, 3000));
+				// Debug output
+				trace("[OrdersComponent.handleUsersServicefindAllFault] [" 
+					+ event.fault.faultCode + "] " 
+					+ event.fault.faultString 
+					+ " (" + event.fault.faultDetail +
+					")");
+			}
+			
+			// Event handler function for displaying the selected Alert button. 
+			private function alertClickHandler(event:CloseEvent):void
+			{
+				if (event.detail == Alert.YES)
+				{
+					saveFile();
+				}
+				else
+				{
+					dispatchEvent(new MensagemEvent("Criação de relatório cancelada", MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function getFormattedDateToWriteFile(date:Date):String
+			{
+				var date:Date = date;
+				var dateF:DateFormatter = new DateFormatter();
+				dateF.formatString = "DDMMYYYY - LLNNSS";
+				return dateF.format(date);
+			}
+			
+			private function saveFile():void
+			{
+				
+				fileRef.save(byteArray, "Relatório de ordem de serviços " + getFormattedDateToWriteFile(new Date()) +".xlsx");
+				
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:HBox verticalAlign="bottom" horizontalAlign="left" verticalScrollPolicy="off" >
+		<texto:TextInput id="numeroOrdemServico" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="100" />
+		<texto:TextInput id="numeroNotaFiscal" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="100" />
+		<texto:TextInput id="numeroNotaFiscalSaida" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_SAIDA')}" width="100" />
+		<combos:ComboCliente id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="200"  />
+		<components:DataInput id="dataDe" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_DE')}" width="100" inputHeight="20" />
+		<components:DataInput id="dataAte" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_ATE')}" width="100" inputHeight="20" />
+		
+		<mx:Button id="btConsulta" 
+				   label="{resourceManager.getString('ApplicationResource','CONSULTAR')}"
+				   height="25" width="7%"
+				   icon="@Embed(source='/assets/icons/search.png')"
+				   keyDown="consultarEnter(event)"
+				   click="consultar(event)"
+				   />
+		<mx:Button id="btLimpar" 
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25" width="7%"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+		<mx:Button height="25" 
+				   label="{resourceManager.getString('ApplicationResource','EXPORTAR')}" 
+				   width="7%"
+				   id="btExportar" enabled.listagem="{consultaResultado != null &amp;&amp; consultaResultado.listaOrdemServico != null &amp;&amp; consultaResultado.listaOrdemServico.length > 0}" 
+				   click="{downloadFile()}"  
+				   icon="@Embed(source='/assets/icons/page_excel.png')" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" height="100%" verticalAlign="bottom" verticalScrollPolicy="off" >
+		<consulta:ResultadoOrdemServico id="resultadoOrdemServico" />
+	</mx:HBox>
+	
+</mx:VBox>

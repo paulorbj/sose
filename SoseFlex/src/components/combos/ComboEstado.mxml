@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0"
+		 creationPolicy="all" width="200"
+		 creationComplete="onCreationComplete()">
+		
+	<fx:Script>
+		<![CDATA[
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import utils.Estado;
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			public var labelText:String;
+			
+			[Bindable]
+			public var changeFunction:Function = null;
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			private function onCreationComplete():void
+			{
+				comboBox.dataProvider = criarEstadoArray();
+				comboBox.textoPadrao = "Selecione um estado...";
+			}
+			
+			private function criarEstadoArray():ArrayCollection
+			{
+				var estados:ArrayCollection = new ArrayCollection();
+				for each(var e:Estado in ScreenUtils.estados){
+					estados.addItem(e.sigla);
+				}
+				return estados;
+			}
+			
+			public function myLabelFunction(item:Object):String
+			{
+				var n:String = (item as Estado).nome;
+				var s:String = (item as Estado).sigla;
+				return n + "-" + s; 
+			}
+			
+			public function limpar():void {
+//				comboBox.clean();
+				comboBox.selectedItem = "";
+			}
+			
+			
+			[Bindable]
+			public function get estadoSelecionado():String 
+			{
+				if(comboBox.selectedItem == null)
+					return null;
+				else
+					return comboBox.selectedItem as String; 
+			}
+			
+			public function set estadoSelecionado(value:String):void 
+			{
+				comboBox.selectedItem = value;
+			}
+			
+//			public function setEstadoSelecionado(value:String):void
+//			{
+//				//limpar()
+//				comboBox.dataProvider = new ArrayCollection(ScreenUtils.estados);
+//				for each(var e:Estado in comboBox.dataProvider){
+//					if(ObjectUtil.compare(e.sigla,value) == 0){
+//						comboBox.selectedItem = e;
+//						break;
+//					}
+//				}
+//			}
+			
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" labelText="{labelText}" />
+</mx:VBox>

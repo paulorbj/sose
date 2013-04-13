@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple custom MXML TitleWindow component.
+The TitleWindowApp application displays this component. 
+You cannot run it independently. -->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
+				title="Title Window" x="168" y="86" status="active" showCloseButton="true" close="PopUpManager.removePopUp(this);" borderAlpha="0.75">
+	
+	<fx:Script>
+		<![CDATA[     
+			import mx.controls.Text;
+			import mx.managers.PopUpManager;
+			
+			// A reference to the TextInput control in which to put the result.
+			public var loginName:Text;
+			
+			public var listPr:ListagemProposta;
+			
+			// Event handler for the OK button.
+			private function returnName():void {
+				listPr.criarProposta = true;
+				listPr.finalizarPropostaModal()
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:VBox>
+		<mx:Label text="Existem itens pendentes de decisão."/>
+		<mx:Label text="Deseja criar uma nova proposta com os itens pendentes? "/>
+	</mx:VBox>
+	
+	<mx:HBox>
+		<mx:Button label="OK" click="returnName();"/>
+		<mx:Button label="Cancel" click="PopUpManager.removePopUp(this);"/>
+	</mx:HBox>
+	
+</mx:TitleWindow>

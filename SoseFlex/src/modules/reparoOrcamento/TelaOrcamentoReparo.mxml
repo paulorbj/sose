@@ -1,0 +1,1871 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:notaFiscal="modules.recebimento.notaFiscal.*"
+		 xmlns:recebimentoComponente="modules.recebimento.notaFiscal.componentesInformacoesNotaFiscal.*"
+		 xmlns:texto="components.textInput.*" 
+		 xmlns:combos="components.combos.*"  
+		 xmlns:grid="components.grid.*" 
+		 xmlns:componentes="components.*" 
+		 xmlns:reparoOrcamento="modules.reparoOrcamento.*" 
+		 xmlns:componentesReparoOrcamento="modules.reparoOrcamento.componentesReparoOrcamento.*" 
+		 xmlns:componentesOrcamento="modules.reparoOrcamento.componentesOrcamento.*" 
+		 xmlns:componentesReparo="modules.reparoOrcamento.componentesReparo.*"
+		 verticalScrollPolicy="on" horizontalScrollPolicy="on"
+		 width = "100%" height="100%" initialize="init()" horizontalAlign="center" 
+		 paddingBottom="15" paddingLeft="10" paddingRight="10" paddingTop="10" >
+	
+	<fx:Declarations>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="ordemServicoService" destination="ordemServicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarHistorico"      
+					   fault="onListarHistoricoOrcRepFault(event)" 
+					   result="onListarHistoricoOrcRepResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="areaTecnicaService" destination="areaTecnicaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			
+			<mx:method name="listarOrcamentoReparoOtimizado"      
+					   fault="onListarOrcamentoReparoFault(event)" 
+					   result="onListarOrcamentoReparoResult(event)"
+					   />
+			<mx:method name="atribuirTecnico"      
+					   fault="onAtribuirTecnicoFault(event)" 
+					   result="onAtribuirTecnicoResult(event)"
+					   />
+			<mx:method name="atribuirPrioridade"      
+					   fault="onAtribuirPrioridadeFault(event)" 
+					   result="onAtribuirPrioridadeResult(event)"
+					   />
+			<mx:method name="listarHistoricoOrcRep"      
+					   fault="onListarHistoricoOrcRepFault(event)" 
+					   result="onListarHistoricoOrcRepResult(event)"
+					   />
+		</mx:RemoteObject>
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="reparoController" destination="reparoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="iniciarReparo"      
+					   fault="onIniciarReparoFault(event)" 
+					   result="onIniciarReparoResult(event)"
+					   />
+			<mx:method name="salvarReparo"      
+					   fault="onSalvarReparoFault(event)" 
+					   result="onSalvarReparoResult(event)"
+					   />
+			<mx:method name="devolverSemReparo"      
+					   fault="onDevolverSemReparoReparoFault(event)" 
+					   result="onDevolverSemReparoReparoResult(event)"
+					   />
+			<mx:method name="finalizarReparo"      
+					   fault="onFinalizarReparoFault(event)" 
+					   result="onFinalizarReparoResult(event)"
+					   />
+			<mx:method name="aprovarReparo"      
+					   fault="onAprovarReparoFault(event)" 
+					   result="onAprovarReparoResult(event)"
+					   />
+			<mx:method name="rejeitarReparo"      
+					   fault="onRejeitarReparoFault(event)" 
+					   result="onRejeitarReparoResult(event)"
+					   />
+			<mx:method name="editarReparo"      
+					   fault="onEditarReparoFault(event)" 
+					   result="onEditarReparoResult(event)"
+					   />
+			<mx:method name="solicitarOrcamentoDiferenciadoReparo"      
+					   fault="onSolicitarOrcamentoDiferenciadoReparoFault(event)" 
+					   result="onSolicitarOrcamentoDiferenciadoReparoResult(event)"
+					   />
+			<mx:method name="solicitarLaudoTecnico"      
+					   fault="onSolicitarLaudoTecnicoReparoFault(event)" 
+					   result="onSolicitarLaudoTecnicoReparoResult(event)"
+					   />
+			<mx:method name="solicitarReparoExterno"      
+					   fault="onSolicitarReparoExternoReparoFault(event)" 
+					   result="onSolicitarReparoExternoReparoResult(event)"
+					   />
+			
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="orcamentoController" destination="orcamentoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="iniciarOrcamento"      
+					   fault="onIniciarOrcamentoFault(event)" 
+					   result="onIniciarOrcamentoResult(event)"
+					   />
+			<mx:method name="salvarOrcamento"      
+					   fault="onSalvarOrcamentoFault(event)" 
+					   result="onSalvarOrcamentoResult(event)"
+					   />
+			<mx:method name="devolverSemReparo"      
+					   fault="onDevolverSemReparoOrcamentoFault(event)" 
+					   result="onDevolverSemReparoOrcamentoResult(event)"
+					   />
+			<mx:method name="finalizarOrcamento"      
+					   fault="onFinalizarOrcamentoFault(event)" 
+					   result="onFinalizarOrcamentoResult(event)"
+					   />
+			<mx:method name="encaminharAoLider"      
+					   fault="onEncaminharAoLiderFault(event)" 
+					   result="onEncaminharAoLiderResult(event)"
+					   />
+			<mx:method name="aprovarOrcamento"      
+					   fault="onAprovarOrcamentoFault(event)" 
+					   result="onAprovarOrcamentoResult(event)"
+					   />
+			<mx:method name="rejeitarOrcamento"      
+					   fault="onRejeitarOrcamentoFault(event)" 
+					   result="onRejeitarOrcamentoResult(event)"
+					   />
+			<mx:method name="solicitarReparoExterno"      
+					   fault="onSolicitarReparoExternoOrcamentoFault(event)" 
+					   result="onSolicitarReparoExternoOrcamentoResult(event)"
+					   />
+			<mx:method name="solicitarLaudoTecnico"      
+					   fault="onSolicitarLaudoTecnicoOrcamentoFault(event)" 
+					   result="onSolicitarLaudoTecnicoOrcamentoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Consumer id="consumidorRecebimentoService" destination="RecebimentoMessageServicePush" message="onMsgRecebimento(event)" />
+		
+		<mx:Consumer id="consumidorReparoService" destination="ReparoMessageServicePush" message="onMsgReparo(event)" />
+		
+		<mx:Consumer id="consumidorOrcamentoService" destination="OrcamentoMessageServicePush" message="onMsgOrcamento(event)" />
+		
+		<mx:Consumer id="consumidorPropostaService" destination="PropostaMessageServicePush" message="onMsgProposta(event)" />
+		
+		<mx:Consumer id="consumidorOrcamentoDiferenciadoService" destination="OrcamentoDiferenciadoMessageServicePush" message="onMsgOrcamentoDiferenciado(event)" />
+		
+		<mx:Consumer id="consumidorLaudoTecnicoService" destination="LaudoTecnicoMessageServicePush" message="onMsgLaudoTecnico(event)" />
+		
+		<mx:Producer id="produtorAreaTecnicaService" destination="AreaTecnicaMessageServicePush" /> 
+		
+		<mx:Producer id="produtorReparoService" destination="ReparoMessageServicePush" /> 
+		
+		<mx:Producer id="produtorOrcamentoService" destination="OrcamentoMessageServicePush" />
+		
+		<mx:Producer id="produtorPropostaService" destination="PropostaMessageServicePush" /> 
+		
+		<mx:Producer id="produtorOrcamentDiferenciadoService" destination="OrcamentoDiferenciadoMessageServicePush" />
+		
+		<mx:Producer id="produtorLaudoTecnicoService" destination="LaudoTecnicoMessageServicePush" />
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.UserRegisterNumberModal;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			import components.messages.NotificationEvent;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Usuario;
+			import entities.laudoTecnico.LaudoTecnico;
+			import entities.orcamentoDiferenciado.OrcamentoDiferenciado;
+			import entities.orcamentoreparo.ComponenteOrcRep;
+			import entities.orcamentoreparo.OrcRepGenerico;
+			import entities.orcamentoreparo.Orcamento;
+			import entities.orcamentoreparo.Reparo;
+			import entities.orcamentoreparo.RequisicaoComponente;
+			import entities.proposta.Proposta;
+			import entities.recebimento.OrdemServico;
+			import entities.reparoExterno.ReparoExterno;
+			
+			import modules.reparoOrcamento.eventos.ListaOrcamentoReparoEvent;
+			import modules.reparoOrcamento.eventos.OrcamentoEvent;
+			import modules.reparoOrcamento.eventos.ReparoEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.messaging.messages.AsyncMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import to.OrcRepGenericoTO;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			private var listaOrcamentoReparo:ArrayCollection;
+			
+			[Bindable]
+			private var _orcamento:Orcamento;
+			
+			[Bindable]
+			private var _reparo:Reparo;
+			
+			private var _metodoCorrente:Function;
+			
+			[Bindable]
+			private var validatorArr:Array;
+			
+			private var compTeste:ComponenteOrcRep;
+			
+			public function init():void
+			{	
+				consumidorRecebimentoService.subscribe();
+				consumidorReparoService.subscribe();
+				consumidorOrcamentoService.subscribe();
+				consumidorPropostaService.subscribe();
+				consumidorOrcamentoDiferenciadoService.subscribe();
+				consumidorLaudoTecnicoService.subscribe();
+				
+				this.addEventListener(ListaOrcamentoReparoEvent.ATRIBUIR_TECNICO,onAtribuirTecnico);
+				this.addEventListener(ListaOrcamentoReparoEvent.ATRIBUIR_PRIORIDADE,onAtribuirPrioridade);
+				
+				this.addEventListener(ReparoEvent.ATUALIZAR_REPARO,onAtualizarReparo);
+				this.addEventListener(OrcamentoEvent.ATUALIZAR_ORCAMENTO,onAtualizarOrcamento);
+
+
+				//Registra os listeners relacionados a edicao de reparo ou orcamento
+				this.addEventListener(ListaOrcamentoReparoEvent.EDITAR_REPARO,onEditarReparo);
+				this.addEventListener(ListaOrcamentoReparoEvent.VISUALIZAR_REPARO,onEditarReparo);
+				this.addEventListener(ListaOrcamentoReparoEvent.EDITAR_ORCAMENTO,onEditarOrcamento);
+				this.addEventListener(ListaOrcamentoReparoEvent.VISUALIZAR_ORCAMENTO,onEditarOrcamento);
+				
+				this.addEventListener(ReparoEvent.INICIAR_REPARO,onIniciarReparo);
+				this.addEventListener(OrcamentoEvent.INICIAR_ORCAMENTO,onIniciarOrcamento);
+
+				
+				this.addEventListener(ReparoEvent.FINALIZAR_REPARO,onFinalizarReparo);
+				this.addEventListener(OrcamentoEvent.FINALIZAR_ORCAMENTO,onFinalizarOrcamento);
+
+				this.addEventListener(ReparoEvent.SALVAR_REPARO,onSalvarReparo);
+				this.addEventListener(OrcamentoEvent.SALVAR_ORCAMENTO,onSalvarOrcamento);
+
+				this.addEventListener(ReparoEvent.VOLTAR_REPARO,onVoltarReparo);
+				this.addEventListener(OrcamentoEvent.VOLTAR_ORCAMENTO,onVoltarOrcamento);
+
+				this.addEventListener(ReparoEvent.REQUISITAR_REPARO_EXTERNO,onReparoExternoReparo);
+				this.addEventListener(OrcamentoEvent.REQUISITAR_REPARO_EXTERNO,onReparoExternoOrcamento);
+
+				this.addEventListener(ReparoEvent.REQUISITAR_LAUDO_TECNICO,onLaudoTecnicoReparo);
+				this.addEventListener(OrcamentoEvent.REQUISITAR_LAUDO_TECNICO,onLaudoTecnicoOrcamento);
+
+				this.addEventListener(ReparoEvent.DEVOLVER_SEM_REPARO,onDevolverSemReparoReparo);
+				this.addEventListener(OrcamentoEvent.DEVOLVER_SEM_REPARO,onDevolverSemReparoOrcamento);
+
+				
+				this.addEventListener(OrcamentoEvent.ENCAMINHAR_AO_LIDER,onEncaminharAoLider);
+				
+				this.addEventListener(ReparoEvent.REQUISITAR_ORCAMENTO_DIFERENCIADO,onRequisitarOrcamentoDiferenciado);
+
+				
+				this.addEventListener(ReparoEvent.APROVAR_REPARO,onAprovarReparo);
+				this.addEventListener(ReparoEvent.REJEITAR_REPARO,onRejeitarReparo);
+				this.addEventListener(OrcamentoEvent.APROVAR_ORCAMENTO,onAprovarOrcamento);
+				this.addEventListener(OrcamentoEvent.REJEITAR_ORCAMENTO,onRejeitarOrcamento);
+				
+				areaTecnicaService.listarOrcamentoReparoOtimizado();
+			}
+			
+			
+			private function atualizaOrcRep(orcRep:OrcRepGenerico=null):void
+			{
+				var rep:Reparo = null;
+				var orc:Orcamento = null;
+				if(orcRep){
+					if(orcRep is Reparo){
+						rep = orcRep as Reparo;
+						if(_reparo){
+							if(_reparo.id == rep.id){
+								//Algum usuario estah editando/visualizando esse reparo
+								_reparo = rep;
+								setReparo(_reparo);
+							}else{
+								listagemGeral.adicionarOrcRep(ScreenUtils.converterReparoToOrcRep(rep));
+							}
+						}else{
+							listagemGeral.adicionarOrcRep(ScreenUtils.converterReparoToOrcRep(rep));
+						}
+					}
+					else if(orcRep is Orcamento){
+						orc = orcRep as Orcamento;
+						if(_orcamento){
+							if(_orcamento.id == orc.id){
+								//Algum usuario estah editando/visualizando esse reparo
+								_orcamento = orc;
+								setOrcamento(_orcamento);
+							}else{
+								listagemGeral.adicionarOrcRep(ScreenUtils.converterOrcamentoToOrcRep(orc));
+							}
+						}else{
+							listagemGeral.adicionarOrcRep(ScreenUtils.converterOrcamentoToOrcRep(orc));
+						}
+					}
+					//listagemGeral.adicionarOrcRep(orcRep);
+				}else{
+					
+				}
+				
+			}
+			
+			private function onMsgRecebimento(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.RECEBIMENTO_OS_PROCESSADA){
+					atualizaOrcRep(globalMessage.conteudo as OrcRepGenerico);
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+			} 
+			
+			private function onMsgReparo(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				var rep:Reparo = globalMessage.conteudo as Reparo
+				
+				atualizaOrcRep(rep);
+				
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_INICIADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_EDITADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_FINALIZADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_REQUISICAO_COMPONENTE_CANCELADA){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_REQUISICAO_COMPONENTE_CRIADA){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_REQUISICAO_COMPONENTE_RECEBIDA){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_REQUISICAO_LAUDO_TECNICO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_REQUISICAO_ORCAMENTO_DIFERENCIADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_REQUISICAO_REPARO_EXTERNO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.REPARO_SALVO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+			} 
+			
+			private function onMsgOrcamento(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				var orc:Orcamento = globalMessage.conteudo as Orcamento
+				
+				if(orc)
+					atualizaOrcRep(orc);
+				
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_APROVADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_EDITADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_ENCAMINHAR_AO_LIDER){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_FINALIZADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_INICIADO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_REJEITAR_ORCAMENTO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_REQUISICAO_LAUDO_TECNICO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_REQUISICAO_REPARO_EXTERNO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_SALVO){
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+			} 
+			
+			private function onMsgOrcamentoDiferenciado(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				var orcDif:OrcamentoDiferenciado = globalMessage.conteudo as OrcamentoDiferenciado;
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_APROVADO){
+					atualizaOrcRep(orcDif.reparo);
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_REJEITADO){
+					atualizaOrcRep(orcDif.reparo);
+				}
+			} 
+			
+			private function onMsgProposta(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+			} 
+			
+			private function onMsgLaudoTecnico(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				var laudo:LaudoTecnico = globalMessage.conteudo as LaudoTecnico;
+				if (globalMessage.mensagem==MensagensAplicacao.LAUDO_TECNICO_APROVADO){
+					if(laudo.reparo){
+						atualizaOrcRep(laudo.reparo);
+					}else{
+						atualizaOrcRep(laudo.orcamento);
+					}
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.LAUDO_TECNICO_REJEITADO){
+					if(laudo.orcamento){
+						atualizaOrcRep(laudo.orcamento);
+					}else{
+						atualizaOrcRep(laudo.reparo);
+					}
+				}
+			} 
+			
+			/**
+			 * Metodos utilizados para setar o reparo/orcamento nos componentes do detalhamento 
+			 * e para setar/adicionar esses componentes a listagem de orcRepTO
+			 *
+			 */
+			private function setReparo(value:Reparo):void
+			{
+				if(value.statusString != 'Finalizado' 
+					&& value.statusString != 'Aguardando liberação'
+					&& value.statusString != 'Não Iniciado'){
+					infoTecnicaReparo.enabled = true;
+					infoComponentes.enabled = true;
+					infoDefeitos.enabled = true;
+					infoAtividades.enabled = true;
+				}else{
+					infoTecnicaReparo.enabled = false;
+					infoComponentes.enabled = false;
+					infoDefeitos.enabled = false;
+					infoAtividades.enabled = false;
+				}
+				infoOrdemServico.orcRep = value;
+				infoTecnicaReparo.reparo = value;
+				infoComponentes.setReparo(value);
+				infoDefeitos.setDefeitos(value.listaDefeito,value,null);
+				infoAtividades.setAtividades(value.listaAtividade,value,null);
+				controlesReparo.reparo = value;
+				
+				listagemGeral.adicionarOrcRep(ScreenUtils.converterReparoToOrcRep(value));
+			}
+			
+			private function getReparo():Reparo
+			{
+				_reparo.tempoGasto = infoTecnicaReparo.tempoGasto;
+				_reparo.jaReparado = infoTecnicaReparo.jaReparado;
+				_reparo.listaAtividade = infoAtividades.getAtividades();
+				_reparo.listaDefeito = infoDefeitos.getDefeitos();
+				_reparo.listaComponente = infoComponentes.listaComponentePosicao;
+				_reparo.listaRequisicao = infoComponentes.listaRequisicoes;
+				return _reparo;
+			}
+			
+			private function setOrcamento(value:Orcamento):void
+			{
+				if(value.statusString != 'Finalizado' 
+					&& value.statusString != 'Não Iniciado'
+					&& value.statusString != 'Aguardando conjunto para proposta' 
+					&& value.statusString != 'Aguardando conjunto para expedição' 
+					&& value.statusString != 'Aguardando liberação'){
+					infoTecnicaOrcamento.enabled = true;
+					infoComponentes.enabled = true;
+					infoDefeitos.enabled = true;
+					infoAtividades.enabled = true;
+				}else{
+					infoTecnicaOrcamento.enabled = false;
+					infoComponentes.enabled = false;
+					infoDefeitos.enabled = false;
+					infoAtividades.enabled = false;
+				}
+				infoOrdemServico.orcRep = value;
+				infoTecnicaOrcamento.orcamento = value;
+				infoComponentes.setOrcamento(value);
+				infoDefeitos.setDefeitos(value.listaDefeito,null, value);
+				infoAtividades.setAtividades(value.listaAtividade,null,value);
+				controlesOrcamento.orcamento = value;
+				
+				listagemGeral.adicionarOrcRep(ScreenUtils.converterOrcamentoToOrcRep(value));
+			}
+			
+			private function getOrcamento():Orcamento
+			{
+				_orcamento.tempoGasto = infoTecnicaOrcamento.tempoGasto;
+				_orcamento.jaReparado = infoTecnicaOrcamento.jaReparado;
+				_orcamento.listaAtividade = infoAtividades.getAtividades();
+				_orcamento.listaDefeito = infoDefeitos.getDefeitos();
+				_orcamento.listaComponente = infoComponentes.listaComponentePosicao;
+				_orcamento.listaRequisicao = infoComponentes.listaRequisicoes;
+				return _orcamento;
+			}
+			
+			/******************************************************************************************/
+			
+			private function setComponentesState(isEditar:Boolean):void{
+				if(isEditar){
+					infoOrdemServico.currentState = "editar";
+					infoComponentes.currentState = "editarRequisicao"
+					infoDefeitos.currentState = "editar";
+					infoAtividades.currentState = "editar";
+					if(this.currentState=="edicaoOrcamento"){
+						controlesOrcamento.currentState = "editar";
+						infoTecnicaOrcamento.currentState = "editar";
+					}else{
+						infoTecnicaReparo.currentState = "editar";
+						controlesReparo.currentState = "editar";					
+					}
+				}else{
+					infoOrdemServico.currentState = "visualizar";
+					infoComponentes.currentState = "visualizarRequisicao";
+					infoDefeitos.currentState = "visualizar";
+					infoAtividades.currentState = "visualizar";
+					if(this.currentState=="edicaoOrcamento"){
+						controlesOrcamento.currentState = "visualizar";
+						infoTecnicaOrcamento.currentState = "visualizar";
+					}else{
+						infoTecnicaReparo.currentState = "visualizar";
+						controlesReparo.currentState = "visualizar";
+					}
+				}
+				
+				//infoComponentes.tn.selectedIndex = 0;
+			}
+			
+			private function onEditarReparo(event:ListaOrcamentoReparoEvent):void
+			{
+				_reparo = event.orcRep as Reparo;
+				if(event.type == ListaOrcamentoReparoEvent.EDITAR_REPARO){
+					editarReparo();
+				}else if(event.type == ListaOrcamentoReparoEvent.VISUALIZAR_REPARO){
+					visualizarReparo();
+				}
+			}
+			
+			private function onEditarOrcamento(event:ListaOrcamentoReparoEvent):void
+			{
+				_orcamento = event.orcRep as Orcamento;
+				if(event.type == ListaOrcamentoReparoEvent.EDITAR_ORCAMENTO){
+					editarOrcamento();
+				}else if(event.type == ListaOrcamentoReparoEvent.VISUALIZAR_ORCAMENTO){
+					visualizarOrcamento();
+				}
+			}
+			
+			private function editarReparo():void
+			{
+				//Muda da listagem geral para o detalhamento do reparo
+				this.currentState = "edicaoReparo";
+				
+				//Abre detalhamento do reparo com a aba defeito selecionada
+				accordion.selectedIndex = 0;
+				
+				//Configura o reparo nos componentes do detalhamento
+				setReparo(_reparo);
+				setComponentesState(true);
+				
+				//Carrega o componente de observacao
+				observacoes.listarObservacoes();
+				
+				//Carrega o historico do reparo
+				ordemServicoService.listarHistorico(_reparo.ordemServico);
+
+				//Exibe as mensagens de notificacaoes no rodopea
+				exibirNotificacaoReparo(_reparo);
+				
+				//Limpar campos
+				infoAtividades.limpar();
+				infoDefeitos.limpar();
+				
+				//Notifica o usuario que nao existe um valor definido para o reparo
+				if(_reparo.ordemServico.lpu != null && _reparo.ordemServico.lpu.valorReparo == 0){
+					dispatchEvent(new MensagemEvent("LPU não possui valor de reparo definido ou a unidade é placa filha, Verificar!", MessageType.WARNING,10000));
+				}
+			}
+			
+			private function visualizarReparo():void
+			{
+				//Muda da listagem geral para o detalhamento do reparo
+				this.currentState = "edicaoReparo";
+				
+				//Abre detalhamento do reparo com a aba defeito selecionada
+				accordion.selectedIndex = 0;
+				
+				//Configura o reparo nos componentes do detalhamento
+				setReparo(_reparo);
+				setComponentesState(false);
+								
+				//Carrega o componente de observacao
+				observacoes.listarObservacoes();
+				
+				//Carrega o historico do reparo
+				ordemServicoService.listarHistorico(_reparo.ordemServico);
+
+				//Limpar campos
+				infoAtividades.limpar();
+				infoDefeitos.limpar();
+				
+				//Avisa que estah abrindo no modo de visualizacao
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_SOMENTE_VISUALIZACAO'), MessageType.WARNING, 10000));
+			}
+			
+			private function editarOrcamento():void
+			{
+				//Muda da listagem geral para o detalhamento do orcamento
+				this.currentState = "edicaoOrcamento";
+				
+				//Abre detalhamento do reparo com a aba defeito selecionada
+				accordion.selectedIndex = 0;
+				
+				//Configura o orcamento nos componentes do detalhamento
+				setOrcamento(_orcamento);
+				setComponentesState(true);
+				
+				//Carrega o componente de observacao
+				observacoes.listarObservacoes();
+				
+				//Carrega o historico do orcamento
+				ordemServicoService.listarHistorico(_orcamento.ordemServico);
+				
+				//Exibe as mensagens de notificacaoes no rodopea
+				exibirNotificacaoOrcamento(_orcamento);
+				
+				//Limpar campos
+				infoAtividades.limpar();
+				infoDefeitos.limpar();
+			}
+			
+			private function visualizarOrcamento():void
+			{
+				//Muda da listagem geral para o detalhamento do orcamento
+				this.currentState = "edicaoOrcamento";
+				
+				//Abre detalhamento do reparo com a aba defeito selecionada
+				accordion.selectedIndex = 0;
+				
+				//Configura o orcamento nos componentes do detalhamento
+				setOrcamento(_orcamento);
+				setComponentesState(false);
+				
+				//Carrega o componente de observacao
+				observacoes.listarObservacoes();
+				
+				//Carrega o historico do orcamento
+				ordemServicoService.listarHistorico(_orcamento.ordemServico);
+				
+				//Limpar campos
+				infoAtividades.limpar();
+				infoDefeitos.limpar();
+				
+				//Avisa que estah abrindo no modo de visualizacao
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_SOMENTE_VISUALIZACAO'), MessageType.WARNING, 10000));
+			}
+			
+			
+			/********************************************************************************************************************************************/
+			
+			private function onAtualizarReparo(event:ReparoEvent):void
+			{
+				_reparo = event.reparo;
+				//listagemGeral.adicionarOrcRep(_reparo);
+				setReparo(_reparo);
+			}
+			
+			private function exibirNotificacaoReparo(reparo:Reparo):void{
+				if(reparo.ordemServico.bloqueado == 1){
+					dispatchEvent(new MensagemEvent("Algumas funcionalidades foram bloqueadas em função do pedido de laudo técnico na unidade pai ou em uma de suas filhas", MessageType.WARNING,-1));
+					return;
+				}
+				
+				if(reparo.ordemServico.bloqueado == 2){
+					dispatchEvent(new MensagemEvent("Algumas funcionalidades foram bloqueadas em função da aprovação do laudo técnico na unidade pai ou em uma de suas filhas", MessageType.WARNING,-1));
+					return;
+				}
+				
+				if(reparo.ordemServico.bloqueado == 6){
+					dispatchEvent(new MensagemEvent("Algumas funcionalidades foram bloqueadas em função do pedido de orçamento diferenciado na unidade pai ou em uma de suas filhas", MessageType.WARNING,-1));
+					return;
+				}
+				
+				if(reparo.ordemServico.bloqueado == 7){
+					dispatchEvent(new MensagemEvent("Algumas funcionalidades foram bloqueadas em função da aprovação de um orçamento diferenciado na unidade pai ou em uma de suas filhas", MessageType.WARNING,-1));
+					return;
+				}
+				
+				if(reparo.ordemServico.bloqueado == 8){
+					dispatchEvent(new MensagemEvent("Unidade deve ser devolvida sem reparo.", MessageType.WARNING,-1));
+					return;
+				}
+				
+				var dataNaoNulas:ArrayCollection = new ArrayCollection();
+				if(reparo.statusString == "Iniciado"){
+					if(reparo.laudoTecnicoAprovado){
+						dataNaoNulas.addItem(reparo.laudoTecnicoAprovado);
+					}
+					if(reparo.laudoTecnicoReprovado){
+						dataNaoNulas.addItem(reparo.laudoTecnicoReprovado);
+					}
+					if(reparo.propostaAprovada){
+						dataNaoNulas.addItem(reparo.propostaAprovada);
+					}
+					if(reparo.propostaReprovada){
+						dataNaoNulas.addItem(reparo.propostaReprovada);
+					}
+					if(reparo.orcamentoDiferenciadoRejeitado){
+						dataNaoNulas.addItem(reparo.orcamentoDiferenciadoRejeitado);
+					}
+				}
+				
+				if(dataNaoNulas.length > 0){
+					var sortData:Sort = new Sort();
+					sortData.fields = [new SortField(null,false,true)];
+					dataNaoNulas.sort= sortData;
+					dataNaoNulas.refresh();
+					
+					var ultimaData:Date = dataNaoNulas.getItemAt(0) as Date;
+					
+					if(reparo.laudoTecnicoAprovado != null && reparo.laudoTecnicoAprovado == ultimaData){
+						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_REPARO_LAUDO_TECNICO_APROVADO'), MessageType.WARNING,-1));
+					}
+					if(reparo.laudoTecnicoReprovado != null && reparo.laudoTecnicoReprovado == ultimaData){
+						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_REPARO_LAUDO_TECNICO_REPROVADO'), MessageType.WARNING,-1));
+					}
+					if(reparo.propostaAprovada != null && reparo.propostaAprovada == ultimaData){
+						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_REPARO_PROPOSTA_APROVADO'), MessageType.WARNING,-1));
+					}
+					if(reparo.propostaReprovada != null && reparo.propostaReprovada == ultimaData){
+						if(reparo.condicao==ScreenUtils.ANALISE_REPARO_DEVOLUCAO_SEM_REPARO.nome){
+							dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+							dispatchEvent(new MensagemEvent("Devolução sem reparo. O item deve ser finalizado e enviado para a expedição", MessageType.WARNING,-1));
+						}else if(reparo.condicao==ScreenUtils.ANALISE_REPARO_SEM_CONDICAO.nome){
+							dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+							dispatchEvent(new MensagemEvent("Devolução sem reparo. O item deve ser finalizado e enviado para a expedição", MessageType.WARNING,-1));
+						}else{
+							dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_REPARO_PROPOSTA_REPROVADO'), MessageType.WARNING,-1));
+						}
+					}
+					if(reparo.orcamentoDiferenciadoRejeitado != null && reparo.orcamentoDiferenciadoRejeitado == ultimaData){
+						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_REPARO_ORCAMENTO_DIFERENCIADO_REPROVADO'), MessageType.WARNING,-1));
+					}
+				}else{
+					return;
+				}
+				
+				
+				
+				
+			}
+			
+			private function exibirNotificacaoOrcamento(orcamento:Orcamento):void{
+				var dataNaoNulas:ArrayCollection = new ArrayCollection();
+				
+				if(orcamento.ordemServico.bloqueado == 1){
+					dispatchEvent(new MensagemEvent("Algumas funcionalidades foram bloqueadas em função do pedido de laudo técnico na unidade pai ou em uma de suas filhas", MessageType.WARNING,-1));
+					return;
+				}
+				
+				if(orcamento.ordemServico.bloqueado == 2){
+					dispatchEvent(new MensagemEvent("Algumas funcionalidades foram bloqueadas em função da aprovação do pedido de laudo técnico na unidade pai ou em uma de suas filhas", MessageType.WARNING,-1));
+					return;
+				}
+				
+				if(orcamento.ordemServico.bloqueado == 8){
+					dispatchEvent(new MensagemEvent("Unidade deve ser devolvida sem reparo.", MessageType.WARNING,-1));
+					return;
+				}
+				
+				if(orcamento.statusString == "Iniciado"){
+					if(orcamento.laudoTecnicoAprovado){
+						dataNaoNulas.addItem(orcamento.laudoTecnicoAprovado);
+					}
+					if(orcamento.laudoTecnicoReprovado){
+						dataNaoNulas.addItem(orcamento.laudoTecnicoReprovado);
+					}
+					if(orcamento.propostaReprovada){
+						dataNaoNulas.addItem(orcamento.propostaReprovada);
+					}
+					if(orcamento.rejeitadoPeloLider){
+						dataNaoNulas.addItem(orcamento.rejeitadoPeloLider);
+					}
+				}
+				
+				if(dataNaoNulas.length > 0){
+					var sortData:Sort = new Sort();
+					sortData.fields = [new SortField(null,false,true)];
+					dataNaoNulas.sort= sortData;
+					dataNaoNulas.refresh();
+					
+					var ultimaData:Date = dataNaoNulas.getItemAt(0) as Date;
+					
+					if(orcamento.laudoTecnicoAprovado != null && orcamento.laudoTecnicoAprovado == ultimaData){
+						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_ORCAMENTO_LAUDO_TECNICO_APROVADO'), MessageType.WARNING,-1));
+					}
+					if(orcamento.laudoTecnicoReprovado != null && orcamento.laudoTecnicoReprovado == ultimaData){
+						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_ORCAMENTO_LAUDO_TECNICO_REPROVADO'), MessageType.WARNING,-1));
+					}
+					if(orcamento.propostaReprovada != null && orcamento.propostaReprovada == ultimaData){
+						if(orcamento.condicao==ScreenUtils.ANALISE_REPARO_DEVOLUCAO_SEM_REPARO.nome){
+							dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+							dispatchEvent(new MensagemEvent("Devolução sem reparo. O item deve ser finalizado e enviado para a expedição", MessageType.WARNING,-1));
+						}else if(orcamento.condicao==ScreenUtils.ANALISE_REPARO_SEM_CONDICAO.nome){
+							dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+							dispatchEvent(new MensagemEvent("Devolução sem reparo. O item deve ser finalizado e enviado para a expedição", MessageType.WARNING,-1));
+						}else{
+							dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_REPARO_PROPOSTA_REPROVADO'), MessageType.WARNING,-1));
+						}
+					}
+					if(orcamento.rejeitadoPeloLider != null && orcamento.rejeitadoPeloLider == ultimaData){
+						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_ORCAMENTO_REJEITADO_PELO_LIDER'), MessageType.WARNING,-1));
+					}
+				}else{
+					return;
+				}	
+			}
+			
+			
+			private function onVoltarReparo(event:ReparoEvent):void
+			{
+				dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+				infoComponentes.tn.selectedIndex = 0;
+				observacoes.limpar();
+				this.currentState = "listagem";
+				_reparo = null;
+				_orcamento = null;
+				listagemGeral.atualizarFiltros();
+			}
+			
+			private function onVoltarOrcamento(event:OrcamentoEvent):void
+			{
+				infoTecnicaOrcamento.limpar();
+				observacoes.limpar();
+				dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+				infoComponentes.tn.selectedIndex = 0;
+				this.currentState = "listagem";
+				_reparo = null;
+				_orcamento = null;
+				listagemGeral.atualizarFiltros();
+			}
+			
+			private function onAtribuirTecnico(event:ListaOrcamentoReparoEvent):void
+			{
+				areaTecnicaService.atribuirTecnico(event.listaOrcamentoReparo,event.tecnico,event.atribuidoPor);
+			}
+			
+			private function onAtribuirPrioridade(event:ListaOrcamentoReparoEvent):void
+			{
+				areaTecnicaService.atribuirPrioridade(event.listaOrcamentoReparo,event.data,event.tecnico);
+			}
+			
+			private function onIniciarReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _reparo.tecnicoResponsavel.id){
+						reparoController.iniciarReparo(_reparo,usr);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onIniciarReparoAutenticar);
+				}
+			}
+			
+			public function onIniciarReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onIniciarReparo();
+			}
+			
+			private function onSalvarReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _reparo.tecnicoResponsavel.id){
+						_reparo = getReparo();
+						reparoController.salvarReparo(_reparo);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onSalvarReparoAutenticar);
+				}
+			}
+			
+			public function onSalvarReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onSalvarReparo();
+			}
+			
+			private function onRejeitarReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_reparo = getReparo();
+					if(Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialParaAtribuicoes || (_reparo.ordemServico.unidade.laboratorio.lider != null && _reparo.ordemServico.unidade.laboratorio.lider.id == usr.id)){
+						reparoController.rejeitarReparo(_reparo,usr);					
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o líder desse laboratório", MessageType.WARNING, 3000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onRejeitarReparoAutenticar);
+				}
+			}
+			
+			public function onRejeitarReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onRejeitarReparo();
+			}
+			
+			private function onAprovarReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_reparo = getReparo();
+					if(Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialParaAtribuicoes || (_reparo.ordemServico.unidade.laboratorio.lider != null && _reparo.ordemServico.unidade.laboratorio.lider.id == usr.id)){
+						reparoController.aprovarReparo(_reparo,usr);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o líder desse laboratório", MessageType.WARNING, 3000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onAprovarReparoAutenticar);
+				}
+			}
+			
+			public function onAprovarReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onAprovarReparo();
+			}
+			
+			private function onDevolverSemReparoReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _reparo.tecnicoResponsavel.id){
+						_reparo = getReparo();
+						reparoController.devolverSemReparo(_reparo,usr);					
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onDevolverSemReparoReparoAutenticar);
+				}
+			}
+			
+			public function onDevolverSemReparoReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onDevolverSemReparoReparo();
+			}
+			
+			private function onRequisitarOrcamentoDiferenciado(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _reparo.tecnicoResponsavel.id){
+						_reparo = getReparo();
+						if(validateRequisitarOrcamentoDiferenciado()){
+							reparoController.solicitarOrcamentoDiferenciadoReparo(_reparo,usr);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onRequisitarOrcamentoDiferenciadoAutenticar);
+				}
+			}
+			
+			private function validateRequisitarOrcamentoDiferenciado():Boolean {	
+				
+				if(infoDefeitos.getDefeitos().length == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_DEFEITO_INFORMADO'), MessageType.WARNING, 5000));
+					return false;
+				}
+				
+				if(infoComponentes.listaRequisicoes.length > 0){
+					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
+						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
+							
+						}else{
+							//Alguma requisicao ainda não foi devidamente atendida
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXISTEM_REQUISICOES_PENDENTES'), MessageType.WARNING, 5000));
+							return false;
+						}
+					}
+				}
+				if(infoComponentes.listaComponentePosicao.length > 0){
+					for each(var comp:ComponenteOrcRep in infoComponentes.listaComponentePosicao){
+						if(comp.condicao == "Utilizado" && comp.posicao == ""){
+							//Posição do componente na placa não foi preenchida
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','POSICAO_COMPONENTE_NAO_INFORMADA'), MessageType.WARNING, 5000));
+							return false;
+						}
+					}
+				}
+				
+				return true;
+			}	
+			
+			public function onRequisitarOrcamentoDiferenciadoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onRequisitarOrcamentoDiferenciado();
+			}
+			
+			private function onLaudoTecnicoReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _reparo.tecnicoResponsavel.id){
+						if(validateEncaminharAoLider()){
+							_reparo = getReparo();
+							reparoController.solicitarLaudoTecnico(_reparo,usr);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onLaudoTecnicoReparoAutenticar);
+				}
+			}
+			
+			public function onLaudoTecnicoReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onLaudoTecnicoReparo();
+			}
+			
+			private function onReparoExternoReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _reparo.tecnicoResponsavel.id){
+						_reparo = getReparo();
+						reparoController.solicitarReparoExterno(_reparo,usr);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onReparoExternoReparoAutenticar);
+				}
+			}
+			
+			public function onReparoExternoReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onReparoExternoReparo();
+			}
+			
+			private function onFinalizarReparo(event:ReparoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _reparo.tecnicoResponsavel.id){
+						if(validateFinalizar()){
+							_reparo = getReparo();
+							reparoController.finalizarReparo(_reparo,usr);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onFinalizarReparoAutenticar);
+				}
+				
+			}
+			
+			public function onFinalizarReparoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onFinalizarReparo();
+			}
+			
+			private function onAtualizarOrcamento(event:OrcamentoEvent):void
+			{
+				_orcamento = event.orcamento;
+				setOrcamento(_orcamento);
+			}
+			
+			
+			private function onIniciarOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _orcamento.tecnicoResponsavel.id){
+						orcamentoController.iniciarOrcamento(_orcamento,usr);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onIniciarOrcamentoAutenticar);
+				}
+			}
+			
+			public function onIniciarOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onIniciarOrcamento();
+			}
+			
+			private function onSalvarOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _orcamento.tecnicoResponsavel.id){
+						_orcamento = getOrcamento();
+						orcamentoController.salvarOrcamento(_orcamento);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onSalvarOrcamentoAutenticar);
+				}
+			}
+			
+			public function onSalvarOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onSalvarOrcamento();
+			}
+			
+			private function onFinalizarOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _orcamento.tecnicoResponsavel.id){
+						
+						if(validateFinalizar()){
+							_orcamento = getOrcamento();
+							orcamentoController.finalizarOrcamento(_orcamento,usr);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onFinalizarOrcamentoAutenticar);
+				}
+			}
+			
+			public function onFinalizarOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onFinalizarOrcamento();
+			}
+			
+			private function onEncaminharAoLider(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _orcamento.tecnicoResponsavel.id){
+						if(validateEncaminharAoLider()){
+							_orcamento = getOrcamento();
+							orcamentoController.encaminharAoLider(_orcamento,usr);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onEncaminharAoLiderAutenticar);
+				}
+			}
+			
+			public function onEncaminharAoLiderAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onEncaminharAoLider();
+			}
+			
+			private function onRejeitarOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_orcamento = getOrcamento();
+					if(Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialParaAtribuicoes || (_orcamento.ordemServico.unidade.laboratorio.lider != null && _orcamento.ordemServico.unidade.laboratorio.lider.id == usr.id)){
+						orcamentoController.rejeitarOrcamento(_orcamento,usr);					
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o líder desse laboratório", MessageType.WARNING, 3000));
+					}
+
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onRejeitarOrcamentoAutenticar);
+				}
+			}
+			
+			public function onRejeitarOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onRejeitarOrcamento();
+			}
+			
+			private function onAprovarOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_orcamento = getOrcamento();
+					if(Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialParaAtribuicoes || (_orcamento.ordemServico.unidade.laboratorio.lider != null && _orcamento.ordemServico.unidade.laboratorio.lider.id == usr.id)){
+						orcamentoController.aprovarOrcamento(_orcamento,usr);					
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o líder desse laboratório", MessageType.WARNING, 3000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onAprovarOrcamentoAutenticar);
+				}
+			}
+			
+			public function onAprovarOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onAprovarOrcamento();
+			}
+			
+			private function onDevolverSemReparoOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _orcamento.tecnicoResponsavel.id){
+						_orcamento = getOrcamento();
+						orcamentoController.devolverSemReparo(_orcamento,usr);					
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onDevolverSemReparoOrcamentoAutenticar);
+				}
+			}
+			
+			public function onDevolverSemReparoOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onDevolverSemReparoOrcamento();
+			}
+			
+			private function onLaudoTecnicoOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _orcamento.tecnicoResponsavel.id){
+						if(validateEncaminharAoLider()){
+							_orcamento = getOrcamento();
+							orcamentoController.solicitarLaudoTecnico(_orcamento,usr);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onLaudoTecnicoOrcamentoAutenticar);
+				}
+			}
+			
+			public function onLaudoTecnicoOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onLaudoTecnicoOrcamento();
+			}
+			
+			private function onReparoExternoOrcamento(event:OrcamentoEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(usr.id == _orcamento.tecnicoResponsavel.id){
+						_orcamento = getOrcamento();
+						orcamentoController.solicitarReparoExterno(_orcamento,usr);				
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onReparoExternoOrcamentoAutenticar);
+				}
+			}
+			
+			public function onReparoExternoOrcamentoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				onReparoExternoOrcamento();
+			}
+			
+			private function onListarOrcamentoReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				listaOrcamentoReparo = event.result as ArrayCollection;
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField("prazoReparo",false,false,true),new SortField("osPaiOrdenar",false,false,true),new SortField("osFilhaOrdenar",false,false,true)];
+				listaOrcamentoReparo.sort=sortA;
+				listaOrcamentoReparo.refresh();
+				listagemGeral.setListaOrcamentoReparo(listaOrcamentoReparo);
+			}
+			
+			private function onListarOrcamentoReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onListarHistoricoOrcRepResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				infoAdicionais.setListaHistorico(event.result as ArrayCollection);
+			}
+			
+			private function onListarHistoricoOrcRepFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onAtribuirTecnicoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var orcReps:ArrayCollection = event.result as ArrayCollection;
+				for each(var orcRep:OrcRepGenericoTO in orcReps){
+					Publicador.enviarMensagemAreaTecnica(MensagensAplicacao.AREA_TECNICA_ATRIBUICAO_TECNICO,orcRep);
+					listagemGeral.adicionarOrcRep(orcRep);
+				}
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATRIBUICAO_REALIZADA_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onAtribuirTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[IniciarReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.indexOf("br.com.sose.exceptions") != -1 || event.fault.faultString.indexOf("java.lang.Exception") != -1){
+					var index:Number = event.fault.faultString.lastIndexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substr(index+1), MessageType.WARNING, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATRIBUICAO_REALIZADA_ERRO'), MessageType.ERROR, 5000));
+				}
+			}
+			
+			private function onAtribuirPrioridadeResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var orcReps:ArrayCollection = event.result as ArrayCollection;
+				for each(var orcRep:OrcRepGenericoTO in orcReps){
+					Publicador.enviarMensagemAreaTecnica(MensagensAplicacao.AREA_TECNICA_ATRIBUICAO_PRIORIDADE,orcRep);
+					listagemGeral.adicionarOrcRep(orcRep);
+					//Eh pai
+					//					if(orcRep.numeroOrdemServicoPai == null && orcRep.ordemServico.placasFilhas != null && orcRep.ordemServico.placasFilhas.length > 0){
+					//						for each(var osFilha:OrdemServico in orcRep.ordemServico.placasFilhas){
+					//							if(orcRep is Reparo){
+					//								listagemGeral.adicionarOrcRep(osFilha.reparo);
+					//							}else{
+					//								listagemGeral.adicionarOrcRep(osFilha.orcamento);
+					//							}
+					//						}
+					//					}
+					//					
+					//					if(orcRep.ordemServico.unidadePai != null){
+					//						var osPai:OrdemServico = orcRep.ordemServico.unidadePai;
+					//						if(orcRep is Reparo){
+					//							listagemGeral.adicionarOrcRep(osPai.reparo);
+					//						}else{
+					//							listagemGeral.adicionarOrcRep(osPai.orcamento);
+					//						}
+					//						for each(var osFilha1:OrdemServico in osPai.placasFilhas){
+					//							if(orcRep is Reparo){
+					//								listagemGeral.adicionarOrcRep(osFilha1.reparo);
+					//							}else{
+					//								listagemGeral.adicionarOrcRep(osFilha1.orcamento);
+					//							}
+					//						}
+					//					}
+				}
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATRIBUICAO_PRIORIDADE_REALIZADA_SUCESSO'), MessageType.SUCCESS, 5000));
+			}
+			
+			private function onAtribuirPrioridadeFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[IniciarReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.indexOf("br.com.sose.exceptions") != -1 || event.fault.faultString.indexOf("java.lang.Exception") != -1){
+					var index:Number = event.fault.faultString.lastIndexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substr(index+1), MessageType.WARNING, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATRIBUICAO_PRIORIDADE_REALIZADA_ERRO'), MessageType.ERROR, 5000));
+				}
+			}
+			
+			private function onIniciarReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_INICIADO,_reparo);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_INICIADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onIniciarReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[IniciarReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_INICIADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onSalvarReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_SALVO,_reparo);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_SALVO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSalvarReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_SALVO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onFinalizarReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_SALVO,_reparo);
+				Publicador.enviarMensagemExpedicao(MensagensAplicacao.EXPEDICAO_OS_AGUARDANDO_BAIXA,null);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_FINALIZADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onFinalizarReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_FINALIZADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onDevolverSemReparoOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_SALVO,_orcamento);
+				dispatchEvent(new MensagemEvent("Solicitação de devolução sem reparo encaminhada ao líder", MessageType.SUCCESS, 5000));
+			}
+			
+			private function onDevolverSemReparoOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao processar solicitação", MessageType.ERROR, 5000));
+			}
+			
+			private function onDevolverSemReparoReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_SALVO,_reparo);
+				dispatchEvent(new MensagemEvent("Solicitação de devolução sem reparo encaminhada ao líder", MessageType.SUCCESS, 5000));
+			}
+			
+			private function onDevolverSemReparoReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao processar solicitação", MessageType.ERROR, 5000));
+			}
+			
+			private function onSolicitarOrcamentoDiferenciadoReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_REQUISICAO_ORCAMENTO_DIFERENCIADO,_reparo);
+				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_CRIADO,_reparo.ordemServico.orcamentoDiferenciado);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_SOLICITADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSolicitarOrcamentoDiferenciadoReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_SOLICITADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onSolicitarLaudoTecnicoReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_REQUISICAO_LAUDO_TECNICO,_reparo);
+				//Publicador.enviarMensagemLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_CRIADO,_reparo.ordemServico.laudoTecnico);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_SOLICITADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSolicitarLaudoTecnicoReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_SOLICITADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onSolicitarReparoExternoReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_REQUISICAO_REPARO_EXTERNO,_reparo);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_EXTERNO_SOLICITADO_SUCESSSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSolicitarReparoExternoReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_EXTERNO_SOLICITADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onSolicitarReparoExternoOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_REQUISICAO_REPARO_EXTERNO,_orcamento);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_EXTERNO_SOLICITADO_SUCESSSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSolicitarReparoExternoOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_EXTERNO_SOLICITADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onEditarReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_EDITADO,_reparo);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_EDITADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onEditarReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_EDITADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				
+				this.currentState = "listagem";
+			}
+			
+			private function validateFinalizar():Boolean {	
+				var isValidAreaTecnica:Boolean = false;
+				if(_orcamento){
+					isValidAreaTecnica = infoTecnicaOrcamento.validateComponente();
+				}else{
+					isValidAreaTecnica = infoTecnicaReparo.validateComponente();	
+				}
+				
+				if(!isValidAreaTecnica){
+					return false;
+				}
+				
+				var isTempoGasto:Boolean = false;
+				if(_orcamento){
+					isTempoGasto = infoTecnicaOrcamento.validateTempoGasto();
+				}else{
+					isTempoGasto = infoTecnicaReparo.validateTempoGasto();	
+				}
+				
+				if(!isTempoGasto){
+					return false;
+				}
+				
+				if(infoDefeitos.getDefeitos() != null && infoDefeitos.getDefeitos().length == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_DEFEITO_INFORMADO'), MessageType.WARNING, 5000));
+					return false;
+				}
+				if(infoAtividades.getAtividades() != null && infoAtividades.getAtividades().length == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUMA_ATIVIDADE_INFORMADA'), MessageType.WARNING, 5000));
+					return false
+				}
+				if(infoComponentes.listaRequisicoes != null && infoComponentes.listaRequisicoes.length > 0){
+					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
+						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
+							
+						}else{
+							//Alguma requisicao ainda não foi devidamente atendida
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXISTEM_REQUISICOES_PENDENTES'), MessageType.WARNING, 5000));
+							return false;
+						}
+					}
+				}
+				if(infoComponentes.listaComponentePosicao != null && infoComponentes.listaComponentePosicao.length > 0){
+					for each(var comp:ComponenteOrcRep in infoComponentes.listaComponentePosicao){
+						if(comp.condicao == "Utilizado" && comp.posicao == ""){
+							//Posição do componente na placa não foi preenchida
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','POSICAO_COMPONENTE_NAO_INFORMADA'), MessageType.WARNING, 5000));
+							return false;
+						}
+					}
+				}
+				
+				return true;
+			}	
+			
+			private function validateEncaminharAoLider():Boolean {	
+				var isValidAreaTecnica:Boolean = false;
+				if(_orcamento){
+					isValidAreaTecnica = infoTecnicaOrcamento.validateComponente();
+				}else{
+					isValidAreaTecnica = infoTecnicaReparo.validateComponente();	
+				}
+				
+				if(!isValidAreaTecnica){
+					return false;
+				}
+				
+				if(infoDefeitos.getDefeitos() != null && infoDefeitos.getDefeitos().length == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_DEFEITO_INFORMADO'), MessageType.WARNING, 5000));
+					return false;
+				}
+				
+				if(infoComponentes.listaRequisicoes != null && infoComponentes.listaRequisicoes.length > 0){
+					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
+						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
+							
+						}else{
+							//Alguma requisicao ainda não foi devidamente atendida
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXISTEM_REQUISICOES_PENDENTES'), MessageType.WARNING, 5000));
+							return false;
+						}
+					}
+				}
+				if(infoComponentes.listaComponentePosicao != null && infoComponentes.listaComponentePosicao.length > 0){
+					for each(var comp:ComponenteOrcRep in infoComponentes.listaComponentePosicao){
+						if(comp.condicao == "Utilizado" && comp.posicao == ""){
+							//Posição do componente na placa não foi preenchida
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','POSICAO_COMPONENTE_NAO_INFORMADA'), MessageType.WARNING, 5000));
+							return false;
+						}
+					}
+				}
+				
+				return true;
+			}
+			
+			private function onAprovarOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				exibirNotificacaoOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_APROVADO, _orcamento);
+				Publicador.enviarMensagemProposta(MensagensAplicacao.PROPOSTA_OS_AGUARDANDO_BAIXA,_orcamento.ordemServico);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_ENVIADO_PROPOSTA_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onAprovarOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[IniciarReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.search("java.lang.Exception") != -1){
+					dispatchEvent(new MensagemEvent("Usuário não possui permissão para aprovar a solicitaçao", MessageType.WARNING, 3000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao aprovar a solicitação", MessageType.ERROR, 3000));
+				}
+				
+			}
+			
+			private function onAprovarReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				if(_reparo.statusString == "Laudo aguardando aprovação do líder"){
+					_reparo = event.result as Reparo;
+					Publicador.enviarMensagemLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_CRIADO,_reparo.ordemServico.laudoTecnico);
+				}else if(_reparo.statusString == "Devolução sem reparo aguardando aprovação do líder"){
+					_reparo = event.result as Reparo;
+					
+				}else{
+					_reparo = event.result as Reparo;
+				}
+				setReparo(_reparo);
+				exibirNotificacaoReparo(_reparo);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.REPARO_SALVO, _reparo);
+				//Publicador.enviarMensagemProposta(MensagensAplicacao.PROPOSTA_OS_AGUARDANDO_BAIXA,_reparo.ordemServico);
+				dispatchEvent(new MensagemEvent("Solicitação aprovada pelo líder com sucesso", MessageType.SUCCESS, 10000));
+			}
+			
+			private function onAprovarReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[IniciarReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.search("java.lang.Exception") != -1){
+					dispatchEvent(new MensagemEvent("Usuário não possui permissão para aprovar a solicitaçao", MessageType.WARNING, 3000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao aprovar solicitação", MessageType.ERROR, 3000));
+				}
+				
+			}
+			
+			private function onIniciarOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_INICIADO, _orcamento);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_INICIADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onIniciarOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[IniciarReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_INICIADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onSalvarOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_SALVO, _orcamento);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_SALVO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSalvarOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_SALVO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onFinalizarOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_FINALIZADO, _orcamento);
+				Publicador.enviarMensagemExpedicao(MensagensAplicacao.EXPEDICAO_OS_AGUARDANDO_BAIXA,null);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_FINALIZADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onFinalizarOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_FINALIZADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onEncaminharAoLiderResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_ENCAMINHAR_AO_LIDER, _orcamento);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ENCAMINHADO_AO_LIDER_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onEncaminharAoLiderFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ENCAMINHADO_AO_LIDER_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function onRejeitarOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_REJEITAR_ORCAMENTO, _orcamento);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_REJEITADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onRejeitarOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.search("java.lang.Exception") != -1){
+					dispatchEvent(new MensagemEvent("Usuário não possui permissão para rejeitar a solicitaçao", MessageType.WARNING, 3000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao rejeitar a solicitação", MessageType.ERROR, 3000));
+				}	
+			}
+			
+			private function onRejeitarReparoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_reparo = event.result as Reparo;
+				setReparo(_reparo);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_REJEITAR_ORCAMENTO, _reparo);
+				dispatchEvent(new MensagemEvent("Solicitação foi rejeitada com sucesso", MessageType.SUCCESS, 10000));
+			}
+			
+			private function onRejeitarReparoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.search("java.lang.Exception") != -1){
+					dispatchEvent(new MensagemEvent("Usuário não possui permissão para rejeitar a solicitaçao", MessageType.WARNING, 3000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao rejeitar a solicitação", MessageType.ERROR, 3000));
+				}
+			}
+			
+			private function onSolicitarLaudoTecnicoOrcamentoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_orcamento = event.result as Orcamento;
+				setOrcamento(_orcamento);
+				Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_REQUISICAO_LAUDO_TECNICO, _orcamento);
+				//Publicador.enviarMensagemLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_CRIADO,_orcamento.ordemServico.laudoTecnico);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_SOLICITADO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSolicitarLaudoTecnicoOrcamentoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_SOLICITADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicaoReparo"/>
+		<s:State name="edicaoOrcamento"/>
+	</mx:states>
+	
+	
+	
+	<reparoOrcamento:ListagemGeral id="listagemGeral" includeIn="listagem" />
+	
+	<componentesReparoOrcamento:InformacaoOrdemServico id="infoOrdemServico" includeIn="edicaoOrcamento,edicaoReparo" />
+	
+	<componentesOrcamento:InformacoesTecnicas id="infoTecnicaOrcamento" includeIn="edicaoOrcamento" />
+	
+	<componentesReparo:InformacoesTecnicas id="infoTecnicaReparo" includeIn="edicaoReparo" />
+	
+	<mx:Accordion id="accordion"  width="100%" height="100%" excludeFrom="listagem">
+		<s:NavigatorContent label="Defeitos" width="100%">
+			<componentesReparoOrcamento:Defeitos id="infoDefeitos" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Atividades" width="100%">
+			<componentesReparoOrcamento:Atividades id="infoAtividades" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Componentes" width="100%">
+			<componentesReparoOrcamento:Componentes id="infoComponentes" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Histórico da unidade" width="100%">
+			<componentesReparoOrcamento:InformacoesAdicionais id="infoAdicionais" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Observações" width="100%" height="100%">
+			<componentes:Observacoes id="observacoes" origem="{_orcamento == null ? 'Reparo':'Orçamento'}" 
+									 entidade ="{_orcamento == null ? _reparo :_orcamento}" 
+									 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+		</s:NavigatorContent>
+	</mx:Accordion>
+	
+	<componentesOrcamento:Controles id="controlesOrcamento" includeIn="edicaoOrcamento" />
+	
+	<componentesReparo:Controles id="controlesReparo" includeIn="edicaoReparo" />
+	
+	
+</mx:VBox>

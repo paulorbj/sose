@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:texto="components.textInput.*" width="100%"
+		 >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Equipamento;
+			
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var _equipamento:Equipamento = new Equipamento();
+			
+			
+			public function get equipamento():Equipamento
+			{
+				return _equipamento;
+			}
+
+			public function set equipamento(value:Equipamento):void
+			{
+				_equipamento = value;
+			}
+			
+			public function limpar():void
+			{
+				_equipamento = new Equipamento();
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(nome.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="nome.inputText" source="_equipamento.nome" twoWay="true"/>
+	<fx:Binding destination="descricao.inputText" source="_equipamento.descricao" twoWay="true"/>
+	<fx:Binding destination="ativo.selected" source="_equipamento.cadastroSistemaAtivo" twoWay="true"/>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="nome" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_EQUIPAMENTO')}" width="250"  />
+		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="515" />
+		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
+	</mx:HBox>
+</mx:VBox>

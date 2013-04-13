@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Style>
+		ApplicationControlBar{
+		backgroundColor:#ACACAC;
+		color: #323232;
+		}
+	</fx:Style>
+	
+	<mx:ApplicationControlBar width="80%">
+		<mx:Label text="Normal" fontWeight="bold" color="0x000000"/>
+		<mx:Label text="Search:" color="0x323232" />
+		<mx:TextInput width="100%" maxWidth="200" />
+		<mx:Spacer width="100%" />
+		<mx:Button icon="@Embed(source='/assets/icons/back.png')"  />
+		<mx:Button icon="@Embed(source='/assets/icons/back.png')"  />
+	</mx:ApplicationControlBar>
+	
+</mx:VBox>

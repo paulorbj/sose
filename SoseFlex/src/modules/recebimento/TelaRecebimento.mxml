@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 paddingLeft="12"
+		 paddingRight="12"
+		 paddingBottom="20"
+		 width="100%" height="100%"
+		 verticalGap="0" creationComplete="configurarSubMenu();"
+		 xmlns:notafiscal="modules.recebimento.notaFiscal.*"
+		 xmlns:correcao="modules.recebimento.correcao.*"
+		 xmlns:lpu="modules.administrativo.lpu.*" 
+		 xmlns:textInput="components.textInput.*" 
+		 xmlns:flextras="http://www.flextras.com/mxml">
+	<fx:Script>
+		<![CDATA[
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			private function configurarSubMenu():void
+			{
+				if(Login.currentUser){
+					if(!Login.currentUser.perfil.subMenuRecebimentouNotaFiscal){
+						subMenu.removeChild(notaFiscal);
+					}
+					if(!Login.currentUser.perfil.subMenuRecebimentoLpu){
+						subMenu.removeChild(lpu);
+					}
+					if(!Login.currentUser.perfil.atualizarDadosOrdemServico){
+						subMenu.removeChild(correcao);
+					}
+				}
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:Fade id="fadeIn" duration="100" alphaFrom="0" alphaTo="1"/>
+		<mx:Fade id="fadeOut" duration="100" alphaFrom="1" alphaTo="0"/>
+	</fx:Declarations>
+	
+	<mx:LinkBar dataProvider = "{subMenu}"
+				borderStyle = "none"
+				fontFamily="Verdana" />
+	 
+	<mx:ViewStack id="subMenu"  backgroundAlpha="0"
+				  borderStyle = "none" 
+				  width = "100%"	height="100%"			  
+				  creationPolicy="all">
+		
+		<mx:Canvas id="notaFiscal" width = "100%" height="100%" visible="{Login.currentUser.perfil.subMenuRecebimentouNotaFiscal}"
+				   label = "{resourceManager.getString('ApplicationResource','NOTAS_FISCAIS')}"  showEffect="fadeIn" hideEffect="fadeOut"  >
+			<notafiscal:TelaNotaFiscal />
+		</mx:Canvas>
+		
+		<mx:Canvas id="lpu" width = "100%" height="100%" enabled="{Login.currentUser.perfil.subMenuRecebimentoLpu}"
+				   label = "{resourceManager.getString('ApplicationResource','LPUS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<lpu:CadastroLpu />
+		</mx:Canvas>
+
+		<mx:Canvas id="correcao" width = "100%" height="100%" enabled="{Login.currentUser.perfil.atualizarDadosOrdemServico}"
+				   label = "Correção de informações" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<correcao:CorrecaoOrdemServico />
+		</mx:Canvas>
+	</mx:ViewStack>
+	
+</mx:VBox>

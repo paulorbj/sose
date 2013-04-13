@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+#############################################################################################
+# Copyright(c) 2010 by Foxconn and Eldorado                                                 #  
+# This file is part of Foxconn project,                                                     #
+#############################################################################################
+# File: UserRegisterNumberModal.mxml                                                        #       
+# 09-AGO-2010 - Juliano Herobetta                 - 006174  - Creating handlers and         #
+#															  validators                    #
+# 11-AGO-2010 - Juliano Herobetta                 - 006503  - Hiding admin user             #
+# 18-AGO-2010 - Juliano Herobetta                 - 006688  - Adding register Number        #
+# 23-AGO-2010 - Juliano Herobetta                 - 006188  - Adding user variable and      #
+#                                                             validation                    #
+# 26-AGO-2010 - Juliano Herobetta                 - 006190  - Changing modal to block app   #
+#############################################################################################
+-->
+
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="{resourceManager.getString('ApplicationResource','MODAL_AUTHENTICATION')}"
+				creationComplete="doInit()"
+				initialize="addListeners()"
+				xmlns:components="components.*"
+				chromeColor="#C1DAFA" xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		
+		<mx:RemoteObject id="userService" destination="userService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="findByRegisterNumber"      
+					   fault="onfindByUserRegisterFault(event)" 
+					   result="onfindByUserRegisterResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<!-- Validators -->
+		<mx:StringValidator id = "userRegisterNumberValidator"
+							source = "{userRegisterNumber}"
+							property = "text"
+							required = "true"							
+							requiredFieldError = "{resourceManager.getString('ApplicationResource','MODAL_VALIDATION')}"/>
+		
+		<mx:StringValidator id="stringValidator"
+							required="true" 
+							source="{passwordTextInput}" 
+							property="text" 							
+							triggerEvent = "{FocusEvent.FOCUS_OUT}"
+							requiredFieldError="{resourceManager.getString('ApplicationResource','REQUIRED_FIELD')}"														
+							/>
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.Message;
+			import components.messages.MessageFactory;
+			import components.messages.MessageType;
+			
+			import layout.CurrentTabController;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import valueObjects.User;
+			
+			private var _userRegister:String;					
+			
+			private var _user:User;
+			
+			private var yesListeners:ArrayCollection = new ArrayCollection();
+			
+			public function get user():User
+			{
+				return _user;
+			}
+			
+			public function set user(value:User):void
+			{
+				_user = value;
+			}
+			
+			public function get userRegister():String
+			{
+				return _userRegister;
+			}
+			
+			public function set userRegister(value:String):void
+			{
+				_userRegister = value;
+			}	
+			
+			private function doInit():void
+			{
+				userRegisterNumber.setFocus();
+				
+			
+			}
+			
+			override public function addEventListener(
+				type:String, listener:Function,
+				useCapture:Boolean = false,
+				priority:int = 0,
+				useWeakReference:Boolean = false):void {
+				yesListeners.addItem(listener);
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}else if(e.keyCode==Keyboard.ENTER){
+					confirm();
+				}
+			}
+			
+			
+			private function confirm():void	
+			{
+				
+				if(Validator.validateAll([userRegisterNumberValidator, stringValidator]).length==0){
+				
+					PopupModalController.getInstance().hideUserModal();
+					
+					this._userRegister = userRegisterNumber.text;
+					
+					userService.findByRegisterNumber(this._userRegister, this.passwordTextInput.text);
+				}
+				
+			}
+			
+			private function close():void 
+			{
+				var eventRegister:UserRegisterNumberModalEvent = new UserRegisterNumberModalEvent(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL_CANCEL,_user,true, false);
+				dispatchEvent(eventRegister);
+				
+				for (var i:int = 0; i < yesListeners.length; i++) {
+					this.removeEventListener(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL, yesListeners.getItemAt(i) as Function);
+					this.removeEventListener(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL_CANCEL, yesListeners.getItemAt(i) as Function);
+				}
+				
+				yesListeners = new ArrayCollection;
+				
+				PopupModalController.getInstance().hideUserModal();
+			}
+			
+			/** Handles success return from findAll() function */
+			private function onfindByUserRegisterResult(event:ResultEvent = null):void
+			{
+				this._user = event.result as User;
+				var eventRegister:UserRegisterNumberModalEvent = new UserRegisterNumberModalEvent(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL,_user,true, false);
+				dispatchEvent(eventRegister);
+				if (CurrentTabController.getInstance().isShowingTips) {
+					CurrentTabController.getInstance().showTips();
+				}
+				PopupModalController.getInstance().hideUserModal();
+			}
+			
+			/** Handles fail return from findAll() function */
+			private function onfindByUserRegisterFault(event:FaultEvent = null):void
+			{
+				close();
+				trace("[findByRegisterNumber] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				parentApplication.messageFactory.addMessage(resourceManager.getString('ApplicationResource','MODAL_VALIDATION'), MessageType.ERROR, 10000);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:VBox horizontalAlign="center" verticalAlign="bottom">			
+		<mx:HBox horizontalAlign="right" verticalAlign="middle">
+			<s:Label textAlign="right" text="{resourceManager.getString('ApplicationResource','MODAL_AUTHENTICATION_REGISTER')}" width="80"/>
+			<s:TextInput  
+				id="userRegisterNumber"
+				width="80"
+				restrict="[0-9]"
+				maxChars="10"
+				/>
+		</mx:HBox>
+		<mx:HBox horizontalAlign="right" verticalAlign="middle">
+			<s:Label textAlign="right" text="{resourceManager.getString('ApplicationResource','PASSWORD')}" width="80"/>
+			<s:TextInput id = "passwordTextInput" maxChars="255"					  
+					  width = "80"
+					  displayAsPassword = "true"
+					  enter="confirm()"/>
+		</mx:HBox>
+	</mx:VBox>	
+	
+	<mx:ControlBar horizontalAlign="center">
+		<mx:HBox>
+			
+			<mx:Button click="confirm()"
+					   label="{resourceManager.getString('ApplicationResource','OK')}"
+					   icon="@Embed(source='/assets/icons/yes.png')"/>
+			<mx:Button click="close()"
+					   label="{resourceManager.getString('ApplicationResource','CANCEL')}"
+					   icon="@Embed(source='/assets/icons/no.png')"/>
+		</mx:HBox>
+	</mx:ControlBar>
+</mx:TitleWindow>

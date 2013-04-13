@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="As informações estão corretas?"
+				xmlns:components="components.*"
+				xmlns:grid="components.grid.*"
+				creationComplete="doInit()"
+				initialize="addListeners()"
+				creationPolicy="all" width="800" height="400"
+				xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			
+			import entities.recebimento.OrdemServico;
+			
+			import modules.recebimento.eventos.ConfirmarInformacoesModalEvent;
+			import modules.recebimento.eventos.VerificarGarantiaModalEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			private var yesListeners:ArrayCollection = new ArrayCollection();
+			private var metodoRetorno:Function;
+			public var myParentObject:DisplayObject;
+			[Bindable]
+			private var listaOsAntiga:ArrayCollection;
+			[Bindable]
+			private var listaOsCorrente:ArrayCollection;
+			
+			[Bindable]
+			private var _osCorrente:OrdemServico;
+			
+			
+			override public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void {
+				yesListeners.addItem(listener);
+				metodoRetorno = listener;
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			
+			private function doInit():void
+			{
+				
+			}
+			
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}
+			}
+			
+			
+			private function close():void
+			{
+				PopupModalController.getInstance().hideModalConfirmarInformacoes();
+			}
+			
+			
+			public function get osCorrente():OrdemServico
+			{
+				return _osCorrente;
+			}
+			
+			public function set osCorrente(value:OrdemServico):void
+			{
+				_osCorrente = value;
+				listaOsCorrente = new ArrayCollection();
+				if(_osCorrente.placasFilhas != null && _osCorrente.placasFilhas.length > 0){
+					for each (var osFilha:OrdemServico in _osCorrente.placasFilhas){
+						listaOsCorrente.addItem(osFilha);
+					}
+				}
+			}
+			
+			private function darGarantia():void
+			{
+				var eventRegister:ConfirmarInformacoesModalEvent = new ConfirmarInformacoesModalEvent(ConfirmarInformacoesModalEvent.RETORNAR_ORDEM_SERVICO_CONFIRMAR_MODAL,_osCorrente,true, false);
+				dispatchEvent(eventRegister);
+				close();
+			}
+			
+			private function fechar():void
+			{
+				close();
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox horizontalAlign="left" verticalAlign="top" width="100%" height="100%" creationPolicy="all">
+		<mx:HBox>
+			<s:Label text="Nº OS:" />
+			<s:Label text="{_osCorrente.numeroOrdemServico}" />
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Label text="Nº série cliente:" />
+			<s:Label text="{_osCorrente.serieCliente}" />
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Label text="Nº série fabricante:" />
+			<s:Label text="{_osCorrente.serieFabricante}" />
+		</mx:HBox>
+		
+		<mx:HBox>
+			<s:Label text="Nº OS cliente:" />
+			<s:Label text="{_osCorrente.ordemServicoCliente}" />
+		</mx:HBox>
+		
+		<grid:MantisTable id="tabelaOsAntiga"
+						  width="100%" 
+						  height="100%"
+						  draggableColumns="false"
+						  dataProvider="{listaOsCorrente}"
+						  doubleClickEnabled="false" editable="false"
+						  >
+			<grid:columns>
+				
+				<mx:DataGridColumn id="unidade" editable="false"
+								   headerText = "Unidade"
+								   textAlign="center" width=".20"
+								   resizable="false" draggable="false" sortable="false"
+								   dataField="unidade.nome"							   
+								   />
+				
+				<mx:DataGridColumn id="numeroOs" editable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+								   textAlign="center" width=".10"
+								   resizable="false" draggable="false" sortable="false"
+								   dataField="numeroOrdemServico"							   
+								   />
+				
+				<mx:DataGridColumn id="numeroOsPai" editable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+								   textAlign="center" width=".10"
+								   resizable="false" draggable="false" sortable="false"
+								   dataField="unidadePai.numeroOrdemServico"							   
+								   />
+				
+				<mx:DataGridColumn id="nSerieFabricante"  showDataTips="true" sortable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+								   dataField = "serieFabricante"
+								   width=".20"
+								   />
+				
+				<mx:DataGridColumn id="nSerieCliente" showDataTips="true" sortable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+								   dataField = "serieCliente"
+								   width=".20"
+								   />
+				
+				<mx:DataGridColumn id="nOSCliente" showDataTips="true" sortable="false"
+								   headerText = "OS cliente"
+								   dataField = "ordemServicoCliente"
+								   width=".20"
+								   />
+				
+			</grid:columns>
+		</grid:MantisTable>		
+	</mx:VBox>
+	
+	<mx:ControlBar horizontalAlign="center" width="100%">
+		<mx:HBox width="100%">	
+			<mx:Button click="darGarantia()" width="50%"
+					   label="Sim"
+					   icon="@Embed(source='/assets/icons/yes.png')"/>
+			<mx:Button click="fechar()" width="50%"
+					   label="Não"
+					   icon="@Embed(source='/assets/icons/no.png')"/>
+		</mx:HBox>
+	</mx:ControlBar>
+	
+	
+</mx:TitleWindow>

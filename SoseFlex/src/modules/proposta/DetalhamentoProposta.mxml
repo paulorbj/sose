@@ -1,0 +1,968 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="95%"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" initialize="onCreationComplete()"
+		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*" >
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="descontoProposta"/>
+		<s:RadioButtonGroup id="descontoItemProposta"/>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="itemPropostaService" destination="itemPropostaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="aprovarItensProposta"      
+					   fault="onAprovarItensPropostaFault(event)" 
+					   result="onAprovarItensPropostaResult(event)"
+					   />
+			<mx:method name="reprovarItensProposta"      
+					   fault="onReprovarItensPropostaFault(event)" 
+					   result="onReprovarItensPropostaResult(event)"
+					   />
+			<mx:method name="aprovarItemProposta"      
+					   fault="onAprovarItemPropostaFault(event)" 
+					   result="onAprovarItemPropostaResult(event)"
+					   />
+			<mx:method name="reprovarItemProposta"      
+					   fault="onReprovarItemPropostaFault(event)" 
+					   result="onReprovarItemPropostaResult(event)"
+					   />
+			<mx:method name="restaurarItemProposta"      
+					   fault="onRestaurarItemPropostaFault(event)" 
+					   result="onRestaurarItemPropostaResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="contatoService" destination="contatoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarContato"      
+					   fault="onSalvarContatoFault(event)" 
+					   result="onSalvarContatoResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Usuario;
+			import entities.administrativo.parceiros.Contato;
+			import entities.orcamentoreparo.DefeitoOrcRep;
+			import entities.proposta.ItemProposta;
+			import entities.proposta.Proposta;
+			
+			import modules.administrativo.parceiros.contato.eventos.ContatoEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.core.FlexGlobals;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.Formatador;
+			
+			[Bindable]
+			private var _proposta:Proposta;
+			
+			[Bindable]
+			private var _itemProposta:ItemProposta;
+			
+			[Bindable]
+			private var _contato:Contato;
+			
+			[Bindable]
+			private var _listaItensProposta:ArrayCollection;
+			
+			[Bindable]
+			private var _listaItensPropostaEdicao:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _itensSelecionados:ArrayCollection;
+			
+			private var _indexItem:int = -1;
+			
+			[Bindable]
+			private var totalValoresItem:Number;
+			
+			private var _modalObservacao:ObservacaoModal = new ObservacaoModal();
+			
+			private var app:SoseFlex = FlexGlobals.topLevelApplication as SoseFlex;
+			
+			public function adicionarItemProposta(item:ItemProposta):void
+			{
+				var itemAux:ItemProposta = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<_listaItensProposta.length; i++){
+					itemAux = _listaItensProposta.getItemAt(i) as ItemProposta; 
+					if(itemAux.id == item.id){	
+						_listaItensProposta.removeItemAt(i);
+						_listaItensProposta.addItemAt(item,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					_listaItensProposta.addItem(item);
+				}
+			}
+			
+			public function validateContato():Boolean {	
+				var validatorArr:Array = new Array();
+				contato.required = true;
+				validatorArr.push(contato.comboBox.comboValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				contato.required = false;
+				return isValidForm;
+			}
+			
+			private function ordenarItensProposta():void
+			{
+				if(_listaItensProposta != null){
+					var sortA:Sort = new Sort();
+					sortA.fields=[new SortField("osPaiOrdenar",false,false,true),new SortField("osFilhaOrdenar",false,false,true)];
+					_listaItensProposta.sort=sortA;
+					
+					_listaItensProposta.refresh();
+				}
+			}
+			
+			private function ajustarBotaoSelect():void
+			{
+				for each(var ip:ItemProposta in _listaItensProposta){
+					if(_proposta.tipo == "Orçamento"){
+						if(ip.ordemServico.orcamento == null || ip.ordemServico.orcamento.condicao == "Sem condição de reparo"){
+							ip.isEnabled = false;
+						}
+					}else{
+						if(ip.ordemServico.reparo == null || ip.ordemServico.reparo.condicao == "Sem condição de reparo"){
+							ip.isEnabled = false;
+						}
+					}
+				}
+			}
+			
+			public function getItensProposta():ArrayCollection
+			{
+				return _listaItensProposta;
+			}
+			
+			public function onCreationComplete():void
+			{
+				this.addEventListener(ContatoEvent.COMBO_CONTATO_POPULADO,onComboPopulado);
+			}
+			
+			public function onComboPopulado(event:ContatoEvent):void
+			{
+				if(_proposta.contato){
+					contato.contatoSelecionado = _proposta.contato;
+					_contato = _proposta.contato;
+				}else{
+					contato.limpar();
+					_contato = null;
+				}
+			}
+			
+			public function get proposta():Proposta
+			{
+				_proposta.itensProposta = _listaItensProposta;
+				_proposta.contato = contato.contatoSelecionado;
+				if(_proposta.contato && _proposta.contato.id == 0){
+					_proposta.contato = null;
+				}
+				_proposta.valorFrete = valorFrete.getValor();	
+				return _proposta;
+			}
+			
+			public function set proposta(value:Proposta):void
+			{
+				_proposta = value;
+				valorFrete.setValor(value.valorFrete);
+				atualizaFrete();
+				contato.cliente = value.cliente;
+				if(_proposta.contato){
+					contato.cliente = value.cliente;
+					contato.contatoSelecionado = _proposta.contato;
+					_contato = _proposta.contato;
+				}else{
+					contato.limpar();
+					_contato = null;
+				}
+				
+				_listaItensProposta = value.itensProposta;
+				atualizaTotalValores(_listaItensProposta);
+				ordenarItensProposta();
+				ajustarBotaoSelect();
+			}
+			
+			private function adicionarContato(event:MouseEvent):void
+			{
+				this.currentState = "adicionarContato";
+				_contato = new Contato();
+			}
+			
+			private function salvarContato(event:MouseEvent):void
+			{
+				_contato.cliente = _proposta.cliente;
+				contatoService.salvarContato(_contato);
+			}
+			
+			public function onSalvarContatoResult(event:ResultEvent):void
+			{
+				_contato = event.result as Contato;
+				contato.comboBox.dataProvider.addItem(_contato);
+				contato.contatoSelecionado = _contato;
+				this.currentState = "normal";
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','CONTATO_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			public function onSalvarContatoFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarLpuPorClienteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				cancelarContato();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','CONTATO_SALVAR_ERRO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function cancelarContato(event:MouseEvent=null):void
+			{
+				this.currentState = "normal";
+				_contato = new Contato();
+			}
+			
+			public function voltarNormal(event:MouseEvent=null):void
+			{
+				atualizaTotalValores(_listaItensProposta);
+				this.currentState = "normal";
+				parentDocument.btVoltar.enabled = true;
+			}
+			
+			private function aplicarProposta(event:MouseEvent):void
+			{
+				
+			}
+			
+			private function aplicarItemProposta(event:MouseEvent):void
+			{
+				trace("funcionou!!!");
+			}
+			
+			public function aprovarItem(data:Object=null, event:Event=null):void
+			{
+				if(data)
+					_itemProposta = data as ItemProposta;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_proposta.statusString == "Aguardando aprovação do cliente"){
+						_indexItem = -1;
+						itemPropostaService.aprovarItemProposta(_itemProposta,usr);
+					}else{
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ACAO_INVALIDA_NESSE_STATUS'), MessageType.WARNING, 3000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(aprovarItemAutenticar);
+				}
+			}
+			
+			public function aprovarItemAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				aprovarItem();
+			}
+			
+			private function onAprovarItemPropostaResult(event:ResultEvent = null):void
+			{
+				_itemProposta = event.result as ItemProposta;
+				
+				adicionarItemProposta(_itemProposta);
+				if(_itemProposta.ordemServico.placasFilhas != null && _itemProposta.ordemServico.placasFilhas.length > 0){
+					for each(var ip:ItemProposta in _itemProposta.proposta.itensProposta){
+						adicionarItemProposta(ip);
+					}
+				}
+				
+				var existeItemPendenteDeLiberacao:Boolean = false;
+				for each (var item:ItemProposta in _listaItensProposta)
+				{
+					if(item.dataAprovacao != null && item.dataLiberacao == null){
+						existeItemPendenteDeLiberacao = true;
+						break;
+					}
+				}
+				ordenarItensProposta();
+				ajustarBotaoSelect();
+				parentDocument.existeItemALiberar = existeItemPendenteDeLiberacao;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ITEM_APROVADO_COM_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onAprovarItemPropostaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function reprovarItem(data:Object=null, event:Event=null):void
+			{
+				if(data)
+					_itemProposta = data as ItemProposta;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_proposta.statusString == "Aguardando aprovação do cliente"){
+						_indexItem = -1;
+						itemPropostaService.reprovarItemProposta(_itemProposta,usr);
+					}else{
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ACAO_INVALIDA_NESSE_STATUS'), MessageType.WARNING, 10000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(reprovarItemAutenticar);
+				}
+			}
+			
+			public function reprovarItemAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				reprovarItem();
+			}
+			
+			private function onReprovarItemPropostaResult(event:ResultEvent = null):void
+			{
+				_itemProposta = event.result as ItemProposta;
+				
+				adicionarItemProposta(_itemProposta);
+				if(_itemProposta.ordemServico.placasFilhas != null && _itemProposta.ordemServico.placasFilhas.length > 0){
+					for each(var ip:ItemProposta in _itemProposta.proposta.itensProposta){
+						adicionarItemProposta(ip);
+					}
+				}
+				
+				var existeItemPendenteDeLiberacao:Boolean = false;
+				for each (var item:ItemProposta in _listaItensProposta)
+				{
+					if(item.dataAprovacao != null && item.dataLiberacao == null){
+						existeItemPendenteDeLiberacao = true;
+						break;
+					}
+				}
+				ordenarItensProposta();
+				ajustarBotaoSelect();
+				parentDocument.existeItemALiberar = existeItemPendenteDeLiberacao;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ITEM_REPROVADO_COM_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onReprovarItemPropostaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function restaurarItem(data:Object=null, event:Event=null):void
+			{
+				if(data)
+					_itemProposta = data as ItemProposta;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_itemProposta.dataLiberacao == null){
+						if(_itemProposta.dataAprovacao != null){
+							_indexItem = -1;
+							itemPropostaService.restaurarItemProposta(_itemProposta,usr);
+						}
+					}else{
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ITEM_LIBERADO_NAO_PODE_SER_RESTAURADO'), MessageType.WARNING, 10000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(restaurarItemAutenticar);
+				}
+			}
+			
+			public function restaurarItemAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				restaurarItem();
+			}
+			
+			private function onRestaurarItemPropostaResult(event:ResultEvent = null):void
+			{
+				_itemProposta = event.result as ItemProposta;
+				
+				adicionarItemProposta(_itemProposta);
+				if(_itemProposta.ordemServico.placasFilhas != null && _itemProposta.ordemServico.placasFilhas.length > 0){
+					for each(var ip:ItemProposta in _itemProposta.proposta.itensProposta){
+						adicionarItemProposta(ip);
+					}
+				}
+				
+				var existeItemPendenteDeLiberacao:Boolean = false;
+				for each (var item:ItemProposta in _listaItensProposta)
+				{
+					if(item.dataAprovacao != null && item.dataLiberacao == null){
+						existeItemPendenteDeLiberacao = true;
+						break;
+					}
+				}
+				ordenarItensProposta();
+				ajustarBotaoSelect();
+				parentDocument.existeItemALiberar = existeItemPendenteDeLiberacao;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ITEM_RESTAURADO_COM_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onRestaurarItemPropostaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function aprovarItens(event:Event=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_itensSelecionados = new ArrayCollection();
+					for each (var item:ItemProposta in _listaItensProposta){
+						if(item.isSelected){
+							_itensSelecionados.addItem(item);
+						}
+					}
+					
+					if(_itensSelecionados.length == 0){
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_ITEM_SELECIONADO'), MessageType.ERROR, 10000));
+					}else{
+						itemPropostaService.aprovarItensProposta(_itensSelecionados,usr);
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(aprovarItensAutenticar);
+				}
+			}
+			
+			public function aprovarItensAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				aprovarItens();
+			}
+			
+			private function onAprovarItensPropostaResult(event:ResultEvent = null):void
+			{
+				_itensSelecionados = event.result as ArrayCollection;
+				
+				for each (var itemSelecionado:ItemProposta in _itensSelecionados){
+					adicionarItemProposta(itemSelecionado);
+					if(itemSelecionado.ordemServico.placasFilhas != null && itemSelecionado.ordemServico.placasFilhas.length > 0){
+						for each(var ip:ItemProposta in itemSelecionado.proposta.itensProposta){
+							adicionarItemProposta(ip);
+						}
+					}
+				}
+				
+				var existeItemPendenteDeLiberacao:Boolean = false;
+				for each (var item:ItemProposta in _listaItensProposta)
+				{
+					if(item.dataAprovacao != null && item.dataLiberacao == null){
+						existeItemPendenteDeLiberacao = true;
+						break;
+					}
+				}
+				ordenarItensProposta();
+				ajustarBotaoSelect();
+				parentDocument.existeItemALiberar = existeItemPendenteDeLiberacao;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ITENS_APROVADOS_COM_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onAprovarItensPropostaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function reprovarItens(event:Event=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_itensSelecionados = new ArrayCollection();
+					for each (var item:ItemProposta in _listaItensProposta){
+						if(item.isSelected){
+							_itensSelecionados.addItem(item);
+						}
+					}
+					
+					if(_itensSelecionados.length == 0){
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_ITEM_SELECIONADO'), MessageType.ERROR, 10000));
+					}else{
+						itemPropostaService.reprovarItensProposta(_itensSelecionados,usr);
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(reprovarItensAutenticar);
+				}
+			}
+			
+			public function reprovarItensAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				reprovarItens();
+			}
+			
+			private function onReprovarItensPropostaResult(event:ResultEvent = null):void
+			{
+				_itensSelecionados = event.result as ArrayCollection;
+				
+				for each (var itemSelecionado:ItemProposta in _itensSelecionados){
+					adicionarItemProposta(itemSelecionado);
+					if(itemSelecionado.ordemServico.placasFilhas != null && itemSelecionado.ordemServico.placasFilhas.length > 0){
+						for each(var ip:ItemProposta in itemSelecionado.proposta.itensProposta){
+							adicionarItemProposta(ip);
+						}
+					}
+				}
+				
+				var existeItemPendenteDeLiberacao:Boolean = false;
+				for each (var item:ItemProposta in _listaItensProposta)
+				{
+					if(item.dataAprovacao != null && item.dataLiberacao == null){
+						existeItemPendenteDeLiberacao = true;
+						break;
+					}
+				}
+				ordenarItensProposta();
+				ajustarBotaoSelect();
+				parentDocument.existeItemALiberar = existeItemPendenteDeLiberacao;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ITENS_REPROVADOS_COM_SUCESSO'), MessageType.SUCCESS, 10000));
+				
+			}
+			
+			private function onReprovarItensPropostaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{
+				this.currentState = "editarItemProposta";
+				//parentDocument.btVoltar.enabled = false;
+				_itemProposta = data as ItemProposta;
+				totalSemDescontoItem.setValor(_itemProposta.valorSemDesconto);
+				totalComDescontoItem.setValor(_itemProposta.valorSemDesconto);
+				observacao.entidade = _itemProposta.ordemServico;;
+				observacao.listarObservacoes();
+				_listaItensPropostaEdicao.removeAll();
+				_listaItensPropostaEdicao.addItem(_itemProposta);
+			}
+			
+			private function statusLabelFunction(item:Object, column:DataGridColumn):String
+			{
+				if((item as ItemProposta).dataAprovacao == null){
+					return "Aguardando aprovação";
+				}
+				else if((item as ItemProposta).dataAprovacao != null && (item as ItemProposta).isAprovado){
+					return "Aprovado";
+				}
+				else if((item as ItemProposta).dataAprovacao != null && !(item as ItemProposta).isAprovado){
+					return "Reprovado";
+				}
+				return "";
+			}
+			
+			private function realizarBaixa(event:MouseEvent):void
+			{
+				
+			}
+			
+			public function atualizarComboContato(event:Event):void{
+				_contato = contato.contatoSelecionado;
+			}
+			
+			public function initTxtTotalSemDesconto():void
+			{
+				totalSemDescontoItem.input.addEventListener(FocusEvent.FOCUS_OUT,calculaVlTotal);
+			}
+			
+			public function initTxtFrete():void
+			{
+				valorFrete.input.addEventListener(FocusEvent.FOCUS_OUT,atualizaFrete);
+			}
+			
+			public function calculaVlTotal(event:Event):void{
+				var vlUnit: Number = totalSemDescontoItem.getValor();
+				_itemProposta.valorSemDesconto = vlUnit;
+				totalComDescontoItem.setValor(vlUnit);
+			}
+			
+			private function atualizaTotalValores(lista:ArrayCollection):void{
+				totalValoresItem = 0;
+				for each (var ip:ItemProposta in lista){
+					if(ip.dataAprovacao != null && !ip.isAprovado){
+						
+					}else{
+						totalValoresItem += ip.valorSemDesconto;
+					}
+				}
+				totalSemDesconto.setValor(totalValoresItem);
+				totalSemDescontoComFrete.setValor(valorFrete.getValor() + totalValoresItem);
+			}
+			
+			public function atualizarValores():void {
+				atualizaTotalValores(_listaItensProposta);
+				cAcoes.width = 50;
+			}
+			
+			private function atualizaFrete(event:Event = null):void{
+				totalValoresItem = 0;
+				
+				for each (var ip:ItemProposta in _listaItensProposta){
+					if(ip.dataAprovacao != null && !ip.isAprovado){
+					}else{
+						totalValoresItem += ip.valorSemDesconto;
+					}
+				}
+				
+				totalSemDesconto.setValor(totalValoresItem);
+				totalSemDescontoComFrete.setValor(valorFrete.getValor() + totalValoresItem);
+			}
+			
+			private function labelFunction(item:Object, column:DataGridColumn):String
+			{
+				if(item.proposta.tipo == "Orçamento"){
+					var texto:String="";
+					for each(var def:DefeitoOrcRep in item.ordemServico.orcamento.listaDefeito){
+						if (texto.length!=0){
+							texto =texto + " "+ def.defeito.nome.toUpperCase() + ": "+def.justificativa;
+						} else {
+							texto=def.defeito.nome.toUpperCase() + ": "+def.justificativa;	
+						}		
+					}
+					return texto;
+				} else {
+					var texto2:String="";
+					for each(var def1:DefeitoOrcRep in item.ordemServico.reparo.listaDefeito){
+						if (texto2.length!=0){
+							texto2 =texto2 + " "+ def1.defeito.nome.toUpperCase() + ": "+def1.justificativa;
+						} else {
+							texto2=def1.defeito.nome.toUpperCase() + ": "+def1.justificativa;	
+						}		
+					}
+					return texto2;
+				}
+				
+			}
+			
+			private function labelFunction2(item:Object):String
+			{	
+				if(item.proposta.tipo == "Orçamento"){
+					var texto:String = "";
+					for each(var def:DefeitoOrcRep in item.ordemServico.orcamento.listaDefeito){
+						if (texto.length!=0){
+							texto =texto + "\n"+ def.defeito.nome.toUpperCase() + ": "+def.justificativa;
+						} else {
+							texto=def.defeito.nome.toUpperCase() + ": "+def.justificativa;	
+						}		
+					}
+					return texto;
+				}else {
+					var texto2:String = "";
+					for each(var def:DefeitoOrcRep in item.ordemServico.reparo.listaDefeito){
+						if (texto2.length!=0){
+							texto2 =texto2 + "\n"+ def.defeito.nome.toUpperCase() + ": "+def.justificativa;
+						} else {
+							texto2=def.defeito.nome.toUpperCase() + ": "+def.justificativa;	
+						}		
+					}
+					return texto2;
+				}
+			}
+			
+			public function labelGarantia(item:Object, column:DataGridColumn):String
+			{
+				if(item.ordemServico.garantia){
+					return "Com garantia";
+				}else{
+					return "Sem garantia";
+				}
+			}
+			
+			private function labelCondicao(item:Object, column:DataGridColumn):String
+			{	
+				if(item.proposta.tipo == "Orçamento"){
+					return item.ordemServico.orcamento.condicao;
+				}else {
+					return item.ordemServico.reparo.condicao;
+				}
+			}
+			
+			private function labelFunction4(item:Object, column:DataGridColumn):String {
+				var itemProposta:ItemProposta = item as ItemProposta;
+				return Formatador.formatarValorNumber(itemProposta.valorSemDesconto);
+			}	
+			
+			public function voltar(event:MouseEvent=null):void
+			{
+				this.currentState = "normal";
+				observacao.limpar();
+			}
+			
+			public function showModalObservacao(event:MouseEvent):void {
+				_modalObservacao = new ObservacaoModal();
+				_modalObservacao.proposta = _proposta;
+				PopUpManager.addPopUp(_modalObservacao, app, true);
+				PopUpManager.centerPopUp(_modalObservacao);
+				_modalObservacao.listarObservacoes();
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="nProposta.inputText" destination="_proposta.numero" twoWay="true" />
+	<fx:Binding source="cliente.inputText" destination="_proposta.cliente.nomeSistema" twoWay="true" />
+	
+	<fx:Binding source="nome.inputText" destination="_contato.nome" twoWay="true" />
+	<fx:Binding source="cargo.inputText" destination="_contato.cargo" twoWay="true" />
+	<fx:Binding source="email.inputText" destination="_contato.email" twoWay="true" />
+	<fx:Binding source="departamento.inputText" destination="_contato.departamento" twoWay="true" />
+	<fx:Binding source="telefone.inputText" destination="_contato.telefone" twoWay="true" />
+	<fx:Binding source="celular.inputText" destination="_contato.celular" twoWay="true" />
+	<fx:Binding source="fax.inputText" destination="_contato.fax" twoWay="true" />	
+	
+	<fx:Binding source="infoTecnicas.input.text" destination="_proposta.orcamentoDiferenciado.informacaoTecnica" twoWay="true" />
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="adicionarContato"/>
+		<s:State name="editarItemProposta"/>
+	</mx:states>
+	
+	<mx:HBox verticalAlign="middle" width="100%">
+		<s:Label text="Tipo:" />
+		<s:Label id="tipoProposta" fontSize="20" color="red" text="{_proposta.tipo}" />
+		<s:Spacer width="100%" />
+		<s:Label text="Status:" />
+		<s:Label id="statusProposta" fontSize="20" color="red" text="{_proposta.statusString}" />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%" >
+		<texto:TextInput id="nProposta" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','NUMERO_PROPOSTA')}" width="15%"  />
+		<texto:TextInput id="cliente" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="50%" width.adicionarContato="50%"  />
+		<combos:ComboContato id="contato" enabled="{_proposta.statusString == 'Em elaboração' || _proposta.statusString == 'Aguardando aprovação do cliente'}" enabled.adicionarContato="false" labelText="{resourceManager.getString('ApplicationResource','CONTATO')}" width="25%" changeFunction="atualizarComboContato" />
+		<mx:Button id="btAdicionarContato"  excludeFrom="adicionarContato"
+				   label="{resourceManager.getString('ApplicationResource','ADICIONAR_CONTATO')}"
+				   height="25" width="10%" enabled="{_proposta.statusString == 'Em elaboração' || _proposta.statusString == 'Aguardando aprovação do cliente'}"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionarContato(event)"/>
+		<mx:Button id="btSalvarContato"  includeIn="adicionarContato"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR_CONTATO_PROPOSTA')}"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="salvarContato(event)"/>
+		<mx:Button id="btCancelar"  includeIn="adicionarContato"
+				   label="{resourceManager.getString('ApplicationResource','CANCELAR_CONTATO_PROPOSTA')}"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/cancel.png')"
+				   click="cancelarContato(event)"/>
+	</mx:HBox>
+	<mx:HBox verticalAlign="bottom" width="100%" >
+		<texto:TextInput id="nome" habilitado="false" habilitado.adicionarContato="true"   labelText="{resourceManager.getString('ApplicationResource','NOME_CONTATO')}" width="20%"  />
+		<texto:TextInput id="cargo" habilitado="false" habilitado.adicionarContato="true" labelText="{resourceManager.getString('ApplicationResource','CARGO_CONTATO')}" width="12%" />
+		<texto:TextInput id="email" habilitado="false" habilitado.adicionarContato="true" labelText="{resourceManager.getString('ApplicationResource','EMAIL_CONTATO')}" width="20%"  />
+		<texto:TextInput id="departamento" habilitado="false" habilitado.adicionarContato="true" labelText="{resourceManager.getString('ApplicationResource','DEPARTAMENTO_CONTATO')}" width="12%" />
+		<texto:TextInput id="telefone" habilitado="false" habilitado.adicionarContato="true" labelText="{resourceManager.getString('ApplicationResource','TELEFONE')}" width="12%"  />
+		<texto:TextInput id="celular" habilitado="false" habilitado.adicionarContato="true" labelText="{resourceManager.getString('ApplicationResource','CELULAR')}" width="12%"  />
+		<texto:TextInput id="fax" habilitado="false" habilitado.adicionarContato="true" labelText="{resourceManager.getString('ApplicationResource','FAX')}" width="12%"  />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="middle" width="100%" >
+		<texto:TextInputDinheiro2d id="valorFrete" tabObjectEnabled="true" tabObject="{parentDocument.btSalvar}" habilitado="{_proposta.statusString == 'Em elaboração' || _proposta.statusString == 'Aguardando aprovação do cliente'}" initialize="initTxtFrete()" labelText="{resourceManager.getString('ApplicationResource','VALOR_FRETE')}" width="13%" />
+		<s:RadioButton id="btDescontoPorcentagem" selected="true" enabled="false" groupName="descontoProposta"/>
+		<texto:TextInput id="descontoPorcentagem" enabled="false" habilitado="{btDescontoPorcentagem.selected}" labelText="{resourceManager.getString('ApplicationResource','DESCONTO_PORCENTAGEM')}" width="13%"  />
+		<s:RadioButton id="btDescontoDinheiro" enabled="false" groupName="descontoProposta"/>
+		<texto:TextInputDinheiro2d id="descontoDinheiro" enabled="false" habilitado="{btDescontoDinheiro.selected}" labelText="{resourceManager.getString('ApplicationResource','DESCONTO_DINHEIRO')}" width="13%" />
+		<mx:Button id="btAplicarValoresProposta"
+				   label="{resourceManager.getString('ApplicationResource','APLICAR')}"
+				   height="25" enabled="false" width="9%"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="aplicarProposta(event)"/>
+		<texto:TextInputDinheiro2d id="totalSemDesconto" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TOTAL_SEM_DESCONTO')}" width="13%"  />
+		<texto:TextInputDinheiro2d id="totalComDesconto" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TOTAL_COM_DESCONTO')}" width="13%" />
+		<texto:TextInputDinheiro2d id="totalSemDescontoComFrete" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TOTAL_SEM_DESCONTO_COM_FRETE')}" width="13%"  />
+		<texto:TextInputDinheiro2d id="totalComDescontoComFrete" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TOTAL_COM_DESCONTO_COM_FRETE')}" width="13%"  />
+	</mx:HBox>
+	
+	<components:TextAreaInput id="infoTecnicas" enabled="false"
+							  width="100%" heightInLines="5" labelText="{resourceManager.getString('ApplicationResource','INFORMACOES_TECNICAS')}" />
+	
+	<mx:HBox width="100%" horizontalAlign="left" verticalAlign="bottom">
+		<mx:Button id="btAprovar" 
+				   label="{resourceManager.getString('ApplicationResource','APROVAR_PROPOSTA')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="aprovarItens(event)"
+				   enabled="{_proposta.statusString == 'Aguardando aprovação do cliente'}"
+				   />
+		<mx:Button id="btReprovar"
+				   label="{resourceManager.getString('ApplicationResource','REPROVAR_PROPOSTA')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   click="reprovarItens(event)"
+				   enabled="{_proposta.statusString == 'Aguardando aprovação do cliente'}"
+				   />	
+		<s:Label textAlign="left" id="linkObservacao" textDecoration="underline" click="showModalObservacao(event)" text="Observações proposta" />
+		<s:Label textAlign="left" text="Nº de OSs: {_listaItensProposta.length}" fontWeight="bold" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" height="100%" height.editarItemProposta="49" verticalScrollPolicy="off"
+			 enabled="{_proposta.statusString == 'Em elaboração' || _proposta.statusString == 'Aguardando aprovação do cliente'}" >
+		<grid:MantisTable id="tabelaItens"
+						  width="100%" editable="true"
+						  height="100%" rowHeight="30"
+						  height.editarItemProposta="48"
+						  verticalScrollPolicy.editarItemProposta="off"
+						  draggableColumns="true"
+						  dataProvider="{_listaItensProposta}"
+						  dataProvider.editarItemProposta="{_listaItensPropostaEdicao}"
+						  doubleClickEnabled="false"
+						  >
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false" excludeFrom="editarItemProposta"	width="80"		 
+								   editable="false" id="cAcoes"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								<mx:Image source="assets/icons/thumb-up.png"
+										  click="parentDocument.aprovarItem(data, event)"
+										  buttonMode="true" visible="{data.btsAprovacaoVisible}"
+										  enabled="{(data.dataAprovacao == null) &amp;&amp; (parentDocument._proposta.statusString == 'Aguardando aprovação do cliente')}"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','APROVAR')}"
+										  />	
+								
+								<mx:Image source="assets/icons/thumb-down.png"
+										  click="parentDocument.reprovarItem(data, event)"
+										  buttonMode="true" visible="{data.btsAprovacaoVisible}"
+										  enabled="{(data.dataAprovacao == null) &amp;&amp; (parentDocument._proposta.statusString == 'Aguardando aprovação do cliente')}"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','REPROVAR')}"
+										  />
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.visualizarDetalhe(data, event)"
+										  buttonMode="true" visible="{data.btEdicaoVisible}"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />
+								
+								<mx:Image source="assets/icons/arrow_rotate_clockwise.png"
+										  click="parentDocument.restaurarItem(data, event)"
+										  buttonMode="true" enabled="{data.dataAprovacao != null}"
+										  useHandCursor="true" visible="{data.btsAprovacaoVisible}"
+										  toolTip="{resourceManager.getString('ApplicationResource','RESTAURAR')}"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn headerText = ""							   
+								   itemRenderer="components.grid.CheckBoxItemRenderer"
+								   headerRenderer="components.grid.CheckBoxItemRenderer"
+								   excludeFrom="editarItemProposta"  editable="false"
+								   width="15" resizable="true" draggable="false" sortable="false"
+								   dataField="isSelected" 
+								   />
+				
+				<mx:DataGridColumn id="status" width="75" editable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+								   textAlign="center"
+								   resizable="true" draggable="false" sortable="false"
+								   dataField="statusItem"							   
+								   />
+				
+				<mx:DataGridColumn id="numeroNF" editable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_ABREVIADO')}"
+								   textAlign="center" width="50"
+								   resizable="true" draggable="false" sortable="false"
+								   dataField="ordemServico.notaFiscal.numero"							   
+								   />
+				
+				<mx:DataGridColumn id="numeroOs" editable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+								   textAlign="center" width="50"
+								   resizable="true" draggable="false" sortable="false"
+								   dataField="ordemServico.numeroOrdemServico"							   
+								   />
+				
+				<mx:DataGridColumn id="numeroOsPai" editable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+								   textAlign="center" width="50"
+								   resizable="true" draggable="false" sortable="false"
+								   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
+								   />
+				
+				<mx:DataGridColumn id="cGarantia"  editable="false"
+								   headerText = "Garantia" resizable="true"
+								   labelFunction="labelGarantia"
+								   width="50"
+								   />
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','CONDICAO')}"	
+								   draggable="false" width="75" labelFunction="labelCondicao"			 
+								   editable="false" resizable="true"
+								   sortable="false" />
+				
+				<mx:DataGridColumn id="unidade" editable="false"
+								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+								   textAlign="center" width="75"
+								   resizable="true" draggable="false" sortable="false"
+								   dataField="ordemServico.unidade.nome"						   
+								   />	
+				
+				<mx:DataGridColumn id="nSerieFabricante"  resizable="true"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+								   dataField = "ordemServico.serieFabricante"
+								   width="50" textAlign="center" editable="false"
+								   />
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
+								   draggable="false" width="75" labelFunction="labelFunction" dataTipFunction="labelFunction2"				 
+								   editable="false" resizable="true"
+								   sortable="false" />
+				
+				<mx:DataGridColumn id="preco"  width="50"
+								   headerText = "{resourceManager.getString('ApplicationResource','PRECO')}" dataField="valorSemDesconto"
+								   editable="true" itemEditor="components.textInput.TextInputDinheiro2dTable" editorDataField="valor"
+								   resizable="true" draggable="false" sortable="false"
+								   />
+				
+				
+			</grid:columns>
+		</grid:MantisTable>
+		
+	</mx:HBox>
+	
+	<mx:VBox width="100%" height="100%" includeIn="editarItemProposta" cornerRadius="3" borderStyle="solid" borderThickness="1" paddingLeft="10" paddingRight="10" >
+		
+		<mx:HBox width="100%"   paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="5" verticalAlign="middle" >
+			<texto:TextInputDinheiro2d id="totalSemDescontoItem" tabObjectEnabled="true" tabObject="{parentDocument.btSalvar}"  initialize="initTxtTotalSemDesconto()" labelText="{resourceManager.getString('ApplicationResource','TOTAL_SEM_DESCONTO')}" width="25%"  />
+			<s:RadioButton id="btDescontoPorcentagemItem" enabled="false" selected="true" groupName="descontoItemProposta"/>
+			<texto:TextInput id="descontoPorcentagemItem" enabled="false" habilitado="{btDescontoPorcentagemItem.selected}" labelText="{resourceManager.getString('ApplicationResource','DESCONTO_PORCENTAGEM')}" width="25%"  />
+			<s:RadioButton id="btDescontoDinheiroItem" enabled="false" groupName="descontoItemProposta"/>
+			<texto:TextInputDinheiro2d id="descontoDinheiroItem" enabled="false" habilitado="{btDescontoDinheiroItem.selected}" labelText="{resourceManager.getString('ApplicationResource','DESCONTO_DINHEIRO')}" width="25%" />
+			<mx:Button id="btAplicarValoresItemProposta"
+					   label="{resourceManager.getString('ApplicationResource','APLICAR')}"
+					   height="25" enabled="true"
+					   icon="@Embed(source='/assets/icons/add.png')"
+					   click="aplicarItemProposta(event)"/>
+			<texto:TextInputDinheiro2d id="totalComDescontoItem" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TOTAL_COM_DESCONTO')}" width="25%" />
+		</mx:HBox>
+		
+		<components:Observacoes id="observacao" origem="Proposta" widthText="750" width="100%" entidade="{_itemProposta}" height="100%"  />
+		
+	</mx:VBox>
+	
+	
+</mx:VBox>

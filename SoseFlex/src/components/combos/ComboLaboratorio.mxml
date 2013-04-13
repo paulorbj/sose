@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0" width="200"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="laboratorioService" destination="laboratorioService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarLaboratorios"      
+					   fault="onListarLaboratoriosFault(event)" 
+					   result="onListarLaboratoriosResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Laboratorio;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var changeFunction:Function = null;
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			private function onCreationComplete():void
+			{
+				laboratorioService.listarLaboratorios();
+				comboBox.labelField = "nome";
+				comboBox.textoPadrao = "Selecione um laboratório...";
+			}
+			
+			private function onListarLaboratoriosResult(event:ResultEvent = null):void
+			{
+				comboBox.dataProvider = event.result as ArrayCollection;
+			}
+			
+			private function onListarLaboratoriosFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo laboratorio] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function get laboratorioSelecionado():Laboratorio 
+			{
+				if(comboBox.selectedItem == null)
+					return null;
+				else
+					return comboBox.selectedItem as Laboratorio; 
+			}
+			
+			public function set laboratorioSelecionado(laboratorio:Laboratorio):void 
+			{
+				comboBox.selectedItem = laboratorio;
+			}
+			
+			[Bindable]
+			public function get labelText():String 
+			{
+				if(comboBox)
+					return comboBox.labelText;
+				else
+					return "";
+			}
+			
+			public function set labelText(value:String):void 
+			{
+				if(comboBox)
+					comboBox.labelText = value;
+			}
+			
+			public function limpar():void
+			{
+				comboBox.clean();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" />
+</mx:VBox>

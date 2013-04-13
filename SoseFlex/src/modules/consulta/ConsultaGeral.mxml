@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="center"
+		 xmlns:components="components.*" width="100%"  height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:consulta="modules.consulta.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="consultaService" destination="consultaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="realizarConsultaGeral"      
+					   fault="onListarAtividadesFault(event)" 
+					   result="onListarAtividadesResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.consulta.Consulta;
+			import entities.consulta.ConsultaResultado;
+			
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var consulta:Consulta;
+			
+			[Bindable]
+			private var consultaResultado:ConsultaResultado;
+			
+			private function consultar(event:MouseEvent = null):void
+			{
+				consulta = new Consulta();
+				consulta.cliente = cliente.clienteSelecionado;
+				consulta.numeroNotaFiscal = numeroNotaFiscal.inputText;
+				consulta.numeroNotaFiscalSaida = numeroNotaFiscalSaida.inputText;
+				consulta.numeroOS = numeroOrdemServico.inputText;
+				consultaService.realizarConsultaGeral(consulta);
+			}
+			
+			private function onListarAtividadesResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				consultaResultado = event.result as ConsultaResultado;
+				resultadoOrdemServico._listaOrdemServicoEdicao = consultaResultado.listaOrdemServico;
+			}
+			
+			private function onListarAtividadesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function consultarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					consultar();
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="numeroOrdemServico" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="20%" />
+		<texto:TextInput id="numeroNotaFiscal" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="20%" />
+		<texto:TextInput id="numeroNotaFiscalSaida" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_SAIDA')}" width="20%" />
+		<combos:ComboCliente id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="20%"  />
+		<mx:Button id="btConsulta" 
+				   label="{resourceManager.getString('ApplicationResource','CONSULTAR')}"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/search.png')"
+				   keyDown="consultarEnter(event)"
+				   click="consultar(event)"
+				   />
+		<mx:Button id="btLimpar" 
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<consulta:ResultadoNotaFiscal id="resultadoNotaFiscal"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<consulta:ResultadoOrdemServico id="resultadoOrdemServico" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<consulta:ResultadoNotaFiscalSaida id="resultadoNotaFiscalSaida" />
+	</mx:HBox>
+	
+	
+</mx:VBox>

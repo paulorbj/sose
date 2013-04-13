@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FilterRendererBase xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="components.grid.filtros.controles.*" 
+	creationComplete="creationCompleteHandler()"
+	paddingTop="0" paddingBottom="0" paddingLeft="0" 
+	paddingRight="0" direction="vertical">
+	
+	<mx:Script>
+		<![CDATA[
+		
+			private function creationCompleteHandler():void
+			{
+				tiContem.setFocus();
+			}
+		
+			override public function onFilter(item:Object, itemLabelField:String):Boolean 
+			{
+				var displayItem:Boolean = false;
+				
+				var textToDisplay:String = tiContem.text;
+				
+				if(itemLabelField == null || textToDisplay == null){
+					trace("Nulo");
+					return false;
+				}
+				
+				if (caseSensitive.selected)
+				{
+					//displayItem = itemLabelField.substr(0, textToDisplay.length) == textToDisplay;
+					displayItem = itemLabelField.search(textToDisplay) != -1 ? true : false;
+				} 
+				else
+				{
+					//displayItem = itemLabelField.substr(0, textToDisplay.length).toLowerCase() == textToDisplay.toLowerCase();
+					displayItem = itemLabelField.toLowerCase().search(textToDisplay.toLowerCase()) != -1 ? true : false;
+				}
+				
+				return displayItem;
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Form>
+		<mx:FormItem>
+			<mx:CheckBox id="caseSensitive" label="Case Sensitive" selected="false"/>
+		</mx:FormItem>
+		<mx:FormItem label="Começa com:">
+			<mx:TextInput id="tiContem" enter="filter()"/>	
+		</mx:FormItem>
+		<mx:FormItem>
+			<mx:Button label="OK" click="filter()" enabled="{tiContem.text != ''}"/>
+		</mx:FormItem>
+	</mx:Form>
+	
+</FilterRendererBase>

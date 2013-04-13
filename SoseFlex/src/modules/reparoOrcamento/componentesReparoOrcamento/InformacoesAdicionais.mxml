@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" xmlns:grid="components.grid.*" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 width="100%">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="ordemServicoService" destination="ordemServicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarConsultaId"      
+					   fault="onBuscarFault(event)" 
+					   result="onBuscarResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Usuario;
+			import entities.orcamentoreparo.OrcRepGenerico;
+			import entities.orcamentoreparo.Reparo;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.reparoOrcamento.HistoricoOrcRepModal;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+						
+			[Bindable]
+			private var _listaOrdemServico:ArrayCollection;
+			
+			[Bindable]
+			private var _ordemServico:OrdemServico;
+			
+			private var _modalVisualizacao:ModalInformacoesOrdemServico = new ModalInformacoesOrdemServico();
+			
+			private var app:SoseFlex = FlexGlobals.topLevelApplication as SoseFlex;
+			
+			public function setListaHistorico(value:ArrayCollection):void
+			{
+				_listaOrdemServico = value;
+			}
+
+			public function labelColunaFinalidade(item:Object, column:DataGridColumn):String
+			{
+				if(item is Reparo){
+					return "Reparo";
+				}else{
+					return "Orçamento";
+				}
+			}
+						
+			private function labelCondicao(item:Object, column:DataGridColumn):String
+			{	
+				if(item.reparo){
+					var str:String = item.reparo.condicao;
+					if(str == "Com condição de reparo"){
+						return "Reparado";
+					}
+					if(str == "Sem condição de reparo"){
+						return "Irreparável";
+					}
+					if(str == "Devolução sem reparo"){
+						return "Devolução sem reparo";
+					}
+				}else if(item.orcamento){	
+					var str:String = item.orcamento.condicao;
+					if(str == "Com condição de reparo"){
+						return "Reparado";
+					}
+					if(str == "Sem condição de reparo"){
+						return "Irreparável";
+					}
+					if(str == "Devolução sem reparo"){
+						return "Devolução sem reparo";
+					}
+				}
+				return "";
+			}
+			
+			private function labelTecnico(item:Object, column:DataGridColumn):String
+			{	
+				if(item.reparo){
+					var usr:Usuario = item.reparo.tecnicoResponsavel;
+					if(usr){
+						return usr.usuario;
+					}
+				}else if(item.orcamento){	
+					var usr:Usuario = item.orcamento.tecnicoResponsavel;
+					if(usr){
+						return usr.usuario;
+					}
+				}
+				return "";
+			}
+			
+			public function showModalVisualizacao():void {
+				PopUpManager.addPopUp(_modalVisualizacao, app, true);
+				PopUpManager.centerPopUp(_modalVisualizacao);
+			}
+			
+			public function hideModalVisualizaca():void {
+				PopUpManager.removePopUp(_modalVisualizacao);
+			}
+			
+			public function editItem(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaOrdemServico.getItemAt(event2.rowIndex);				
+				}
+				
+				_ordemServico = data as OrdemServico;
+				ordemServicoService.buscarConsultaId(_ordemServico.id);
+				showModalVisualizacao();
+			}
+			
+			private function onBuscarResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_ordemServico = event.result as OrdemServico;
+				_modalVisualizacao.ordemServico = _ordemServico;				
+			}
+			
+			private function onBuscarFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[BuscarFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+		]]>
+	</fx:Script>
+	
+
+	
+	<mx:states>
+		<s:State name="editar"/>
+		<s:State name="visualizar"/>
+	</mx:states>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="100%"
+					  draggableColumns="false"
+					  dataProvider="{_listaOrdemServico}"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			<mx:DataGridColumn headerText = ""	
+							   draggable="false"	width=".05"					 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />								
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+			<mx:DataGridColumn id="analiseTecnica" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
+							   labelFunction="labelCondicao"
+							   />
+			
+			<mx:DataGridColumn id="cUsuario" showDataTips="true"
+							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+							   labelFunction="labelTecnico"
+							   width=".10"
+							   />
+			
+			<mx:DataGridColumn id="numeroOs"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="numeroOrdemServico"							   
+							   />
+			
+			<mx:DataGridColumn id="numeroOsPai"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="unidadePai.numeroOrdemServico"							   
+							   />
+			
+			<mx:DataGridColumn id="cliente" dataField="cliente.nomeSistema"
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+							   textAlign="center" width=".10"
+							   sortable="false"					   
+							   />
+			
+			<mx:DataGridColumn id="unidade"
+							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="unidade.nome"							   
+							   />
+			
+			<mx:DataGridColumn id="nSerieFabricante" 
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+							   dataField = "serieFabricante"
+							   width=".10"
+							   />
+			
+			<mx:DataGridColumn id="nSerieCliente" 
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+							   dataField = "serieCliente"
+							   width=".10"
+							   />
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" verticalScrollPolicy="off" horizontalScrollPolicy="off"   initialize="init()"  applicationComplete="startitup()" backgroundGradientColors="[0xffffff, 0x00808C]"  >
+						
+<mx:HTTPService id="movieRequest" url="data/otrdata.xml" result="movieHandler(event)"/>
+						
+	<mx:Glow id="glowImage" duration="200" 
+        alphaFrom="1.0" alphaTo="0.5" 
+        blurXFrom="0.0" blurXTo="15.0" 
+        blurYFrom="0.0" blurYTo="15.0" 
+        color="0x00FF00"/>
+    <mx:Glow id="unglowImage" duration="200" 
+        alphaFrom="0.3" alphaTo="1.0" 
+        blurXFrom="15.0" blurXTo="0.0" 
+        blurYFrom="15.0" blurYTo="0.0" 
+        color="0x0000FF"/>
+		
+	<mx:Fade 
+    id="fade"
+    target="{myImage}"
+    duration="400"
+    alphaFrom="0"
+    alphaTo="1"/>
+		
+			
+			<mx:TextArea x="463" y="156" height="326" width="387" id="myText" fontSize="14" editable="false"/>
+								
+		    <mx:Image x="23" y="157" width="432" height="325" id="myImage" scaleContent="true"   complete="fade.play()"/>
+								
+			<mx:Tile direction="horizontal" borderStyle="inset" 
+            horizontalGap="10" verticalGap="15" 
+            paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10" x="62" y="70" width="750" height="77">
+        
+            <mx:Repeater id="rp" dataProvider="{movieData}">
+                <mx:Image height="49" width="50" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" toolTip="{rp.currentItem.subtitle}" source="{rp.currentItem.icon}" click="mygothere(event.currentTarget.getRepeaterItem ())" />
+            </mx:Repeater>    
+            </mx:Tile>
+				
+			                                    <mx:Label x="78" y="485" id="sourceTag0" width="333" textAlign="center" fontSize="14"/>
+									
+												<mx:Label x="23" y="24" id="sourceTag1" fontSize="18" fontWeight="bold" width="281"/>
+									
+												<mx:Image x="801" y="14" id="navimage1" source="@Embed(source='images/icons/Urbm.jpg')"  rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" width="43" height="32" click="myMainget('All'),myNumfind(0)"/>
+												<mx:Label id="labelall" x="813" y="50" text="All" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" width="43" height="18" click="myMainget('All'),myNumfind(0)" />
+									         
+												<mx:Image x="383" y="14" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" source="@Embed(source='images/icons/Buddy.jpg')" width="38" height="32" id="navimage2" click="myMainget('Home'),myNumfind(0)"/>
+												<mx:Label x="382" y="49" text="Home" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}" click="myMainget('Home'),myNumfind(0)"/>
+									
+												<mx:Image x="435" y="14" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" source="@Embed(source='images/icons/buildingjob.jpg')" width="45" height="32" id="navimage3"  click="myMainget('City Life and Rhetoric'), myNumfind(0)"/>
+												<mx:Label x="430" y="49" text="Rhetoric" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}"  width="56" height="19"   click="myMainget('City Life and Rhetoric'), myNumfind(0)"/>
+									
+												<mx:Image x="491" y="14" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" source="@Embed(source='images/icons/slums.jpg')" width="46" height="32" id="navimage4"  click="myMainget('3 Perspectives'), myNumfind(0)" />
+												<mx:Label x="494" y="49" text="3 Pers" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}"  width="46" height="19"   click="myMainget('3 Perspectives'), myNumfind(0)"/>
+									
+												<mx:Image x="550" y="14" source="@Embed(source='images/icons/Buddy.jpg')" width="38" height="32" id="navimage5"/>
+												<mx:Label x="547" y="49" text="History"/>
+									
+												<mx:Image x="602" y="14" source="@Embed(source='images/icons/Buddy.jpg')" width="38" height="32" id="navimage6"/>
+												<mx:Label x="601" y="49" text="Today"/>
+									
+												<mx:Image x="650" y="14" source="@Embed(source='images/icons/Buddy.jpg')" width="38" height="32" id="navimage7"/>
+												<mx:Label x="648" y="50" text="Future"/>
+									
+												<mx:Image x="700" y="14" source="@Embed(source='images/icons/Buddy.jpg')" width="38" height="32" id="navimage8"/>
+												<mx:Label x="693" y="50" text="Opinions"/>
+									
+												<mx:Image x="751" y="14" source="@Embed(source='images/icons/Buddy.jpg')" width="38" height="32" id="navimage9"/>
+												<mx:Label x="746" y="50" text="Builders"/>
+								
+			
+	<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		import mx.collections.ArrayCollection;
+		
+		import flash.events.Event;
+        import mx.events.DropdownEvent;
+        
+        public var mynewnum:String="Home";
+        
+         private function changeEvt(event:Event):void {
+         	
+         	mynewnum=event.currentTarget.selectedItem.label;
+         	trace(mynewnum);
+               filterByCategory2();
+            }
+            
+ public function startitup():void{
+ 
+ myImage.source ="images/Buddy.jpg";
+ 
+myText.htmlText="<b>Over-the-Rhine</b> is not only at the center of the Cincinnati community, but it is also at the center of a lot of controversies. This area has become a breeding ground for social issues. Issues of equality, crime, affordible housing, poverty, violence, and economic growth have recently been argued. Although these topics are the current issues facing Over-the-Rhine, this is not the first time many of these issues have been see by Over-the-Rhine. It seems that history is repeating itself once again. So where does the community go from here? Are there any answers. The questions one must consider are simple. Will Over-the-Rhine be in the same position thirty years from now? Is the current Over-the-Rhine community being treated fairly by the city? Do the urbanist movement, the people's movement, and the CDC have the best interests of the community in mind? How can the city deal with these issues without causing a fight within the community? Can Over-the-Rhine become a community where everyone is happy?";
+sourceTag1.text = "Home";
+ 
+ sourceTag0.text ="A Look into the Over-the-Rhine Community";
+
+
+ }  
+ 
+ 
+ 
+ 
+ 
+ public function myNumfind(num:Number):void{
+ 
+ myImage.source =movieData[num].image;
+ 
+ myText.htmlText=movieData[num].text;
+ sourceTag1.text = movieData[num].title;
+ 
+ sourceTag0.text =movieData[num].subtitle;
+
+
+ }  
+   
+ 
+
+             
+ public function mygothere(event:Object):void{
+ 
+ myImage.source =event.image;
+ 
+ myText.htmlText=event.text;
+ 
+ sourceTag1.text = event.title;
+ 
+ sourceTag0.text = event.subtitle;
+ 
+ }  
+ 
+ public function myMainget(myhere:String):void{
+ mynewnum=myhere;
+ filterByCategory2();
+ 
+ } 
+      
+
+ public function filterByCategory2():void 
+			{
+	
+				movieData.filterFunction = catFilter2;
+				movieData.refresh();
+			}
+ public function catFilter2(item:Object):Boolean
+			{
+				if(mynewnum=="All"){
+					
+				return true;
+				
+				}else{
+				
+					return item.cat == mynewnum;
+				}
+			}
+		
+	
+	[Bindable]
+	private var movie:String;
+	
+	[Bindable]
+    public var selectedItem:Object;  
+    
+	
+	
+	[Bindable]
+	public var movieData:ArrayCollection;
+	
+	private function init():void
+		{
+			movieRequest.send();
+	
+            }
+       
+	
+
+	
+	private function movieHandler(event:ResultEvent):void
+		{
+			movieData = event.result.otrdata.mydata;
+			filterByCategory2();
+		}
+
+
+	private function formatPositionToolTip(value:int):String{
+
+		var result:String = (value % 60).toString();
+        if (result.length == 1){
+            result = Math.floor(value / 60).toString() + ":0" + result;
+        } else {
+            result = Math.floor(value / 60).toString() + ":" + result;
+        }
+        return result;
+	}
+
+	]]>
+</mx:Script>
+	<mx:Label x="316" y="39" text="Menu" fontSize="12" fontWeight="bold" fontStyle="italic" color="#000000"/>
+	<mx:HRule x="364" y="49" width="480" strokeWidth="2" strokeColor="#000000"/>
+
+</mx:Application>
+
