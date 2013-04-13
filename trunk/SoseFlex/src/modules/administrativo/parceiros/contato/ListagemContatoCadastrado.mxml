@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:components="components.*" width="100%" height="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			
+			import entities.administrativo.parceiros.Contato;
+			
+			import modules.administrativo.parceiros.contato.eventos.ContatoEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+		
+			[Bindable]
+			public var listaContato:ArrayCollection = new ArrayCollection;
+			
+			private var contato:Contato;
+			
+			public function setListaContato(lista:ArrayCollection):void
+			{
+				listaContato = lista;
+			}
+			
+			public function adicionarContato(contato:Contato,indice:int):void
+			{
+				if(indice == -1){
+					listaContato.addItem(contato);
+				}else{
+					listaContato.setItemAt(contato,indice);
+				}
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaContato.getItemAt(event2.rowIndex);				
+				}
+				
+				var index:int = listaContato.getItemIndex(data);
+				dispatchEvent(new ContatoEvent(ContatoEvent.EDITAR_CONTATO, data as Contato, index));
+			}
+
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{			
+				contato = data as Contato;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				dispatchEvent(new ContatoEvent(ContatoEvent.EXCLUIR_CONTATO,contato));
+				contato = null;
+			}
+			
+			public function limpar():void
+			{
+				listaContato = new ArrayCollection();	
+			}
+			
+		]]>
+	</fx:Script>		
+
+		<grid:MantisTable id="viewTable"
+						  width="100%"
+						  height="100%"
+						  draggableColumns="true"
+						  dataProvider="{listaContato}"
+						  itemDoubleClick="editItem(data, event,false)"	>
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				<mx:DataGridColumn id="nome"
+								   headerText = "{resourceManager.getString('ApplicationResource','NOME_CONTATO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="nome"							   
+								   />
+				
+				<mx:DataGridColumn id="cargo" 
+								   headerText = "{resourceManager.getString('ApplicationResource','CARGO_CONTATO')}"
+								   dataField = "cargo"
+								   />
+				
+				<mx:DataGridColumn id="email" 
+								   headerText = "{resourceManager.getString('ApplicationResource','EMAIL_CONTATO')}"
+								   dataField = "email"
+								   />
+				
+				<mx:DataGridColumn id="departamento" 
+								   headerText = "{resourceManager.getString('ApplicationResource','DEPARTAMENTO_CONTATO')}"
+								   dataField = "departamento"
+								   />
+				
+				<mx:DataGridColumn id="infoAdicionais" 
+								   headerText = "{resourceManager.getString('ApplicationResource','INFO_ADICIONAIS_CONTATO')}"
+								   dataField = "informacoesAdicionais"
+								   />
+				
+				<mx:DataGridColumn id="pessoa" 
+								   headerText = "{resourceManager.getString('ApplicationResource','PESSOA')}"
+								   dataField = "cliente.nome"
+								   />
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.editItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />
+								
+								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+										  click="parentDocument.excluirItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</grid:columns>
+		</grid:MantisTable>
+
+</mx:VBox>

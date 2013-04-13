@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="center"
+		 xmlns:components="components.*" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
+		 initialize="init()" xmlns:expedicao="modules.expedicao.*" xmlns:orcamentoDiferenciado="modules.orcamentoDiferenciado.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="orcamentoDiferenciadoService" destination="orcamentoDiferenciadoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarOrcamentosDiferenciados"      
+					   fault="onListarOrcamentosDiferenciadosFault(event)" 
+					   result="onListarOrcamentosDiferenciadosResult(event)"
+					   />
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarOrcamentoDiferenciadoFault(event)" 
+					   result="onBuscarOrcamentoDiferenciadoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="orcamentoDiferenciadoController" destination="orcamentoDiferenciadoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="iniciarOrcamentoDiferenciado"      
+					   fault="onIniciarOrcamentoDiferenciadoFault(event)" 
+					   result="onIniciarOrcamentoDiferenciadoResult(event)"
+					   />
+			<mx:method name="salvarOrcamentoDiferenciado"      
+					   fault="onSalvarOrcamentoDiferenciadoFault(event)" 
+					   result="onSalvarOrcamentoDiferenciadoResult(event)"
+					   />
+			<mx:method name="aprovarOrcamentoDiferenciado"      
+					   fault="onAprovarOrcamentoDiferenciadoFault(event)" 
+					   result="onAprovarOrcamentoDiferenciadoResult(event)"
+					   />
+			<mx:method name="rejeitarOrcamentoDiferenciado"      
+					   fault="onRejeitarOrcamentoDiferenciadoFault(event)" 
+					   result="onRejeitarOrcamentoDiferenciadoResult(event)"
+					   />			
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="ordemServicoService" destination="ordemServicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarNotaFiscalFault(event)" 
+					   result="onBuscarNotaFiscalResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Consumer id="consumidorOrcamentoDiferenciadoService" destination="OrcamentoDiferenciadoMessageServicePush" message="onMsgOrcamentoDiferenciado(event)" />
+		
+		<mx:Producer id="produtorOrcamentDiferenciadoService" destination="OrcamentoDiferenciadoMessageServicePush" />
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.RemoveModalEvent;
+			import components.UserRegisterNumberModal;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Usuario;
+			import entities.orcamentoDiferenciado.OrcamentoDiferenciado;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.messaging.messages.AsyncMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _listaOrcamentoDiferenciado:ArrayCollection;
+			
+			[Bindable]
+			private var _orcamentoDiferenciado:OrcamentoDiferenciado;
+			
+			[Bindable]
+			private var _ordemServico:OrdemServico;
+			
+			[Bindable]
+			private var listaFiltroStatus:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var statusSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroNOrdemServico:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var ordemServicoSelecionada:String;
+			
+			[Bindable]
+			private var listaFiltroNOSPai:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var osPaiSelecionada:String;
+			
+			[Bindable]
+			private var listaFiltroCliente:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var clienteSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroUnidade:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var unidadeSelecionada:String;
+			
+			[Bindable]
+			private var listaFiltroSNFabricante:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var snFabricanteSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroSNCliente:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var snClienteSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroLaboratorio:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var laboratorioSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroUsuario:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var usuarioSelecionado:String;
+			
+			private function init():void
+			{
+				orcamentoDiferenciadoService.listarOrcamentosDiferenciados();	
+				consumidorOrcamentoDiferenciadoService.subscribe();
+			}
+			
+			private function onMsgOrcamentoDiferenciado(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_CRIADO){
+					adicionar(globalMessage.conteudo as OrcamentoDiferenciado);
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR){
+					//adicionarOrcamentoDiferenciado(globalMessage.conteudo as OrcamentoDiferenciado);
+					orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_APROVADO){
+					//adicionarOrcamentoDiferenciado(globalMessage.conteudo as OrcamentoDiferenciado);
+					orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_REJEITADO){
+					//adicionarOrcamentoDiferenciado(globalMessage.conteudo as OrcamentoDiferenciado);
+					orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
+				}
+			} 
+			
+			public function adicionarOrcamentoDiferenciado(orcamentoDiferenciado:OrcamentoDiferenciado):void
+			{
+				var orcamentoDiferenciadoAux:OrcamentoDiferenciado = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<_listaOrcamentoDiferenciado.length; i++){
+					orcamentoDiferenciadoAux = _listaOrcamentoDiferenciado.getItemAt(i) as OrcamentoDiferenciado; 
+					if(orcamentoDiferenciadoAux.id == orcamentoDiferenciado.id){
+						var orcRepSub:Object = _listaOrcamentoDiferenciado.removeItemAt(i);
+						_listaOrcamentoDiferenciado.addItemAt(orcamentoDiferenciado,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					_listaOrcamentoDiferenciado.addItem(orcamentoDiferenciado);
+				}
+				popularFiltros();
+				atualizaCombos();
+			}
+			
+			public function adicionar(orcamentoDiferenciado:OrcamentoDiferenciado):void
+			{
+				if(_listaOrcamentoDiferenciado){
+					_listaOrcamentoDiferenciado.addItemAt(orcamentoDiferenciado,0);
+				}else{
+					_listaOrcamentoDiferenciado = new ArrayCollection();
+					_listaOrcamentoDiferenciado.addItemAt(orcamentoDiferenciado,0);
+				}
+				popularFiltros();
+				atualizaCombos();
+			}
+			
+			private function onListarOrcamentosDiferenciadosResult(event:ResultEvent = null):void
+			{
+				_listaOrcamentoDiferenciado = event.result as ArrayCollection;
+				popularFiltros();
+			}
+			
+			private function onListarOrcamentosDiferenciadosFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaOrcamentoDiferenciado.getItemAt(event2.rowIndex);				
+				}
+				
+				_orcamentoDiferenciado = data as OrcamentoDiferenciado;
+				orcamentoDiferenciadoService.buscarPorId(_orcamentoDiferenciado.id);
+				//buscarOrdemServico(_orcamentoDiferenciado.ordemServico.id)
+			}
+			
+			private function onBuscarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
+			{
+				this.currentState = "edicao";
+				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
+				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
+				detalhamentoOrcamentoDiferenciado.observacoes.listarObservacoes();
+			}
+			
+			private function onBuscarOrcamentoDiferenciadoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			private function buscarOrdemServico(id:Number):void
+			{
+				ordemServicoService.buscarPorId(id);
+			}
+			
+			private function onBuscarNotaFiscalResult(event:ResultEvent = null):void
+			{
+				this.currentState = "edicao";
+				_ordemServico = event.result as OrdemServico;
+				_orcamentoDiferenciado.ordemServico = _ordemServico;
+				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
+				detalhamentoOrcamentoDiferenciado.observacoes.listarObservacoes();
+			}
+			
+			private function onBuscarNotaFiscalFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			private function iniciarOrcamentoDiferenciado(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_orcamentoDiferenciado = detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado;
+					orcamentoDiferenciadoController.iniciarOrcamentoDiferenciado(_orcamentoDiferenciado,usr);		
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(iniciarOrcamentoDiferenciadoAutenticar);
+				}
+			}
+			
+			public function iniciarOrcamentoDiferenciadoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				iniciarOrcamentoDiferenciado();
+			}
+			
+			private function onIniciarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
+			{
+				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
+				adicionarOrcamentoDiferenciado(_orcamentoDiferenciado);
+				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR,_orcamentoDiferenciado);
+				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_INICIADA_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onIniciarOrcamentoDiferenciadoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_INICIADA_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function salvarOrcamentoDiferenciado(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_orcamentoDiferenciado = detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado;
+					orcamentoDiferenciadoController.salvarOrcamentoDiferenciado(_orcamentoDiferenciado,usr);		
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(salvarOrcamentoDiferenciadoAutenticar);
+				}
+				
+			}
+			
+			public function salvarOrcamentoDiferenciadoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				salvarOrcamentoDiferenciado();
+			}
+			
+			private function onSalvarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
+			{
+				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
+				adicionarOrcamentoDiferenciado(_orcamentoDiferenciado);
+				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR,_orcamentoDiferenciado);
+				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_SALVA_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onSalvarOrcamentoDiferenciadoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_SALVA_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function aprovarOrcamentoDiferenciado(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(detalhamentoOrcamentoDiferenciado.validarCampos()){
+						_orcamentoDiferenciado = detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado;
+						_orcamentoDiferenciado.realizadoPor = usr;
+						orcamentoDiferenciadoController.aprovarOrcamentoDiferenciado(_orcamentoDiferenciado,usr);
+					}else{
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 5000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(aprovarOrcamentoDiferenciadoAutenticar);
+				}
+			}
+			
+			public function aprovarOrcamentoDiferenciadoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				aprovarOrcamentoDiferenciado();
+			}
+			
+			private function onAprovarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
+			{
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_APROVADO_SUCESSO'), MessageType.SUCCESS, 10000));	
+				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
+				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_APROVADO,_orcamentoDiferenciado);
+				//publicarOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_APROVADO,_orcamentoDiferenciado);
+				adicionarOrcamentoDiferenciado(_orcamentoDiferenciado);
+				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;				
+			}
+			
+			private function onAprovarOrcamentoDiferenciadoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_APROVADO_ERRO'), MessageType.ERROR, 10000));
+			}			
+			
+			private function rejeitarOrcamentoDiferenciado(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(detalhamentoOrcamentoDiferenciado.validarCampos()){
+						_orcamentoDiferenciado = detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado;
+						_orcamentoDiferenciado.realizadoPor = usr;
+						orcamentoDiferenciadoController.rejeitarOrcamentoDiferenciado(_orcamentoDiferenciado,usr);
+					}else{
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 5000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(rejeitarOrcamentoDiferenciadoAutenticar);
+				}
+				
+				
+			}
+			
+			public function rejeitarOrcamentoDiferenciadoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				rejeitarOrcamentoDiferenciado();
+			}
+			
+			private function onRejeitarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
+			{
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_REJEITADO_SUCESSO'), MessageType.SUCCESS, 10000));	
+				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
+				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_REJEITADO,_orcamentoDiferenciado);
+				//publicarOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_REJEITADO,_orcamentoDiferenciado);
+				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
+			}
+			
+			private function onRejeitarOrcamentoDiferenciadoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_REJEITADO_ERRO'), MessageType.ERROR, 10000));
+			}
+			
+			private function gerarPDF(event:MouseEvent):void
+			{
+				
+			}
+			
+			private function voltar(event:MouseEvent):void
+			{
+				this.currentState = "listagem";
+			}
+			
+			public function atualizaCombos(event:Event=null):void{
+				configurarFiltroLista();
+			}
+			
+			private function configurarFiltroLista():void
+			{
+				_listaOrcamentoDiferenciado.filterFunction = function stateFilterFunc(item:Object):Boolean 
+				{
+					
+					var bolStatus:Boolean;
+					if(cbStatus.selectedItem == null || cbStatus.selectedItem == "" || cbStatus.selectedItem == 'Todos'){
+						bolStatus = true;
+					}else{
+						bolStatus = item.statusString.toLowerCase() == cbStatus.selectedItem.toLowerCase();
+					}
+					
+					var bolordemServico:Boolean;
+					if(cbNumeroOS.selectedItem == null || cbNumeroOS.selectedItem == "" || cbNumeroOS.selectedItem == 'Todos'){
+						bolordemServico = true;
+					}else{
+						bolordemServico = item.ordemServico.numeroOrdemServico.toLowerCase() == cbNumeroOS.selectedItem.toLowerCase();
+					}
+					
+					var bolOSPai:Boolean;
+					if(cbNumeroOSPai.selectedItem == null || cbNumeroOSPai.selectedItem == "" || cbNumeroOSPai.selectedItem == 'Todos'){
+						bolOSPai = true;
+					}else{
+						if(item.ordemServico.unidadePai != null){
+							bolOSPai = item.ordemServico.unidadePai.numeroOrdemServico.toLowerCase() == cbNumeroOSPai.selectedItem.toLowerCase();
+						}else{
+							bolOSPai = false; //pode estar errado
+						}
+					}
+					
+					var bolCliente:Boolean;
+					if(cbCliente.selectedItem == null || cbCliente.selectedItem == "" || cbCliente.selectedItem == 'Todos'){
+						bolCliente = true;
+					}else{
+						bolCliente = item.ordemServico.cliente.nomeSistema.toLowerCase() == cbCliente.selectedItem.toLowerCase();
+					}
+					
+					var bolUnidade:Boolean;
+					if(cbUnidade.selectedItem == null || cbUnidade.selectedItem == "" || cbUnidade.selectedItem == 'Todos'){
+						bolUnidade = true;
+					}else{
+						bolUnidade = item.ordemServico.unidade.nome.toLowerCase() == cbUnidade.selectedItem.toLowerCase();
+					}
+					
+					var bolLaboratorio:Boolean;
+					if(cbLaboratorio.selectedItem == null || cbLaboratorio.selectedItem == "" || cbLaboratorio.selectedItem == 'Todos'){
+						bolLaboratorio = true;
+					}else{
+						bolLaboratorio = item.ordemServico.unidade.laboratorio.nome.toLowerCase() == cbLaboratorio.selectedItem.toLowerCase();
+					}
+					
+					var bolNSerie:Boolean;
+					if(cbNFabricante.selectedItem == null || cbNFabricante.selectedItem == "" || cbNFabricante.selectedItem == 'Todos'){
+						bolNSerie = true;
+					}else{
+						bolNSerie = item.ordemServico.serieFabricante.toLowerCase() == cbNFabricante.selectedItem.toLowerCase();
+					}
+					
+					var bolNCliente:Boolean;
+					if(cbNCliente.selectedItem == null || cbNCliente.selectedItem == "" || cbNCliente.selectedItem == 'Todos'){
+						bolNCliente = true;
+					}else{
+						bolNCliente = item.ordemServico.serieCliente.toLowerCase() == cbNCliente.selectedItem.toLowerCase();
+					}
+					
+					var bolUsuario:Boolean;
+					if(cbUsuario.selectedItem == null || cbUsuario.selectedItem == "" || cbUsuario.selectedItem == 'Todos'){
+						bolUsuario = true;
+					}else{
+						bolUsuario = item.criadoPor.usuario.toLowerCase() == cbUsuario.selectedItem.toLowerCase();
+					}
+					
+					return bolStatus && bolordemServico && bolOSPai && bolCliente && bolUnidade && bolLaboratorio && bolNSerie && bolNCliente && bolUsuario;
+					
+				};		
+				_listaOrcamentoDiferenciado.refresh();
+			}
+			
+			private function popularFiltros():void
+			{
+
+				statusSelecionado = cbStatus.selectedItem as String;
+				listaFiltroStatus = new ArrayCollection();
+				ordemServicoSelecionada = cbNumeroOS.selectedItem as String;
+				listaFiltroNOrdemServico = new ArrayCollection();
+				osPaiSelecionada = cbNumeroOSPai.selectedItem as String;
+				listaFiltroNOSPai = new ArrayCollection();
+				clienteSelecionado = cbCliente.selectedItem as String;
+				listaFiltroCliente = new ArrayCollection();
+				unidadeSelecionada = cbUnidade.selectedItem as String;
+				listaFiltroUnidade = new ArrayCollection();
+				snFabricanteSelecionado = cbNFabricante.selectedItem as String;
+				listaFiltroSNFabricante = new ArrayCollection();
+				snClienteSelecionado = cbNCliente.selectedItem as String;
+				listaFiltroSNCliente = new ArrayCollection();
+				laboratorioSelecionado = cbLaboratorio.selectedItem as String;
+				listaFiltroLaboratorio = new ArrayCollection();
+				usuarioSelecionado = cbUsuario.selectedItem as String;
+				listaFiltroUsuario = new ArrayCollection();
+				
+				for each (var laudoTecnico:OrcamentoDiferenciado in _listaOrcamentoDiferenciado){
+					if(laudoTecnico.statusString != null && laudoTecnico.statusString.length > 0 && !listaFiltroStatus.contains(laudoTecnico.statusString)){
+						listaFiltroStatus.addItem(laudoTecnico.statusString);
+					}
+					if(laudoTecnico.ordemServico != null && laudoTecnico.ordemServico.cliente != null && laudoTecnico.ordemServico.cliente.nomeSistema.length > 0 && !listaFiltroCliente.contains(laudoTecnico.ordemServico.cliente.nomeSistema)){
+						listaFiltroCliente.addItem(laudoTecnico.ordemServico.cliente.nomeSistema);
+					}
+					if(laudoTecnico.ordemServico != null &&  laudoTecnico.ordemServico.numeroOrdemServico != null && laudoTecnico.ordemServico.numeroOrdemServico.length > 0 && !listaFiltroNOrdemServico.contains(laudoTecnico.ordemServico.numeroOrdemServico)){
+						listaFiltroNOrdemServico.addItem(laudoTecnico.ordemServico.numeroOrdemServico);
+					}
+					if(laudoTecnico.ordemServico != null &&  laudoTecnico.ordemServico.unidadePai != null && laudoTecnico.ordemServico.unidadePai.numeroOrdemServico != null && laudoTecnico.ordemServico.unidadePai.numeroOrdemServico.length > 0 && !listaFiltroNOSPai.contains(laudoTecnico.ordemServico.unidadePai.numeroOrdemServico)){
+						listaFiltroNOSPai.addItem(laudoTecnico.ordemServico.unidadePai.numeroOrdemServico);
+					}
+					if(laudoTecnico.ordemServico != null &&  laudoTecnico.ordemServico.unidade != null && laudoTecnico.ordemServico.unidade.nome.length > 0 && !listaFiltroUnidade.contains(laudoTecnico.ordemServico.unidade.nome)){
+						listaFiltroUnidade.addItem(laudoTecnico.ordemServico.unidade.nome);
+					}
+					if(laudoTecnico.ordemServico != null && laudoTecnico.ordemServico.unidade != null && laudoTecnico.ordemServico.unidade.laboratorio != null && laudoTecnico.ordemServico.unidade.laboratorio.nome.length > 0 && !listaFiltroLaboratorio.contains(laudoTecnico.ordemServico.unidade.laboratorio.nome)){
+						listaFiltroLaboratorio.addItem(laudoTecnico.ordemServico.unidade.laboratorio.nome);
+					}
+					if(laudoTecnico.ordemServico != null &&  laudoTecnico.ordemServico.serieFabricante != null && laudoTecnico.ordemServico.serieFabricante.length > 0 && !listaFiltroSNFabricante.contains(laudoTecnico.ordemServico.serieFabricante)){
+						listaFiltroSNFabricante.addItem(laudoTecnico.ordemServico.serieFabricante);
+					}
+					if(laudoTecnico.ordemServico != null &&  laudoTecnico.ordemServico.serieCliente != null && laudoTecnico.ordemServico.serieCliente.length > 0 && !listaFiltroSNCliente.contains(laudoTecnico.ordemServico.serieCliente)){
+						listaFiltroSNCliente.addItem(laudoTecnico.ordemServico.serieCliente);
+					}
+					if(laudoTecnico.criadoPor != null && laudoTecnico.criadoPor.usuario.length > 0 && !listaFiltroUsuario.contains(laudoTecnico.criadoPor.usuario)){
+						listaFiltroUsuario.addItem(laudoTecnico.criadoPor.usuario);
+					}
+				}
+				
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroStatus.sort=sortA;
+				listaFiltroStatus.refresh();
+				listaFiltroStatus.sort = null;
+				listaFiltroStatus.addItemAt("Todos",0);
+				
+				cbStatus.enabled = true;
+				cbStatus.dataProvider = listaFiltroStatus;
+				
+				if(listaFiltroStatus.length > 0){
+					if(statusSelecionado){
+						cbStatus.selectedItem = statusSelecionado;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroCliente.sort=sortA;
+				listaFiltroCliente.refresh();
+				listaFiltroCliente.sort = null;
+				listaFiltroCliente.addItemAt("Todos",0);
+				
+				cbCliente.enabled = true;
+				cbCliente.dataProvider = listaFiltroCliente;
+				
+				if(listaFiltroCliente.length > 0){
+					if(clienteSelecionado){
+						cbCliente.selectedItem = clienteSelecionado;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroLaboratorio.sort=sortA;
+				listaFiltroLaboratorio.refresh();
+				listaFiltroLaboratorio.sort = null;
+				listaFiltroLaboratorio.addItemAt("Todos",0);
+				
+				cbLaboratorio.enabled = true;
+				cbLaboratorio.dataProvider = listaFiltroLaboratorio;
+				
+				if(listaFiltroLaboratorio.length > 0){
+					if(laboratorioSelecionado){
+						cbLaboratorio.selectedItem = laboratorioSelecionado;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroNOrdemServico.sort=sortA;
+				listaFiltroNOrdemServico.refresh();
+				listaFiltroNOrdemServico.sort = null;
+				listaFiltroNOrdemServico.addItemAt("Todos",0);
+				
+				cbNumeroOS.enabled = true;
+				cbNumeroOS.dataProvider = listaFiltroNOrdemServico;
+				
+				if(listaFiltroNOrdemServico.length > 0){
+					if(ordemServicoSelecionada){
+						cbNumeroOS.selectedItem = ordemServicoSelecionada;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroNOSPai.sort=sortA;
+				listaFiltroNOSPai.refresh();
+				listaFiltroNOSPai.sort = null;
+				listaFiltroNOSPai.addItemAt("Todos",0);
+				
+				cbNumeroOSPai.enabled = true;
+				cbNumeroOSPai.dataProvider = listaFiltroNOSPai;
+				
+				if(listaFiltroNOSPai.length > 0){
+					if(osPaiSelecionada){
+						cbNumeroOSPai.selectedItem = osPaiSelecionada;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroSNCliente.sort=sortA;
+				listaFiltroSNCliente.refresh();
+				listaFiltroSNCliente.sort = null;
+				listaFiltroSNCliente.addItemAt("Todos",0);
+				
+				cbNCliente.enabled = true;
+				cbNCliente.dataProvider = listaFiltroSNCliente;
+				
+				if(listaFiltroSNCliente.length > 0){
+					if(snClienteSelecionado){
+						cbNCliente.selectedItem = snClienteSelecionado;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroSNFabricante.sort=sortA;
+				listaFiltroSNFabricante.refresh();
+				listaFiltroSNFabricante.sort = null;
+				listaFiltroSNFabricante.addItemAt("Todos",0);
+				
+				cbNFabricante.enabled = true;
+				cbNFabricante.dataProvider = listaFiltroSNFabricante;
+				
+				if(listaFiltroSNFabricante.length > 0){
+					if(snFabricanteSelecionado){
+						cbNFabricante.selectedItem = snFabricanteSelecionado;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroUnidade.sort=sortA;
+				listaFiltroUnidade.refresh();
+				listaFiltroUnidade.sort = null;
+				listaFiltroUnidade.addItemAt("Todos",0);
+				
+				cbUnidade.enabled = true;
+				cbUnidade.dataProvider = listaFiltroUnidade;
+				
+				if(listaFiltroUnidade.length > 0){
+					if(unidadeSelecionada){
+						cbUnidade.selectedItem = unidadeSelecionada;
+					}
+				}
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroUsuario.sort=sortA;
+				listaFiltroUsuario.refresh();
+				listaFiltroUsuario.sort = null;
+				listaFiltroUsuario.addItemAt("Todos",0);
+				
+				cbUsuario.enabled = true;
+				cbUsuario.dataProvider = listaFiltroUsuario;
+				
+				if(listaFiltroUsuario.length > 0){
+					if(usuarioSelecionado){
+						cbUsuario.selectedItem = usuarioSelecionado;
+					}
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:HBox verticalAlign="bottom" width="100%" excludeFrom="edicao">
+		<components:DropBoxInput id="cbStatus" labelText="Status" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbNumeroOS" labelText="Nº OS" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbNumeroOSPai" labelText="Nº OS Pai" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbCliente" labelText="Cliente" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbUnidade" labelText="Unidade" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbNFabricante" labelText="S/N Fabricante" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbNCliente" labelText="S/N Cliente" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbLaboratorio" labelText="Laboratório" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+		<components:DropBoxInput id="cbUsuario" labelText="Usuário" change="atualizaCombos" width="10%" requireSelectionFlag="true" />
+	</mx:HBox>
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="100%"
+					  includeIn="listagem"
+					  draggableColumns="true"
+					  dataProvider="{_listaOrcamentoDiferenciado}"
+					  doubleClickEnabled="false"
+					  >
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".05"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.visualizarDetalhe(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />						
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+			<mx:DataGridColumn id="status" 
+							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+							   dataField = "statusString" textAlign="center"
+							   width=".10"
+							   />
+			
+			<mx:DataGridColumn id="numeroOs"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="ordemServico.numeroOrdemServico"							   
+							   />
+			
+			<mx:DataGridColumn id="numeroOsPai"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
+							   />
+			
+			<mx:DataGridColumn id="cliente" dataField="ordemServico.cliente.nomeSistema"
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+							   textAlign="center" width=".10"
+							   sortable="false"					   
+							   />
+			
+			<mx:DataGridColumn id="unidade"
+							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="ordemServico.unidade.nome"							   
+							   />
+			
+			<mx:DataGridColumn id="nSerieFabricante" 
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+							   dataField = "ordemServico.serieFabricante"
+							   width=".10"
+							   />
+			
+			<mx:DataGridColumn id="nSerieCliente" 
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+							   dataField = "ordemServico.serieCliente"
+							   width=".10"
+							   />
+			
+			<mx:DataGridColumn id="cLaboratorio" 
+							   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+							   dataField = "ordemServico.unidade.laboratorio.nome"
+							   width=".10"
+							   />
+			
+			<mx:DataGridColumn id="cUsuario" 
+							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+							   dataField = "criadoPor.usuario"
+							   width=".10"
+							   />
+			
+			
+		</grid:columns>
+	</grid:MantisTable>
+	
+	<orcamentoDiferenciado:OrcamentoDiferenciadoDetalhamento id="detalhamentoOrcamentoDiferenciado" excludeFrom="listagem" />
+	
+	<mx:HBox excludeFrom="listagem" width="100%" horizontalAlign="left">
+		<mx:Button id="btIniciar"
+				   label="{resourceManager.getString('ApplicationResource','INICIAR_ORCAMENTO_DIFERENCIADO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="iniciarOrcamentoDiferenciado(event)"
+				   enabled="{_orcamentoDiferenciado.statusString == 'Não iniciado'}"
+				   />
+		
+		<mx:Button id="btSalvar"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR_ORCAMENTO_DIFERENCIADO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="salvarOrcamentoDiferenciado(event)"
+				   enabled="{_orcamentoDiferenciado.statusString == 'Iniciado'}"
+				   />
+		<mx:Button id="btFinalizar" 
+				   label="{resourceManager.getString('ApplicationResource','APROVAR_ORCAMENTO_DIFERENCIADO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="aprovarOrcamentoDiferenciado(event)"
+				   enabled="{_orcamentoDiferenciado.statusString == 'Iniciado'}"
+				   />
+		<s:Spacer width="50" />
+		<mx:Button id="btRejeitar" 
+				   label="{resourceManager.getString('ApplicationResource','REJEITAR_ORCAMENTO_DIFERENCIADO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="rejeitarOrcamentoDiferenciado(event)"
+				   enabled="{_orcamentoDiferenciado.statusString == 'Iniciado'}"
+				   />
+		<s:Spacer width="50" />
+		<mx:Button id="btVoltar" 
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+</mx:VBox>

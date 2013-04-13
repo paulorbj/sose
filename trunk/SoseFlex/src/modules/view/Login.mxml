@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:usuario="modules.administrativo.usuario.*"
+		 xmlns:texto="components.textInput.*" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"
+		 horizontalAlign="center" verticalAlign="middle" creationComplete="completeHandler()"	 >
+
+
+
+	<fx:Declarations>
+		<mx:RemoteObject id="usuarioService" 
+						 destination="usuarioService" channelSet="{parentApplication.channelSet}"
+						 endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="logar"      
+					   fault="onLogarFault(event)" 
+					   result="onLogarResult(event)"
+					   />
+			<mx:method name="invalidarUsuarioAutenticado"      
+					   fault="onLogarFault(event)" 
+					   result="onLogarResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Metadata>
+        [Event(name="success")]
+    </fx:Metadata>
+
+
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Usuario;
+			
+			import modules.administrativo.usuario.eventos.UsuarioEvent;
+			import modules.view.eventos.LoginEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.effects.Pause;
+			import mx.events.EffectEvent;
+			import mx.events.ListEvent;
+			import mx.logging.Log;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var validatorArr:Array;
+			
+			/** Current user object */
+			
+			private static var _currentUser:Usuario = null;
+			
+			
+			private static var _usuarioAutenticado:Usuario = null;
+
+			/**
+			 * Get the current logged User
+			 */
+			[Bindable]
+			public static function get currentUser():Usuario
+			{
+				return _currentUser;
+			}
+			
+			public static function set currentUser(user:Usuario):void
+			{
+				_currentUser = user;
+			}
+			
+			private function completeHandler():void
+			{
+//				focusManager.setFocus(username.input);
+				username.enter = function funcao1():void 
+				{
+					openDatabase();
+				};
+				password.enter = function funcao2():void 
+				{
+					openDatabase();
+				};
+				this.addEventListener(KeyboardEvent.KEY_DOWN, checkKey);
+			}
+			
+			private function checkKey(event:KeyboardEvent):void
+			{
+				// Highlight enter
+				validateButton.setStyle("textDecoration", "underline");
+				
+				if (event.charCode == 13) {
+					openDatabase();
+				}
+			}
+			
+			private function openDatabase():void
+			{
+				SoseFlex.LOG.info("Teste realizado...");
+				Log.getLogger("RemoteLogging").info("Testando log...");
+				if(validateForm()){
+					usuarioService.channelSet = parentApplication.channelSet;
+					usuarioService.logar(username.input.text, password.input.text);
+				}
+			}
+			
+			private function validateForm():Boolean {	
+				validatorArr = new Array();
+				validatorArr.push(username.stringValidator);
+				//validatorArr.push(password.stringValidator);
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				return isValidForm;
+			}
+			
+			private function onLogarResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				currentUser = event.result as Usuario;
+				
+				if (currentUser == null){
+					statusMessage.text = "Falha ao logar! Usuário e/ou senha incorreto!"
+					var pause:Pause = new Pause(statusMessage);
+					pause.duration = 10000;
+					pause.addEventListener(EffectEvent.EFFECT_END, onEffectEnd);
+					pause.play();
+				} else if (currentUser.bloqueado) {
+					statusMessage.text = "O usuário " + currentUser.usuario + " se encontra bloqueado!";
+					var pause1:Pause = new Pause(statusMessage);
+					pause1.duration = 10000;
+					pause1.addEventListener(EffectEvent.EFFECT_END, onEffectEnd);
+					pause1.play();
+				} else{
+					dispatchEvent(new Event("success"));
+				}
+				
+			}
+			
+			private function onLogarFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirUsuarioFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+
+			[Bindable]
+			public static function get usuarioAutenticado():Usuario
+			{
+				return _usuarioAutenticado;
+			}
+
+			public static function set usuarioAutenticado(value:Usuario):void
+			{
+				_usuarioAutenticado = value;
+//				invalidar();
+			}
+			
+			/**
+			 * Dispatch close event.
+			 * @see CloseMessageEvent
+			 */
+			private function onEffectEnd(event:Event):void
+			{
+				statusMessage.text = "";
+			}
+			
+			public static function invalidar():void
+			{
+				var pause:Pause = new Pause();
+				pause.duration = 10*(1000*60);
+				pause.addEventListener(EffectEvent.EFFECT_END, invalidaUsuarioReparo);
+				pause.play();
+			}
+			
+			private static function invalidaUsuarioReparo(event:Event):void
+			{
+				_usuarioAutenticado = null;
+			}
+			
+		]]>
+	</fx:Script>
+
+	<mx:Image source="@Embed('/assets/lock.png')"/>
+
+	<mx:Label id="mainTitle" text="Tela de Login" fontSize="18" top="20" horizontalCenter="0"/>
+	
+	<mx:Text id="blurb" width="90%" textAlign="center">
+		<mx:text>SOSE</mx:text>
+	</mx:Text>
+	
+	<mx:VBox width="250" borderStyle="solid" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+		<mx:HBox verticalAlign="middle" width="100%">
+			<s:Label text="Usuário:" />
+			<s:Spacer width="100%" />
+			<texto:TextInput id="username" required="true" width="150" />
+		</mx:HBox>
+		<mx:HBox verticalAlign="middle" width="100%">
+			<s:Label text="Senha:" />
+			<s:Spacer width="100%" />
+			<texto:TextInputPassword id="password" required="true"  width="150"  />
+		</mx:HBox>
+	</mx:VBox>
+
+	<mx:Button id="validateButton" label="Logar" click="openDatabase()" height="36" width="250"/>
+	
+	<mx:Text id="statusMessage" width="90%" height="35" color="red" styleName="error" textAlign="center"/>
+
+</mx:VBox>

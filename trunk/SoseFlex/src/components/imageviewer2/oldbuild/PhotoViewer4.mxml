@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" verticalScrollPolicy="on" horizontalScrollPolicy="off" horizontalAlign="center" horizontalCenter="50" currentState="small" initialize="init()" width="100%" height="100%"  creationComplete="myNumfind(0);" >
+						
+						
+	<mx:Glow id="glowImage" duration="200" 
+        alphaFrom="1.0" alphaTo="0.5" 
+        blurXFrom="0.0" blurXTo="15.0" 
+        blurYFrom="0.0" blurYTo="15.0" 
+        color="0x00FF00"/>
+    <mx:Glow id="unglowImage" duration="200" 
+        alphaFrom="0.3" alphaTo="1.0" 
+        blurXFrom="15.0" blurXTo="0.0" 
+        blurYFrom="15.0" blurYTo="0.0" 
+        color="0x0000FF"/>
+        
+						
+						
+						
+						
+						
+						<mx:Image x="-18.45" y="-225" source="tubeBG.png" width="1719.4783" height="1342.946" id="image3"/>
+						
+						<mx:states>
+						<mx:State name="small">
+									           
+									<mx:SetProperty target="{movieGrid}" name="y" value="734"/>
+									<mx:SetProperty name="width" value="100%"/>
+									<mx:SetProperty name="height" value="100%"/>
+									<mx:SetProperty target="{movieGrid}" name="width" value="790"/>
+									<mx:SetStyle name="backgroundGradientColors" value="[#ffffff, #ffffff]"/>
+									<mx:SetProperty target="{movieGrid}" name="height" value="407"/>
+									
+									<mx:SetProperty name="layout" value="absolute"/>
+									<mx:RemoveChild target="{button4}"/>
+									<mx:SetStyle target="{movieGrid}" name="cornerRadius" value="5"/>
+									<mx:RemoveChild target="{image1}"/>
+									<mx:AddChild position="lastChild">
+												
+									</mx:AddChild>
+									<mx:SetProperty target="{movieGrid}" name="x" value="35"/>
+									<mx:AddChild position="lastChild">
+												<mx:TextArea x="490" y="76" height="326" width="360" id="myText" text="{movieGrid.selectedItem.text}" fontSize="14" editable="false"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Image x="23" y="76" width="459" height="326" id="myImage"/>
+									</mx:AddChild>
+									<mx:RemoveChild target="{panel1}"/>
+									<mx:AddChild position="lastChild">
+			<mx:Tile direction="horizontal" borderStyle="inset" 
+            horizontalGap="10" verticalGap="15" 
+            paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10" x="60" y="441" width="750" height="130">
+        
+            <mx:Repeater id="rp" dataProvider="{movieData}">
+                <mx:Image height="49" width="50" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" toolTip="{rp.currentItem.subtitle}" source="{rp.currentItem.icon}" click="mygothere(event.currentTarget.getRepeaterItem ());" />
+           
+                
+            </mx:Repeater>    
+            </mx:Tile>
+					</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="73" y="410" text="{movieGrid.selectedItem.subtitle}" id="sourceTag0" width="333" textAlign="center" fontSize="14"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="23" y="24" text="{movieGrid.selectedItem.title}" id="sourceTag1" fontSize="15" fontWeight="bold" width="281"/>
+									</mx:AddChild>
+									<mx:SetProperty target="{image3}" name="x" value="-314"/>
+									<mx:SetProperty target="{image3}" name="y" value="-246"/>
+									<mx:AddChild position="lastChild">
+												<mx:List x="623" y="722" width="335" height="326" change="changeEvt(event)"  fontSize="14" iconField="myIcon" >
+										
+										<mx:ArrayCollection>
+                                            <mx:Object label="All" data="0"  myIcon="iconSymbol1"/>
+                                            <mx:Object label="Home" data="1"/>
+                                            <mx:Object label="City Life and Rhetoric" data="2"/>
+                                            <mx:Object label="3 Perspectives" data="3"/>
+              
+                                         </mx:ArrayCollection>
+
+												
+												
+												
+												
+												
+												
+												</mx:List>
+									</mx:AddChild>
+									<mx:SetProperty target="{image3}" name="width" value="1763.4783"/>
+									<mx:SetProperty target="{image3}" name="height" value="1424.946"/>
+									<mx:AddChild position="lastChild">
+												<mx:Image x="330" y="16" id="navimage1" source="@Embed(source='images/icons/Urbm.jpg')"   
+         rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" width="43" height="32" click="myMainget('All'),myNumfind(0)"/>
+									</mx:AddChild>
+									
+									
+									<mx:AddChild position="lastChild">
+												<mx:Image x="386" y="16" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" source="images/icons/Buddy.jpg" width="38" height="32" id="navimage2" click="myMainget('Home'),myNumfind(0)"/>
+									</mx:AddChild>
+									
+									
+									<mx:AddChild position="lastChild">
+												<mx:Label id="labelall" x="342" y="52" text="All"  />
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="385" y="51" text="Home"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Image x="442" y="16" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" source="images/icons/buildingjob.jpg" width="45" height="32" id="navimage3"  click="myMainget('City Life and Rhetoric'), myNumfind(0)"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="437" y="51" text="Rhetoric"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Image x="502" y="16" rollOverEffect="{glowImage}"  rollOutEffect="{unglowImage}"   mouseUpEffect="{unglowImage}" source="images/icons/slums.jpg" width="46" height="32" id="navimage4"  click="myMainget('3 Perspectives'), myNumfind(0)" />
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="505" y="51" text="3 Pers"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Image x="566" y="16" source="images/icons/Buddy.jpg" width="38" height="32" id="navimage5"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="563" y="51" text="History"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Image x="624" y="16" source="images/icons/Buddy.jpg" width="38" height="32" id="navimage6"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="623" y="51" text="Today"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Image x="676" y="16" source="images/icons/Buddy.jpg" width="38" height="32" id="navimage7"/>
+									</mx:AddChild>
+									<mx:AddChild position="lastChild">
+												<mx:Label x="674" y="52" text="Future"/>
+									</mx:AddChild>
+									<mx:AddChild relativeTo="{movieGrid}" position="before">
+												<mx:Image x="726" y="16" source="images/icons/Buddy.jpg" width="38" height="32" id="navimage8"/>
+									</mx:AddChild>
+									<mx:AddChild relativeTo="{movieGrid}" position="before">
+												<mx:Label x="719" y="52" text="Opinions"/>
+									</mx:AddChild>
+									<mx:AddChild relativeTo="{navimage8}" position="before">
+												<mx:Image x="784" y="16" source="images/icons/Buddy.jpg" width="38" height="32" id="navimage9"/>
+									</mx:AddChild>
+									<mx:AddChild relativeTo="{navimage8}" position="before">
+												<mx:Label x="779" y="52" text="Builders"/>
+									</mx:AddChild>
+									
+						</mx:State>
+						<mx:State name="big">
+									<mx:RemoveChild target="{movieGrid}"/>
+									<mx:SetStyle name="backgroundGradientColors" value="[#000000, #000000]"/>
+									<mx:SetProperty name="width" value="100%"/>
+									<mx:SetProperty name="height" value="100%"/>
+									<mx:SetProperty target="{panel1}" name="y" value="14"/>
+									<mx:AddChild relativeTo="{panel1}" position="lastChild">
+												<mx:Image x="639" y="541" source="tvSmall.png"/>
+									</mx:AddChild>
+									<mx:AddChild relativeTo="{panel1}" position="lastChild">
+												<mx:Button x="639" y="540" width="35" height="34" alpha="0.0" click="this.currentState='small'"/>
+									</mx:AddChild>
+									<mx:RemoveChild target="{button4}"/>
+									<mx:SetStyle target="{volume}" name="left" value="189"/>
+									<mx:RemoveChild target="{image1}"/>
+
+						</mx:State>
+			</mx:states>
+			<mx:Script>
+        <![CDATA[
+             [Embed(source="images/icons/Buddy.jpg")] 
+             public var iconSymbol1:Class; 
+             [Embed(source="images/icons/buildingjob.jpg")] 
+             public var iconSymbol2:Class; 
+        ]]>
+    </mx:Script>
+
+	<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		import mx.collections.ArrayCollection;
+		
+		import flash.events.Event;
+        import mx.events.DropdownEvent;
+        
+        public var mynewnum:String;
+        
+         private function changeEvt(event:Event):void {
+         	
+         	mynewnum=event.currentTarget.selectedItem.label;
+         	trace(mynewnum);
+               filterByCategory2();
+            }
+            
+ 
+ 
+ public function myNumfind(num:Number):void{
+ 
+ myImage.source =movieData[num].image;
+ 
+ myText.htmlText=movieData[num].text;
+ sourceTag1.text = movieData[num].title;
+ 
+ sourceTag0.text =movieData[num].subtitle;
+
+
+ }  
+   
+ 
+
+             
+ public function mygothere(event:Object):void{
+ 
+ myImage.source =event.image;
+ 
+ myText.htmlText=event.text;
+ 
+ sourceTag1.text = event.title;
+ 
+ sourceTag0.text = event.subtitle;
+ 
+ }  
+ 
+ public function myMainget(myhere:String):void{
+ mynewnum=myhere;
+ filterByCategory2();
+ 
+ } 
+      
+
+ public function filterByCategory2():void 
+			{
+	
+				movieData.filterFunction = catFilter2;
+				movieData.refresh();
+			}
+ public function catFilter2(item:Object):Boolean
+			{
+				if(mynewnum=="All"){
+					
+				return true;
+				
+				}else{
+				
+					return item.cat == mynewnum;
+				}
+			}
+		
+	
+	[Bindable]
+	private var movie:String;
+	
+	[Bindable]
+    public var selectedItem:Object;  
+    
+	private function clickHandler():void{
+	
+	
+	
+	}
+	
+	private function setSource():void{
+		
+		
+		
+
+	}
+	
+	[Bindable]
+	public var movieData:ArrayCollection;
+	
+	private function init():void
+		{
+			movieRequest.send();
+	
+            }
+       
+	
+
+	
+	private function movieHandler(event:ResultEvent):void
+		{
+			movieData = event.result.otrdata.mydata;
+			trace("movieData:"+movieData.length);
+		}
+
+
+	private function formatPositionToolTip(value:int):String{
+
+		var result:String = (value % 60).toString();
+        if (result.length == 1){
+            result = Math.floor(value / 60).toString() + ":0" + result;
+        } else {
+            result = Math.floor(value / 60).toString() + ":" + result;
+        }
+        return result;
+	}
+
+	]]>
+</mx:Script>
+
+	<mx:Image x="-5" y="-74" source="images/tubeBg.png" id="image1"/>
+	<mx:Panel layout="absolute" width="684" height="584" dropShadowEnabled="true"
+		headerHeight="0" cornerRadius="2" borderStyle="solid" borderThickness="0"
+		borderThicknessBottom="0" borderThicknessLeft="0" borderThicknessRight="0"
+		borderThicknessTop="0" backgroundColor="#000000" x="62" y="4" id="panel1">
+		
+		<mx:VideoDisplay id="videoDisplay"  autoPlay="false"  source="{movie}" width="640" height="480" left="20" top="9"/>
+
+		<mx:ProgressBar id="loadProgress" label="" mode="event" barColor="#00ff00"
+			minimum="0" maximum="100" y="512" height="20"
+			source="{videoDisplay}" trackHeight="10" trackColors="[#00ff00, #e6eeee]" left="10" right="10"/>
+
+		<mx:HSlider id="position" height="5"			
+			dataTipFormatFunction="formatPositionToolTip"
+			thumbPress="videoDisplay.pause()" slideDuration="0"
+			thumbRelease="videoDisplay.play()"
+			change="videoDisplay.playheadTime = position.value"
+			value="{videoDisplay.playheadTime}"
+			minimum="0" maximum="{videoDisplay.totalTime}" left="4" right="4" bottom="62"/>	
+
+		<mx:Button label="Play" click="videoDisplay.play();" cornerRadius="7" bottom="10" x="10" id="button1"/>
+        <mx:Button label="Pause" click="videoDisplay.pause();" cornerRadius="7" bottom="10" left="66" id="button2"/>
+        <mx:Button label="Stop" click="videoDisplay.stop();" cornerRadius="7" left="132" bottom="10" id="button3"/>
+        
+        <mx:HSlider id="volume" snapInterval="0.01" value="0.5" maximum="1.0" 
+			change="videoDisplay.volume = volume.value;"  
+			liveDragging="true" height="20" left="259" bottom="14" width="154"/>
+        
+        <mx:Label styleName="playheadTimeLabel"
+        	text="{formatPositionToolTip(videoDisplay.playheadTime)} - {formatPositionToolTip(videoDisplay.totalTime)}"
+        	color="#ffffff" left="10" top="530" id="label1"/>
+        <mx:Button click="setSource()" label="Get FLV" x="189" y="552" cornerRadius="7" id="button4"/>
+	
+	</mx:Panel>
+	<mx:DataGrid x="10" y="41" id="movieGrid"  dataProvider="{movieData}"  click="setSource()">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Icon" dataField="icon" itemRenderer="mx.controls.Image"  width="60"/>
+			<mx:DataGridColumn headerText="Title" dataField="title"/>
+			<mx:DataGridColumn headerText="Subject" dataField="subtitle"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
+
+	<mx:HTTPService id="movieRequest" url="data/otrdata.xml" result="movieHandler(event)"/>
+	
+</mx:Application>

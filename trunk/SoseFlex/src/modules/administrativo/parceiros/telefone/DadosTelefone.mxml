@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:components="components.*"
+		 xmlns:texto="components.textInput.*"
+		 creationComplete="limpar()" xmlns:combos="components.combos.*"
+		 >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Telefone;
+
+			[Bindable]
+			private var _telefone:Telefone = new Telefone();
+			
+			
+			public function get telefone():Telefone
+			{
+				if(tipo.tipoSelecionado){
+					_telefone.tipo = tipo.tipoSelecionado.nome;
+				}
+				return _telefone;
+			}
+
+			public function set telefone(value:Telefone):void
+			{
+				_telefone = value;
+				if(_telefone.tipo){
+					tipo.setTipoSelecionado(_telefone.tipo);
+				}
+			}
+			
+			public function limpar():void
+			{
+				_telefone = new Telefone();
+				tipo.limpar();
+			}
+
+		
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="ddd.input.text" source="_telefone.ddd" twoWay="true"/>
+	<fx:Binding destination="numero.input.text" source="_telefone.numero" twoWay="true"/>
+	<fx:Binding destination="ativo.selected" source="_telefone.cadastroSistemaAtivo" twoWay="true"/>
+	
+	<mx:HBox verticalAlign="bottom">
+		<combos:ComboTipoTelefone id="tipo" labelText="{resourceManager.getString('ApplicationResource','TIPO_TELEFONE')}" />
+		<texto:TextInput id="ddd" labelText="{resourceManager.getString('ApplicationResource','DDD_TELEFONE')}" width="30"  />
+		<texto:TextInput id="numero" labelText="{resourceManager.getString('ApplicationResource','NUMERO_TELEFONE')}" width="150" />
+		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
+	</mx:HBox>
+</mx:VBox>

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="initializeListagem()"
+		 xmlns:components="components.*" width="100%" height="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			
+			import entities.administrativo.TipoComponente;
+			
+			import modules.administrativo.tipocomponente.eventos.TipoComponenteEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var listaTipoComponente:ArrayCollection = new ArrayCollection;
+			
+			private var tipoComponente:TipoComponente;
+			
+			[Bindable]
+			private var listaTipoComponenteCompleta:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaFiltroTipoComponente:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var tipoComponenteSelecionada:String;
+			
+			private var sortTipoComponente:mx.collections.Sort;
+			
+			private function initializeListagem():void
+			{
+				sortTipoComponente = new Sort();
+				sortTipoComponente.fields=[new SortField("nome",true,false,false)];
+			}
+			
+			private function sortListaTipoComponente(lista:ArrayCollection):void
+			{
+				lista.sort = sortTipoComponente;
+				lista.refresh();
+			}
+			
+			public function setListaTipoComponente(lista:ArrayCollection):void
+			{
+				if(lista){
+					sortListaTipoComponente(lista);
+					listaTipoComponente = lista;
+					listaTipoComponenteCompleta = new ArrayCollection();
+					if(listaTipoComponente){
+						listaTipoComponenteCompleta.addAll(listaTipoComponente);
+					}else{
+						listaTipoComponente = new ArrayCollection();
+					}
+					popularFiltros();
+					atualizaCombos();
+				}
+			}
+			
+			public function adicionarTipoComponente(tipoComponente:TipoComponente):void
+			{
+				var tipoComponenteAux:TipoComponente = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaTipoComponente.length; i++){
+					tipoComponenteAux = listaTipoComponente.getItemAt(i) as TipoComponente; 
+					if(tipoComponenteAux.id == tipoComponente.id){	
+						var orcRepSub:Object = listaTipoComponente.removeItemAt(i);
+						listaTipoComponente.addItemAt(tipoComponente,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaTipoComponente.addItem(tipoComponente);
+				}
+				
+				for(var i:int=0; i<listaTipoComponenteCompleta.length; i++){
+					tipoComponenteAux = listaTipoComponenteCompleta.getItemAt(i) as TipoComponente; 
+					if(tipoComponenteAux.id == tipoComponente.id){	
+						var tipoComponenteSub:Object = listaTipoComponenteCompleta.removeItemAt(i);
+						listaTipoComponenteCompleta.addItemAt(tipoComponente,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaTipoComponenteCompleta.addItem(tipoComponente);
+				}
+				
+				sortListaTipoComponente(listaTipoComponente);
+				sortListaTipoComponente(listaTipoComponenteCompleta);
+				
+				popularFiltros();
+				atualizaCombos();
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaTipoComponente.getItemAt(event2.rowIndex);				
+				}
+				
+				dispatchEvent(new TipoComponenteEvent(TipoComponenteEvent.EDITAR_TIPOCOMPONENTE, data as TipoComponente));
+			}
+			
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{			
+				tipoComponente = data as TipoComponente;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				dispatchEvent(new TipoComponenteEvent(TipoComponenteEvent.EXCLUIR_TIPOCOMPONENTE,tipoComponente));
+				tipoComponente = null;
+			}
+			
+			public function atualizaCombos(event:Event=null):void{
+				configurarFiltroLista();
+			}
+			
+			private function configurarFiltroLista():void
+			{
+				listaTipoComponente.filterFunction = function stateFilterFunc(item:Object):Boolean 
+				{
+					var bolTipoComponente:Boolean;
+					if(cbTipoComponente.selectedItem == null || cbTipoComponente.selectedItem == "" || cbTipoComponente.selectedItem == 'Todos'){
+						bolTipoComponente = true;
+					}else{
+						bolTipoComponente = item.nome.toLowerCase() == cbTipoComponente.selectedItem.toLowerCase();
+					}
+					
+					return bolTipoComponente;
+					
+				};		
+				listaTipoComponente.refresh();
+			}
+			
+			private function popularFiltros():void
+			{
+				tipoComponenteSelecionada = cbTipoComponente.selectedItem as String;
+				listaFiltroTipoComponente = new ArrayCollection();
+				
+				for each (var tipoComponente:TipoComponente in listaTipoComponente){
+					listaFiltroTipoComponente.addItem(tipoComponente.nome);
+				}
+				
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroTipoComponente.sort=sortA;
+				listaFiltroTipoComponente.refresh();
+				listaFiltroTipoComponente.sort = null;
+				listaFiltroTipoComponente.addItemAt("Todos",0);
+				
+				cbTipoComponente.enabled = true;
+				cbTipoComponente.dataProvider = listaFiltroTipoComponente;
+				
+				if(listaFiltroTipoComponente.length > 0){
+					if(tipoComponenteSelecionada){
+						cbTipoComponente.selectedItem = tipoComponenteSelecionada;
+					}
+				}
+				
+				
+			}
+			
+			
+		]]>
+	</fx:Script>		
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<components:DropBoxInput id="cbTipoComponente" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
+	</mx:HBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{listaTipoComponente}"
+					  itemDoubleClick="editItem(data, event,false)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="nome"
+							   headerText = "{resourceManager.getString('ApplicationResource','NOME_TIPOCOMPONENTE')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="nome"							   
+							   />
+			
+			<mx:DataGridColumn id="descricao" 
+							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+							   dataField = "descricao"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width="100"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

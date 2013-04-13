@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:components="components.*" horizontalAlign="center"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
+		 initialize="init()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="pedidoCompraService" destination="pedidoCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listaPedidosCompra"      
+					   fault="onListarRequisicaoFault(event)" 
+					   result="onListarRequisicaoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="compraController" destination="compraController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="comprar"      
+					   fault="onDisponibilizarComponenteFault(event)" 
+					   result="onDisponibilizarComponenteResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Usuario;
+			import entities.compra.PedidoCompra;
+			import entities.orcamentoreparo.RequisicaoComponente;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var _listaPedidoCompra:ArrayCollection;
+			
+			[Bindable]
+			private var _pedidoCompra:PedidoCompra;
+			
+			[Bindable]
+			private var _requisicoesSelecionadas:ArrayCollection;
+			
+			[Bindable]
+			private var _requisicoesNaoSelecionadas:ArrayCollection;
+			
+			[Bindable]
+			private var _requisicao:RequisicaoComponente;
+			
+			[Bindable]
+			private var listaComponente:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaStatus:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaUsuario:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaLaboratorio:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var totalComponentes:Number = 0;
+			
+			private function init():void
+			{
+				pedidoCompraService.listaPedidosCompra();
+			}
+			
+			
+			private function onListarRequisicaoResult(event:ResultEvent = null):void
+			{
+				_listaPedidoCompra = event.result as ArrayCollection;
+				atualizaTotalComponentes(_listaPedidoCompra);
+				popularFiltros();
+				
+			}
+			
+			private function atualizaTotalComponentes(lista:ArrayCollection):void{
+				totalComponentes = 0;
+				for each (var req:PedidoCompra in lista){
+					totalComponentes += req.quantidade;
+				}
+			}
+			
+			private function onListarRequisicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function popularFiltros():void
+			{
+				listaComponente.removeAll();
+				listaStatus.removeAll();
+				listaUsuario.removeAll();
+				listaLaboratorio.removeAll();
+				for each (var req:PedidoCompra in _listaPedidoCompra){
+					if(!listaComponente.contains(req.requisicao.componente.nome)){
+						listaComponente.addItem(req.requisicao.componente.nome);
+					}
+					if(!listaStatus.contains(req.statusString)){
+						listaStatus.addItem(req.statusString);
+					}
+					if(req.requisicao.requisitante.usuario != null && !listaUsuario.contains(req.requisicao.requisitante.usuario)){
+						listaUsuario.addItem(req.requisicao.requisitante.usuario);
+					}
+					if(req.ordemServico.unidade.laboratorio.nome && !listaLaboratorio.contains(req.ordemServico.unidade.laboratorio.nome)){
+						listaLaboratorio.addItem(req.ordemServico.unidade.laboratorio.nome);
+					}
+				}
+				
+				if(listaComponente.length > 0){
+					listaComponente.addItemAt("Todos",0);
+					cbComponente.enabled = true;
+				}else{
+					cbComponente.enabled = false;
+				}
+				cbComponente.dataProvider = listaComponente;
+				
+				if(listaStatus.length > 0){
+					listaStatus.addItemAt("Todos",0);
+					cbStatus.enabled = true;
+				}else{
+					cbStatus.enabled = false;
+				}
+				cbStatus.dataProvider = listaStatus;
+				
+				if(listaUsuario.length > 0){
+					listaUsuario.addItemAt("Todos",0);
+					cbUsuario.enabled = true;
+				}else{
+					cbUsuario.enabled = false;
+				}
+				cbUsuario.dataProvider = listaUsuario;
+				
+				if(listaLaboratorio.length > 0){
+					listaLaboratorio.addItemAt("Todos",0);
+					cbLaboratorio.enabled = true;
+				}else{
+					cbLaboratorio.enabled = false;
+				}
+				cbLaboratorio.dataProvider = listaLaboratorio;
+			}
+			
+			
+			
+			public function atualizaCombos(event:Event):void{
+				_listaPedidoCompra.filterFunction = function stateFilterFunc(item:Object):Boolean 
+				{
+					
+					
+					var bolComponente:Boolean;
+					if(cbComponente.selectedItem == null || cbComponente.selectedItem == "" || cbComponente.selectedItem == 'Todos'){
+						bolComponente = true;
+					}else{
+						bolComponente = item.requisicao.componente.nome.toLowerCase().indexOf(cbComponente.selectedItem.toLowerCase())==0;
+					}
+					
+					var bolStatus:Boolean;
+					if(cbStatus.selectedItem == null || cbStatus.selectedItem == "" || cbStatus.selectedItem == 'Todos'){
+						bolStatus = true;
+					}else{
+						bolStatus = item.statusString.toLowerCase().indexOf(cbStatus.selectedItem.toLowerCase())==0;
+					}
+					
+					var bolUsuario:Boolean;
+					if(cbUsuario.selectedItem == null || cbUsuario.selectedItem == "" || cbUsuario.selectedItem == 'Todos'){
+						bolUsuario = true;
+					}else{
+						bolUsuario = item.tecnico != null ? item.tecnico.usuario.toLowerCase().indexOf(cbUsuario.selectedItem.toLowerCase())==0 : false;
+					}
+					
+					var bolLaboratorio:Boolean;
+					if(cbLaboratorio.selectedItem == null || cbLaboratorio.selectedItem == "" || cbLaboratorio.selectedItem == 'Todos'){
+						bolLaboratorio = true;
+					}else{
+						bolLaboratorio = item.ordemServico.unidade.laboratorio.nome.toLowerCase().indexOf(cbLaboratorio.selectedItem.toLowerCase())==0;
+					}
+					
+					return bolComponente && bolStatus && bolUsuario && bolLaboratorio;
+					
+				};
+				
+				_listaPedidoCompra.refresh();
+				atualizaTotalComponentes(_listaPedidoCompra);
+			}
+			
+			private function possuiAmostraLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.possuiAmostra){
+					return "Sim";
+				}else{
+					return "Não";
+				}
+			}
+			
+			public function comprar(data:Object=null, event:Event=null):void
+			{
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaPedidoCompra.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data != null){
+					_pedidoCompra = data as PedidoCompra;
+				}
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					compraController.comprar(_pedidoCompra,usr);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(comprarAutenticar);
+				}
+			}
+			
+			public function comprarAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				comprar();
+			}
+			
+			private function onDisponibilizarComponenteResult(event:ResultEvent = null):void
+			{
+				var i:int = _listaPedidoCompra.getItemIndex(_pedidoCompra);
+				_listaPedidoCompra.removeItemAt(i);
+				_pedidoCompra = event.result as PedidoCompra;
+				//publicarRequisicao(_requisicao, MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR);
+				_listaPedidoCompra.addItemAt(_pedidoCompra,i);
+				
+				dispatchEvent(new MensagemEvent("Compra confirmada com sucesso", MessageType.SUCCESS, 5000));	
+			}
+			
+			private function onDisponibilizarComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onDisponibilizarComponenteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.search("SaldoInsuficienteException") != -1){
+					dispatchEvent(new MensagemEvent("Saldo insuficiente", MessageType.WARNING, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao confirmar compra", MessageType.ERROR, 5000));
+				}		
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
+		<components:ComboBoxInput id="cbStatus" labelText="Status" change="atualizaCombos" />
+		<components:ComboBoxInput id="cbComponente" labelText="Componente" change="atualizaCombos" />
+		<components:ComboBoxInput id="cbUsuario" labelText="Usuário" change="atualizaCombos" />
+		<components:ComboBoxInput id="cbLaboratorio" labelText="Laboratório" change="atualizaCombos" />
+	</mx:HBox>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<grid:MantisTable id="requisicoesTable"
+						  width="100%"
+						  height="100%"
+						  draggableColumns="false"
+						  dataProvider="{_listaPedidoCompra}"
+						  doubleClickEnabled="false"
+						  >
+			<grid:columns>
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false"	width="140"					 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="assets/icons/lock_open.png"
+										  click="parentDocument.comprar(data, event)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="Confirmar compra de componente"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+
+				
+				<mx:DataGridColumn id="cStatusRequisicao" 
+								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
+								   dataField = "statusString"
+								   width="170"
+								   />
+				
+				<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_PEDIDO_COMPRA')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="id"							   
+								   />
+				<mx:DataGridColumn id="cNumeroOrdemServico" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+								   textAlign="center" dataField="ordemServico.numeroOrdemServico"
+								   sortable="false"					   
+								   />
+				<mx:DataGridColumn id="cComponente"
+								   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="requisicao.componente.nome"							   
+								   />
+				
+				<mx:DataGridColumn id="cTipo"
+								   headerText = "Tipo"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="requisicao.componente.tipo.nome"							   
+								   />
+				
+				<mx:DataGridColumn id="cEncapsulamento"
+								   headerText = "Encapsulamento"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="requisicao.componente.encapsulamento.nome"							   
+								   />
+				
+				<mx:DataGridColumn id="cPosicao"
+								   headerText = "Posição"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="requisicao.componente.posicaoEstoque"							   
+								   />
+				
+				<mx:DataGridColumn id="cQuantidade" width="40"
+								   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="quantidade"							   
+								   />
+				
+				<mx:DataGridColumn id="cPossuiAmostra" width="80"
+								   headerText = "Amostra"
+								   labelFunction="possuiAmostraLabel"
+								   />
+				
+				<mx:DataGridColumn id="cRequisitante" width="80"
+								   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
+								   dataField = "tecnico.usuario"
+								   />
+				
+				<mx:DataGridColumn id="cLaboratorio" width="110"
+								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+								   dataField="ordemServico.unidade.laboratorio.nome"
+								   />
+				
+				<mx:DataGridColumn id="cDataRequisicao"  width="130"
+								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="dataCriacao"							   
+								   />
+				
+			</grid:columns>
+		</grid:MantisTable>
+		<mx:HBox paddingTop="10">
+			<s:Label text="Total de componentes: {totalComponentes}" fontWeight="bold" fontSize="12"  />
+		</mx:HBox>
+	</mx:VBox>
+	
+	
+	
+	
+</mx:VBox>

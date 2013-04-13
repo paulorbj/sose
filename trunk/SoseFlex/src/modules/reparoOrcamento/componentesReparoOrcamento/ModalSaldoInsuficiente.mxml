@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple custom MXML TitleWindow component.
+The TitleWindowApp application displays this component. 
+You cannot run it independently. -->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+				title="Saldo insuficiente" borderAlpha="0.75" 
+				xmlns:componentes="components.*" xmlns:texto="components.textInput.*" width="800" height="180">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="requisicaoComponenteService" destination="requisicaoComponenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="efetivarRequisicaoCriarPedidoCompra"      
+					   fault="onEfetivarRequisicaoFault(event)" 
+					   result="onEfetivarRequisicaoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[     
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.compra.PedidoCompra;
+			import entities.orcamentoreparo.RequisicaoComponente;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.reparoOrcamento.eventos.ComponenteEvent;
+			import modules.reparoOrcamento.eventos.OrcamentoEvent;
+			import modules.reparoOrcamento.eventos.ReparoEvent;
+			import modules.view.MainPanel;
+			
+			import mx.controls.Text;
+			import mx.effects.Resize;
+			import mx.effects.easing.Circular;
+			import mx.events.EffectEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var pedidoCompra:PedidoCompra = new PedidoCompra();
+			
+			public var quantidade:String = "";
+			
+			public var myParentObject:DisplayObject;
+			
+			[Bindable]
+			private var idRequisicao:Number = 0;
+			
+			[Bindable]
+			private var idPedido:Number = 0;
+			
+			private function criarPedidoCompra():void {		
+				this.currentState = "respostaPositiva";
+				nOrdemServico.inputText = pedidoCompra.ordemServico.numeroOrdemServico;
+				unidade.inputText = pedidoCompra.ordemServico.unidade.nome;
+				cliente.inputText = pedidoCompra.ordemServico.cliente.nomeSistema;
+				tecnico.inputText = pedidoCompra.requisicao.requisitante.usuario;
+				
+				componente.inputText = pedidoCompra.requisicao.componente.nome;
+				quant.inputText = pedidoCompra.quantidade.toString();
+				amostra.selected = pedidoCompra.possuiAmostra;
+				dataRequisicao.inputDate = pedidoCompra.dataCriacao;
+				idRequisicao = 0;
+				idPedido = 0;
+			}
+			
+			public function novoPedidoCompra(os:OrdemServico, requisicao:RequisicaoComponente):void
+			{
+				pedidoCompra.ordemServico = os;
+				pedidoCompra.requisicao = requisicao;
+				pedidoCompra.quantidade = requisicao.quantidade;
+				pedidoCompra.tecnico = requisicao.requisitante;
+				pedidoCompra.dataCriacao = new Date();
+				idRequisicao = 0;
+				idPedido = 0;
+			}
+			
+			private function mouseOverBotao(event:Event=null):void
+			{
+				if(event){
+					event.target.setStyle("borderColor", "#009dff");
+					event.target.setStyle("fillColors", [0xfcfcfc, 0xf0f0f0]);
+				}
+			}
+			
+			private function mouseOutBotao(event:Event=null):void
+			{
+				if(event){
+					event.target.setStyle("borderColor", "#b7babc");
+					event.target.setStyle("fillColors", [0xfbfbfb, 0xe4e4e4]);
+				}
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				if(validarCampos()){
+					pedidoCompra.quantidade = parseInt(quant.inputText);
+					requisicaoComponenteService.efetivarRequisicaoCriarPedidoCompra(pedidoCompra);
+				}else{
+					myParentObject.dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 5000));
+				}
+				
+			}
+			
+			private function onEfetivarRequisicaoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 	
+				pedidoCompra = event.result as PedidoCompra;
+				myParentObject.dispatchEvent(new ComponenteEvent(ComponenteEvent.ADICIONAR_REQUISICAO,pedidoCompra.requisicao));
+				if(pedidoCompra.requisicao.reparo){
+					myParentObject.dispatchEvent(new ReparoEvent(ReparoEvent.ATUALIZAR_REPARO,pedidoCompra.requisicao.reparo));
+				}else{
+					myParentObject.dispatchEvent(new OrcamentoEvent(OrcamentoEvent.ATUALIZAR_ORCAMENTO,pedidoCompra.requisicao.orcamento));
+				}
+				idRequisicao = pedidoCompra.requisicao.id;
+				idPedido = pedidoCompra.id;
+				myParentObject.dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_PEDIDO_COMPRA_EFETUADA_SUCESSO'), MessageType.SUCCESS, 5000));
+			}
+			
+			private function onEfetivarRequisicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				PopUpManager.removePopUp(this);
+				myParentObject.dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_PEDIDO_COMPRA_EFETUADA_ERRO'), MessageType.ERROR, 5000));				
+			}
+			
+			
+			private function salvarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					salvar();
+				}
+			}
+			
+			private function cancelar(event:MouseEvent = null):void {
+				idRequisicao = 0;
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function cancelarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					cancelar();
+				}
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(quant.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="amostra.selected" source="pedidoCompra.possuiAmostra" twoWay="true"/>
+
+	
+	<mx:states>
+		<s:State name="inicial"/>
+		<s:State name="respostaPositiva"/>
+	</mx:states>
+	
+	<mx:HBox includeIn="inicial" verticalAlign="middle" horizontalAlign="center" width="100%" height="100%"
+			 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+		<mx:VBox id="boxUnicaProposta" height="100%" width="50%" click="criarPedidoCompra();" mouseOver="mouseOverBotao(event);" mouseOut="mouseOutBotao(event)"
+				 borderStyle="solid" horizontalAlign="center" verticalAlign="middle"
+				 paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" >
+			<mx:Image  source="@Embed('/assets/icons/report6.gif')" />
+			<s:Label textAlign="center" lineBreak="toFit" fontSize="10"  text="Deseja efetivar a requisição e criar um pedido de compra?" />
+		</mx:VBox>
+		<mx:VBox height="100%" width="50%" click="cancelar();"  mouseOver="mouseOverBotao(event);" mouseOut="mouseOutBotao(event)"
+				 borderStyle="solid" horizontalAlign="center" verticalAlign="middle"
+				 paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" >
+			<mx:Image  source="@Embed('/assets/icons/back2.png')" />
+			<s:Label textAlign="center" lineBreak="toFit" fontSize="10" text="Cancelar" />
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:VBox includeIn="respostaPositiva" width="100%" height="100%">
+		<mx:HBox width="100%" verticalAlign="bottom" includeIn="respostaPositiva">
+			<texto:TextInput id="nOrdemServico" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="10%"  />
+			<texto:TextInput id="unidade" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','UNIDADE')}" width="35%" />
+			<texto:TextInput id="cliente" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="35%"  />
+			<texto:TextInput id="tecnico" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TECNICO')}" width="20%" />
+		</mx:HBox>
+		
+		<mx:HBox width="100%" verticalAlign="bottom" includeIn="respostaPositiva">
+			<texto:TextInput id="componente" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE')}" width="50%"  />
+			<texto:TextInput id="quant" required="true" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE')}" restrict="0-9" width="10%" />
+			<mx:CheckBox id="amostra" label="{resourceManager.getString('ApplicationResource','POSSUI_AMOSTRA')}" enabled="{idRequisicao == 0}" />
+			<componentes:DataInput id="dataRequisicao" enabled="false" labelText="{resourceManager.getString('ApplicationResource','DATA_REQUISICAO')}" width="25%" inputHeight="20" />
+		</mx:HBox>
+		
+		<mx:HBox width="100%" verticalAlign="bottom" includeIn="respostaPositiva">
+			<mx:Button id="saveButton"
+					   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+					   height="25"
+					   icon="@Embed(source='/assets/icons/save.png')"
+					   keyDown="salvarEnter(event)" enabled="{idRequisicao == 0}"
+					   click="salvar(event)"
+					   />
+			<mx:Button id="cleanButton"
+					   label="Cancelar pedido"
+					   height="25"
+					   icon="@Embed(source='/assets/icons/clean.png')"
+					   keyDown="cancelarEnter(event)" enabled="{idRequisicao == 0}"
+					   click="cancelar(event)"
+					   />
+			<mx:Button id="closeButton"
+					   label="Fechar"
+					   height="25"
+					   icon="@Embed(source='/assets/icons/clean.png')"
+					   keyDown="cancelarEnter(event)"
+					   click="cancelar(event)" enabled="{idRequisicao != 0}"
+					   />
+			<s:Label text="Nº da requisição {idRequisicao}  Nº pedido {idPedido}" id="nRequisicao" visible="{idRequisicao != 0}" fontSize="16" color="red" />
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow>

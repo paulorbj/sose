@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" 
+		 xmlns:texto="components.textInput.*" xmlns:componentes="components.*" xmlns:combos="components.combos.*"
+		 >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Usuario;
+			import entities.administrativo.parceiros.Endereco;
+			
+			import mx.validators.Validator;
+			
+			import utils.Estado;
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			private var _usuario:Usuario;
+			
+			
+			public function get usuario():Usuario
+			{
+				if(estado.estadoSelecionado != null)
+					_usuario.endereco.estado = estado.estadoSelecionado;
+				
+				_usuario.perfil = perfil.perfilSelecionado;
+				return _usuario;
+			}
+
+			public function set usuario(value:Usuario):void
+			{
+				_usuario = value;
+				if(value != null && value.endereco != null && value.endereco.estado){
+							estado.estadoSelecionado = value.endereco.estado;
+				}else{
+					_usuario.endereco = new Endereco();
+					estado.limpar();
+				}
+				if(_usuario != null && _usuario.perfil != null){
+					perfil.perfilSelecionado = _usuario.perfil;
+				}
+				
+			}
+			
+			public function limpar():void
+			{
+				_usuario = new Usuario();
+				estado.limpar();
+				perfil.limpar();
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(nome.stringValidator);
+				validatorArr.push(login.stringValidator);
+				validatorArr.push(senha.stringValidator);
+				validatorArr.push(perfil.comboBox.comboValidator);
+				
+				if((logradouro.inputText != null && logradouro.inputText.length != 0) 
+					|| (numero.inputText != null && numero.inputText.length != 0)
+					|| (estado.estadoSelecionado != null && estado.estadoSelecionado.length != 0) 
+					|| (cep.inputText != null && cep.inputText.length != 0) 
+					|| (cidade.inputText != null && cidade.inputText.length != 0)){
+					
+					logradouro.required = true;
+					validatorArr.push(logradouro.stringValidator);
+					numero.required = true;
+					validatorArr.push(numero.stringValidator);
+					cep.required = true;
+					validatorArr.push(cep.stringValidator);
+					cidade.required = true;
+					validatorArr.push(cidade.stringValidator);
+					estado.required = true;
+					validatorArr.push(estado.comboBox.comboValidator);
+				}else{
+					logradouro.required = false;
+					logradouro.errorString = "";
+					numero.required = false;
+					numero.errorString = "";
+					cep.required = false;
+					cep.errorString = "";
+					cidade.required = false;
+					cidade.errorString = "";
+					estado.required = false;
+					estado.errorString = "";
+				
+				}
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="nome.input.text" source="_usuario.nome" twoWay="true"/>
+	<fx:Binding destination="login.input.text" source="_usuario.usuario" twoWay="true"/>
+	<fx:Binding destination="senha.input.text" source="_usuario.senha" twoWay="true"/>
+	<fx:Binding destination="bloqueado.selected" source="_usuario.bloqueado" twoWay="true"/>
+	<fx:Binding destination="cpf.input.text" source="_usuario.cpf" twoWay="true"/>
+	<fx:Binding destination="rg.input.text" source="_usuario.rg" twoWay="true"/>
+	<fx:Binding source="dataNascimento.inputDate" destination="_usuario.dataNascimento" twoWay="true" />
+	<fx:Binding destination="logradouro.inputText" source="_usuario.endereco.logradouro" twoWay="true"/>
+	<fx:Binding destination="numero.inputText" source="_usuario.endereco.numero" twoWay="true"/>
+	<fx:Binding destination="complemento.inputText" source="_usuario.endereco.complemento" twoWay="true"/>
+	<fx:Binding destination="bairro.inputText" source="_usuario.endereco.bairro" twoWay="true"/>
+	<fx:Binding destination="cep.inputText" source="_usuario.endereco.cep" twoWay="true"/>
+	<fx:Binding destination="cidade.inputText" source="_usuario.endereco.cidade" twoWay="true"/>
+	<fx:Binding destination="pais.inputText" source="_usuario.endereco.pais" twoWay="true"/>
+	<fx:Binding destination="telefone.inputText" source="_usuario.endereco.telefone" twoWay="true"/>
+	<fx:Binding destination="celular.inputText" source="_usuario.endereco.fax" twoWay="true"/>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="login" required="true" labelText="{resourceManager.getString('ApplicationResource','USERNAME')}" width="196" />
+		<texto:TextInputPassword id="senha" required="true" labelText="{resourceManager.getString('ApplicationResource','PASSWORD')}" width="196" />
+		<combos:ComboPerfil id="perfil" labelText="{resourceManager.getString('ApplicationResource','PERFIL')}" required="true"  width="200" />
+		<mx:CheckBox id="bloqueado" label="{resourceManager.getString('ApplicationResource','BLOQUEADO')}" />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="nome" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_USUARIO')}" width="380"  />
+		<componentes:DataInput id="dataNascimento" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_NASCIMENTO')}" width="120" inputHeight="20" />
+		<texto:TextInput id="cpf" labelText="{resourceManager.getString('ApplicationResource','CPF')}" width="185"  />
+		<texto:TextInput id="rg" labelText="{resourceManager.getString('ApplicationResource','RG')}" width="185" />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="logradouro" labelText="{resourceManager.getString('ApplicationResource','LOGRADOURO')}" width="380"  />
+		<texto:TextInput id="numero" labelText="{resourceManager.getString('ApplicationResource','NUMERO')}" width="100"  />
+		<texto:TextInput id="complemento" labelText="{resourceManager.getString('ApplicationResource','COMPLEMENTO')}" width="150" />
+		<texto:TextInput id="bairro" labelText="{resourceManager.getString('ApplicationResource','BAIRRO')}" width="150" />
+		<texto:TextInput id="cep" labelText="{resourceManager.getString('ApplicationResource','CEP')}" width="83" />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="cidade" labelText="{resourceManager.getString('ApplicationResource','CIDADE')}" width="200"  />
+		<combos:ComboEstado id="estado" labelText="{resourceManager.getString('ApplicationResource','ESTADO')}"  width="80" />
+		<texto:TextInput id="pais" labelText="{resourceManager.getString('ApplicationResource','PAIS')}" width="153"  />
+		<texto:TextInput id="telefone" labelText="{resourceManager.getString('ApplicationResource','TELEFONE')}" width="155"  />
+		<texto:TextInput id="celular" labelText="{resourceManager.getString('ApplicationResource','CELULAR')}" width="155"  />
+	</mx:HBox>
+</mx:VBox>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+		 xmlns:texto="components.textInput.*" xmlns:componentes="components.*" xmlns:grid="components.grid.*">
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.laudoTecnico.LaudoTecnico;
+			import entities.orcamentoreparo.DefeitoOrcRep;
+			import entities.orcamentoreparo.Orcamento;
+			import entities.orcamentoreparo.Reparo;
+			import entities.recebimento.OrdemServico;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var _laudoTecnico:LaudoTecnico
+			
+			[Bindable]
+			private var _listaOrdemServico:ArrayCollection;
+			
+			public function get laudoTecnico():LaudoTecnico
+			{
+				return _laudoTecnico;
+			}
+			
+			
+			public function set laudoTecnico(value:LaudoTecnico):void
+			{
+				_laudoTecnico = value;	
+				_listaOrdemServico = new ArrayCollection();
+				
+				var os:OrdemServico = _laudoTecnico.ordemServico;
+				if(_laudoTecnico.reparo){
+					if(os.unidadePai == null && os.placasFilhas != null && os.placasFilhas.length > 0){
+						//Eh pai
+						_listaOrdemServico.addItem(os.reparo);
+						for each(var osFilha:OrdemServico in os.placasFilhas){
+							_listaOrdemServico.addItem(osFilha.reparo);
+						}
+					}else{
+						//Eh individual
+						_listaOrdemServico.addItem(os.reparo);
+					}
+				}else{
+					if(os.unidadePai == null && os.placasFilhas != null && os.placasFilhas.length > 0){
+						//Eh pai
+						_listaOrdemServico.addItem(os.orcamento);
+						for each(var osFilha1:OrdemServico in os.placasFilhas){
+							_listaOrdemServico.addItem(osFilha1.orcamento);
+						}
+					}else{
+						//Eh individual
+						_listaOrdemServico.addItem(os.orcamento);
+					}
+				}
+
+			}
+			
+			
+			private function labelFunction(item:Object, column:DataGridColumn):String
+			{
+				var texto:String="";
+				for each(var def:DefeitoOrcRep in item.listaDefeito){
+					if (texto.length!=0){
+						texto =texto + " "+ def.defeito.nome.toUpperCase() + ": "+def.justificativa;
+					} else {
+						texto=def.defeito.nome.toUpperCase() + ": "+def.justificativa;	
+					}		
+				}
+				return texto;
+			}
+			
+			private function labelFunction2(item:Object):String
+			{	
+				var texto:String = "";
+				for each(var def:DefeitoOrcRep in item.listaDefeito){
+					if (texto.length!=0){
+						texto =texto + "\n"+ def.defeito.nome.toUpperCase() + ": "+def.justificativa;
+					} else {
+						texto=def.defeito.nome.toUpperCase() + ": "+def.justificativa;	
+					}		
+				}
+				return texto;
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(infoTecnicas.stringValidator);
+				validatorArr.push(descricao.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="unidade.inputText" destination="_laudoTecnico.ordemServico.itemNotaFiscal.unidade.nome" twoWay="true" />
+	<fx:Binding source="fabricante.inputText" destination="_laudoTecnico.ordemServico.itemNotaFiscal.unidade.fabricante.nome" twoWay="true" />
+	<fx:Binding source="equipamento.inputText" destination="_laudoTecnico.ordemServico.itemNotaFiscal.unidade.equipamento.nome" twoWay="true" />
+	<fx:Binding source="laboratorio.inputText" destination="_laudoTecnico.ordemServico.itemNotaFiscal.unidade.laboratorio.nome" twoWay="true" />
+	<fx:Binding source="nNotaFiscal.input.text" destination="_laudoTecnico.ordemServico.notaFiscal.numero" twoWay="true" />
+	<fx:Binding source="nOrdemServico.input.text" destination="_laudoTecnico.ordemServico.numeroOrdemServico" twoWay="true" />
+	<fx:Binding source="tecnico.input.text" destination="_laudoTecnico.criadoPor.usuario" twoWay="true" />
+	<fx:Binding source="nControle.input.text" destination="_laudoTecnico.controle" twoWay="true" />
+	<fx:Binding source="descricao.input.text" destination="_laudoTecnico.descricao" twoWay="true" />
+	<fx:Binding source="infoTecnicas.input.text" destination="_laudoTecnico.informacaoTecnica" twoWay="true" />
+	<fx:Binding source="nSerie.input.text" destination="_laudoTecnico.ordemServico.serieFabricante" twoWay="true" />
+	<fx:Binding source="nCliente.input.text" destination="_laudoTecnico.ordemServico.serieCliente" twoWay="true" />
+	<fx:Binding source="nOSCliente.input.text" destination="_laudoTecnico.ordemServico.ordemServicoCliente" twoWay="true" />
+	<fx:Binding source="cliente.input.text" destination="_laudoTecnico.ordemServico.cliente.nomeSistema" twoWay="true" />
+	<fx:Binding source="dataEntrada.inputDate" destination="_laudoTecnico.dataCriacao" twoWay="true" />
+	<fx:Binding source="dataInicio.inputDate" destination="_laudoTecnico.dataInicio" twoWay="true" />
+	<fx:Binding source="dataFim.inputDate" destination="_laudoTecnico.dataFim" twoWay="true" />
+	<mx:states>
+		<s:State name="editar"/>
+		<s:State name="visualizar"/>
+	</mx:states>
+	
+	<mx:HBox verticalAlign="middle" width="100%">
+		<texto:TextInput id="nControle" labelText="{resourceManager.getString('ApplicationResource','CONTROLE')}" width="20%" habilitado="false" />
+		<texto:TextInput id="nOrdemServico" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="20%" habilitado="false" />
+		<s:Spacer width="100%" />
+		<s:Label text="Status:" />
+		<s:Label id="statusOrcRep" fontSize="20" color="red" text="{_laudoTecnico.statusString}" />
+	</mx:HBox>
+	<mx:HBox verticalAlign="middle" width="100%">
+		<texto:TextInput id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="50%" habilitado="false" />
+		<texto:TextInput id="tecnico" labelText="{resourceManager.getString('ApplicationResource','TECNICO')}" width="20%" habilitado="false" />
+		<componentes:DataInput id="dataEntrada" enabled="false" labelText="Dt criação" width="10%" inputHeight="20" />
+		<componentes:DataInput id="dataInicio" enabled="false" labelText="Dt início" width="10%" inputHeight="20" />
+		<componentes:DataInput id="dataFim" enabled="false" labelText="Dt fim" width="10%" inputHeight="20" />
+	</mx:HBox>
+	<mx:HBox verticalAlign="middle" width="100%">
+		<texto:TextInput id="nNotaFiscal" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="25%" habilitado="false" />
+		<texto:TextInput id="nSerie" labelText="{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}" width="25%" habilitado="false" />
+		<texto:TextInput id="nCliente" labelText="{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}" width="25%" habilitado="false" />
+		<texto:TextInput id="nOSCliente" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_CLIENTE')}" width="25%" habilitado="false" />
+	</mx:HBox>
+	<mx:HBox verticalAlign="middle" width="100%">
+		<texto:TextInput id="laboratorio" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="25%" habilitado="false" />
+		<texto:TextInput id="unidade" labelText="{resourceManager.getString('ApplicationResource','UNIDADE')}" width="25%" habilitado="false" />
+		<texto:TextInput id="fabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="25%" habilitado="false" />
+		<texto:TextInput id="equipamento" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="25%" habilitado="false" />
+	</mx:HBox>
+	
+	<mx:TabNavigator id="tn"  width="100%" height="100%"
+					 tabWidth="{tn.width/tn.numChildren}" color="0x323232" >
+		
+		<s:NavigatorContent label="Ordens de serviço" width="100%" height="100%" >
+			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				
+				<mx:HBox verticalAlign="middle" width="100%">
+					<componentes:TextAreaInput id="infoTecnicas"  enabled="{_laudoTecnico.statusString == 'Iniciado'}" maxLength="1000"
+											   enabled.visualizar="false" width="100%" heightInLines="2" required="true"
+											   labelText="{resourceManager.getString('ApplicationResource','INFORMACOES_TECNICAS')}" />
+				</mx:HBox>
+				<mx:HBox verticalAlign="middle" width="100%">
+					<componentes:TextAreaInput id="descricao"  enabled="{_laudoTecnico.statusString == 'Iniciado'}"  
+											   enabled.visualizar="false" width="100%" heightInLines="2" required="true"
+											   labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" />
+				</mx:HBox>
+				
+				<grid:MantisTable id="tabelaItens"
+								  width="100%" 
+								  height="100%" rowHeight="20"
+								  draggableColumns="true"
+								  dataProvider="{_listaOrdemServico}"
+								  doubleClickEnabled="false" editable="false"
+								  >
+					<grid:columns>
+						
+						
+						<mx:DataGridColumn id="status" width=".15" editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+										   textAlign="center"
+										   resizable="false" draggable="false" sortable="false"
+										   dataField="statusString"							   
+										   />
+						
+						<mx:DataGridColumn id="numeroNF" editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_ABREVIADO')}"
+										   textAlign="center" width=".10"
+										   resizable="false" draggable="false" sortable="false"
+										   dataField="ordemServico.notaFiscal.numero"							   
+										   />
+						
+						<mx:DataGridColumn id="numeroOs" editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+										   textAlign="center" width=".10"
+										   resizable="false" draggable="false" sortable="false"
+										   dataField="ordemServico.numeroOrdemServico"							   
+										   />
+						
+						<mx:DataGridColumn id="numeroOsPai" editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+										   textAlign="center" width=".10"
+										   resizable="false" draggable="false" sortable="false"
+										   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
+										   />
+						
+						<mx:DataGridColumn id="cUnidade" editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+										   textAlign="center" width=".25"
+										   resizable="false" draggable="false" sortable="false"
+										   dataField="ordemServico.unidade.nome"							   
+										   />	
+						
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
+										   draggable="false" width=".15" labelFunction="labelFunction" dataTipFunction="labelFunction2"				 
+										   editable="false"
+										   sortable="false" />
+						
+						
+					</grid:columns>
+				</grid:MantisTable>
+			</mx:VBox>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Observações" width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				<mx:HBox verticalAlign="middle" width="100%">
+					<componentes:Observacoes id="observacoes"  habilitado="{_laudoTecnico.statusString == 'Iniciado'}" 
+						habilitado.visualizar="false" origem="Laudo técnico" entidade="{_laudoTecnico.ordemServico}" />
+				</mx:HBox>
+			</mx:VBox>
+		</s:NavigatorContent>
+	</mx:TabNavigator>
+	
+
+
+</mx:VBox>

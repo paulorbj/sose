@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="Resolver garantia"
+				xmlns:components="components.*"
+				xmlns:grid="components.grid.*"
+				creationComplete="doInit()"
+				initialize="addListeners()"
+				creationPolicy="all" width="1200" height="400"
+				xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="observacaoService" destination="observacaoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="log"      
+					   fault="onLogFault(event)" 
+					   result="onLogResult(event)"
+					   />
+		
+		</mx:RemoteObject>
+
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			
+			import entities.recebimento.OrdemServico;
+			
+			import modules.recebimento.eventos.VerificarGarantiaModalEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			private var yesListeners:ArrayCollection = new ArrayCollection();
+			private var metodoRetorno:Function;
+			public var myParentObject:DisplayObject;
+			[Bindable]
+			private var listaOsAntiga:ArrayCollection;
+			[Bindable]
+			private var listaOsCorrente:ArrayCollection;
+			
+			private var _osAntiga:OrdemServico;
+			private var _osCorrente:OrdemServico;
+			
+			
+			override public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void {
+				yesListeners.addItem(listener);
+				metodoRetorno = listener;
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			
+			private function doInit():void
+			{
+				
+			}
+			
+			public function onLogFault(event:FaultEvent):void
+			{
+
+			}
+			
+			public function onLogResult(event:ResultEvent):void
+			{
+				
+			}
+			
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}
+			}
+			
+			
+			private function close():void
+			{
+				PopupModalController.getInstance().hideModalVerificarGarantia();
+			}
+			
+			
+			private function labelCondicao(item:Object, column:DataGridColumn):String
+			{	
+				if(item.reparo != null){
+					return item.reparo.condicao;
+				}else if(item.orcamento != null) {
+					return item.orcamento.condicao;
+				}else{
+					return "";
+				}
+			}
+			
+			public function get osAntiga():OrdemServico
+			{
+				return _osAntiga;
+			}
+			
+			public function set osAntiga(value:OrdemServico):void
+			{
+				_osAntiga = value;
+				listaOsAntiga = new ArrayCollection();
+				listaOsAntiga.addItem(_osAntiga);
+				if(_osAntiga.placasFilhas != null && _osAntiga.placasFilhas.length > 0){
+					for each (var osFilha:OrdemServico in _osAntiga.placasFilhas){
+						listaOsAntiga.addItem(osFilha);
+					}
+				}
+			}
+			
+			public function get osCorrente():OrdemServico
+			{
+				return _osCorrente;
+			}
+			
+			public function set osCorrente(value:OrdemServico):void
+			{
+				_osCorrente = value;
+				listaOsCorrente = new ArrayCollection();
+				listaOsCorrente.addItem(_osCorrente);
+				if(_osCorrente.placasFilhas != null && _osCorrente.placasFilhas.length > 0){
+					for each (var osFilha:OrdemServico in _osCorrente.placasFilhas){
+						listaOsCorrente.addItem(osFilha);
+					}
+				}
+			}
+			
+			private function darGarantia():void
+			{
+				_osCorrente.garantia = true;
+				observacaoService.log("Recebimento", "Garantia aceita pelo usuário", 2, null, _osCorrente,Login.usuarioAutenticado);
+
+				if(_osCorrente.placasFilhas != null && _osCorrente.placasFilhas.length > 0){
+					for each (var os:OrdemServico in _osCorrente.placasFilhas){
+						os.garantia = true;
+					}
+				}
+				var eventRegister:VerificarGarantiaModalEvent = new VerificarGarantiaModalEvent(VerificarGarantiaModalEvent.RETORNAR_ORDEM_SERVICO_MODAL,_osCorrente,true, false);
+				dispatchEvent(eventRegister);
+				close();
+			}
+			
+			private function retirarGarantia():void
+			{
+				_osCorrente.garantia = false;
+				observacaoService.log("Recebimento", "Garantia rejeitada pelo usuário", 2, null, _osCorrente,Login.usuarioAutenticado);
+				if(_osCorrente.placasFilhas != null && _osCorrente.placasFilhas.length > 0){
+					for each (var os:OrdemServico in _osCorrente.placasFilhas){
+						os.garantia = false;
+					}
+				}
+				var eventRegister:VerificarGarantiaModalEvent = new VerificarGarantiaModalEvent(VerificarGarantiaModalEvent.RETORNAR_ORDEM_SERVICO_MODAL,_osCorrente,true, false);
+				dispatchEvent(eventRegister);
+				close();
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:HBox horizontalAlign="center" verticalAlign="bottom" width="100%" height="100%" creationPolicy="all">
+		<mx:TitleWindow title="Ordem Servico encontrada"  width="50%" height="100%">
+			
+			<grid:MantisTable id="tabelaOsAntiga"
+							  width="100%" 
+							  height="100%"
+							  draggableColumns="true"
+							  dataProvider="{listaOsAntiga}"
+							  doubleClickEnabled="false" editable="false"
+							  >
+				<grid:columns>
+					
+					<mx:DataGridColumn id="unidade" editable="false"
+									   headerText = "Unidade"
+									   textAlign="center" width=".10"
+									   resizable="false" draggable="false" sortable="false"
+									   dataField="unidade.nome"							   
+									   />
+					
+					<mx:DataGridColumn id="numeroOs" editable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+									   textAlign="center" width=".10"
+									   resizable="false" draggable="false" sortable="false"
+									   dataField="numeroOrdemServico"							   
+									   />
+					
+					<mx:DataGridColumn id="numeroOsPai" editable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+									   textAlign="center" width=".10"
+									   resizable="false" draggable="false" sortable="false"
+									   dataField="unidadePai.numeroOrdemServico"							   
+									   />
+					
+					<mx:DataGridColumn id="nSerieFabricante"  showDataTips="true" sortable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+									   dataField = "serieFabricante"
+									   width=".10"
+									   />
+					
+					<mx:DataGridColumn id="nSerieCliente" showDataTips="true" sortable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+									   dataField = "serieCliente"
+									   width=".10"
+									   />
+					
+					<mx:DataGridColumn headerText = "Garantia até"	
+									   draggable="false" width=".15" dataField="dataGarantiaAteString"	 
+									   editable="false"
+									   sortable="false" />
+					
+					<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','CONDICAO')}"	
+									   draggable="false" width=".15" labelFunction="labelCondicao"			 
+									   editable="false"
+									   sortable="false" />
+					
+				</grid:columns>
+			</grid:MantisTable>
+		</mx:TitleWindow>
+		<mx:TitleWindow title="Ordem Servico atual" width="50%" height="100%">
+			<grid:MantisTable id="tabelaOsCorrente"
+							  width="100%"
+							  height="100%"
+							  draggableColumns="true"
+							  dataProvider="{listaOsCorrente}"
+							  doubleClickEnabled="false" editable="false"
+							  >
+				<grid:columns>
+					
+					<mx:DataGridColumn id="unidadeCorrente" editable="false"
+									   headerText = "Unidade"
+									   textAlign="center" width=".10"
+									   resizable="false" draggable="false" sortable="false"
+									   dataField="unidade.nome"							   
+									   />
+					
+					<mx:DataGridColumn id="numeroOsCorrente" editable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+									   textAlign="center" width=".10"
+									   resizable="false" draggable="false" sortable="false"
+									   dataField="numeroOrdemServico"							   
+									   />
+					
+					<mx:DataGridColumn id="numeroOsPaiCorrente" editable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+									   textAlign="center" width=".10"
+									   resizable="false" draggable="false" sortable="false"
+									   dataField="unidadePai.numeroOrdemServico"							   
+									   />
+					
+					<mx:DataGridColumn id="nSerieFabricanteCorrente"  showDataTips="true" sortable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+									   dataField = "serieFabricante"
+									   width=".10"
+									   />
+					
+					<mx:DataGridColumn id="nSerieClienteCorrente" showDataTips="true" sortable="false"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+									   dataField = "serieCliente"
+									   width=".10"
+									   />
+					
+					
+				</grid:columns>
+			</grid:MantisTable>
+		</mx:TitleWindow>
+	</mx:HBox>
+	
+	<mx:ControlBar horizontalAlign="center" width="100%">
+		<mx:HBox width="100%">	
+			<mx:Button click="darGarantia()" width="50%"
+					   label="Dar garantia"
+					   icon="@Embed(source='/assets/icons/yes.png')"/>
+			<mx:Button click="retirarGarantia()" width="50%"
+					   label="Retirar garantia"
+					   icon="@Embed(source='/assets/icons/no.png')"/>
+		</mx:HBox>
+	</mx:ControlBar>
+	
+	
+</mx:TitleWindow>

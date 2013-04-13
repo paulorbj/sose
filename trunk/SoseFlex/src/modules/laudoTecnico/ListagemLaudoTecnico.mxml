@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="center"
+		 xmlns:components="components.*" width="100%"  height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
+		 initialize="init()" xmlns:expedicao="modules.expedicao.*" xmlns:laudoTecnico="modules.laudoTecnico.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="laudoTecnicoService" destination="laudoTecnicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarLaudosTecnicos"      
+					   fault="onListarLaudoTecnicosFault(event)" 
+					   result="onListarLaudoTecnicosResult(event)"
+					   />
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarLaudoTecnicoFault(event)" 
+					   result="onBuscarLaudoTecnicoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="laudoTecnicoController" destination="laudoTecnicoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="iniciarLaudoTecnico"      
+					   fault="onIniciarLaudoTecnicoFault(event)" 
+					   result="onIniciarLaudoTecnicoResult(event)"
+					   />
+			<mx:method name="salvarLaudoTecnico"      
+					   fault="onSalvarLaudoTecnicoFault(event)" 
+					   result="onSalvarLaudoTecnicoResult(event)"
+					   />
+			<mx:method name="finalizarLaudoTecnico"      
+					   fault="onFinalizarLaudoTecnicoFault(event)" 
+					   result="onFinalizarLaudoTecnicoResult(event)"
+					   />
+			<mx:method name="rejeitarLaudoTecnico"      
+					   fault="onRejeitarLaudoTecnicoFault(event)" 
+					   result="onRejeitarLaudoTecnicoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="relatorioService" destination="relatorioService" requestTimeout="600" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="gerarRelatorio"      
+					   fault="onCreateFileFault(event)" 
+					   result="onCreateFileResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="ordemServicoService" destination="ordemServicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarNotaFiscalFault(event)" 
+					   result="onBuscarNotaFiscalResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Consumer id="consumidorLaudoTecnicoService" destination="LaudoTecnicoMessageServicePush" message="onMsgLaudoTecnico(event)" />
+		
+		<mx:Producer id="produtorLaudoTecnicoService" destination="LaudoTecnicoMessageServicePush" />
+		
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.RemoveModalEvent;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			import components.messages.NotificationEvent;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Usuario;
+			import entities.laudoTecnico.LaudoTecnico;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.messaging.messages.AsyncMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _listaLaudoTecnico:ArrayCollection;
+			
+			[Bindable]
+			private var _laudoTecnico:LaudoTecnico;
+			
+			[Bindable]
+			private var _ordemServico:OrdemServico;
+			
+			[Bindable]
+			private var listaFiltroControle:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var controleSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroStatus:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var statusSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroNOrdemServico:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var ordemServicoSelecionada:String;
+			
+			[Bindable]
+			private var listaFiltroNOSPai:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var osPaiSelecionada:String;
+			
+			[Bindable]
+			private var listaFiltroCliente:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var clienteSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroUnidade:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var unidadeSelecionada:String;
+			
+			[Bindable]
+			private var listaFiltroSNFabricante:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var snFabricanteSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroSNCliente:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var snClienteSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroLaboratorio:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var laboratorioSelecionado:String;
+			
+			[Bindable]
+			private var listaFiltroUsuario:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var usuarioSelecionado:String;
+			
+			private var byteArray:ByteArray;
+			
+			private var fileRef:FileReference;
+
+			private function init():void
+			{
+				laudoTecnicoService.channelSet = parentApplication.channelSet;
+				laudoTecnicoService.listarLaudosTecnicos();				
+				consumidorLaudoTecnicoService.subscribe();
+				fileRef = new FileReference();
+				fileRef.addEventListener(Event.OPEN, openHandler);
+			}
+			
+			//			private function publicarLaudoTecnico( msg:String, laudo:LaudoTecnico=null):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = laudo;				
+			//				message.body=messageGlobal;
+			//				produtorLaudoTecnicoService.send(message);	
+			//			}
+			
+			private function onMsgLaudoTecnico(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.LAUDO_TECNICO_CRIADO){
+					//adicionarLaudoTecnico(globalMessage.conteudo as LaudoTecnico);
+					laudoTecnicoService.listarLaudosTecnicos();
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.LAUDO_TECNICO_ATUALIZAR){
+					//adicionarLaudoTecnico(globalMessage.conteudo as LaudoTecnico);
+					laudoTecnicoService.listarLaudosTecnicos();
+					
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.LAUDO_TECNICO_APROVADO){
+					//adicionarLaudoTecnico(globalMessage.conteudo as LaudoTecnico);
+					laudoTecnicoService.listarLaudosTecnicos();
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.LAUDO_TECNICO_REJEITADO){
+					//adicionarLaudoTecnico(globalMessage.conteudo as LaudoTecnico);
+					laudoTecnicoService.listarLaudosTecnicos();
+				}
+			} 
+			
+			public function adicionarLaudoTecnico(laudoTecnico:LaudoTecnico):void
+			{
+				var laudoTecnicoAux:LaudoTecnico = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<_listaLaudoTecnico.length; i++){
+					laudoTecnicoAux = _listaLaudoTecnico.getItemAt(i) as LaudoTecnico; 
+					if(laudoTecnicoAux.id == laudoTecnico.id){
+						var orcRepSub:Object = _listaLaudoTecnico.removeItemAt(i);
+						_listaLaudoTecnico.addItemAt(laudoTecnico,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					_listaLaudoTecnico.addItem(laudoTecnico);
+				}
+				viewTable.filter();
+			}
+			
+			private function onListarLaudoTecnicosResult(event:ResultEvent = null):void
+			{
+				_listaLaudoTecnico = event.result as ArrayCollection;
+				viewTable.filter();
+			}
+			
+			private function onListarLaudoTecnicosFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaLaudoTecnico.getItemAt(event2.rowIndex);				
+				}
+				
+				_laudoTecnico = data as LaudoTecnico;
+				laudoTecnicoService.buscarPorId(_laudoTecnico.id);
+				//buscarOrdemServico(_laudoTecnico.ordemServico.id)
+			}
+			
+			private function onBuscarLaudoTecnicoResult(event:ResultEvent = null):void
+			{
+				this.currentState = "edicao";
+				_laudoTecnico = event.result as LaudoTecnico;
+				detalhamentoLaudoTecnico.laudoTecnico =_laudoTecnico;
+				detalhamentoLaudoTecnico.observacoes.listarObservacoes();
+				atualizarFiltros();
+			}
+			
+			private function onBuscarLaudoTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			private function buscarOrdemServico(id:Number):void
+			{
+				ordemServicoService.buscarPorId(id);
+			}
+			
+			private function onBuscarNotaFiscalResult(event:ResultEvent = null):void
+			{
+				this.currentState = "edicao";
+				_ordemServico = event.result as OrdemServico;
+				_laudoTecnico.ordemServico = _ordemServico;
+				detalhamentoLaudoTecnico.laudoTecnico =_laudoTecnico;
+				detalhamentoLaudoTecnico.observacoes.listarObservacoes();
+			}
+			
+			private function onBuscarNotaFiscalFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			private function iniciarLaudoTecnico(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_laudoTecnico = detalhamentoLaudoTecnico.laudoTecnico;
+					laudoTecnicoController.iniciarLaudoTecnico(_laudoTecnico,usr);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(iniciarLaudoTecnicoAutenticar);
+				}
+			}
+			
+			public function iniciarLaudoTecnicoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				iniciarLaudoTecnico();
+			}
+			
+			private function onIniciarLaudoTecnicoResult(event:ResultEvent = null):void
+			{
+				_laudoTecnico = event.result as LaudoTecnico;
+				//_laudoTecnico.ordemServico = _ordemServico;
+				adicionarLaudoTecnico(_laudoTecnico);
+				Publicador.enviarMensagemLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_ATUALIZAR,_laudoTecnico);
+				//publicarLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_ATUALIZAR,_laudoTecnico);
+				detalhamentoLaudoTecnico.laudoTecnico = _laudoTecnico;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_INICIADA_SUCESSO'), MessageType.SUCCESS, 3000));
+			}
+			
+			private function onIniciarLaudoTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_INICIADA_ERRO'), MessageType.ERROR, 3000));
+			}
+			
+			private function salvarLaudoTecnico(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_laudoTecnico = detalhamentoLaudoTecnico.laudoTecnico;
+					laudoTecnicoController.salvarLaudoTecnico(_laudoTecnico,usr);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(salvarLaudoTecnicoAutenticar);
+				}
+			}
+			
+			public function salvarLaudoTecnicoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				salvarLaudoTecnico();
+			}
+			
+			private function onSalvarLaudoTecnicoResult(event:ResultEvent = null):void
+			{
+				_laudoTecnico = event.result as LaudoTecnico;
+				//_laudoTecnico.ordemServico = _ordemServico;
+				adicionarLaudoTecnico(_laudoTecnico);
+				Publicador.enviarMensagemLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_ATUALIZAR,_laudoTecnico);
+				//publicarLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_ATUALIZAR,_laudoTecnico);
+				detalhamentoLaudoTecnico.laudoTecnico = _laudoTecnico;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_SALVA_SUCESSO'), MessageType.SUCCESS, 3000));
+			}
+			
+			private function onSalvarLaudoTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_SALVA_ERRO'), MessageType.ERROR, 3000));
+			}
+			
+			private function finalizarLaudoTecnico(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(detalhamentoLaudoTecnico.validarCampos()){
+						_laudoTecnico = detalhamentoLaudoTecnico.laudoTecnico;
+						_laudoTecnico.realizadoPor = Login.currentUser;
+						laudoTecnicoController.finalizarLaudoTecnico(_laudoTecnico,usr);
+					}else{
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(finalizarLaudoTecnicoAutenticar);
+				}
+			}
+			
+			public function finalizarLaudoTecnicoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				finalizarLaudoTecnico();
+			}
+			
+			private function onFinalizarLaudoTecnicoResult(event:ResultEvent = null):void
+			{
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_FINALIZADA_SUCESSO'), MessageType.SUCCESS, 3000));	
+				_laudoTecnico = event.result as LaudoTecnico;
+				//_laudoTecnico.ordemServico = _ordemServico;
+				adicionarLaudoTecnico(_laudoTecnico);
+				Publicador.enviarMensagemLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_APROVADO,_laudoTecnico);
+				//publicarLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_APROVADO,_laudoTecnico);
+				detalhamentoLaudoTecnico.laudoTecnico = _laudoTecnico;				
+			}
+			
+			private function onFinalizarLaudoTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_FINALIZADA_ERRO'), MessageType.ERROR, 3000));
+			}			
+			
+			private function rejeitarLaudoTecnico(event:MouseEvent=null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(detalhamentoLaudoTecnico.validarCampos()){
+						_laudoTecnico = detalhamentoLaudoTecnico.laudoTecnico;
+						_laudoTecnico.realizadoPor = Login.currentUser;
+						laudoTecnicoController.rejeitarLaudoTecnico(_laudoTecnico,usr);
+					}else{
+						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(rejeitarLaudoTecnicoAutenticar);
+				}
+			}
+			
+			public function rejeitarLaudoTecnicoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				rejeitarLaudoTecnico();
+			}
+			
+			private function onRejeitarLaudoTecnicoResult(event:ResultEvent = null):void
+			{
+				_laudoTecnico = event.result as LaudoTecnico;
+				//_laudoTecnico.ordemServico = _ordemServico;
+				adicionarLaudoTecnico(_laudoTecnico);
+				Publicador.enviarMensagemLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_REJEITADO,_laudoTecnico);
+				//publicarLaudoTecnico(MensagensAplicacao.LAUDO_TECNICO_REJEITADO,_laudoTecnico);
+				detalhamentoLaudoTecnico.laudoTecnico = _laudoTecnico;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_REJEITADO_SUCESSO'), MessageType.SUCCESS, 3000));
+			}
+			
+			private function onRejeitarLaudoTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_REJEITADO_ERRO'), MessageType.ERROR, 3000));
+			}
+			
+			private function gerarPDF(event:MouseEvent):void
+			{
+				
+			}
+			
+			private function voltar(event:MouseEvent):void
+			{
+				this.currentState = "listagem";
+				dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+				atualizarFiltros();
+			}	
+			
+			private function exportar(event:MouseEvent):void
+			{
+				if(_listaLaudoTecnico != null && _listaLaudoTecnico.length > 0){
+					relatorioService.channelSet = parentApplication.channelSet;
+					relatorioService.showBusyCursor = true;
+					var resultList:ArrayCollection = new ArrayCollection();
+					resultList.addAll(_listaLaudoTecnico);
+					relatorioService.gerarRelatorio(null, "relatorioListagemLaudoTecnico",resultList);
+				}else{
+					dispatchEvent(new MensagemEvent("Nenhuma informação disponível para gerar o relatório!", MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function onCreateFileResult(event:ResultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				byteArray = event.result as ByteArray;
+				dispatchEvent(new MensagemEvent("Arquivo criado com sucesso", MessageType.INFO, 3000));
+				
+				Alert.noLabel = "Não";
+				Alert.yesLabel = "Sim"
+				var alert:Alert = new Alert();
+				alert = Alert.show("Deseja salvar o arquivo?","Download completo",3,this,alertClickHandler);
+				PopUpManager.centerPopUp(alert);
+				var newY:Number = 180;
+				alert.move(alert.x, newY);
+			}
+			
+			private function openHandler(event:Event):void
+			{
+				//dispatchEvent(new MensagemEvent("Texto openHandler", MessageType.INFO, 3000));
+			}
+			
+			public static function getFormattedDateToWriteFile(date:Date):String
+			{
+				var date:Date = date;
+				var dateF:DateFormatter = new DateFormatter();
+				dateF.formatString = "DDMMYYYY - LLNNSS";
+				return dateF.format(date);
+			}
+			
+			private function alertClickHandler(event:CloseEvent):void
+			{
+				if (event.detail == Alert.YES)
+				{
+					fileRef.save(byteArray, "Relatório listagem laudo técnico " + getFormattedDateToWriteFile(new Date()) +".xlsx");
+					
+				}
+				else
+				{
+					dispatchEvent(new MensagemEvent("Exportação foi cancelada", MessageType.INFO, 3000));
+				}
+			}
+			
+			private function onCreateFileFault(event:FaultEvent):void
+			{
+				// Return the cursor to its original state
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent("Texto onCreateFileFault", MessageType.INFO, 3000));
+				// Debug output
+				trace("[OrdersComponent.handleUsersServicefindAllFault] [" 
+					+ event.fault.faultCode + "] " 
+					+ event.fault.faultString 
+					+ " (" + event.fault.faultDetail +
+					")");
+			}
+			
+			public function atualizarFiltros():void
+			{
+				viewTable.filter();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:HBox verticalAlign="bottom" width="100%" excludeFrom="edicao">
+		<mx:Button id="btExportar"
+				   label="Exportar"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/user.png')"
+				   click="exportar(event)"/>
+	</mx:HBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="100%"
+					  includeIn="listagem"
+					  draggableColumns="true"
+					  dataProvider="{_listaLaudoTecnico}"
+					  doubleClickEnabled="false"
+					  >
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".05"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.visualizarDetalhe(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />						
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nControle"
+									 headerText = "{resourceManager.getString('ApplicationResource','CONTROLE')}"
+									 textAlign="center"
+									 sortable="false" width=".05"
+									 dataField="controle"							   
+									 />
+			
+			<dc:DataGridColumnFilter id="status"  showDataTips="true" dataTipField="statusString" textAlign="center"
+									 headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+									 dataField = "statusString" 
+									 width=".10"
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOs"
+									 headerText = "OS"
+									 textAlign="center"
+									 sortable="false" width=".10"
+									 dataField="numeroOrdemServico"							   
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOsPai"
+									 headerText = "OS Pai"
+									 textAlign="center"
+									 sortable="false" width=".10"
+									 dataField="numeroOrdemServicoPai" dataTipField="numeroOrdemServicoPai"	 						   
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente"
+									 headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+									 textAlign="center" showDataTips="true"
+									 sortable="false" width=".10"
+									 dataField="cliente" dataTipField="cliente"							   
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="unidade"
+									 headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+									 textAlign="center" showDataTips="true"
+									 sortable="false" width=".10"
+									 dataField="unidade" dataTipField="unidade"							   
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nSerieFabricante"
+									 headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+									 textAlign="center" showDataTips="true"
+									 sortable="false" width=".10"
+									 dataField="serieFabricante" dataTipField="serieFabricante"							   
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nSerieCliente"
+									 headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+									 textAlign="center" showDataTips="true"
+									 sortable="false" width=".10"
+									 dataField="serieCliente" dataTipField="serieCliente"							   
+									 />
+						
+			<dc:DataGridColumnFilter id="cLaboratorio" showDataTips="true"
+									 headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+									 dataField = "laboratorio"
+									 width=".10"
+									 />
+			
+			<dc:DataGridColumnFilter id="cUsuario" showDataTips="true"
+									 headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+									 dataField = "tecnico" dataTipField="tecnico"
+									 width=".10"
+									 />			
+			
+		</grid:columns>
+	</grid:MantisTable>
+	
+	<laudoTecnico:LaudoTecnicoDetalhamento id="detalhamentoLaudoTecnico" excludeFrom="listagem" />
+	
+	<mx:HBox excludeFrom="listagem" width="100%" horizontalAlign="left">
+		<mx:Button id="btIniciar"
+				   label="{resourceManager.getString('ApplicationResource','INICIAR_LAUDO_TECNICO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="iniciarLaudoTecnico(event)"
+				   enabled="{_laudoTecnico.statusString == 'Não iniciado'}"
+				   />
+		
+		<mx:Button id="btSalvar"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR_LAUDO_TECNICO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="salvarLaudoTecnico(event)"
+				   enabled="{_laudoTecnico.statusString == 'Iniciado'}"
+				   />
+		<mx:Button id="btFinalizar" 
+				   label="{resourceManager.getString('ApplicationResource','FINALIZAR_LAUDO_TECNICO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="finalizarLaudoTecnico(event)"
+				   enabled="{_laudoTecnico.statusString == 'Iniciado'}"
+				   />
+		<s:Spacer width="50" />
+		<mx:Button id="btRejeitar" 
+				   label="{resourceManager.getString('ApplicationResource','REJEITAR_LAUDO_TECNICO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="rejeitarLaudoTecnico(event)"
+				   enabled="{_laudoTecnico.statusString == 'Iniciado'}"
+				   />
+		<s:Spacer width="50" />
+		<mx:Button id="btGerarPdf" 
+				   label="{resourceManager.getString('ApplicationResource','GERAR_PDF_LAUDO_TECNICO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="gerarPDF(event)"
+				   enabled="{_laudoTecnico.statusString == 'Finalizado' || _laudoTecnico.statusString == 'Rejeitado'}"
+				   />
+		<s:Spacer width="50" />
+		<mx:Button id="btVoltar" 
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+</mx:VBox>

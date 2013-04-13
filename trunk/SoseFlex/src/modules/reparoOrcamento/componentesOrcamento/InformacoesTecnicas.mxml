@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:componentesReparoOrcamento="modules.reparoOrcamento.componentesReparoOrcamento.*"
+		 xmlns:texto="components.textInput.*" xmlns:componentes="components.*" xmlns:combos="components.combos.*"
+		 width="100%">
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.orcamentoreparo.Orcamento;
+			import entities.orcamentoreparo.Reparo;
+			
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.ScreenUtils;
+			
+			
+			[Bindable]
+			private var _condicaoOrcamento:String;
+			
+			[Bindable]
+			private var _orcamento:Orcamento;
+			
+			[Bindable]
+			private var validatorArr:Array;
+			
+			[Embed(source="/assets/icons/tick.png")]
+			[Bindable]
+			public var tick:Class;
+			
+			[Embed(source="/assets/icons/cross.png")]
+			[Bindable]
+			public var cross:Class;
+			
+			public function get orcamento():Orcamento
+			{
+				return _orcamento;
+			}
+			
+			public function set orcamento(value:Orcamento):void
+			{
+				_orcamento = value;
+
+				cbJaReparado.selected = _orcamento.jaReparado;
+				tempo.tempoGasto = _orcamento.tempoGasto;
+			}
+			
+			public function get jaReparado():Boolean
+			{
+				return _orcamento.jaReparado;
+			}
+			
+			public function set jaReparado(value:Boolean):void
+			{
+				_orcamento.jaReparado = value;
+				
+			}
+			
+			public function get tempoGasto():int
+			{
+				return tempo.tempoGasto;
+			}
+			
+			public function set tempoGasto(value:int):void
+			{
+				tempo.tempoGasto = value;
+				
+			}
+			
+			
+			public function validateTempoGasto():Boolean {	
+				validatorArr = new Array();
+				var isTempoValido:Boolean = true;
+				if(tempo.tempoGasto == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','TEMPO_GASTO_NAO_PREENCHIDO'), MessageType.WARNING, 5000));
+					return false;
+				}
+				return true;
+			}
+			
+			
+			public function validateComponente():Boolean {	
+				validatorArr = new Array();
+
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				if(!isValidForm){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ANALISE_TECNICA_NAO_PREENCHIDA'), MessageType.WARNING, 5000));
+					return false;
+				}
+				return true;
+			}
+			
+			public function limpar():void
+			{
+				//cbAnalise.limpar();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="cbJaReparado.selected" destination="_orcamento.jaReparado" twoWay="true" />
+	<fx:Binding source="dataPrioridade.inputDate" destination="_orcamento.prioridade" twoWay="true" />
+	<fx:Binding source="txtAnalise.inputText" destination="_orcamento.condicao" twoWay="true" />
+
+	
+	<mx:states>
+		<s:State name="editar"/>
+		<s:State name="visualizar"/>
+	</mx:states>
+	
+	<mx:HBox verticalAlign="bottom" horizontalAlign="left" width="100%">
+		<texto:TextInput id="txtAnalise" labelText="{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}" width="30%" habilitado="false" />
+		<componentesReparoOrcamento:TempoGasto id="tempo"  />
+		<mx:VBox verticalGap="0">
+			<s:Label text="Garantia" />
+			<mx:HBox borderStyle="solid" verticalAlign="middle" horizontalGap="1" paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
+				<mx:Image id="comGarantia" height="25" verticalAlign="middle"  source="{_orcamento.ordemServico.garantia ? tick : cross }" enabled.visualizar="false" />
+				<s:Label text="{_orcamento.ordemServico.garantia ? '  Com garatia' : '  Sem garantia'}" fontSize="12" fontWeight="bold" />
+			</mx:HBox>
+		</mx:VBox>	
+		<mx:CheckBox id="cbJaReparado" 
+					 label="{resourceManager.getString('ApplicationResource','JA_REPARADO')}" 
+					 enabled.visualizar="false" />
+		<componentes:DataInput id="dataPrioridade" enabled="false"
+							   labelText="{resourceManager.getString('ApplicationResource','DATA_PRIORIDADE')}" 
+							   
+							   width="10%" inputHeight="20" />
+	</mx:HBox>
+	
+</mx:VBox>

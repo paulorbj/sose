@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="center" 
+		 xmlns:components="components.*" width="100%"  height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:consulta="modules.consulta.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="consultaService" destination="consultaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="realizarConsultaGeral"      
+					   fault="onListarAtividadesFault(event)" 
+					   result="onListarAtividadesResult(event)"
+					   />
+			<mx:method name="createFile"      
+					   fault="onCreateFileFault(event)" 
+					   result="onCreateFileResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MessageType;
+			
+			import entities.consulta.Consulta;
+			import entities.consulta.ConsultaResultado;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var consulta:Consulta;
+			
+			[Bindable]
+			private var consultaResultado:ConsultaResultado;
+			
+			[Bindable]
+			private var byteArray:ByteArray = new ByteArray();
+			
+			private var fileRef:FileReference;
+
+			private function onPreinitialize():void
+			{
+				
+				fileRef = new FileReference();
+				
+				fileRef.addEventListener(Event.OPEN, openHandler);
+			}
+			
+			private function consultar(event:MouseEvent = null):void
+			{
+				consulta = new Consulta();
+				consulta.cliente = cliente.clienteSelecionado;
+				consulta.numeroNotaFiscal = numeroNotaFiscal.inputText;
+				consulta.numeroNotaFiscalSaida = numeroNotaFiscalSaida.inputText;
+				consulta.numeroOS = numeroOrdemServico.inputText;
+				consultaService.realizarConsultaGeral(consulta);
+			}
+			
+			private function onListarAtividadesResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				consultaResultado = event.result as ConsultaResultado;
+				resultadoOrdemServico._listaOrdemServicoEdicao = consultaResultado.listaOrdemServico;
+			}
+			
+			private function onListarAtividadesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function consultarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					consultar();
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}			
+			
+			///////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////DOWNLOAD FILE FUNCTIONS BEGIN//////////////////////////////
+			///////////////////////////////////////////////////////////////////////////////////////
+			
+			private function downloadFile():void
+			{
+				CursorManager.setBusyCursor();
+				consultaService.createFile(resultadoOrdemServico._listaOrdemServicoEdicao, "relatorioOs");
+			}
+			
+			private function onCreateFileResult(event:ResultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				byteArray = event.result as ByteArray;
+				parentApplication.messageFactory.addMessage(
+					resourceManager.getString('ApplicationResource','REPORTS_DOWNLOAD_COMPLETE'),
+					MessageType.INFO);
+				Alert.noLabel = "Não";
+				Alert.yesLabel = "Sim"
+				var alert:Alert = new Alert();
+				alert = Alert.show(
+					resourceManager.getString('ApplicationResource','REPORTS_DOWNLOAD_COMPLETE_FILE_SAVE_ASK'),
+					resourceManager.getString('ApplicationResource','REPORTS_DOWNLOAD_COMPLETE'),
+					3, 
+					this, 
+					alertClickHandler);
+				PopUpManager.centerPopUp(alert);
+				var newY:Number = 180;
+				alert.move(alert.x, newY);
+			}
+			
+			private function openHandler(event:Event):void
+			{
+				byteArray = null;
+				parentApplication.messageFactory.addMessage(
+					resourceManager.getString('ApplicationResource','REPORTS_FILE_SAVE'), MessageType.INFO);
+			}
+			
+			private function onCreateFileFault(event:FaultEvent):void
+			{
+				// Return the cursor to its original state
+				CursorManager.removeAllCursors();
+				parentApplication.messageFactory.addMessage(resourceManager.getString('ApplicationResource','REPORTS_FILE_ERROR'), MessageType.ERROR, 10000);
+				// Debug output
+				trace("[OrdersComponent.handleUsersServicefindAllFault] [" 
+					+ event.fault.faultCode + "] " 
+					+ event.fault.faultString 
+					+ " (" + event.fault.faultDetail +
+					")");
+			}
+			
+			// Event handler function for displaying the selected Alert button. 
+			private function alertClickHandler(event:CloseEvent):void
+			{
+				if (event.detail == Alert.YES)
+				{
+					saveFile();
+				}
+				else
+				{
+					parentApplication.messageFactory.addMessage(resourceManager.getString('ApplicationResource','REPORTS_FILE_CANCEL'),	MessageType.WARNING);
+				}
+			}
+			
+			private function getFormattedDateToWriteFile(date:Date):String
+			{
+				var date:Date = date;
+				var dateF:DateFormatter = new DateFormatter();
+				dateF.formatString = "DDMMYYYY - LLNNSS";
+				return dateF.format(date);
+			}
+			
+			private function saveFile():void
+			{
+				
+				fileRef.save(byteArray, "Relatório de Reparo " + getFormattedDateToWriteFile(new Date()) +
+					".xls");
+				
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="numeroOrdemServico" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="20%" />
+		<texto:TextInput id="numeroNotaFiscal" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="20%" />
+		<texto:TextInput id="numeroNotaFiscalSaida" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_SAIDA')}" width="20%" />
+		<combos:ComboCliente id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="20%"  />
+		<mx:Button id="btConsulta" 
+				   label="{resourceManager.getString('ApplicationResource','CONSULTAR')}"
+				   height="25" width="7%"
+				   icon="@Embed(source='/assets/icons/search.png')"
+				   keyDown="consultarEnter(event)"
+				   click="consultar(event)"
+				   />
+		<mx:Button id="btLimpar" 
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25" width="7%"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+		<mx:Button height="25" 
+				   label="{resourceManager.getString('ApplicationResource','EXPORTAR')}" 
+				   width="7%"
+				   id="btExportar" 
+				   click="{downloadFile()}"  
+				   icon="@Embed(source='/assets/icons/page_excel.png')" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<consulta:ResultadoNotaFiscal id="resultadoNotaFiscal"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<consulta:ResultadoOrdemServico id="resultadoOrdemServico" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<consulta:ResultadoNotaFiscalSaida id="resultadoNotaFiscalSaida" />
+	</mx:HBox>
+	
+	
+</mx:VBox>

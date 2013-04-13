@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" verticalGap="0" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" initialize="preInit()"  horizontalAlign="left"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:components="components.*">
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			import utils.ScreenUtils;
+	
+			private var _tempoGasto:int = 0;
+			private const DIA_DE_TRABALHO:int = 8;
+			
+			private function preInit():void
+			{
+				cbDia.dataProvider = ScreenUtils.dias as ArrayCollection;
+				cbDia.dropbox.selectedIndex = 0;
+				cbDia.labelField = "";
+				cbHora.dataProvider = ScreenUtils.horas as ArrayCollection;
+				cbHora.labelField = "";
+				cbMinuto.dataProvider = ScreenUtils.minutos as ArrayCollection;
+				cbMinuto.labelField = "";
+			}
+			
+			public function get tempoGasto():int
+			{
+				var dia_em_minutos:int = converterDiaToMinuto(cbDia.selectedItem);
+				var hora_em_minutos:int = converterHoraToMinuto(cbHora.selectedItem);
+				var minutos:int = converterMinuto(cbMinuto.selectedItem);
+				return dia_em_minutos+hora_em_minutos+minutos;
+			}
+			
+			public function set tempoGasto(value:int):void
+			{
+	
+				var dia:int = Math.floor(value / 480);
+				var horas:int = dia * DIA_DE_TRABALHO * 60;
+				horas = value - horas;
+				var hora:int = Math.floor(horas/60);
+				var minuto:int = hora * 60;
+				minuto = horas-minuto;
+				var diaString:String = dia.toString();
+				var horaString:String = hora.toString();
+				var minutoString:String = minuto.toString();
+				cbDia.selectedItem = diaString.length == 1 ? '0'+diaString : diaString;
+				cbHora.selectedItem = horaString.length == 1 ? '0'+horaString : horaString;
+				cbMinuto.selectedItem = minutoString.length == 1 ? '0'+minutoString : minutoString;
+			}
+			
+			private function converterDiaToMinuto(value:String):int
+			{
+				var dia:int = parseInt(value);			
+				return dia*8*60;
+			}
+			
+			private function converterHoraToMinuto(value:String):int
+			{
+				var hora:int = parseInt(value);			
+				return hora*60;
+			}
+			
+			private function converterMinuto(value:String):int
+			{
+				var minuto:int = parseInt(value);			
+				return minuto;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Label text="Tempo de reparo" />
+	<mx:HBox horizontalGap="1" verticalAlign="middle" 
+			 width="100%" 
+			 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+		<components:DropBoxInput id="cbDia" sortField="{null}" requireSelectionFlag="true" width="80" inputHeight="25" currentState="semLabel" />
+		<s:Label text="DD" />
+		<components:DropBoxInput id="cbHora" sortField="{null}" requireSelectionFlag="true" width="80" inputHeight="25" currentState="semLabel" />
+		<s:Label text="HH" />
+		<components:DropBoxInput id="cbMinuto" sortField="{null}" requireSelectionFlag="true" width="80" inputHeight="25" currentState="semLabel" />
+		<s:Label text="MM" />
+	</mx:HBox>
+
+</mx:VBox>

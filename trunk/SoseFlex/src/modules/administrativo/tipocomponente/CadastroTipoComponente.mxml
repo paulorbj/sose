@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:tipoComponente="modules.administrativo.tipocomponente.*"
+		 creationComplete="onCreationComplete()"
+		 width="100%" horizontalAlign="center" height="100%" 
+		 paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="tipoComponenteService" destination="tipoComponenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarTipoComponentes"      
+					   fault="onListarTipoComponentesFault(event)" 
+					   result="onListarTipoComponentesResult(event)"
+					   />
+			<mx:method name="salvarTipoComponente"      
+					   fault="onSalvarTipoComponenteFault(event)" 
+					   result="onSalvarTipoComponenteResult(event)"
+					   />
+			<mx:method name="excluirTipoComponente"      
+					   fault="onExcluirTipoComponenteFault(event)" 
+					   result="onExcluirTipoComponenteResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.TipoComponente;
+			
+			import modules.administrativo.tipocomponente.eventos.TipoComponenteEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]			
+			private var _tipoComponente:TipoComponente;
+			
+			[Bindable]	
+			private var _listaTipoComponente:ArrayCollection = new ArrayCollection;
+			
+			private function onCreationComplete():void
+			{
+				tipoComponenteService.listarTipoComponentes();	
+				this.addEventListener(TipoComponenteEvent.EDITAR_TIPOCOMPONENTE,onEditar);
+				this.addEventListener(TipoComponenteEvent.EXCLUIR_TIPOCOMPONENTE,onExcluir);
+			}
+			
+			private function onEditar(event:TipoComponenteEvent):void
+			{
+				this.currentState = "edicao";
+				dados.tipoComponente = event.tipoComponente;
+			}
+			
+			private function onExcluir(event:TipoComponenteEvent):void
+			{
+				_tipoComponente = event.tipoComponente;
+				tipoComponenteService.excluirTipoComponente(event.tipoComponente);
+			}
+			
+			private function onListarTipoComponentesResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaTipoComponente.removeAll();
+				_listaTipoComponente = event.result as ArrayCollection;
+				listagem.setListaTipoComponente(_listaTipoComponente);
+			}
+			
+			private function onListarTipoComponentesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarTipoComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onSalvarTipoComponenteResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_tipoComponente = event.result as TipoComponente;
+				if(dados.tipoComponente.id == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','TIPO_COMPONENTE_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','TIPO_COMPONENTE_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}
+				listagem.adicionarTipoComponente(_tipoComponente);
+				dados.limpar();
+			}
+			
+			private function onSalvarTipoComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarTipoComponenteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','TIPO_COMPONENTE_SALVAR_ERRO'), MessageType.ERROR, 10000));	
+				}			
+			}
+			
+			private function onExcluirTipoComponenteResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _listaTipoComponente.getItemIndex(_tipoComponente);
+				_listaTipoComponente.removeItemAt(index);
+				listagem.setListaTipoComponente(_listaTipoComponente);
+				limpar();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','TIPO_COMPONENTE_REMOVER_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onExcluirTipoComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirTipoComponenteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var i:Number;
+				if(event.fault.faultString.search("br.com.sose.exceptions") != -1){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','TIPO_COMPONENTE_REMOVER_ERRO'), MessageType.ERROR, 10000));
+				}
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				if(dados.validarCampos()){
+					tipoComponenteService.salvarTipoComponente(dados.tipoComponente);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				_tipoComponente = new TipoComponente();
+				if(dados)
+					dados.limpar();
+			}
+			
+			private function novo(event:MouseEvent = null):void
+			{
+				this.currentState = "insercao";
+				limpar();			
+			}
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				this.currentState = "listagem";
+				limpar();
+			}
+			
+			private function salvarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					salvar();
+				}
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}
+			
+			private function voltarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					voltar();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+		<s:State name="insercao"/>
+	</mx:states>
+	
+	<mx:VBox width="100%" horizontalAlign="center">
+		<s:Label fontSize="15" fontWeight="bold" text="{resourceManager.getString('ApplicationResource','LISTA_TIPO_COMPONENTE')}" includeIn="listagem"/>
+		<s:Label fontSize="15" fontWeight="bold" text="{resourceManager.getString('ApplicationResource','DETALHAMENTO_TIPO_COMPONENTE')}" excludeFrom="listagem"/>
+	</mx:VBox>	
+	
+	<mx:VBox width="100%" horizontalAlign="left" >
+		<mx:Button id="newButton" includeIn="listagem"
+				   label="{resourceManager.getString('ApplicationResource','NOVO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/new.png')"
+				   click="novo(event)"
+				   />
+	</mx:VBox>
+	
+	<tipoComponente:ListagemTipoComponenteCadastrado id="listagem" includeIn="listagem" width="100%" />
+	
+	<tipoComponente:DadosTipoComponente id="dados" excludeFrom="listagem" width="100%"  />
+	
+	<mx:HBox width="100%" excludeFrom="listagem">
+		<mx:Button id="saveButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   keyDown="salvarEnter(event)"
+				   click="salvar(event)"
+				   />
+		<mx:Button id="cleanButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+		<mx:Button id="voltarButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   keyDown="voltarEnter(event)"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+</mx:VBox>

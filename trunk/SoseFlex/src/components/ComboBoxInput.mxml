@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:flextras="http://www.flextras.com/mxml"
+		 horizontalAlign="left"
+		 verticalGap="0" width="100%"
+		 initialize="init()"
+		 
+		 >
+	
+	<!-- Action Scripts -->
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Contato;
+			
+			import flashx.textLayout.events.SelectionEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ICollectionView;
+			import mx.collections.IList;
+			import mx.collections.ListCollectionView;
+			import mx.core.mx_internal;
+			import mx.events.FlexEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import spark.collections.Sort;
+			import spark.collections.SortField;
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			private var _dataProvider:ListCollectionView;
+			
+			[Bindable]
+			private var _selectedItem:*;
+			
+			/** Exposed text property */
+			[Bindable]
+			public var labelText:String;
+			
+			/** Exposed input width property */
+			[Bindable]
+			public var inputHeight:int = 25;
+			
+			[Bindable]
+			public var listWidth:Number;
+			
+			/** Exposed enabledFlag property */
+			[Bindable]
+			public var enabledFlag:Boolean = true;
+			
+			[Bindable]
+			public var textoPadrao:String = "";
+			
+			[Bindable]
+			public var selectedItemIndex:int;
+			
+			[Bindable]
+			public var change:Function = null;
+			
+			[Bindable]
+			public var labelFunction:Function;
+			
+			[Bindable]
+			public var labelField:String;
+			
+			[Bindable]
+			public var restrictField:String
+			
+			[Bindable]
+			public var sortField:String;
+			
+			[Bindable]
+			public var defaultText:String = "";
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			[Bindable]
+			public var requireSelectionFlag:Boolean=false;
+			
+			
+			private function init():void{
+				combobox.textInput.addEventListener(KeyboardEvent.KEY_UP,onEnter);
+				//				combobox.textInput.addEventListener(KeyboardEvent.KEY_UP,textInputChange);
+				combobox.addEventListener(FocusEvent.FOCUS_OUT,onTab);
+				combobox.addEventListener("change", itemAlterado);
+			}
+			
+			// Event handler to determine if the selected item is new.
+			protected function onEnter(keyEvent:KeyboardEvent):void
+			{
+				if(keyEvent.keyCode == 13){
+					// Determine if the index specifies a new data item.
+					if(combobox.selectedIndex == spark.components.ComboBox.CUSTOM_SELECTED_ITEM)
+						// Add the new item to the data provider.
+						combobox.selectedIndex = -1;
+					//combobox.textInput.text = "";
+				}
+			}
+			
+			protected function onTab(keyEvent:FocusEvent):void
+			{		
+				// Determine if the index specifies a new data item.
+				if(combobox.selectedIndex == spark.components.ComboBox.CUSTOM_SELECTED_ITEM)
+					// Add the new item to the data provider.
+					combobox.selectedIndex = -1;
+				//					combobox.textInput.text = "";
+			}
+			
+			private function itemAlterado(event:Event):void
+			{
+				dispatchEvent(event);
+			}
+			
+			
+			/**
+			 * ################################################################################
+			 */
+			
+			[Bindable]
+			public function get dataProvider():ListCollectionView
+			{
+				return _dataProvider;
+			}
+			
+			/**
+			 * @private
+			 */
+			public function set dataProvider(value:ListCollectionView):void
+			{
+				_dataProvider = value;			
+				if(_selectedItem != null && !(_selectedItem is String)){
+					for each(var s:* in dataProvider){
+						if(ObjectUtil.compare(s.id,_selectedItem.id)==0){
+							_selectedItem = s;
+							combobox.selectedItem=s;
+						}
+					}				
+				}
+			}
+			
+			[Bindable]
+			public function get selectedItem():*
+			{
+				return _selectedItem;
+			}
+			
+			/**
+			 * @private
+			 */
+			public function set selectedItem(value:*):void
+			{				
+				_selectedItem=value;
+				if(_selectedItem != null && !(value is String))
+					if(dataProvider!=null){
+						for each(var s:* in dataProvider){
+							if(ObjectUtil.compare(s.id,_selectedItem.id)==0){
+								_selectedItem = s;
+								combobox.selectedItem=s;
+								break;
+							}
+						}
+					}
+			}
+			
+			public function select(event:Event):void
+			{				
+				selectedItem=combobox.selectedItem;
+				if (change != null) change(event=null);
+			}
+			
+			public function clean():void
+			{
+				//				combobox.textInput.text = "";
+				//				combobox.selectedItem = null;
+				combobox.selectedIndex = -1;
+				
+				//				combobox.selectedItem = null;
+			}
+			
+			//			protected function firstOnlyFilter ( item:Object):Boolean{
+			//				
+			//				var label : String = item.codigoUnidade;
+			//				
+			//				if(label.toLowerCase().search(cbUnidadeServilogi.typeAheadText.toLowerCase()) != -1){
+			//					return true;
+			//				}
+			//				return false;
+			//			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:NumberValidator id="comboValidator" domain="int" decimalSeparator="," thousandsSeparator="."
+							source="{combobox}" allowNegative="true" triggerEvent="{FocusEvent.FOCUS_OUT}"
+							lowerThanMinError="This field is required." required="{required}"
+							property="selectedIndex" enabled="{required}"
+							minValue="0" />
+	</fx:Declarations>
+	
+	<fx:Binding destination="combobox.dataProvider" source="dataProvider" twoWay="false"/>
+	<fx:Binding destination="combobox.selectedItem" source="selectedItem" twoWay="false"/>
+	
+	<mx:states>
+		<s:State name="comLabel"/>
+		<s:State name="semLabel"/>
+	</mx:states>
+	
+	<s:Label text="{labelText}" excludeFrom="semLabel"/>
+	
+	<flextras:AutoCompleteComboBoxLite  id="combobox"  
+										cachePolicy="off"
+										restrict="{restrictField}"
+										width="100%" 
+										height="{inputHeight}" requireSelection="{requireSelectionFlag}"
+										selectedIndex="{selectedItemIndex}"
+										enabled="{enabledFlag}"
+										prompt="{textoPadrao}"
+										change="{select(event)}"
+										labelFunction="{labelFunction}"
+										labelField="{labelField}" 
+										/>
+	
+</mx:VBox>

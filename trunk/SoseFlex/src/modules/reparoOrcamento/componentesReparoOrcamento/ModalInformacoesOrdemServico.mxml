@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple custom MXML TitleWindow component.
+The TitleWindowApp application displays this component. 
+You cannot run it independently. -->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+				title="Informações da ordem serviço" borderAlpha="0.75" 
+				showCloseButton="true" creationPolicy="all"
+				close="close()"
+				mouseDownOutside="close()"
+				initialize="addListeners()"  xmlns:consulta="modules.consulta.*" xmlns:components="components.*"
+				xmlns:componentes="components.*" xmlns:texto="components.textInput.*" width="1000" height="500">
+	
+	<fx:Declarations>
+
+		
+		<mx:RemoteObject id="laudoTecnicoService" destination="laudoTecnicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarUltimoLaudoPorOrdemServico"      
+					   fault="onBuscarLaudoTecnicoFault(event)" 
+					   result="onBuscarLaudoTecnicoResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[     
+			import entities.laudoTecnico.LaudoTecnico;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.view.Login;
+			
+			import mx.core.FlexGlobals;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			private var _ordemServico:OrdemServico;
+			
+			private function onBuscarLaudoTecnicoResult(event:ResultEvent = null):void
+			{
+				var _laudoTecnico:LaudoTecnico = event.result as LaudoTecnico;
+				if(_laudoTecnico)
+					infoLaudoTecnico.laudoTecnico = _laudoTecnico;
+			}
+			
+			private function onBuscarLaudoTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			private function setAccordion(os:OrdemServico):void
+			{
+				infoOrdemServico.ordemServico = os;
+				if(os.notaFiscal){
+					infoNotaFiscal.notaFiscal = os.notaFiscal;
+				}
+				if(os.orcamento)
+					infoOrcamento.orcamento = os.orcamento;
+				if(os.reparo)
+					infoReparo.reparo = os.reparo;
+				if(Login.usuarioAutenticado && !Login.usuarioAutenticado.perfil.acaoDesabilitarAbaPropostaConsulta){
+					if(!accordion.contains(infoPropostaPai))
+						accordion.addChild(infoPropostaPai);
+					if(os.proposta)
+						infoProposta.proposta = os.proposta;
+				}else{
+					if(accordion.contains(infoPropostaPai))
+						accordion.removeChild(infoPropostaPai);
+				}
+				
+				
+				if(os.notaFiscalSaida){
+					infoExpedicao.notaFiscalSaida = os.notaFiscalSaida;
+				}
+				observacoes.entidade = os;
+				observacoes.listarObservacoes();
+				accordion.selectedIndex = 0;
+			}
+
+			[Bindable]
+			public function get ordemServico():OrdemServico
+			{
+				return _ordemServico;
+			}
+
+			public function set ordemServico(value:OrdemServico):void
+			{
+				_ordemServico = value;
+				setAccordion(_ordemServico);
+				laudoTecnicoService.buscarUltimoLaudoPorOrdemServico(_ordemServico.id);
+			}
+
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}
+			}
+			
+			
+			private function close():void
+			{
+				_ordemServico = null;
+				infoExpedicao.limpar();
+				infoNotaFiscal.limpar();
+				infoOrcamento.limpar();
+				infoProposta.limpar();
+				infoReparo.limpar();
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+			
+	<mx:Accordion id="accordion"  width="100%" height="100%" >
+		<s:NavigatorContent label="Ordem serviço" width="100%" height="100%">
+			<consulta:InformacoesOrdemServico id="infoOrdemServico" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="NotaFiscal" width="100%" height="100%">
+			<consulta:InformacoesNotaFiscal id="infoNotaFiscal"  />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Orçamento" width="100%" height="100%">
+			<consulta:InformacoesOrcamento id="infoOrcamento"  />
+		</s:NavigatorContent>
+		<s:NavigatorContent id="infoPropostaPai" label="Proposta" width="100%" height="100%">
+			<consulta:InformacoesProposta id="infoProposta"  />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Reparo" width="100%" height="100%">
+			<consulta:InformacoesReparo id="infoReparo" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Expedição" width="100%" height="100%">
+			<consulta:InformacoesExpedicao id="infoExpedicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Laudo técnico" width="100%" height="100%">
+			<consulta:InformacoesLaudoTecnico id="infoLaudoTecnico"  />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Observações" width="100%" height="100%">
+			<components:Observacoes id="observacoes" origem="Reparo"
+									habilitado="false"
+									paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+		</s:NavigatorContent>
+	</mx:Accordion>
+	
+	
+</mx:TitleWindow>
