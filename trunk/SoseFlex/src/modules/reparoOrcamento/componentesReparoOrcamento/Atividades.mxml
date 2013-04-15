@@ -219,56 +219,30 @@
 	<fx:Binding destination="txtJustificativa.input.text" source="_atividade.justificativa" twoWay="true"/>
 	
 	<mx:HBox width="100%">
-		<combos:ComboAtividade id="cbAtividade" enabled.visualizar="false" required="true" labelText="{resourceManager.getString('ApplicationResource','ATIVIDADES')}" width="25%" changeFunction="atualizarCampos" />
-		<texto:TextInput id="txtDescricao"  labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="75%" enabled="false" />
+		<combos:ComboAtividade id="cbAtividade" enabled.visualizar="false" required="true" labelText="{resourceManager.getString('ApplicationResource','ATIVIDADES')}" width="20%" changeFunction="atualizarCampos" />
+		<texto:TextInput id="txtDescricao"  labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="40%" enabled="false" />
 	</mx:HBox>
 	<mx:HBox verticalAlign="bottom" width="100%">
-		<componentes:TextAreaInput id="txtJustificativa" enabled.visualizar="false" width="85%" heightInLines="2" labelText="{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}" />
+		<componentes:TextAreaInput id="txtJustificativa" enabled.visualizar="false" width="50%" heightInLines="2" labelText="{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}" />
 		<mx:Button id="btAdicionar" enabled.visualizar="false"
 				   label="{resourceManager.getString('ApplicationResource','ADICIONAR')}"
-				   height="32"  width="15%"
+				   height="32"  width="10%"
 				   icon="@Embed(source='/assets/icons/add.png')"
 				   click="adicionar(event)"
 				   />
 	</mx:HBox>
 	
 	<grid:MantisTable id="viewTable"
-					  width="100%" height="100%"
+					  width="770" height="100%"
 					  draggableColumns="true"
 					  dataProvider="{_atividades}"
 					  itemDoubleClick="editAtividade(data, event)"	>
 		<grid:columns>
 			
-			<mx:DataGridColumn id="cAtividade" width="150"
-							   headerText = "{resourceManager.getString('ApplicationResource','ATIVIDADE')}"
-							   textAlign="center"
-							   sortable="false"
-							   dataField="atividade.nome"							   
-							   />
-			
-			<mx:DataGridColumn id="cJustificativa" dataField="justificativa" width="350"
-							   headerText = "{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}"
-							   textAlign="center"
-							   sortable="false"					   
-							   />
-			
-			<mx:DataGridColumn id="cDtInclusao" width="125" textAlign="center"
-							   headerText = "{resourceManager.getString('ApplicationResource','DATA')}"
-							   dataField = "data"
-							   />
-			
-			<mx:DataGridColumn id="cUsuario" width="125" textAlign="center"
-							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
-							   dataField = "usuario.usuario"
-							   />
-			
-			
-			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
 			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-							   draggable="false"							 
+							   draggable="false" width="50"								 
 							   editable="false"
 							   sortable="false">
 				<mx:itemRenderer>
@@ -295,6 +269,29 @@
 					</fx:Component>
 				</mx:itemRenderer>
 			</mx:DataGridColumn>
+						<mx:DataGridColumn id="cAtividade" width="150"
+							   headerText = "{resourceManager.getString('ApplicationResource','ATIVIDADE')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="atividade.nome"							   
+							   />
+			
+			<mx:DataGridColumn id="cJustificativa" dataField="justificativa" width="300"
+							   headerText = "{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}"
+							   textAlign="center"
+							   sortable="false"					   
+							   />
+			
+			<mx:DataGridColumn id="cDtInclusao" width="100" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','DATA')}"
+							   dataField = "data"
+							   />
+			
+			<mx:DataGridColumn id="cUsuario" width="100" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+							   dataField = "usuario.usuario"
+							   />
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
 			
 		</grid:columns>
 	</grid:MantisTable>

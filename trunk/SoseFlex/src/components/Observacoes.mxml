@@ -378,7 +378,7 @@
 				
 				<mx:DataGridColumn id="cTexto" dataField="texto" width=".60"
 								   headerText = "{resourceManager.getString('ApplicationResource','TEXTO')}"
-								   textAlign="center" wordWrap="true"
+								   textAlign="left" wordWrap="true"
 								   sortable="false"							   
 								   />
 				
