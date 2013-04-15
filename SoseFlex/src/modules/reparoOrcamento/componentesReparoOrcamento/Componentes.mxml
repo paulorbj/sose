@@ -902,15 +902,20 @@
 				
 				<mx:HBox verticalAlign="bottom" width="100%">
 					<mx:Button id="btAdicionarRequisicao" 
-							   label="{resourceManager.getString('ApplicationResource','ADICIONAR_REQUISICAO')}"
-							   height="25" enabled.visualizarRequisicao="false" width="20%"
+							   label="Buscar componente"
+							   height="25" enabled.visualizarRequisicao="false" width="15%"
 							   icon="@Embed(source='/assets/icons/add.png')"
 							   click="adicionarRequisicao(event)"/>	
 					<texto:TextInput id="componenteNome" habilitado="false" required="true" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE')}" width="50%" />
 					<texto:TextInput id="componenteQuantidade" restrict="0-9" required="true" habilitado.visualizarRequisicao="false" labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE')}" width="10%" />
+					<mx:Button id="btAddRequisicao"
+							   label="Adicionar requisição"
+							   height="25" enabled.visualizarRequisicao="false" width="15%"
+							   icon="@Embed(source='/assets/icons/save.png')"
+							   click="efetivarRequisicao(event)"/>	
 					<mx:Button id="btEfetivarPedido"
 							   label="{resourceManager.getString('ApplicationResource','EFETIVAR_PEDIDO')}"
-							   height="25" enabled.visualizarRequisicao="false" width="20%"
+							   height="25" enabled.visualizarRequisicao="false" width="15%"
 							   icon="@Embed(source='/assets/icons/save.png')"
 							   click="efetivarRequisicao(event)"/>	
 				</mx:HBox>

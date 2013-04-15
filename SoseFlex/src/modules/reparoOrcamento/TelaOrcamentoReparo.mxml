@@ -1856,7 +1856,7 @@
 		<s:NavigatorContent label="Histórico da unidade" width="100%">
 			<componentesReparoOrcamento:InformacoesAdicionais id="infoAdicionais" />
 		</s:NavigatorContent>
-		<s:NavigatorContent label="Observações" width="100%" height="100%">
+		<s:NavigatorContent label="Observações" width="770" height="100%">
 			<componentes:Observacoes id="observacoes" origem="{_orcamento == null ? 'Reparo':'Orçamento'}" 
 									 entidade ="{_orcamento == null ? _reparo :_orcamento}" 
 									 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>

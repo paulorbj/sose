@@ -111,7 +111,7 @@
 				if(comboBox)
 					comboBox.labelText = value;
 			}
-			
+						
 			//TODO - não está removendo o item selecionado
 			public function limpar():void
 			{
@@ -121,5 +121,5 @@
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" />
+	<combo:ComboBoxInput id="comboBox" required="{required}" editable="{false}" change="{changeFunction}" />
 </mx:VBox>

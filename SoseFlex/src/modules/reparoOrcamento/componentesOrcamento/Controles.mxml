@@ -148,22 +148,22 @@
 	</mx:states>
 	
 	<mx:HBox width="100%">
-		<mx:Button id="btIniciar"
+		<mx:Button id="btIniciar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','INICIAR_ORCAMENTO')}"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="iniciar(event)"
 				   enabled.editar="{_orcamento.statusString == 'Não Iniciado' &amp;&amp; _orcamento.tecnicoResponsavel != null &amp;&amp; Login.usuarioAutenticado.id == _orcamento.tecnicoResponsavel.id}" enabled.visualizar="false"
 				   />
-		<mx:Button id="btSalvar" 
+		<mx:Button id="btSalvar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','SALVAR_ORCAMENTO')}"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   click="salvar(event)"
 				   enabled.editar="{_orcamento.statusString == 'Iniciado'}" enabled.visualizar="false"
 				   />
-		<s:Spacer width="40" />
-		<mx:Button id="btEncaminhar" 
+		<s:Spacer width="17" />
+		<mx:Button id="btEncaminhar" width="70"
 				   label="Solicitar proposta"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
@@ -172,28 +172,28 @@
 				   />
 		
 		<mx:Button id="btDevolverSemReparo" 
-				   label="Devolver sem reparo"
-				   labelPlacement="bottom"
+				   label="Dev. sem reparo"
+				   labelPlacement="bottom" width="70"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="devolverSemReparo(event)"
 				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; (_orcamento.ordemServico.bloqueado == 0 || _orcamento.ordemServico.bloqueado == 8) &amp;&amp; _orcamento.componentePendente == false}" enabled.visualizar="false"
 				   />
-		<mx:Button id="btRequisitarLaudo" 
-				   label="{resourceManager.getString('ApplicationResource','REQUISITAR_LAUDO_TECNICO')}"
+		<mx:Button id="btRequisitarLaudo" width="70"
+				   label="Req. Laudo"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="requisitarLaudoTecnico(event)"
 				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; _orcamento.ordemServico.bloqueado == 0 &amp;&amp; _orcamento.componentePendente == false}" enabled.visualizar="false"
 				   />
-		<mx:Button id="btRequisitarReparoExterno" 
-				   label="{resourceManager.getString('ApplicationResource','REQUISITAR_REPARO_EXTERNO')}"
+		<mx:Button id="btRequisitarReparoExterno" width="70"
+				   label="Req. Rep. Externo"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="requisitarReparoExterno(event)"
 				   enabled.editar="false" enabled.visualizar="false"
 				   />
-		<s:Spacer width="40" />
-		<mx:Button id="btAprovar"
+		<s:Spacer width="17" />
+		<mx:Button id="btAprovar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','ENVIAR_PARA_PROPOSTA')}"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/back.png')"
@@ -205,7 +205,7 @@
 				   || (_orcamento.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
 				   || (_orcamento.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) || false }"
 				   />
-		<mx:Button id="btRejeitar" 
+		<mx:Button id="btRejeitar" width="70" 
 				   label="{resourceManager.getString('ApplicationResource','REJEITAR_ORCAMENTO')}"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
@@ -217,22 +217,22 @@
 				   || (_orcamento.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
 				   || (_orcamento.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) || false }"
 				   />
-		<s:Spacer width="40" />
-		<mx:Button id="btFinalizar" 
+		<s:Spacer width="17" />
+		<mx:Button id="btFinalizar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','FINALIZAR_ORCAMENTO')}"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="finalizar(event)"
 				   enabled.editar="{_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada != null &amp;&amp; (_orcamento.ordemServico.bloqueado == 0 || _orcamento.ordemServico.bloqueado == 9 || _orcamento.ordemServico.bloqueado == 2) &amp;&amp; _orcamento.componentePendente == false}" enabled.visualizar="false"
 				   />
-		<mx:Button id="btEditar" 
+		<mx:Button id="btEditar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','EDITAR_ORCAMENTO')}"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="editar(event)"
 				   enabled="false" enabled.visualizar="false"
 				   />
-		<mx:Button id="btVoltar"
+		<mx:Button id="btVoltar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/back.png')"
