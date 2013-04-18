@@ -86,7 +86,8 @@ package entities.recebimento
 		private var _freteUnitarioExpedicao:Number;
 		private var _valorFreteCobrado:Number;
 		private var _observacaoConsulta:String;
-		
+		private var _isEnabledBaixaExpedicao:Boolean = true;
+
 		public function OrdemServico()
 		{
 			_id = 0;
@@ -816,6 +817,19 @@ package entities.recebimento
 			_observacaoConsulta = value;
 		}
 
+		public function get isEnabledBaixaExpedicao():Boolean
+		{
+			if(this.unidadePai == null){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		public function set isEnabledBaixaExpedicao(value:Boolean):void
+		{
+			_isEnabled = value;
+		}
 
 	}
 }
