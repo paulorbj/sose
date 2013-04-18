@@ -2,7 +2,7 @@
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 xmlns:notaFiscal="modules.recebimento.notaFiscal.*" verticalScrollPolicy="on"
+		 xmlns:notaFiscal="modules.recebimento.notaFiscal.*"
 		 xmlns:recebimentoComponente="modules.recebimento.notaFiscal.componentesInformacoesNotaFiscal.*"
 		 xmlns:texto="components.textInput.*" xmlns:combos="components.combos.*"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
 		 xmlns:grid="components.grid.*" xmlns:dc="components.grid.filtros.controles.*" xmlns:componentes="components.*" horizontalAlign="center"
@@ -316,14 +316,14 @@
 				if(tn.selectedIndex == 0){
 					this.currentState = "edicaoInfoNota";
 					if(_notaFiscal != null && (_notaFiscal.statusString == 'Nova' || _notaFiscal.statusString == '') ){
-						//btGerar.enabled == true;
+						btGerar.enabled == true;
 					}else{
-						//btGerar.enabled == false;
+						btGerar.enabled == false;
 					}
 				}else if(tn.selectedIndex == 1){
 					this.currentState = "edicaoOSPendente";
 					nOrdemServico.setFocus();
-					//btProcessar.enabled = false;
+					btProcessar.enabled = false;
 				}else if(tn.selectedIndex == 2){
 					this.currentState = "edicaoOSProcessada";
 				}
@@ -498,7 +498,7 @@
 					if(validateOrdemServico()){
 						_ordemServico.usuario = usr;
 						aplicacaoController.processarOrdemServico(_ordemServico,usr);
-						//btProcessar.enabled = false;
+						btProcessar.enabled = false;
 					}else{
 						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
 					}
@@ -557,7 +557,7 @@
 				}else{
 					dispatchEvent(new MensagemEvent("O sistema verificou uma possível garantia", MessageType.WARNING, 5000));
 					PopupModalController.getInstance().showModalVerificarGarantia(atualizarGarantia,osGarantia,_ordemServico);
-					//btProcessar.enabled = true;
+					btProcessar.enabled = true;
 				}
 			}
 			
@@ -592,7 +592,7 @@
 			public function onProcessarOrdemServicoResult(event:ResultEvent):void			
 			{
 				var ordemServico:OrdemServico = event.result as OrdemServico;
-				//btGerar.enabled = true;
+				btGerar.enabled = true;
 				
 				//Atualiza a lista de nota fiscal
 				listagemNF.adicionarNotaFiscal(ordemServico.notaFiscal);
@@ -632,7 +632,7 @@
 			public function onProcessarOrdemServicoFault(event:FaultEvent):void
 			{
 				CursorManager.removeAllCursors();
-				//btGerar.enabled = true;
+				btGerar.enabled = true;
 				trace("[ProcessarOrdemServicoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
 				var str:String = event.fault.faultString;
 				var i:Number;
@@ -658,7 +658,7 @@
 						//							}
 						//						}
 						recebimentoController.processarNotaFiscal(_notaFiscal,usr);
-						//btGerar.enabled = false;
+						btGerar.enabled = false;
 					}
 				}else{
 					PopupModalController.getInstance().showModalAutenticacaoUsuario(processarNotaFiscalAutenticar);
@@ -724,7 +724,7 @@
 				}else{
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PROCESSAR_NOTA_FISCAL_ERRO'), MessageType.ERROR, 10000));
 				}
-				//btGerar.enabled = true;
+				btGerar.enabled = true;
 			}
 			
 			public function onListarNotaFiscalResult(event:ResultEvent):void
@@ -1572,7 +1572,37 @@
 		</s:NavigatorContent>
 	</mx:TabNavigator>
 	
-	<s:Spacer height="30" />
-	
-	
+
+	<mx:HBox width="100%" excludeFrom="listagem" horizontalAlign="left">
+		<mx:Button id="btSalvar" includeIn="edicaoInfoNota"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+				   height="25" enabled="{_notaFiscal.statusString != 'Finalizada'}"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="salvar(event)"
+				   />
+		<mx:Button id="btGerar" includeIn="edicaoInfoNota"
+				   label="{resourceManager.getString('ApplicationResource','GERAR_ORDEM_SERVICO')}"
+				   height="25" enabled.edicaoInfoNota="{_notaFiscal.statusString == 'Nova' || _notaFiscal.statusString == ''}"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="processarNotaFiscal(event)"
+				   />
+		<mx:Button id="btVerificarGarantia" includeIn="edicaoOSPendente"
+				   label="Verificar garantia"
+				   height="25" enabled="{_ordemServicoPendentes != null &amp;&amp; _ordemServicoPendentes.length > 0}"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="verificarGarantia(event)"
+				   />
+		<mx:Button id="btProcessar" includeIn="edicaoOSPendente"
+				   label="{resourceManager.getString('ApplicationResource','PROCESSAR_ORDEM_SERVICO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="processar(event)"
+				   />
+		<mx:Button id="btVoltar" includeIn="edicaoOSPendente,edicaoInfoNota"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
 </mx:VBox>
