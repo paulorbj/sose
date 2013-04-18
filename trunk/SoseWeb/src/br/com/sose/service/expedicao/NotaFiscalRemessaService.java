@@ -343,7 +343,7 @@ public class NotaFiscalRemessaService {
 			if(listaOrdemServico != null && !listaOrdemServico.isEmpty()){
 				for(OrdemServico os : listaOrdemServico){
 					os = ordemServicoService.buscarPorIdSimples(os.getId());
-					if(os.getId().equals(ordemServico.getId())){
+					if(os.getId().equals(ordemServico.getId()) || (os.getUnidadePai() != null && os.getUnidadePai().getId().equals(ordemServico.getId()))){
 						os.setNotaFiscalSaida(null);
 						ordemServicoService.salvarSimplesOrdemServico(os);
 					}else{

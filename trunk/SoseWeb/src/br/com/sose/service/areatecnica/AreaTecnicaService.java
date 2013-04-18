@@ -143,10 +143,16 @@ public class AreaTecnicaService {
 		Orcamento orcamento;
 
 		validarAtribuicaoTecnico(orcReps, usuario, atribuidoPor);
-
+		
+		try{
 		for(OrcRepGenericoTO org : orcReps){
 			if(org.getFinalidade().equals("Reparo")){
 				reparo = reparoController.getStatus(reparoController.converterOrcRepGenericoToReparo(org));
+				if(reparo == null){
+					System.out.println("");
+				}else if(reparo.getStatus() == null){
+					System.out.println("");
+				}
 				reparo.getStatus().atribuirTecnico(reparo, usuario, atribuidoPor);
 				orcRepsRetorno.add(AreaTecnicaUtils.converterReparoToOrcRep(reparo));
 			}else if(org.getFinalidade().equals("Orçamento")){
@@ -155,6 +161,9 @@ public class AreaTecnicaService {
 				orcRepsRetorno.add(AreaTecnicaUtils.converterOrcamentoToOrcRep(orcamento));
 			}
 
+		}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 
 		return orcRepsRetorno;

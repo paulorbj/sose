@@ -65,6 +65,7 @@ public class Iniciado extends StatusReparo {
 		return super.editarReparo(reparo);
 	}
 
+
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public Reparo finalizarReparo(Reparo reparo, Usuario usuario) throws Exception {
@@ -72,6 +73,8 @@ public class Iniciado extends StatusReparo {
 			reparo.setStatusString(AguardandoConjuntoExpedicao.nome);
 			reparo = reparoService.salvarReparo(reparo);
 			if(ordemServicoUtils.conjuntoCompleto(reparo)){
+				//TODO - Apos realizar o processo de finalizacao no conjunto nao estah atualizando a tela com 
+				//todo o conjunto com status de finalizado. Os reparos estao permanecendo com o status de aguradnado conjunto
 				ConjuntoOrdemServico cos = ordemServicoUtils.montarConjunto(reparo.getOrdemServico());
 				cos.getOsPai().setStatusString(AguardandoExpedicao.nome);
 				OrdemServico os = ordemServicoService.salvarSimplesOrdemServico(cos.getOsPai());
