@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 horizontalAlign="center" width="100%" height="100%"
+		 verticalAlign="middle" paddingLeft="5"
+		 implements = "mx.controls.listClasses.IDropInListItemRenderer">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.containers.Grid;
+			import mx.controls.DataGrid;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.listClasses.BaseListData;
+			
+			import spark.components.CheckBox;
+			
+			private var checkBox:CheckBox;
+			
+			private var _data:Object;
+			
+			private var _enable:Boolean;
+			
+			private var _listData:BaseListData;
+			
+			private var dataGrid:DataGrid;
+			
+			[Bindable("dataChange")]
+			public function get listData():BaseListData
+			{
+				return _listData;
+			}
+			
+			public function set listData(value:BaseListData):void
+			{
+				_listData = value;
+				
+				dataGrid = value.owner as DataGrid;
+			}
+			
+			override public function set data(value:Object):void
+			{
+				_data = value;
+				
+				checkBox = new CheckBox();
+				
+				this.removeAllChildren();
+				
+				this.addChild(checkBox);
+				
+				if (value is DataGridColumn) {	// Header
+					
+					var dataProvider:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
+					
+					var selectAll:Boolean = true;
+					
+					for (var i:int = 0; i < dataProvider.length; i++) {
+						
+						if (dataProvider[i].unidadePai == null && dataProvider[i].isSelected == false) {
+							
+							selectAll = false;
+							
+							break;
+						}
+					}
+					
+					checkBox.selected = selectAll;
+					
+					var enabledAll:Boolean = false;
+					
+					for (var i1:int = 0; i1 < dataProvider.length; i1++) {
+						
+						if (dataProvider[i1].isEnabledBaixaExpedicao == true) {
+							
+							enabledAll = true;
+							
+							break;
+						}
+					}
+					
+					checkBox.enabled = enabledAll;
+				}
+				else {	// Cell
+					if(value.isEnabledBaixaExpedicao == true){
+						checkBox.selected = value.isSelected as Boolean;
+					}else{
+						checkBox.selected = false;
+					}
+					checkBox.enabled = _data.isEnabledBaixaExpedicao;
+				}
+				
+				checkBox.addEventListener(Event.CHANGE, onChange);
+				
+			}
+			
+			override public function get data():Object
+			{
+				return _data;
+			}
+			
+			private function onChange(event:Event):void
+			{
+				if (_data != null) {
+					
+					if (_data is DataGridColumn) {
+						
+						var dataProvider:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
+						
+						for (var i:int = 0; i < dataProvider.length; i++) {
+							
+							if(dataProvider[i].isEnabledBaixaExpedicao == true){
+								dataProvider[i].isSelected = checkBox.selected;
+							}else{
+								dataProvider[i].isSelected = false;
+							}
+						}
+					}
+					else {
+						
+						_data.isSelected = !_data.isSelected;;
+					}
+					dataGrid.invalidateList();
+				}
+			}
+			
+			public function get enable():Boolean
+			{
+				return _enable;
+			}
+			
+			public function set enable(value:Boolean):void
+			{
+				_enable = value;
+			}
+			
+		]]>
+	</fx:Script>
+	
+</mx:VBox>

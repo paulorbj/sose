@@ -293,6 +293,7 @@
 					if(_notaFiscalRemessa.ordensServico != null && _notaFiscalRemessa.ordensServico.length > 0){
 						clienteSelecionado = (_notaFiscalRemessa.ordensServico.getItemAt(0) as OrdemServico).cliente;
 					}
+					var osPai:OrdemServico = null;
 					for each (var os:OrdemServico in _listaOrdemServico){
 						if(os.isSelected){
 							if(clienteSelecionado == null){
@@ -304,9 +305,17 @@
 									return;
 								}
 							}
+							if(os.unidadePai == null){
+								osPai = os;
+							}
 							_ordensServicoSelecionadas.addItem(os);
+							
 						}else{
-							_ordensServicoNaoSelecionadas.addItem(os);
+							if(os.unidadePai != null && osPai != null && os.unidadePai.id == osPai.id){
+								_ordensServicoSelecionadas.addItem(os);
+							}else{
+								_ordensServicoNaoSelecionadas.addItem(os);
+							}
 						}
 					}
 					
@@ -335,6 +344,12 @@
 				if(clientes.clienteSelecionado != null && clientes.clienteSelecionado.id == osExcluida.cliente.id){
 					if(_listaOrdemServico != null){
 						_listaOrdemServico.addItem(osExcluida);
+						
+						for each (var os:OrdemServico in _notaFiscalRemessa.ordensServico){
+							if(os.unidadePai != null && os.unidadePai.id == osExcluida.id){
+								_listaOrdemServico.addItem(os);
+							}
+						}
 						ordenarLista(_listaOrdemServico);
 					}	
 				}
@@ -419,9 +434,9 @@
 				cbNotasFiscais.comboBox.clean();
 				_notaFiscalRemessa = event.result as NotaFiscalRemessa;
 				
-				if(_listaOrdemServico.length == 0){
+				//if(_listaOrdemServico.length == 0){
 					clientes.recarregar();
-				}
+				//}
 				Publicador.enviarMensagemExpedicao(MensagensAplicacao.NOTA_FISCAL_REMESSA_CRIADA,_notaFiscalRemessa);
 				_notaFiscalRemessa = null;				
 				dispatchEvent(new MensagemEvent("Nota fiscal gerada com sucesso", MessageType.SUCCESS, 3000));
@@ -631,8 +646,8 @@
 				<!-- EDIT/REMOVE COLUMNS -->
 				
 				<mx:DataGridColumn headerText = ""	width=".10"						   
-								   itemRenderer="components.grid.CheckBoxItemRenderer"
-								   headerRenderer="components.grid.CheckBoxItemRenderer"
+								   itemRenderer="components.grid.CheckBoxItemRendererBaixaExpedicao"
+								   headerRenderer="components.grid.CheckBoxItemRendererBaixaExpedicao"
 								   resizable="false" draggable="false" sortable="false"
 								   dataField="isSelected"
 								   />
@@ -822,7 +837,7 @@
 								
 								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
 										  click="parentDocument.excluir(data, event)"
-										  buttonMode="true"
+										  buttonMode="true" visible="{data.unidadePai == null}"
 										  useHandCursor="true"
 										  toolTip="Excluir os da nota fiscal"
 										  />						
