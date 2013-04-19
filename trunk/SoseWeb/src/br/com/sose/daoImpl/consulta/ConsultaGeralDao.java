@@ -95,7 +95,8 @@ public class ConsultaGeralDao extends HibernateDaoGenerico<OrdemServico, Long> {
 					"(select statusString from itemestoqueavaya where os_original_id = os.id and os_original_id is not null) as statusEstoque, " +
 					"(select posicao from itemestoqueavaya where os_original_id = os.id and os_original_id is not null) as estoquePosicao, " +
 					"notafs.dtSaida, " +
-					"(SELECT concat('OBS: ', group_concat(h.texto separator ', OBS: ')) FROM observacao h where ref_ordem_servico_id = os.id and escopo = 3 and origem = 'Consulta' group by h.ref_ordem_servico_id) as obsConsulta " +
+					"(SELECT concat('OBS: ', group_concat(h.texto separator ', OBS: ')) FROM observacao h where ref_ordem_servico_id = os.id and escopo = 3 and origem = 'Consulta' group by h.ref_ordem_servico_id) as obsConsulta, " +
+					"orc.dt_fim as orcDtFim " +
 					"from ordemservico os " +
 					"left join lpu lp on os.lpu_id = lp.id  " +
 					"left join itemnotafiscal inf on os.item_nota_fiscal_id = inf.id  " +

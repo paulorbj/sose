@@ -322,9 +322,12 @@ public class ExportXlsUtil {
 				sw.createCell(19,"");
 			}
 
-			if(consultaGeralTO[32]  != null){
-				//				sw.createCell(21,DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[20]));
-				sw.createCell(20,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[32])));
+			if(consultaGeralTO[32]  != null || consultaGeralTO[45] != null){
+				if(consultaGeralTO[32]  != null && consultaGeralTO[34] != null){
+					sw.createCell(20,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[32])));
+				}else if(consultaGeralTO[45]  != null && consultaGeralTO[36] != null){
+					sw.createCell(20,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[45])));
+				}
 			}else{
 				sw.createCell(20,"");
 			}
