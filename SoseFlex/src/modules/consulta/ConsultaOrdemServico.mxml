@@ -74,6 +74,7 @@
 					consulta.dataDe = dataDe.inputDate;
 					consulta.dataAte = dataAte.inputDate;
 					consultaService.realizarConsultaOrdemServico(consulta);
+					btConsulta.enabled = false;
 				}else{
 					PopupModalController.getInstance().showModalAutenticacaoUsuario(onFinalizarReparoAutenticar);
 				}
@@ -93,12 +94,14 @@
 				}else if(consultaResultado.listaOrdemServico == null && consultaResultado.listaOrdemServico.length == 0){
 					dispatchEvent(new MensagemEvent("Nenhum registro encontrado", MessageType.WARNING, 3000));
 				}
+				btConsulta.enabled = true;
 			}
 			
 			private function onListarAtividadesFault(event:FaultEvent = null):void
 			{
 				CursorManager.removeAllCursors();
-				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				btConsulta.enabled = true;
 			}
 			
 			private function consultarEnter(event:KeyboardEvent):void

@@ -12,6 +12,10 @@
 					   fault="onExcluirVolumeFault(event)" 
 					   result="onExcluirVolumeResult(event)"
 					   />
+			<mx:method name="criarVolumes"      
+					   fault="onCriarVolumesFault(event)" 
+					   result="onCriarVolumesResult(event)"
+					   />
 		</mx:RemoteObject>
 		
 		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
@@ -34,6 +38,7 @@
 			import entities.recebimento.OrdemServico;
 			
 			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
 			import mx.collections.Sort;
 			import mx.collections.SortField;
 			import mx.managers.CursorManager;
@@ -299,14 +304,10 @@
 			{
 				var strTipoEmbalagem:TipoEmbalagem = cbTipoEmbalagem.tipoEmbalagemSelecionada;
 				
-				for(var i:int=0; i< parseInt(quantidadeEmbalagem.inputText);i++){
-					var v:Volume = new Volume();
-					v.tipoEmbalagem = strTipoEmbalagem.nome;
-					_listaVolumes.addItem(v);
-				}
+				volumeService.criarVolumes(strTipoEmbalagem.nome, parseInt(quantidadeEmbalagem.inputText), _notaFiscalSaida);
+				
 				cbTipoEmbalagem.limpar();
 				quantidadeEmbalagem.inputText = "";
-				atualizarTotais(_listaVolumes);
 			}
 			
 			public function atualizaTransportadora(event:Event):void{
@@ -339,6 +340,22 @@
 			}
 			
 			private function onExcluirVolumeFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onCriarVolumesResult(event:ResultEvent = null):void
+			{
+				if(_listaVolumes == null || _listaVolumes.length == 0){
+					_listaVolumes = event.result as ArrayCollection;
+				}else{
+					_listaVolumes.addAll(event.result as ArrayCollection);
+				}
+				atualizarTotais(_listaVolumes);
+			}
+			
+			private function onCriarVolumesFault(event:FaultEvent = null):void
 			{
 				CursorManager.removeAllCursors();
 				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
