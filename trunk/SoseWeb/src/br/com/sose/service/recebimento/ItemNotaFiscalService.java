@@ -90,6 +90,23 @@ public class ItemNotaFiscalService {
 		}
 		return itemNotaFiscalSalva;
 	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public ItemNotaFiscal adicionarItemNotaFiscal(ItemNotaFiscal itemNotaFiscal) throws Exception {
+		ItemNotaFiscal itemNotaFiscalSalva;
+		try {
+			if(itemNotaFiscal.getId() == null || itemNotaFiscal.getId().equals(new Long(0)))
+				itemNotaFiscalSalva =(ItemNotaFiscal) itemNotaFiscalDao.save(itemNotaFiscal);	
+			else
+				itemNotaFiscalSalva =(ItemNotaFiscal) itemNotaFiscalDao.update(itemNotaFiscal);	
+
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return itemNotaFiscalSalva;
+	}
 
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
