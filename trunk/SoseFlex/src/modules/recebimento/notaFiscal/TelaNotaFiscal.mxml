@@ -24,6 +24,10 @@
 					   />
 		</mx:RemoteObject>
 		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="itemNotaFiscalService" destination="itemNotaFiscalService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="adicionarItemNotaFiscal"      
+					   fault="onAdicionarItemNotaFiscalFault(event)" 
+					   result="onAdicionarItemNotaFiscalResult(event)"
+					   />
 			<mx:method name="excluirItemNotaFiscal"      
 					   fault="onExcluirItemNotaFiscalFault(event)" 
 					   result="onExcluirItemNotaFiscalResult(event)"
@@ -830,7 +834,8 @@
 							_item.lpu = cbUnidadeLpu.lpuSelecionada;
 						}
 						
-						addItemNotaFiscal(_item);
+						itemNotaFiscalService.adicionarItemNotaFiscal(_item)
+						//addItemNotaFiscal(_item);
 						limpar();
 					}else{
 						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
@@ -842,6 +847,21 @@
 			
 			public function adicionarAutenticar(event:UserRegisterNumberModalEvent=null):void{
 				adicionar();
+			}
+			
+			public function onAdicionarItemNotaFiscalResult(event:ResultEvent):void
+			{
+				_item = event.result as ItemNotaFiscal;
+				_notaFiscal.itensDaNotaFiscal.addItemAt(inf,i);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXCLUIR_ITEM_NOTA_FISCAL_SUCESSO'), MessageType.SUCCESS, 10000));
+				limpar();
+			}
+			
+			public function onAdicionarItemNotaFiscalFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirItemNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXCLUIR_ITEM_NOTA_FISCAL_ERRO'), MessageType.ERROR, 10000));
 			}
 			
 			public function addItemNotaFiscal(infAux:ItemNotaFiscal=null):void

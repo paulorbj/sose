@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" width="100%"
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" creationComplete="onCreationComplete()"
 		 xmlns:mx="library://ns.adobe.com/flex/mx" >
 	
 	<fx:Declarations>
@@ -20,6 +20,8 @@
 			
 			[Bindable]
 			private var _reparo:Reparo;
+			
+			private var curSize:int = 8;
 			
 			public function get reparo():Reparo
 			{
@@ -163,6 +165,22 @@
 				}
 			}
 			
+			private function onCreationComplete():void
+			{
+				btIniciar.setStyle("fontSize", curSize);               
+				btSalvar.setStyle("fontSize", curSize);               
+				btDevolverSemReparo.setStyle("fontSize", curSize);               
+				btRequisitarOrcDiferenciado.setStyle("fontSize", curSize);               
+				btRequisitarLaudo.setStyle("fontSize", curSize);               
+				btRequisitarReparoExterno.setStyle("fontSize", curSize);
+				btAprovar.setStyle("fontSize", curSize);               
+				btRejeitar.setStyle("fontSize", curSize);               
+				btFinalizar.setStyle("fontSize", curSize);
+				btEditar.setStyle("fontSize", curSize);
+				btVoltar.setStyle("fontSize", curSize);
+
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -175,7 +193,7 @@
 		<mx:Button id="btIniciar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','INICIAR_REPARO')}"
 				   labelPlacement="bottom"
-				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   icon="@Embed(source='/assets/icons/control_play.png')"
 				   click="iniciar(event)"
 				   enabled.editar="{_reparo.statusString == 'Não Iniciado' &amp;&amp; _reparo.tecnicoResponsavel != null &amp;&amp; Login.usuarioAutenticado.id == _reparo.tecnicoResponsavel.id}" enabled.visualizar="false"
 				   />
@@ -188,31 +206,31 @@
 				   />
 		<s:Spacer width="17" />
 		<mx:Button id="btDevolverSemReparo" 
-				   label="Dev. sem reparo"
+				   label="Sem reparo" 
 				   labelPlacement="bottom" width="70"
-				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   icon="@Embed(source='/assets/icons/cog_error.png')"
 				   click="devolverSemReparo(event)"
 				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.propostaAprovada == null &amp;&amp; _reparo.propostaReprovada == null &amp;&amp; 
 				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; (_reparo.ordemServico.bloqueado == 0) &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"				   />
 		<mx:Button id="btRequisitarOrcDiferenciado" 
 				   label="{resourceManager.getString('ApplicationResource','REQUISITAR_ORCAMENTO_DIFERENCIADO')}"
 				   labelPlacement="bottom" width="70"
-				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   icon="@Embed(source='/assets/icons/money.png')"
 				   click="requisitarOrcamentoDiferenciado(event)"
 				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.propostaAprovada == null &amp;&amp; _reparo.propostaReprovada == null &amp;&amp; 
 				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0 &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"
 																																						   />
 		<mx:Button id="btRequisitarLaudo" 
-				   label="Req. Laudo"
+				   label="Laudo"
 				   labelPlacement="bottom" width="70"
-				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   icon="@Embed(source='/assets/icons/table_gear.png')"
 				   click="requisitarLaudoTecnico(event)"
 				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0 &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"
 				   />
 		<mx:Button id="btRequisitarReparoExterno" 
-				   label="Req. Rep. Externo"
+				   label="Reparo Externo"
 				   labelPlacement="bottom" width="70"
-				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   icon="@Embed(source='/assets/icons/lorry.png')"
 				   click="requisitarReparoExterno(event)"
 				   enabled.editar="false" enabled.visualizar="false"
 				   />
@@ -220,7 +238,7 @@
 		<mx:Button id="btAprovar"
 				   label="Aprovar"
 				   labelPlacement="bottom" width="70"
-				   icon="@Embed(source='/assets/icons/back.png')"
+				   icon="@Embed(source='/assets/icons/thumb-up.png')"
 				   click="aprovar(event)"
 				   enabled.editar="{((_reparo.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
 				   || (_reparo.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) &amp;&amp; _reparo.laudoTecnicoAprovado == null}" 
@@ -230,7 +248,7 @@
 		<mx:Button id="btRejeitar" 
 				   label="Rejeitar"
 				   labelPlacement="bottom" width="70"
-				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   icon="@Embed(source='/assets/icons/thumb-down.png')"
 				   click="rejeitar(event)"
 				   enabled.editar="{((_reparo.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
 				   || (_reparo.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) &amp;&amp; _reparo.laudoTecnicoAprovado == null}" 
@@ -241,7 +259,7 @@
 		<mx:Button id="btFinalizar" 
 				   label="{resourceManager.getString('ApplicationResource','FINALIZAR_REPARO')}"
 				   labelPlacement="bottom" width="70"
-				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   icon="@Embed(source='/assets/icons/flag_finish.png')"
 				   click="finalizar(event)"
 				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.componentePendente == false &amp;&amp; 
 				   (_reparo.ordemServico.bloqueado == 0 || _reparo.ordemServico.bloqueado == 8 || _reparo.ordemServico.bloqueado == 9 || _reparo.ordemServico.bloqueado == 2) &amp;&amp; 
@@ -255,7 +273,7 @@
 		<mx:Button id="btEditar" width="70"
 				   label="{resourceManager.getString('ApplicationResource','EDITAR_REPARO')}"
 				   labelPlacement="bottom" enabled.editar="false"
-				   icon="@Embed(source='/assets/icons/page_gear.png')" enabled.visualizar="false"
+				   icon="@Embed(source='/assets/icons/edit.png')" enabled.visualizar="false"
 				   click="editar(event)"
 				   />
 		<mx:Button id="btVoltar" width="70"

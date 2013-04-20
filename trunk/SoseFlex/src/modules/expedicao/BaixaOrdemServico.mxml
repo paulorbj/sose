@@ -285,6 +285,14 @@
 				gerarNotaFiscal();
 			}
 			
+			private function limpar(event:MouseEvent):void
+			{
+				_notaFiscalRemessa = null;	
+				cbNotasFiscais.comboBox.clean();				
+				clientes.recarregar();
+			}
+
+			
 			private function adicionar(event:MouseEvent):void
 			{
 				if(validarCamposAdicionar()){
@@ -430,7 +438,7 @@
 			
 			public function onGerarNotaFiscalResult(event:ResultEvent):void
 			{
-				cbNotasFiscais.recarregar();
+				cbNotasFiscais.notaFiscalSelecionada = null;
 				cbNotasFiscais.comboBox.clean();
 				_notaFiscalRemessa = event.result as NotaFiscalRemessa;
 				
@@ -608,11 +616,14 @@
 		<combos:ComboNFSaida id="cbNotasFiscais" labelText="Selecione uma pré-nota de saída" width="200" includeIn="normal" required="true" changeFunction="onNotaFiscalChange" />
 		
 		<texto:TextInput id="nomeNota" includeIn="adicionarPreFatura"  labelText="Apelido da nf" width="20%" required="true"  />
-		
+		<mx:Button id="btLimpar"
+				   height="25" includeIn="normal" toolTip="Limpar"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   click="limpar(event)"/>
 		<mx:Button id="btAdicionar"
 				   label="Adicionar"
 				   height="25" includeIn="normal"
-				   icon="@Embed(source='/assets/icons/user.png')"
+				   icon="@Embed(source='/assets/icons/add.png')"
 				   click="adicionar(event)"/>
 		<mx:Button id="btSalvarPreFatura"  includeIn="adicionarPreFatura"
 				   label="{resourceManager.getString('ApplicationResource','SALVAR_CONTATO_PROPOSTA')}"
@@ -627,7 +638,7 @@
 		<mx:Button id="btNova"
 				   label="Criar nova pré-nota fiscal"
 				   height="25" includeIn="normal"
-				   icon="@Embed(source='/assets/icons/user.png')"
+				   icon="@Embed(source='/assets/icons/new.png')"
 				   click="criarPreNotaFiscal(event)"/>
 	</mx:HBox>
 	

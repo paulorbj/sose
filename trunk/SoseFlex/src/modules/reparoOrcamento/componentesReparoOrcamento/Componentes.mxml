@@ -900,22 +900,17 @@
 		<s:NavigatorContent label="Requisições de componentes" width="100%" height="100%" >
 			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
 				
-				<mx:HBox verticalAlign="bottom" width="100%">
+				<mx:HBox verticalAlign="bottom" width="70%">
 					<mx:Button id="btAdicionarRequisicao" 
-							   label="Buscar componente"
-							   height="25" enabled.visualizarRequisicao="false" width="15%"
-							   icon="@Embed(source='/assets/icons/add.png')"
+							   toolTip="Buscar"
+							   enabled.visualizarRequisicao="false" width="15%"
+							   icon="@Embed(source='/assets/icons/search.png')"
 							   click="adicionarRequisicao(event)"/>	
 					<texto:TextInput id="componenteNome" habilitado="false" required="true" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE')}" width="50%" />
 					<texto:TextInput id="componenteQuantidade" restrict="0-9" required="true" habilitado.visualizarRequisicao="false" labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE')}" width="10%" />
-					<mx:Button id="btAddRequisicao"
-							   label="Adicionar requisição"
-							   height="25" enabled.visualizarRequisicao="false" width="15%"
-							   icon="@Embed(source='/assets/icons/save.png')"
-							   click="efetivarRequisicao(event)"/>	
 					<mx:Button id="btEfetivarPedido"
-							   label="{resourceManager.getString('ApplicationResource','EFETIVAR_PEDIDO')}"
-							   height="25" enabled.visualizarRequisicao="false" width="15%"
+							   label="Enviar"
+							   height="25" enabled.visualizarRequisicao="false" 
 							   icon="@Embed(source='/assets/icons/save.png')"
 							   click="efetivarRequisicao(event)"/>	
 				</mx:HBox>
