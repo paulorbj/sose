@@ -215,15 +215,17 @@ public class NotaFiscalService {
 				notaFiscal.setDataCriacao(new Date());
 			}
 			notaFiscalSalva = salvarNotaFiscalSimples(notaFiscal);
-			if(itensNotaFiscal != null && !itensNotaFiscal.isEmpty()){
-				Set<ItemNotaFiscal> itensNotaFiscalSalvos = new HashSet<ItemNotaFiscal>();
-				for(ItemNotaFiscal inf : itensNotaFiscal){
-					inf.setNotaFiscal(notaFiscalSalva);
-					inf = itemNotaFiscalService.salvarItemNotaFiscal(inf);
-					itensNotaFiscalSalvos.add(inf);
-				}
-				notaFiscalSalva.setItensDaNotaFiscal(itensNotaFiscalSalvos);
-			}
+//			if(itensNotaFiscal != null && !itensNotaFiscal.isEmpty()){
+//				Set<ItemNotaFiscal> itensNotaFiscalSalvos = new HashSet<ItemNotaFiscal>();
+//				for(ItemNotaFiscal inf : itensNotaFiscal){
+//					inf.setNotaFiscal(notaFiscalSalva);
+//					inf = itemNotaFiscalService.salvarItemNotaFiscal(inf);
+//					itensNotaFiscalSalvos.add(inf);
+//				}
+//				notaFiscalSalva.setItensDaNotaFiscal(itensNotaFiscalSalvos);
+//			}
+			notaFiscalSalva.setItensDaNotaFiscal(itensNotaFiscal);
+
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;

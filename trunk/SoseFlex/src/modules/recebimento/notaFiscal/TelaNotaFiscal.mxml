@@ -173,13 +173,22 @@
 			[Bindable]
 			private var totalOs:Number=0;
 			
+			private var sortItemNF:Sort;
 			
 			public function init():void
 			{
 				consumidorRecebimentoMessageService.subscribe();
 				notaFiscalService.listarNotaFiscal();
 				this.addEventListener(NotaFiscalEvent.EDITAR_NOTA_FISCAL,onEditar);
-				this.addEventListener(NotaFiscalEvent.EXCLUIR_NOTA_FISCAL,onExcluir);	
+				this.addEventListener(NotaFiscalEvent.EXCLUIR_NOTA_FISCAL,onExcluir);
+				sortItemNF = new Sort();
+				sortItemNF.fields=[new SortField("id",false,false,true)];
+			}
+						
+			private function sortLista(lista:ArrayCollection):void
+			{
+				lista.sort = sortItemNF;
+				lista.refresh();
 			}
 			
 			private function onMsgAreaTecnica(event:MessageEvent):void{ 
@@ -250,7 +259,8 @@
 			private function setNotaFiscal(value:NotaFiscal):void
 			{
 				_notaFiscal = value;
-				
+				_notaFiscal.itensDaNotaFiscal = ordenarListaItemNotaFiscal(_notaFiscal.itensDaNotaFiscal);
+
 				valorNotaFiscal.setValor(_notaFiscal.valorNotaFiscal);
 				if(_notaFiscal.cliente){
 					cbCliente.clienteSelecionado = _notaFiscal.cliente; 
@@ -745,7 +755,16 @@
 			
 			public function onExcluirItemNotaFiscalResult(event:ResultEvent):void
 			{
-				removeItemNotaFiscal(event.result as ItemNotaFiscal);
+				var itemRemovido:ItemNotaFiscal = event.result as ItemNotaFiscal;
+				var i:int = 0;
+				var aux:ItemNotaFiscal = null;
+				for(i=0;i<_notaFiscal.itensDaNotaFiscal.length;i++){
+					aux = _notaFiscal.itensDaNotaFiscal.getItemAt(i) as ItemNotaFiscal;
+					if(itemRemovido.id == aux.id){
+						_notaFiscal.itensDaNotaFiscal.removeItemAt(i);
+						break;
+					}
+				}
 				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXCLUIR_ITEM_NOTA_FISCAL_SUCESSO'), MessageType.SUCCESS, 10000));
 				limpar();
 			}
@@ -804,13 +823,7 @@
 				var usr:Usuario = Login.usuarioAutenticado;
 				if(usr){
 					_item = data as ItemNotaFiscal;
-					if(_item != null && _item.id == 0){
-						removeItemNotaFiscal(_item);
-						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXCLUIR_ITEM_NOTA_FISCAL_SUCESSO'), MessageType.SUCCESS, 10000));
-						limpar();
-					}else{
-						itemNotaFiscalService.excluirItemNotaFiscal(_item);
-					}
+					itemNotaFiscalService.excluirItemNotaFiscal(_item);
 				}else{
 					PopupModalController.getInstance().showModalAutenticacaoUsuario(excluirItemAutenticar);
 				}
@@ -834,9 +847,9 @@
 							_item.lpu = cbUnidadeLpu.lpuSelecionada;
 						}
 						
-						itemNotaFiscalService.adicionarItemNotaFiscal(_item)
+						itemNotaFiscalService.adicionarItemNotaFiscal(_item,_notaFiscal);
 						//addItemNotaFiscal(_item);
-						limpar();
+						
 					}else{
 						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
 					}
@@ -851,9 +864,23 @@
 			
 			public function onAdicionarItemNotaFiscalResult(event:ResultEvent):void
 			{
-				_item = event.result as ItemNotaFiscal;
-				_notaFiscal.itensDaNotaFiscal.addItemAt(inf,i);
-				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXCLUIR_ITEM_NOTA_FISCAL_SUCESSO'), MessageType.SUCCESS, 10000));
+				if(_item.id == 0){
+					_item = event.result as ItemNotaFiscal;
+					_notaFiscal.itensDaNotaFiscal.addItem(_item);
+				}else{
+					_item = event.result as ItemNotaFiscal;
+					var i:int = 0;
+					var aux:ItemNotaFiscal = null;
+					for(i=0;i<_notaFiscal.itensDaNotaFiscal.length;i++){
+						aux = _notaFiscal.itensDaNotaFiscal.getItemAt(i) as ItemNotaFiscal;
+						if(_item.id == aux.id){
+							_notaFiscal.itensDaNotaFiscal.setItemAt(_item, i);
+							break;
+						}
+					}
+				}
+				
+				dispatchEvent(new MensagemEvent('Item adicionado com sucesso', MessageType.SUCCESS, 10000));
 				limpar();
 			}
 			
@@ -861,7 +888,8 @@
 			{
 				CursorManager.removeAllCursors();
 				trace("[ExcluirItemNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
-				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXCLUIR_ITEM_NOTA_FISCAL_ERRO'), MessageType.ERROR, 10000));
+				dispatchEvent(new MensagemEvent('Erro ao adicionar item', MessageType.ERROR, 10000));
+				limpar();
 			}
 			
 			public function addItemNotaFiscal(infAux:ItemNotaFiscal=null):void
@@ -1285,8 +1313,8 @@
 						<combos:ComboLpu id="cbUnidadeLpu" required="true" labelText="{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}" width="25%"  enabled.edicaoInfoNota="{(_notaFiscal.statusString == '' ||_notaFiscal.statusString == 'Nova')}" />
 						<mx:Button id="btAdicionar" 
 								   label="{resourceManager.getString('ApplicationResource','ADICIONAR')}"
-								   height="25" width="5%" enabled="{(_notaFiscal.statusString == 'Nova') || (_notaFiscal.statusString != 'Nova' &amp;&amp; _item != null &amp;&amp; _item.nome != '')}"
-								   icon="@Embed(source='/assets/icons/add.png')"
+								   height="25" width="5%" enabled="{(_notaFiscal.statusString == 'Nova') || (_notaFiscal.statusString != 'Nova' &amp;&amp; _item != null &amp;&amp; _item.nome != '' &amp;&amp; !isNaN(_notaFiscal.id))}"
+								   icon="@Embed(source='/assets/icons/add.png')" toolTip="{_notaFiscal.id == 0 || isNaN(_notaFiscal.id) ? 'Salvar a nota antes de adicionar itens' : 'Adicionar item'}"
 								   click="adicionar(event)"
 								   />
 					</mx:HBox>
