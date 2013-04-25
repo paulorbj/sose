@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 paddingLeft="15"
+		 paddingRight="15"
+		 initialize="init()"
+		 paddingBottom="20" xmlns:layout="layout.*" xmlns:textInput="components.textInput.*">
+	
+	<fx:Declarations>
+		
+		<!-- Validators -->
+		<mx:StringValidator id = "usernameTextInputValidator"
+							source = "{usernameTextInput}"
+							property = "text"
+							required = "true"
+							triggerEvent = "{FocusEvent.FOCUS_OUT}"
+							requiredFieldError = "{resourceManager.getString('ApplicationResource','REQUIRED_FIELD')}"/>
+		
+		<mx:StringValidator id = "passwordTextInputValidator"
+							source = "{passwordTextInput}"
+							property = "text"
+							required = "true"
+							triggerEvent = "{FocusEvent.FOCUS_OUT}"
+							requiredFieldError = "{resourceManager.getString('ApplicationResource','REQUIRED_FIELD')}"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			import entities.administrativo.Usuario;
+			
+			import mx.validators.Validator;
+			
+			import utils.AuthenticationUtils;
+			
+
+			
+			/** Current user object */
+			private var loggedUser:Usuario;
+			
+			private function init():void
+			{
+				sendEmailLabel.enabled = false;
+				loginForm.addEventListener(KeyboardEvent.KEY_DOWN, checkKey);
+			}
+			
+			/**
+			 * Check if enter is pressed
+			 */
+			private function checkKey(event:KeyboardEvent):void
+			{
+				// Highlight enter
+				submitButton.setStyle("textDecoration", "underline");
+				
+				if (event.charCode == 13) {
+					AuthenticationUtils.doLogin(this,usernameTextInput.text, passwordTextInput.text);
+				}
+			}
+			
+			/**
+			 * Validate the login form
+			 */
+			private function validateForm():void
+			{
+				// Enable the login button only if all fields are valid
+				var flagToRememberPassword:Boolean = (Validator.validateAll([usernameTextInputValidator]).length == 0);
+				var flagToLogin:Boolean = (Validator.validateAll([ usernameTextInputValidator,	passwordTextInputValidator ]).length == 0);
+				submitButton.enabled = flagToLogin;
+				sendEmailLabel.enabled = flagToRememberPassword; 
+				
+			}
+			
+			private function forgotPassword(event:MouseEvent):void
+			{
+				if(Validator.validateAll([ usernameTextInputValidator ]).length == 0){
+					AuthenticationUtils.sendPassword(this,usernameTextInput.text)	
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" id = "loginForm" 
+			 horizontalAlign="center"
+			 horizontalGap="0"
+			 height="100%"
+			 verticalAlign="middle"
+			 paddingTop="170">
+		
+		
+		<textInput:TextInput labelText= "{resourceManager.getString('ApplicationResource','USERNAME')}"
+							 id = "usernameTextInput"
+							 height = "22"
+							 width = "100%"
+							 change = "validateForm()" />
+		
+		<textInput:TextInput "{resourceManager.getString('ApplicationResource','PASSWORD')}"
+							 id = "usernameTextInput"
+							 height = "22"
+							 width = "100%"
+							 displayAsPassword = "true"
+							 change = "validateForm()" />
+		
+		<mx:Button id = "submitButton"
+				   height = "25"
+				   label = "{resourceManager.getString('ApplicationResource','LOGIN')}"
+				   click = "AuthenticationUtils.doLogin(this,usernameTextInput.text, passwordTextInput.text); validateForm()"
+				   enabled = "false"
+				   icon="@Embed(source='/assets/icons/login.png')"/>
+		
+	
+		
+		<mx:VBox id = "info"
+				 verticalGap = "5"
+				 backgroundAlpha = "0"
+				 borderStyle="solid"
+				 cornerRadius="4"
+				 borderColor="#CCCCCC"
+				 width="261"
+				 paddingBottom="15"
+				 paddingLeft="44"
+				 paddingRight="15"
+				 paddingTop="15"
+				 horizontalAlign="left">
+			
+			<mx:HBox verticalAlign="middle"
+					 horizontalGap="14">
+				<mx:Image source="assets/icons/mail.png"
+						  buttonMode="true"/>
+				<mx:Label id="sendEmailLabel"
+						  text="{resourceManager.getString('ApplicationResource','FORGOT_PASS')}"
+						  paddingTop="3"
+						  fontWeight="bold"
+						  buttonMode="true"
+						  useHandCursor="true"
+						  click="forgotPassword(event)"
+						  mouseChildren="false"/>
+				
+			</mx:HBox>
+			
+		</mx:VBox>
+		
+	</mx:VBox>
+	
+</mx:HBox>

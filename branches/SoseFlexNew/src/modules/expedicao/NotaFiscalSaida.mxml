@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*" 
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%" >
+	
+	<fx:Declarations>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="volumeService" destination="volumeService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="excluirVolume"      
+					   fault="onExcluirVolumeFault(event)" 
+					   result="onExcluirVolumeResult(event)"
+					   />
+			<mx:method name="criarVolumes"      
+					   fault="onCriarVolumesFault(event)" 
+					   result="onCriarVolumesResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarClienteFault(event)" 
+					   result="onBuscarClienteResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.parceiros.Endereco;
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.expedicao.NotaFiscalRemessa;
+			import entities.expedicao.Volume;
+			import entities.recebimento.OrdemServico;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.TipoEmbalagem;
+			
+			[Bindable]
+			private var _notaFiscalSaida:NotaFiscalRemessa;
+			
+			[Bindable]
+			private var _ordemServico:OrdemServico;
+			
+			[Bindable]
+			private var _listaOrdemServico:ArrayCollection = new ArrayCollection();;
+			
+			[Bindable]
+			private var _listaOrdemServicoEdicao:ArrayCollection = new ArrayCollection();;
+			
+			[Bindable]
+			private var _listaEndereco:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _listaVolumes:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _dataSaida:Date;
+			
+			[Bindable]
+			private var totalVolume:Number;
+			
+			[Bindable]
+			private var totalItens:Number;
+			
+			[Bindable]
+			private var totalPesoBruto:Number;
+			
+			private var removeIndex:int = -1;
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				dataSaidaNotaFiscal.required = true
+				validatorArr.push(dataSaidaNotaFiscal.stringValidator);
+				validatorArr.push(retiradoPor.stringValidator);
+				validatorArr.push(transportadora.comboBox.comboValidator);
+				validatorArr.push(nDocumento.stringValidator);
+				validatorArr.push(nPlaca.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			public function validarCamposFinalizar():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				dataSaidaNotaFiscal.required = true
+				validatorArr.push(dataSaidaNotaFiscal.stringValidator);
+				validatorArr.push(retiradoPor.stringValidator);
+				validatorArr.push(nDocumento.stringValidator);
+				validatorArr.push(nPlaca.stringValidator);
+				validatorArr.push(recebidoPor.stringValidator);
+				validatorArr.push(dataRecebimento.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			public function validarCamposEmissao():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				nNotaFiscalSaida.required = true
+				validatorArr.push(nNotaFiscalSaida.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			public function validarCamposSolicitar():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				nNotaFiscalSaida.required = true
+				validatorArr.push(transportadora.comboBox.comboValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			public function validarCamposRegistrarSaida():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				nNotaFiscalSaida.required = true
+				validatorArr.push(nNotaFiscalSaida.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			public function validarVolumes():Boolean {
+				if(_listaVolumes != null && _listaVolumes.length == 0){
+					dispatchEvent(new MensagemEvent("As informações de volume não foram preenchidas", MessageType.WARNING, 5000));
+					return false;
+				}
+				return true;
+			}
+			
+			public function get notaFiscalSaida():NotaFiscalRemessa
+			{
+				_notaFiscalSaida.enderecoEntrega = recuperarEnderecoEntrega();
+				_notaFiscalSaida.volumes = _listaVolumes;
+				_notaFiscalSaida.valorFrete = valorFrete.valor;
+				_notaFiscalSaida.dtSaida = _dataSaida;
+				_notaFiscalSaida.observacao = txtNfObservacao.inputText;
+				if(transportadora.tranportadoraSelecionada != null && transportadora.tranportadoraSelecionada.id != 0){
+					_notaFiscalSaida.transportador = transportadora.tranportadoraSelecionada;
+				}else{
+					_notaFiscalSaida.transportador = null;
+				}
+				return _notaFiscalSaida;
+			}
+			
+			public function validarEnderecoEntregaMinimo():Boolean
+			{
+				var nSelecionados:int = 0;
+				if(_listaEndereco != null && _listaEndereco.length > 0){
+					for each(var end:Endereco in _listaEndereco){
+						if(end.isSelected){
+							nSelecionados++;
+						}
+					}
+					if(nSelecionados > 1){
+						dispatchEvent(new MensagemEvent("Mais de um endereço de entrega foi selecionado!", MessageType.WARNING, 3000));
+						return false;
+					}else{
+						return true;
+					}
+				}else{
+					return true;
+				}
+			}
+			
+			public function validarEnderecoEntrega():Boolean
+			{
+				var nSelecionados:int = 0;
+				if(_listaEndereco != null && _listaEndereco.length > 0){
+					for each(var end:Endereco in _listaEndereco){
+						if(end.isSelected){
+							nSelecionados++;
+						}
+					}
+					if(nSelecionados == 1){
+						return true;
+					}else{
+						return false;
+					}
+				}else{
+					return false;
+				}
+			}
+			
+			private function recuperarEnderecoEntrega():Endereco
+			{
+				if(_listaEndereco != null && _listaEndereco.length > 0){
+					for each(var end:Endereco in _listaEndereco){
+						if(end.isSelected){
+							return end;
+						}
+					}
+				}
+				return null;
+			}
+			
+			private function ordenarLista(lista:ArrayCollection):void
+			{
+				if(lista != null){
+					var sortA:Sort = new Sort();
+					sortA.fields=[new SortField("osPaiOrdenar",false,false,true),new SortField("osFilhaOrdenar",false,false,true)];
+					lista.sort=sortA;
+					lista.refresh();
+				}
+			}
+			
+			public function set notaFiscalSaida(value:NotaFiscalRemessa):void
+			{
+				_notaFiscalSaida = value;
+				
+				habilitaCampos();
+				
+				ordenarLista(_notaFiscalSaida.ordensServico);
+				
+				if(_notaFiscalSaida.dtSaida){
+					_dataSaida = _notaFiscalSaida.dtSaida;
+				}else{
+					_dataSaida = null;
+				}
+				
+				if(_notaFiscalSaida.transportador){
+					transportadora.tranportadoraSelecionada = _notaFiscalSaida.transportador;
+				}else{
+					transportadora.limpar();
+				}
+				
+				if(_notaFiscalSaida.valorFrete){
+					valorFrete.setValor(_notaFiscalSaida.valorFrete);
+//					valorFrete.inputText = _notaFiscalSaida.valorFrete.toString();
+				}else{
+					valorFrete.setValor(0);
+//					valorFrete.inputText = "0";
+				}
+				
+				if(_notaFiscalSaida.totalFreteProposta){
+					valorFreteProposta.setValor(_notaFiscalSaida.totalFreteProposta);
+				}else{
+					valorFreteProposta.setValor(0);
+				}
+				
+				_listaEndereco.removeAll();
+				if(_notaFiscalSaida.cliente){
+					for each (var end:Endereco in _notaFiscalSaida.cliente.enderecos){
+						if(end.enderecoEntrega){
+							_listaEndereco.addItem(end);
+							if(_notaFiscalSaida.enderecoEntrega != null && _notaFiscalSaida.enderecoEntrega.id == end.id){
+								end.isSelected = true;
+							}else{
+								end.isSelected = false;
+							}
+						}
+					}
+				}
+				
+				_listaVolumes = _notaFiscalSaida.volumes;
+				atualizarTotais(_listaVolumes);
+			}
+			
+			public function labelFunction(item:Object, column:DataGridColumn):String
+			{
+				return (item as Endereco).logradouro + ", " + (item as Endereco).numero;
+			}
+			
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{
+				this.currentState = "editarOrdemServico";
+				_ordemServico = data as OrdemServico;
+				observacao.entidade = _ordemServico;
+				observacao.listarObservacoes();
+				_listaOrdemServicoEdicao.removeAll();
+				_listaOrdemServicoEdicao.addItem(_ordemServico);
+			}
+			
+			private function voltarNormal(event:MouseEvent):void
+			{
+				this.currentState = "normal";
+			}
+			
+			private function adicionarEmbalagens(event:MouseEvent):void
+			{
+				var strTipoEmbalagem:TipoEmbalagem = cbTipoEmbalagem.tipoEmbalagemSelecionada;
+				
+				volumeService.criarVolumes(strTipoEmbalagem.nome, parseInt(quantidadeEmbalagem.inputText), _notaFiscalSaida);
+				
+				cbTipoEmbalagem.limpar();
+				quantidadeEmbalagem.inputText = "";
+			}
+			
+			public function atualizaTransportadora(event:Event):void{
+				if(transportadora.tranportadoraSelecionada != null){
+					_notaFiscalSaida.transportador = transportadora.tranportadoraSelecionada;
+				}
+			}
+			
+			public function removerVolume(data:Object, event:Event):void
+			{
+				var vol:Volume = data as Volume;
+				
+				if(vol.id != 0){
+					removeIndex = _listaVolumes.getItemIndex(vol);
+					volumeService.excluirVolume(vol);
+				}else{
+					removeIndex = _listaVolumes.getItemIndex(vol);
+					_listaVolumes.removeItemAt(removeIndex);
+					removeIndex = -1;
+				}
+				atualizarTotais(_listaVolumes);
+			}
+			
+			private function onExcluirVolumeResult(event:ResultEvent = null):void
+			{
+				//				var vol:Volume  = event.result as Volume;
+				_listaVolumes.removeItemAt(removeIndex);
+				removeIndex = -1;
+				atualizarTotais(_listaVolumes);
+			}
+			
+			private function onExcluirVolumeFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onCriarVolumesResult(event:ResultEvent = null):void
+			{
+				if(_listaVolumes == null || _listaVolumes.length == 0){
+					_listaVolumes = event.result as ArrayCollection;
+				}else{
+					_listaVolumes.addAll(event.result as ArrayCollection);
+				}
+				atualizarTotais(_listaVolumes);
+			}
+			
+			private function onCriarVolumesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			[Bindable]
+			public function get dataSaida():Date
+			{
+				return _dataSaida;
+			}
+			
+			public function set dataSaida(value:Date):void
+			{
+				_dataSaida = value;
+			}
+			
+			private function labelCondicao(item:Object, column:DataGridColumn):String
+			{	
+				if(item.reparo){
+					var str:String = item.reparo.condicao;
+					if(str == "Com condição de reparo"){
+						return "Reparado";
+					}
+					if(str == "Sem condição de reparo"){
+						return "Irreparável";
+					}
+					if(str == "Devolução sem reparo"){
+						return "Devolução sem reparo";
+					}
+				}else if(item.orcamento){ 
+					var str:String = item.orcamento.condicao;
+					if(str == "Com condição de reparo"){
+						return "Reparado";
+					}
+					if(str == "Sem condição de reparo"){
+						return "Irreparável";
+					}
+					if(str == "Devolução sem reparo"){
+						return "Devolução sem reparo";
+					}
+				}
+				return "";
+			}
+			
+			public function habilitaCampos():void
+			{
+				if(_notaFiscalSaida.cliente.tipoPessoa == 1){
+					txtNome.labelText = resourceManager.getString('ApplicationResource','NOME');
+					txtRgIe.labelText = resourceManager.getString('ApplicationResource','RG');
+					txtCpfCnpj.labelText = resourceManager.getString('ApplicationResource','CPF');
+				}else{
+					txtNome.labelText = resourceManager.getString('ApplicationResource','RAZAO_SOCIAL');
+					txtRgIe.labelText = resourceManager.getString('ApplicationResource','IE');
+					txtCpfCnpj.labelText = resourceManager.getString('ApplicationResource','CNPJ');
+				}
+			}
+			
+			
+			private function onBuscarClienteResult(event:ResultEvent = null):void
+			{
+				var cliente:Pessoa = event.result as Pessoa;
+				if(cliente.enderecos){
+					_listaEndereco = new ArrayCollection();
+					for each (var end:Endereco in cliente.enderecos){
+						if(end.enderecoEntrega){
+							_listaEndereco.addItem(end);
+						}
+					}
+				}else{
+					_listaEndereco = new ArrayCollection();
+				}
+			}
+			
+			private function onBuscarClienteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function atualizarTotais(lista:ArrayCollection):void{
+				totalItens = 0;
+				totalPesoBruto = 0;
+				totalVolume = 0;
+				for each (var volume:Volume in lista){
+					totalVolume++;
+					totalPesoBruto += volume.pesoBruto;
+					totalItens += volume.totalItens;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="nNotaFiscalSaida.inputText" destination="_notaFiscalSaida.numero" twoWay="true" />
+	<fx:Binding source="_dataSaida" destination="dataSaidaNotaFiscal.inputDate" twoWay="true" />
+	<fx:Binding source="txtNome.inputText" destination="_notaFiscalSaida.cliente.nomeRazaoSocial" twoWay="true" />
+	<fx:Binding source="txtRgIe.inputText" destination="_notaFiscalSaida.cliente.rgIe" twoWay="true" />
+	<fx:Binding source="txtCpfCnpj.inputText" destination="_notaFiscalSaida.cliente.cpfCnpj" twoWay="true" />
+	<fx:Binding source="_notaFiscalSaida.observacao" destination="txtNfObservacao.inputText" twoWay="false" />
+	
+	<fx:Binding source="nomeTransportadora.inputText" destination="_notaFiscalSaida.transportador.nomeRazaoSocial" twoWay="true" />
+	<fx:Binding source="cnpjTransportadora.inputText" destination="_notaFiscalSaida.transportador.rgIe" twoWay="true" />
+	<fx:Binding source="ieTransportadora.inputText" destination="_notaFiscalSaida.transportador.cpfCnpj" twoWay="true" />
+	
+	<fx:Binding source="codFrete.inputText" destination="_notaFiscalSaida.codFrete" twoWay="true" />
+	<fx:Binding source="nConhecimento.inputText" destination="_notaFiscalSaida.numeroConhecimento" twoWay="true" />
+	<fx:Binding source="retiradoPor.inputText" destination="_notaFiscalSaida.nomeMotorista" twoWay="true" />
+	<fx:Binding source="nDocumento.inputText" destination="_notaFiscalSaida.numeroDocumento" twoWay="true" />
+	<fx:Binding source="nPlaca.inputText" destination="_notaFiscalSaida.placaVeiculo" twoWay="true" />
+	<fx:Binding source="dataRecebimento.inputDate" destination="_notaFiscalSaida.dataRecebimentoMaterial" twoWay="true" />
+	<fx:Binding source="recebidoPor.inputText" destination="_notaFiscalSaida.recebidoPor" twoWay="true" />
+
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="editarOrdemServico"/>
+	</mx:states>
+	
+	<mx:HBox width="100%" verticalAlign="middle" >
+		<s:Spacer width="100%" />
+		<s:Label text="Status:" />
+		<s:Label id="statusNFSaida" fontSize="20" color="red" text="{_notaFiscalSaida.statusString}" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom" >
+		<texto:TextInput id="nNotaFiscalSaida" habilitado="{_notaFiscalSaida.statusString == 'Emitir nota fiscal'}" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_SAIDA')}" width="10%"  />
+		<components:DataInput id="dataSaidaNotaFiscal" required="true" enabled="{_notaFiscalSaida.statusString == 'Emitida' &amp;&amp; _notaFiscalSaida.saidaRegistradaEm == null}" labelText="Dt saída material" width="10%" inputHeight="20" />
+		<texto:TextInput id="txtNome" labelText="{resourceManager.getString('ApplicationResource','NOME')}" habilitado="false" width="40%"  />
+		<texto:TextInput id="txtRgIe" labelText="{resourceManager.getString('ApplicationResource','RG')}" habilitado="false" width="20%"  />
+		<texto:TextInput id="txtCpfCnpj" labelText="{resourceManager.getString('ApplicationResource','CPF')}" habilitado="false" width="20%"  />
+	</mx:HBox>
+	
+	<components:TextAreaInput width="100%" id="txtNfObservacao" enabled="{_notaFiscalSaida.statusString != 'Finalizada' &amp;&amp; _notaFiscalSaida.statusString != 'Nova'}"
+							  heightInLines="2" labelText="{resourceManager.getString('ApplicationResource','OBSERVACAO')}" />
+	
+	<mx:Accordion id="accordion"  width="100%" height="100%">
+		<s:NavigatorContent label="Ordens de serviço" enabled="{_notaFiscalSaida.statusString != 'Finalizada' &amp;&amp; _notaFiscalSaida.statusString != 'Nova'}" width="100%" height="100%">
+			
+			<mx:VBox paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="100%" height="100%" >
+				
+				
+				<grid:MantisTable id="tabelaItens"
+								  width="100%"
+								  height="100%"
+								  height.editarOrdemServico="48"
+								  verticalScrollPolicy.editarOrdemServico="off"
+								  draggableColumns="true"
+								  dataProvider="{_notaFiscalSaida.ordensServico}"
+								  dataProvider.editarOrdemServico="{_listaOrdemServicoEdicao}"
+								  doubleClickEnabled="false"
+								  >
+					<grid:columns>
+						
+						<!-- CHANGE HERE THE ENTITY COLUMNS -->
+						
+						<!-- EDIT/REMOVE COLUMNS -->
+						
+						<mx:DataGridColumn id="numeroNF"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="notaFiscal.numero"							   
+										   />
+						
+						<mx:DataGridColumn id="numeroOs"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="numeroOrdemServico"							   
+										   />
+						
+						<mx:DataGridColumn id="numeroOsPai"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="unidadePai.numeroOrdemServico"							   
+										   />
+						
+						<mx:DataGridColumn id="unidade"
+										   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="unidade.nome"							   
+										   />
+						
+						<mx:DataGridColumn id="nSerieFabricante" 
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+										   dataField = "serieFabricante"
+										   width="80"
+										   />
+						
+						<mx:DataGridColumn id="nSerieCliente" 
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+										   dataField = "serieCliente"
+										   width="80"
+										   />
+						
+						<mx:DataGridColumn id="nCaseAvaya1" 
+										   headerText = "Case avaya"
+										   dataField = "caseAvaya"
+										   width="80"	
+										   />
+						
+						<mx:DataGridColumn id="nClienteAvaya1" 
+										   headerText = "Ciente avaya"
+										   dataField = "clienteAvaya"
+										   width="80"	
+										   />
+						
+						<mx:DataGridColumn id="analiseTecnica" 
+										   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
+										   labelFunction="labelCondicao"
+										   width="80"
+										   />
+						
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+										   draggable="false"	excludeFrom="editarOrdemServico"						 
+										   editable="false"
+										   sortable="false">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center"
+											 verticalAlign="middle"
+											 >
+										
+										<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+												  click="parentDocument.visualizarDetalhe(data, event)"
+												  buttonMode="true"
+												  useHandCursor="true"
+												  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+												  />						
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+					</grid:columns>
+				</grid:MantisTable>
+				
+				<components:Observacoes id="observacao" origem="Expedição" heigthTable="190" widthTable="900" widthText="795" includeIn="editarOrdemServico" />
+				
+				<mx:Button id="btVoltar2"
+						   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+						   height="25" includeIn="editarOrdemServico"
+						   icon="@Embed(source='/assets/icons/back.png')"
+						   click="voltarNormal(event)"/>
+			</mx:VBox>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Transportadora"  enabled="{_notaFiscalSaida.statusString != 'Finalizada' &amp;&amp; _notaFiscalSaida.statusString != 'Nova'}" width="100%" height="100%">
+			<mx:VBox paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%" >
+				<mx:HBox width="100%">
+					<combos:ComboTransportadora id="transportadora" required="true" labelText="{resourceManager.getString('ApplicationResource','TRANSPORTADORA')}" width="25%" changeFunction="atualizaTransportadora" />
+					<texto:TextInput id="nomeTransportadora" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','NOME')}" width="35%"  />
+					<texto:TextInput id="cnpjTransportadora" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','CNPJ')}" width="15%"  />
+					<texto:TextInput id="ieTransportadora" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','IE')}" width="15%"  />
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<texto:TextInput id="nConhecimento" labelText="Nº conhecimento" width="10%"   />
+					<texto:TextInput id="codFrete" labelText="Cod. Frete" width="10%"  />
+					<texto:TextInputDinheiro4d id="valorFreteProposta" labelText="Valor frete proposta" width="10%" habilitado="false"  />
+					<texto:TextInputDinheiro4d id="valorFrete" labelText="{resourceManager.getString('ApplicationResource','VALOR_FRETE')}" width="10%" />
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<texto:TextInput id="retiradoPor" labelText="Retirado por" habilitado="{_notaFiscalSaida.statusString == 'Emitida' &amp;&amp; _notaFiscalSaida.saidaRegistradaEm == null}" width="35%" required="true"  />
+					<texto:TextInput id="nDocumento"  labelText="Nº documento" habilitado="{_notaFiscalSaida.statusString == 'Emitida' &amp;&amp; _notaFiscalSaida.saidaRegistradaEm == null}" width="15%" required="true"  />
+					<texto:TextInput id="nPlaca" labelText="Nº placa veículo" habilitado="{_notaFiscalSaida.statusString == 'Emitida' &amp;&amp; _notaFiscalSaida.saidaRegistradaEm == null}" width="15%" required="true"  />
+					<texto:TextInput id="recebidoPor" labelText="Recebido por" habilitado="{_notaFiscalSaida.statusString == 'Emitida' &amp;&amp; _notaFiscalSaida.saidaRegistradaEm != null}" width="10%"  required="true"   />
+					<components:DataInput id="dataRecebimento" required="true" enabled="{_notaFiscalSaida.statusString == 'Emitida' &amp;&amp; _notaFiscalSaida.saidaRegistradaEm != null}"  labelText="Data recebimento" width="10%" inputHeight="20" />
+				</mx:HBox>
+			</mx:VBox>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Endereço de entrega"  enabled="{_notaFiscalSaida.statusString != 'Finalizada' &amp;&amp; _notaFiscalSaida.statusString != 'Nova'}" width="100%" height="100%">
+			<mx:VBox paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%" >
+				
+				<mx:HBox width="100%" height="100%">
+					<grid:MantisTable id="tabelaEnderecoEntrega"
+									  width="100%"
+									  height="100%"
+									  draggableColumns="true"
+									  dataProvider="{_listaEndereco}" >
+						<grid:columns>
+							
+							<!-- CHANGE HERE THE ENTITY COLUMNS -->
+							
+							<mx:DataGridColumn headerText = ""	width=".20"						   
+											   itemRenderer="components.grid.CheckBoxItemRenderer"
+											   headerRenderer="components.grid.CheckBoxItemRenderer"
+											   resizable="false" draggable="false" sortable="false"
+											   dataField="isSelected"
+											   />
+							
+							<mx:DataGridColumn id="logradouro" labelFunction="labelFunction"
+											   headerText = "{resourceManager.getString('ApplicationResource','LOGRADOURO')}"
+											   textAlign="center" width=".30"
+											   sortable="false"
+											   dataField="logradouro"							   
+											   />
+							
+							<mx:DataGridColumn id="cep" textAlign="center"
+											   headerText = "{resourceManager.getString('ApplicationResource','CEP')}"
+											   dataField = "cep"
+											   width=".10"
+											   />
+							
+							<mx:DataGridColumn id="cidade" textAlign="center"
+											   headerText = "{resourceManager.getString('ApplicationResource','CIDADE')}"
+											   dataField = "cidade"
+											   width=".20"
+											   />
+							
+							<mx:DataGridColumn id="estado" textAlign="center"
+											   headerText = "{resourceManager.getString('ApplicationResource','ESTADO')}"
+											   dataField = "estado"
+											   width=".10"
+											   />
+							
+							<mx:DataGridColumn id="telefone" textAlign="center"
+											   headerText = "{resourceManager.getString('ApplicationResource','TELEFONE')}"
+											   dataField = "telefone"
+											   width=".10"
+											   />
+						</grid:columns>
+					</grid:MantisTable>
+				</mx:HBox>
+			</mx:VBox>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Volumes" enabled="{_notaFiscalSaida.statusString == 'Iniciada'}" width="100%" height="100%">
+			<mx:VBox paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%">
+				<mx:HBox verticalAlign="bottom" width="100%">
+					<combos:ComboTipoEmbalagem id="cbTipoEmbalagem" labelText="{resourceManager.getString('ApplicationResource','TIPO_EMBALAGEM')}" width="200"  />
+					<texto:TextInput id="quantidadeEmbalagem" labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE')}" width="250"  />
+					<mx:Button id="btAdicionarEmbalagem" 
+							   label="{resourceManager.getString('ApplicationResource','ADICIONAR')}"
+							   height="25"
+							   icon="@Embed(source='/assets/icons/add.png')"
+							   click="adicionarEmbalagens(event)"
+							   />
+				</mx:HBox>
+				
+				<grid:MantisTable id="volumesTable"
+								  width="100%"
+								  height="100%"
+								  editable="true"
+								  draggableColumns="true"
+								  dataProvider="{_listaVolumes}" >
+					<grid:columns>
+						
+						<!-- CHANGE HERE THE ENTITY COLUMNS -->
+						
+						
+						<mx:DataGridColumn id="tipoVolume" textAlign="center"
+										   headerText = "{resourceManager.getString('ApplicationResource','TIPO_EMBALAGEM')}"
+										   dataField = "tipoEmbalagem"
+										   width=".30"
+										   />
+						
+						<mx:DataGridColumn id="totalPecas" textAlign="center" editable="true"
+										   headerText = "{resourceManager.getString('ApplicationResource','TOTAL_DE_ITENS')}"
+										   dataField = "totalItens"
+										   width=".30"
+										   />
+						
+						<mx:DataGridColumn id="pesoBruto" textAlign="center" editable="true"
+										   headerText = "{resourceManager.getString('ApplicationResource','PESO_BRUTO')}"
+										   dataField = "pesoBruto"
+										   width=".30"
+										   />
+						
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+										   draggable="false"	width=".10"						 
+										   editable="false"
+										   sortable="false">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center"
+											 verticalAlign="middle"
+											 >
+										
+										<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+												  click="parentDocument.removerVolume(data, event)"
+												  buttonMode="true"
+												  useHandCursor="true"
+												  toolTip="{resourceManager.getString('ApplicationResource','REMOVE')}"
+												  />						
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+					</grid:columns>
+				</grid:MantisTable>
+				<mx:HBox horizontalGap="10" >
+					<s:Label text="Total de volumes: {totalVolume}" fontWeight="bold" fontSize="12"  />
+					<s:Label text="Total de itens: {totalItens}" fontWeight="bold" fontSize="12"  />
+					<s:Label text="Peso bruto total: {totalPesoBruto}" fontWeight="bold" fontSize="12"  />
+				</mx:HBox>
+			</mx:VBox>
+		</s:NavigatorContent>
+	</mx:Accordion>
+	
+</mx:VBox>

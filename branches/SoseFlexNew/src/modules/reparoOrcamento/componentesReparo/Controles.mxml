@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" width="100%"
+		 xmlns:s="library://ns.adobe.com/flex/spark" creationComplete="onCreationComplete()"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" >
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.orcamentoreparo.Reparo;
+			
+			import modules.reparoOrcamento.eventos.ReparoEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			
+			[Bindable]
+			private var _reparo:Reparo;
+			
+			private var curSize:int = 8;
+			
+			public function get reparo():Reparo
+			{
+				return _reparo;
+			}
+			
+			public function set reparo(value:Reparo):void
+			{
+				_reparo = value;
+				exibirNotificacaoOrcamento(_reparo);
+			}
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.VOLTAR_REPARO, null));
+			}
+			
+			private function iniciar(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.INICIAR_REPARO, null));
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.SALVAR_REPARO, null));
+			}
+			
+			private function aprovar(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.APROVAR_REPARO, null));
+			}
+			
+			private function rejeitar(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.REJEITAR_REPARO, null));
+			}
+			
+			private function devolverSemReparo(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.DEVOLVER_SEM_REPARO, null));
+			}
+			
+			private function requisitarOrcamentoDiferenciado(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.REQUISITAR_ORCAMENTO_DIFERENCIADO, null));	
+			}
+			
+			private function requisitarLaudoTecnico(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.REQUISITAR_LAUDO_TECNICO, null));
+			}
+			
+			private function requisitarReparoExterno(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.REQUISITAR_REPARO_EXTERNO, null));
+			}
+			
+			private function editar(event:MouseEvent = null):void
+			{
+				
+			}
+			
+			private function finalizar(event:MouseEvent = null):void
+			{
+				dispatchEvent(new ReparoEvent(ReparoEvent.FINALIZAR_REPARO, null));
+			}
+			
+			private function exibirNotificacaoOrcamento(repar:Reparo):void{
+				var dataNaoNulas:ArrayCollection = new ArrayCollection();
+				if(reparo.statusString == "Iniciado"){
+					if(reparo.laudoTecnicoAprovado){
+						dataNaoNulas.addItem(reparo.laudoTecnicoAprovado);
+					}
+					if(reparo.laudoTecnicoReprovado){
+						dataNaoNulas.addItem(reparo.laudoTecnicoReprovado);
+					}
+					if(reparo.propostaAprovada){
+						dataNaoNulas.addItem(reparo.propostaAprovada);
+					}
+					if(reparo.propostaReprovada){
+						dataNaoNulas.addItem(reparo.propostaReprovada);
+					}
+					if(reparo.orcamentoDiferenciadoRejeitado){
+						dataNaoNulas.addItem(reparo.orcamentoDiferenciadoRejeitado);
+					}
+				}
+				
+				if(dataNaoNulas.length > 0){
+					var sortData:Sort = new Sort();
+					sortData.fields = [new SortField(null,false,true)];
+					dataNaoNulas.sort= sortData;
+					dataNaoNulas.refresh();
+					
+					var ultimaData:Date = dataNaoNulas.getItemAt(0) as Date;
+					
+					if(reparo.laudoTecnicoAprovado != null && reparo.laudoTecnicoAprovado == ultimaData){
+						bloquearBotoes();
+					}
+					if(reparo.laudoTecnicoReprovado != null && reparo.laudoTecnicoReprovado == ultimaData){
+						
+					}
+					if(reparo.propostaAprovada != null && reparo.propostaAprovada == ultimaData){
+						
+					}
+					if(reparo.propostaReprovada != null && reparo.propostaReprovada == ultimaData){
+						
+					}
+					if(reparo.orcamentoDiferenciadoRejeitado != null && reparo.orcamentoDiferenciadoRejeitado == ultimaData){
+						
+					}
+				}else{
+					return;
+				}
+			}
+			
+			private function bloquearBotoes():void
+			{
+				btIniciar.enabled = false;
+				btRequisitarLaudo.enabled = false;
+				btRequisitarReparoExterno.enabled = false;
+				btRequisitarOrcDiferenciado.enabled = false;
+			}
+			
+			private function habilitarBotoes():void
+			{
+				btIniciar.enabled = true;
+				btRequisitarLaudo.enabled = true;
+				btRequisitarReparoExterno.enabled = true;
+				btRequisitarOrcDiferenciado.enabled = true;
+			}
+			
+			private function configurarBotoes(rep:Reparo):void
+			{
+				if(rep.statusString == "Não Iniciado"){
+					btIniciar.enabled = true;
+					btSalvar.enabled = false;
+					btRequisitarLaudo.enabled = false;
+					btRequisitarOrcDiferenciado.enabled = false;
+					btRequisitarReparoExterno.enabled = false;
+					btFinalizar.enabled = false;
+				}
+			}
+			
+			private function onCreationComplete():void
+			{
+				btIniciar.setStyle("fontSize", curSize);               
+				btSalvar.setStyle("fontSize", curSize);               
+				btDevolverSemReparo.setStyle("fontSize", curSize);               
+				btRequisitarOrcDiferenciado.setStyle("fontSize", curSize);               
+				btRequisitarLaudo.setStyle("fontSize", curSize);               
+				btRequisitarReparoExterno.setStyle("fontSize", curSize);
+				btAprovar.setStyle("fontSize", curSize);               
+				btRejeitar.setStyle("fontSize", curSize);               
+				btFinalizar.setStyle("fontSize", curSize);
+				btEditar.setStyle("fontSize", curSize);
+				btVoltar.setStyle("fontSize", curSize);
+
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="editar"/>
+		<s:State name="visualizar"/>
+	</mx:states>
+	
+	<mx:HBox width="100%">
+		<mx:Button id="btIniciar" width="70"
+				   label="{resourceManager.getString('ApplicationResource','INICIAR_REPARO')}"
+				   labelPlacement="bottom"
+				   icon="@Embed(source='/assets/icons/control_play.png')"
+				   click="iniciar(event)"
+				   enabled.editar="{_reparo.statusString == 'Não Iniciado' &amp;&amp; _reparo.tecnicoResponsavel != null &amp;&amp; Login.usuarioAutenticado.id == _reparo.tecnicoResponsavel.id}" enabled.visualizar="false"
+				   />
+		<mx:Button id="btSalvar" width="70"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR_REPARO')}"
+				   labelPlacement="bottom"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="salvar(event)"
+				   enabled.editar="{_reparo.statusString == 'Iniciado'}" enabled.visualizar="false"
+				   />
+		<s:Spacer width="17" />
+		<mx:Button id="btDevolverSemReparo" 
+				   label="Sem reparo" 
+				   labelPlacement="bottom" width="70"
+				   icon="@Embed(source='/assets/icons/cog_error.png')"
+				   click="devolverSemReparo(event)"
+				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.propostaAprovada == null &amp;&amp; _reparo.propostaReprovada == null &amp;&amp; 
+				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; (_reparo.ordemServico.bloqueado == 0) &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"				   />
+		<mx:Button id="btRequisitarOrcDiferenciado" 
+				   label="{resourceManager.getString('ApplicationResource','REQUISITAR_ORCAMENTO_DIFERENCIADO')}"
+				   labelPlacement="bottom" width="70"
+				   icon="@Embed(source='/assets/icons/money.png')"
+				   click="requisitarOrcamentoDiferenciado(event)"
+				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.propostaAprovada == null &amp;&amp; _reparo.propostaReprovada == null &amp;&amp; 
+				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0 &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"
+																																						   />
+		<mx:Button id="btRequisitarLaudo" 
+				   label="Laudo"
+				   labelPlacement="bottom" width="70"
+				   icon="@Embed(source='/assets/icons/table_gear.png')"
+				   click="requisitarLaudoTecnico(event)"
+				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0 &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"
+				   />
+		<mx:Button id="btRequisitarReparoExterno" 
+				   label="Reparo Externo"
+				   labelPlacement="bottom" width="70"
+				   icon="@Embed(source='/assets/icons/lorry.png')"
+				   click="requisitarReparoExterno(event)"
+				   enabled.editar="false" enabled.visualizar="false"
+				   />
+		<s:Spacer width="17" />
+		<mx:Button id="btAprovar"
+				   label="Aprovar"
+				   labelPlacement="bottom" width="70"
+				   icon="@Embed(source='/assets/icons/thumb-up.png')"
+				   click="aprovar(event)"
+				   enabled.editar="{((_reparo.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
+				   || (_reparo.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) &amp;&amp; _reparo.laudoTecnicoAprovado == null}" 
+				   enabled.visualizar="{((_reparo.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
+				   || (_reparo.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) || false}"
+				   />
+		<mx:Button id="btRejeitar" 
+				   label="Rejeitar"
+				   labelPlacement="bottom" width="70"
+				   icon="@Embed(source='/assets/icons/thumb-down.png')"
+				   click="rejeitar(event)"
+				   enabled.editar="{((_reparo.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
+				   || (_reparo.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) &amp;&amp; _reparo.laudoTecnicoAprovado == null}" 
+				   enabled.visualizar="{((_reparo.statusString == 'Laudo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarSolicitacaoLaudoTecnico))
+				   || (_reparo.statusString == 'Devolução sem reparo aguardando aprovação do líder' &amp;&amp; (Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialAprovacoes || Login.usuarioAutenticado.perfil.acaoPermitirAprovarDevolucaoSemReparo))) || false}"
+				   />
+		<s:Spacer width="17" />
+		<mx:Button id="btFinalizar" 
+				   label="{resourceManager.getString('ApplicationResource','FINALIZAR_REPARO')}"
+				   labelPlacement="bottom" width="70"
+				   icon="@Embed(source='/assets/icons/flag_finish.png')"
+				   click="finalizar(event)"
+				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.componentePendente == false &amp;&amp; 
+				   (_reparo.ordemServico.bloqueado == 0 || _reparo.ordemServico.bloqueado == 8 || _reparo.ordemServico.bloqueado == 9 || _reparo.ordemServico.bloqueado == 2) &amp;&amp; 
+				   (_reparo.ordemServico.unidadePai != null || 
+				   _reparo.ordemServico.lpu == null || 
+				   (_reparo.ordemServico.unidadePai == null &amp;&amp; _reparo.ordemServico.lpu != null &amp;&amp; _reparo.ordemServico.lpu.valorReparo != 0) ||
+				   ((_reparo.condicao == 'Sem condição de reparo' || _reparo.condicao == 'Devolução sem reparo') &amp;&amp; _reparo.ordemServico.unidadePai == null &amp;&amp; _reparo.ordemServico.lpu != null &amp;&amp; _reparo.ordemServico.lpu.valorReparo == 0))}" 
+				   
+				   enabled.visualizar="false"
+				   />
+		<mx:Button id="btEditar" width="70"
+				   label="{resourceManager.getString('ApplicationResource','EDITAR_REPARO')}"
+				   labelPlacement="bottom" enabled.editar="false"
+				   icon="@Embed(source='/assets/icons/edit.png')" enabled.visualizar="false"
+				   click="editar(event)"
+				   />
+		<mx:Button id="btVoltar" width="70"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   labelPlacement="bottom"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+</mx:VBox>

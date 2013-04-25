@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   backgroundColor="#ECEDFF">
+	
+	<fx:Declarations>
+		
+		<mx:Fade alphaFrom="1" alphaTo="0" id="fadeOut" duration="500" effectEnd="onFadeOutEnd(event)"/>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Image;
+			
+			/**
+			 * Create a message.
+			 * @see MessageType
+			 * @param message Message.
+			 * @param type Message type.
+			 * @param delay Time in miliseconds.
+			 */
+			public function addMessage(message:String, type:MessageType, delay:Number = -1):void
+			{
+					if (delay == -1) {	// No temporary
+						
+						var messageObj:Message = new Message(message, type);
+						
+						parentApplication.addEventListener(CloseMessageEvent.CLOSE_MESSAGE, closeMessage);
+						
+						this.addChild(messageObj);
+					}
+					else {
+						
+						var tempMessageObj:TempMessage = new TempMessage(message, type, delay);
+						
+						parentApplication.addEventListener(CloseMessageEvent.CLOSE_MESSAGE, closeMessage);
+						
+						this.addChild(tempMessageObj);
+					}
+					
+			}
+			
+			/**
+			 * Methos responsable for close a message and remove it from this
+			 * component.
+			 * @see BaseMessage
+			 */
+			private function closeMessage(event:CloseMessageEvent):void
+			{
+					var message:BaseMessage = event.target.parent as BaseMessage;
+					
+					if (message == null) {
+						
+						message = event.target as BaseMessage;	// Temp message
+						
+						if (message == null) return;
+					}
+					
+					fadeOut.target = message;
+					
+					fadeOut.play();
+			}
+			
+			private function onFadeOutEnd(event:Event):void
+			{
+								
+				if (event.target != null && event.target.target != null) {
+					
+					var message:BaseMessage = event.target.target as BaseMessage;
+				}
+				
+				if (message != null) {	
+					//this.removeChild(message);
+					this.removeAllChildren();
+					
+				}				
+			}
+			
+			public function closeAllMessages():void{
+				
+				if(this.getChildren().length >= 1){
+					var message:BaseMessage = this.getChildAt(this.getChildren().length -1) as BaseMessage;
+					this.removeAllChildren();
+					addMessage(message.message,message.type,1000);
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+</mx:Canvas>

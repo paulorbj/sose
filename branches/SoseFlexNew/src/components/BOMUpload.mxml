@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+        layout="vertical"
+        verticalAlign="top"
+        backgroundAlpha="0"
+        creationComplete="init();">
+
+	<fx:Declarations>
+		<mx:NumberFormatter id="numberFormatter" />
+		<mx:RemoteObject id="componentService" destination="componentService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="saveAll"
+					   fault="handleSaveFault(event)"
+					   result="handleSaveResult(event)" />
+			<mx:method name="findAllBySKU"
+					   fault="onFindAllBySKUFault(event)"
+					   result="onFindAllBySKUResult(event)" />
+			<mx:method name="removeAllBySKU"
+					   fault="onRemoveAllBySKUFault(event)"
+					   result="onRemoveAllBySKUResult(event)" />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+    <fx:Script>
+        <![CDATA[
+			import components.messages.MessageType;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import utils.ConfigurationUtil
+
+			private var fileRef:FileReference;
+
+            private var FILE_UPLOAD_URL:String = "";
+
+			[Bindable]
+			public var _partNumberList: ArrayCollection=new ArrayCollection;
+
+            private function init():void {
+                FILE_UPLOAD_URL = resourceManager.getString('ConfigurationResource','file_servlet')
+                if (FILE_UPLOAD_URL == null) {
+                    ConfigurationUtil.loadLocale("pt_BR", this);
+                    this.addEventListener("configurationLanguageChanged", loadData);
+                }
+                fileRef = new FileReference();
+                fileRef.addEventListener(Event.SELECT, fileRef_select);
+                fileRef.addEventListener(ProgressEvent.PROGRESS, fileRef_progress);
+                fileRef.addEventListener(Event.COMPLETE, fileRef_complete);
+            }
+
+            private function loadData(event:Event):void {
+                FILE_UPLOAD_URL = resourceManager.getString('ConfigurationResource','file_servlet')
+            }
+            
+            private function browseAndUpload():void {
+                fileRef.browse();
+//                message.text = "";
+            }
+
+            private function fileRef_select(evt:Event):void {
+                try {
+//                    message.text = "size (bytes): " + numberFormatter.format(fileRef.size);
+                    fileRef.upload(new URLRequest(FILE_UPLOAD_URL));
+                } catch (err:Error) {
+//                    message.text = "ERROR: zero-byte file";
+                }
+            }
+
+            private function fileRef_progress(evt:ProgressEvent):void {
+//                progressBar.visible = true;
+            }
+
+            private function fileRef_complete(evt:Event):void {
+//                message.text += " (complete)";
+//                progressBar.visible = false;
+				componentService.findAllBySKU(parentDocument.skuText.input.text);
+            }
+
+			private function handleSaveResult(event:ResultEvent):void {
+				if (_partNumberList.length > 1) {
+					parentApplication.messageFactory.addMessage(resourceManager.getString('ApplicationResource','IMPORT_BOM_OVERWRITE_SUCCESS'), MessageType.INFO, 5000);
+				} else {
+					parentApplication.messageFactory.addMessage(resourceManager.getString('ApplicationResource','IMPORT_BOM_SUCCESS'), MessageType.INFO, 5000);
+				}
+				dispatchEvent(event);
+			}
+			
+			private function handleSaveFault(event:FaultEvent):void {
+				parentApplication.messageFactory.addMessage(resourceManager.getString('ApplicationResource','IMPORT_BOM_FAULT'), MessageType.ERROR, 10000);
+				dispatchEvent(event);
+			}
+			
+			private function onFindAllBySKUResult(event:ResultEvent = null):void {
+				_partNumberList = event.result as ArrayCollection;
+				if (_partNumberList.length > 1) {
+					componentService.removeAllBySKU(parentDocument.skuText.input.text);
+				}
+				componentService.saveAll(fileRef.name, parentDocument.skuText.input.text);
+			}
+			
+			private function onFindAllBySKUFault(event:FaultEvent = null):void {
+				trace("[FindAllFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+
+			private function onRemoveAllBySKUResult(event:ResultEvent = null):void {
+			}
+			
+			private function onRemoveAllBySKUFault(event:FaultEvent = null):void {
+				trace("[RemoveAllFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+		]]>
+    </fx:Script>
+
+    <mx:Button label="Importar" icon="@Embed(source='/assets/icons/find.png')" click="browseAndUpload();" />
+    <!--mx:Label id="message" />
+    <mx:ProgressBar id="progressBar" indeterminate="true" visible="false" /-->
+
+</mx:Module>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="center"
+		 xmlns:components="components.*" width="100%"  height="100%" 
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="consultaService" destination="consultaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.expedicao.NotaFiscalRemessa;
+			
+			import modules.expedicao.eventos.ExpedicaoEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var _listaNotaFiscalRemessa:ArrayCollection;
+			
+			[Bindable]
+			private var _notaFiscalSaida:NotaFiscalRemessa;
+			
+					
+			
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaNotaFiscalRemessa.getItemAt(event2.rowIndex);				
+				}
+				
+				this.currentState = "edicao";
+				_notaFiscalSaida = data as NotaFiscalRemessa;
+			}			
+			
+			private function voltar(event:MouseEvent):void
+			{
+				this.currentState = "listagem";
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="100%"
+					  includeIn="listagem"
+					  draggableColumns="true"
+					  dataProvider="{_listaNotaFiscalRemessa}"
+					  doubleClickEnabled="false"
+					  >
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.visualizarDetalhe(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />						
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+			<mx:DataGridColumn id="cliente"
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="cliente.nomeSistema"							   
+							   />
+			
+			<mx:DataGridColumn id="status" 
+							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+							   dataField = "statusString"
+							   width="80"
+							   />
+			
+			<mx:DataGridColumn id="dataCriacao"
+							   headerText = "{resourceManager.getString('ApplicationResource','DATA_CRIACAO')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="dtCriacao"							   
+							   />
+			
+			
+			<mx:DataGridColumn id="dataSaida"
+							   headerText = "{resourceManager.getString('ApplicationResource','DATA_SAIDA')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="dtSaida"							   
+							   />
+			
+			<mx:DataGridColumn id="numeroNF"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="numero"							   
+							   />
+			
+		</grid:columns>
+	</grid:MantisTable>
+	
+	
+	</mx:VBox>

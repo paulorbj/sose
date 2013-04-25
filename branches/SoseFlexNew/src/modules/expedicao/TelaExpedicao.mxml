@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="100%" creationComplete="configurarSubMenu();"
+		 verticalGap="0" xmlns:expedicao="modules.expedicao.*" >
+	<fx:Script>
+		<![CDATA[
+			import modules.view.Login;
+			
+			private function configurarSubMenu():void
+			{
+				if(Login.currentUser){
+					if(!Login.currentUser.perfil.subMenuExpedicaoBaixaOs){
+						subMenu.removeChild(baixa);
+					}
+					if(!Login.currentUser.perfil.subMenuExpedicaoListagemNfSaida){
+						subMenu.removeChild(listagem);
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:Fade id="fadeIn" duration="100" alphaFrom="0" alphaTo="1"/>
+		<mx:Fade id="fadeOut" duration="100" alphaFrom="1" alphaTo="0"/>
+	</fx:Declarations>
+	
+	<mx:LinkBar dataProvider = "{subMenu}"
+				borderStyle = "none"
+				fontFamily="Verdana" />
+	
+	<mx:ViewStack id="subMenu"  backgroundAlpha="0"
+				  borderStyle = "none" 
+				  width = "100%"	height="100%"			  
+				  creationPolicy="all">
+		
+		<mx:Canvas id="baixa" label = "{resourceManager.getString('ApplicationResource','BAIXA_ORDEM_SERVICO')}"  showEffect="fadeIn" hideEffect="fadeOut"  >
+			<expedicao:BaixaOrdemServico />
+		</mx:Canvas>
+		<mx:Canvas id="listagem" label = "{resourceManager.getString('ApplicationResource','LISTAGEM_NOTA_FISCAL_SAIDA')}"  showEffect="fadeIn" hideEffect="fadeOut"  >
+			<expedicao:ListagemNotaFiscalSaida />
+		</mx:Canvas>
+	</mx:ViewStack>
+	
+</mx:VBox>

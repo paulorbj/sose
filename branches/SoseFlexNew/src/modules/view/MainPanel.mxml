@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Christophe Coenraets, http://coenraets.org -->
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:v="modules.view.*"
+	xmlns:util="com.salesbuilder.util.*"
+	xmlns:lib="flexlib.containers.*"
+	xmlns:pessoa="modules.administrativo.parceiros.pessoa.*"
+	xmlns:messages="components.messages.*"
+	xmlns:components="components.*"
+	creationComplete="creationCompleteHandler()" verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	width="100%" height="100%" xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<mx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			import components.messages.NotificationEvent;
+			
+			import entities.administrativo.Perfil;
+			
+			import modules.administrativo.TelaAdministrativo;
+			import modules.consulta.TelaConsulta;
+			import modules.estoque.avaya.TelaEstoqueAvaya;
+			import modules.estoque.componente.TelaEstoque;
+			import modules.expedicao.TelaExpedicao;
+			import modules.faturamento.TelaFaturamento;
+			import modules.home.TelaHome;
+			import modules.proposta.TelaProposta;
+			import modules.recebimento.TelaRecebimento;
+			import modules.reparoOrcamento.TelaAreaTecnica;
+			
+			import mx.events.ItemClickEvent;
+			
+			import spark.components.ButtonBarButton;
+			import spark.events.IndexChangeEvent;
+			
+			import utils.AuthenticationUtils;
+			import utils.Publicador;
+			
+			public static var barraNotificacao:NotificationBar = null;
+			
+			public function creationCompleteHandler():void
+			{
+				this.addEventListener(MensagemEvent.EXIBIR_MENSAGEM,onMensagem);
+				this.addEventListener(NotificationEvent.LIMPAR_NOTIFICACOES,onLimpar);
+				var msg:String = "Bem vindo ao SOSE";
+				notificationBar.addMessage(msg.toString(), MessageType.INFO);
+				barraNotificacao = notificationBar;
+				Publicador.configurarProdutores();
+			}
+			
+			private function configurarMenuBar():void
+			{
+				var perfil:Perfil = Login.currentUser.perfil;
+				var b:ButtonBarButton = null;
+				if(perfil){
+					if(perfil.menuCadastro){
+						b = bb.getChildAt(1) as ButtonBarButton;
+						b.enabled = true;
+					}else{
+						b = bb.getChildAt(1) as ButtonBarButton;
+						b.enabled = false;
+					}
+					
+					if(perfil.menuRecebimento){
+						(bb.getChildAt(2) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(2) as ButtonBarButton).enabled = false;
+					}
+					
+					if(perfil.menuAreaTecnica){
+						(bb.getChildAt(3) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(3) as ButtonBarButton).enabled = false;
+					}
+					
+					if(perfil.menuExpedicao){
+						(bb.getChildAt(4) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(4) as ButtonBarButton).enabled = false;
+					}
+					
+					if(perfil.menuProposta){
+						(bb.getChildAt(5) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(5) as ButtonBarButton).enabled = false;
+					}
+					
+					if(perfil.menuEstoque){
+						(bb.getChildAt(6) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(6) as ButtonBarButton).enabled = false;
+					}
+					
+					//				if(perfil.menuExterno){
+					//					(bb.getChildAt(5) as ButtonBarButton).enabled = true;
+					//				}else{
+					//					(bb.getChildAt(0) as ButtonBarButton).enabled = false;
+					//				}
+					//				
+					if(perfil.menuFaturamento){
+						(bb.getChildAt(8) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(8) as ButtonBarButton).enabled = false;
+					}
+					
+					if(perfil.menuAvaya){
+						(bb.getChildAt(9) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(9) as ButtonBarButton).enabled = false;
+					}
+					
+					if(perfil.menuConsulta){
+						(bb.getChildAt(10) as ButtonBarButton).enabled = true;
+					}else{
+						(bb.getChildAt(10) as ButtonBarButton).enabled = false;
+					}
+				}
+			}
+			
+			private function onMensagem(event:MensagemEvent):void
+			{
+				notificationBar.addMessage(event.mensagem, event.tipo, event.delay);
+			}
+			
+			private function onLimpar(event:NotificationEvent):void
+			{
+				notificationBar.closeAllMessages();
+			}
+			
+			/**
+			 * Synchronize the local SQLite database with the "central" database. In this
+			 * version of Salesbuilder we simulate the sever database using an xml file
+			 * (serverdata.xml) to allow you to run the sample app with local data and without
+			 * having to install a specific back-end. 
+			 */
+			//		private function synchronize():void
+			//		{
+			//			var syncManager:SyncManager = new SyncManager();
+			//			syncManager.synchronize();
+			//		}
+			
+			
+			
+			private function buttonBarClick(event:IndexChangeEvent):void
+			{
+				switch (event.newIndex) 
+				{
+					case 0:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaHome());
+						break;
+					case 1:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaAdministrativo());
+						break;
+					case 2:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaRecebimento());
+						break;
+					case 3:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaAreaTecnica());
+						break;
+					case 4:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaExpedicao());
+						break;
+					case 5:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaProposta());
+						break;
+					case 6:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaEstoque());
+						break;
+					case 8:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaFaturamento());
+						break;
+					case 9:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaEstoqueAvaya());
+						break;
+					case 10:
+						containerPrincipal.removeAllChildren();
+						containerPrincipal.addChild(new TelaConsulta());
+						break;
+					
+				}
+				dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+				Login.usuarioAutenticado = null;
+			}
+			
+			
+			
+			//		/**
+			//		 * Handles keys pressed in the search TextInput field
+			//		 */
+			//		protected function searchKeyDownHandler(event:KeyboardEvent):void
+			//		{
+			//			if (searchPopup.currentState == "hidden" && event.keyCode != Keyboard.DOWN)
+			//			{
+			//				return
+			//			}
+			//			
+			//			switch (event.keyCode) 
+			//			{
+			//				case Keyboard.DOWN:
+			//					if (searchPopup.currentState == "hidden") searchPopup.currentState = "";
+			//					searchPopup.selectNext();
+			//    				break;
+			//				case Keyboard.UP:
+			//					searchPopup.selectPrevious();
+			//					searchStr.setSelection(searchStr.text.length, searchStr.text.length);
+			//    				break;
+			//				case Keyboard.ENTER:
+			//					searchPopup.openSelectedItem();
+			//    				break;
+			//				case Keyboard.ESCAPE:
+			//					searchPopup.currentState = "hidden";
+			//    				break;
+			//			}
+			//		}
+			//		
+			//		private function newAccount():void
+			//		{
+			//			dispatchEvent(new AccountEvent(AccountEvent.NEW));
+			//		}
+			
+			public function limparSessao():void
+			{
+				Login.usuarioAutenticado = null;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	
+	<!-- The Window Header -->
+	<mx:Canvas id="header" top="0" left="0" right="0">
+		
+		<mx:VBox right="730" verticalCenter="0" verticalGap="0">
+			<s:Label text="Versão: 15/04/2013" fontSize="12" color="red" />
+			<mx:HBox>
+				<s:Label text="USUÁRIO LOGADO:" styleName="welcome" fontSize="12"  />
+				<s:Spacer width="100%" />
+				<s:Label text="{Login.currentUser.usuario}" styleName="welcome"  fontSize="12" />
+			</mx:HBox>
+			<mx:HBox toolTip="Clique aqui para limpar a sessão" click="limparSessao()">
+				<s:Label text="USUÁRIO SESSÃO:" styleName="welcome"  fontSize="12" />
+				<s:Spacer width="100%" />
+				<s:Label text="{Login.usuarioAutenticado.usuario}" styleName="welcome" color="red" fontSize="12" />
+			</mx:HBox>
+		</mx:VBox>
+		
+		<mx:Image source="@Embed('assets/top_separator.png')" right="700" y="0"/>
+		
+		<s:ButtonBar labelField="label"
+					 requireSelection="true" change="buttonBarClick(event)"
+					 id="bb" right="245" height="29" 
+					 skinClass="skins.CustomButtonBarSkin"
+					 verticalCenter="0">
+			<s:dataProvider>
+				<s:ArrayList>
+					<mx:Object icon="@Embed('assets/icon_home.png')" label="Home"  />
+					<mx:Object icon="@Embed('assets/icon_cadastros2.png')" label="Cadastro" enabled="{Login.currentUser.perfil.menuCadastro}" />
+					<mx:Object icon="@Embed('assets/icon_recebimento3.png')" label="Recebimento" enabled="{Login.currentUser.perfil.menuRecebimento}" />
+					<mx:Object icon="@Embed('assets/icon_reparo15.png')" label="Área técnica" enabled="{Login.currentUser.perfil.menuAreaTecnica}"/>
+					<mx:Object icon="@Embed('assets/icon_expedicao1.png')" label="Expedição" enabled="{Login.currentUser.perfil.menuExpedicao}"/>
+					<mx:Object icon="@Embed('assets/icon_proposta7.png')" label="Proposta" enabled="{Login.currentUser.perfil.menuProposta}"/>
+					<mx:Object icon="@Embed('assets/icon_estoque2.png')" label="Estoque" enabled="{Login.currentUser.perfil.menuEstoque}"/>
+					<mx:Object icon="@Embed('assets/icon_externo2.png')" label="Externo" enabled="{Login.currentUser.perfil.menuExterno}"/>
+					<mx:Object icon="@Embed('assets/icon_faturamento7.png')" label="Faturamento" enabled="{Login.currentUser.perfil.menuFaturamento}"/>
+					<mx:Object icon="@Embed('assets/icon_avaya4.png')" label="Avaya" enabled="{Login.currentUser.perfil.menuAvaya}"/>
+					<mx:Object icon="@Embed('assets/icon_consulta5.png')" label="Consultas e relatórios" enabled="{Login.currentUser.perfil.menuConsulta}"/>
+				</s:ArrayList>
+			</s:dataProvider>
+		</s:ButtonBar>
+		
+		<mx:Image source="@Embed('assets/top_separator.png')" right="232.5" y="0"/>
+		
+		<mx:Image source="@Embed('assets/search.png')" right="82" verticalCenter="0"/>
+		<mx:TextInput id="searchStr" borderStyle="none"  width="110" right="101" verticalCenter="2" focusThickness="0" 
+					  borderSkin="@Embed('assets/blank.png')"	/>
+		
+		<mx:Image source="@Embed('assets/icon_close.png')" right="91" verticalCenter="0"/>
+		
+		<mx:Image source="@Embed('assets/top_separator.png')" right="66.5" y="0"/>
+		
+	</mx:Canvas>
+	
+	<mx:VBox id="containerPrincipal" styleName="tabContainer" top="62" left="14" right="14" bottom="65" depth="100"
+			 paddingTop="1" paddingLeft="2" paddingBottom="2" paddingRight="2" verticalScrollPolicy="off" horizontalScrollPolicy="off"
+			 horizontalAlign="center" width="100%" height="100%" >
+	</mx:VBox>
+	
+	<messages:NotificationBar id="notificationBar" bottom="14" left="17" right="17" depth="0" 
+							  width="100%" height="50" />
+	
+	
+	
+</mx:Canvas>

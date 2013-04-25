@@ -1,0 +1,81 @@
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:texto="components.textInput.*" width="100%"
+		 xmlns:combos="components.combos.*"
+		 >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Unidade;
+			
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var _unidade:Unidade = new Unidade();
+			
+			
+			public function get unidade():Unidade
+			{
+				_unidade.fabricante = cbFabricante.fabricanteSelecionado;
+				_unidade.equipamento = cbEquipamento.equipamentoSelecionado;
+				_unidade.laboratorio = cbLaboratorio.laboratorioSelecionado;
+				_unidade.prestadorServicoExterno = cbPrestadorServico.prestadorServicoSelecionado;
+				return _unidade;
+			}
+
+			public function set unidade(value:Unidade):void
+			{
+				_unidade = value;
+				cbFabricante.fabricanteSelecionado = value.fabricante;
+				cbEquipamento.equipamentoSelecionado = value.equipamento;
+				cbLaboratorio.laboratorioSelecionado = value.laboratorio;
+				cbPrestadorServico.prestadorServicoSelecionado = value.prestadorServicoExterno;
+			}
+			
+			public function limpar():void
+			{
+				_unidade = new Unidade();
+				cbFabricante.limpar();
+				cbEquipamento.limpar();
+				cbLaboratorio.limpar();
+				cbPrestadorServico.limpar();
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(nome.stringValidator);
+				validatorArr.push(cbFabricante.comboBox.comboValidator);
+				validatorArr.push(cbEquipamento.comboBox.comboValidator);
+				validatorArr.push(cbLaboratorio.comboBox.comboValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="nome.inputText" source="_unidade.nome" twoWay="true"/>
+	<fx:Binding destination="codigo.inputText" source="_unidade.codigo" twoWay="true"/>
+	<fx:Binding destination="descricao.inputText" source="_unidade.descricao" twoWay="true"/>
+	<fx:Binding destination="ativo.selected" source="_unidade.cadastroSistemaAtivo" twoWay="true"/>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="nome" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_UNIDADE')}" width="200"  />
+		<texto:TextInput id="codigo" labelText="{resourceManager.getString('ApplicationResource','CODIGO_UNIDADE')}" width="200"  />
+		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="355" />
+		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%">
+		<combos:ComboFabricante id="cbFabricante" required="true" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="218" />
+		<combos:ComboEquipamento id="cbEquipamento" required="true" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="219" />
+		<combos:ComboLaboratorio id="cbLaboratorio" required="true" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="219" />
+		<combos:ComboPrestadorServico id="cbPrestadorServico"  labelText="{resourceManager.getString('ApplicationResource','PRESTADOR_SERVICO')}" width="219" />
+	</mx:HBox>
+</mx:VBox>

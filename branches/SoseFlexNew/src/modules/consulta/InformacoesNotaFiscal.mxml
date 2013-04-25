@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:notaFiscal="modules.recebimento.notaFiscal.*"
+		 xmlns:recebimentoComponente="modules.recebimento.notaFiscal.componentesInformacoesNotaFiscal.*"
+		 xmlns:texto="components.textInput.*" xmlns:combos="components.combos.*"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:componentes="components.*" horizontalAlign="center"
+		 width="100%" height="100%" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.recebimento.ItemNotaFiscal;
+			import entities.recebimento.NotaFiscal;
+			
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			private var _notaFiscal:NotaFiscal;
+			
+			
+			public function get notaFiscal():NotaFiscal
+			{
+				return _notaFiscal;
+			}
+			
+			public function set notaFiscal(value:NotaFiscal):void
+			{
+				_notaFiscal = value;
+				valorNotaFiscal.setValor(_notaFiscal.valorNotaFiscal);
+				habilitaCampos();
+			}
+			
+			public function formatarColunaValorUnitario(item:Object, column:DataGridColumn):String
+			{
+				var itemNf:ItemNotaFiscal = item as ItemNotaFiscal;
+				if(itemNf.valorUnitario != 0){
+					return ScreenUtils.formatarMoeda(itemNf.valorUnitario);
+				}else{
+					return "R$0,00"
+				}
+			}
+			
+			public function habilitaCampos():void
+			{
+				if(_notaFiscal.cliente.tipoPessoa == 1){
+					txtNome.labelText = resourceManager.getString('ApplicationResource','NOME');
+					txtRgIe.labelText = resourceManager.getString('ApplicationResource','RG');
+					txtCpfCnpj.labelText = resourceManager.getString('ApplicationResource','CPF');
+				}else{
+					txtNome.labelText = resourceManager.getString('ApplicationResource','RAZAO_SOCIAL');
+					txtRgIe.labelText = resourceManager.getString('ApplicationResource','IE');
+					txtCpfCnpj.labelText = resourceManager.getString('ApplicationResource','CNPJ');
+				}
+			}
+			
+			public function limpar():void{
+				_notaFiscal = null;
+				valorNotaFiscal.setValor(0);;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="numeroNotaFiscal.inputText" destination="_notaFiscal.numero" twoWay="true" />
+	<fx:Binding source="txtNome.inputText" destination="_notaFiscal.cliente.nomeRazaoSocial" twoWay="true" />
+	<fx:Binding source="txtRgIe.inputText" destination="_notaFiscal.cliente.rgIe" twoWay="true" />
+	<fx:Binding source="txtCpfCnpj.inputText" destination="_notaFiscal.cliente.cpfCnpj" twoWay="true" />
+	<fx:Binding source="txtClienteAvaya.inputText" destination="_notaFiscal.clienteAvaya" twoWay="true" />
+	<fx:Binding source="txtCaseAvaya.inputText" destination="_notaFiscal.caseAvaya" twoWay="true" />
+	<fx:Binding source="dataNotaFiscal.inputDate" destination="_notaFiscal.dataNotaFiscal" twoWay="true" />
+	<fx:Binding source="dataEntradaNotaFiscal.inputDate" destination="_notaFiscal.dataChegada" twoWay="true" />
+	
+	<mx:HBox width="100%" verticalAlign="middle">
+		<s:Label text="Status:" />
+		<s:Label id="statusOS" fontSize="20" color="red" text="{_notaFiscal.statusString}" />
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="txtNome" labelText="{resourceManager.getString('ApplicationResource','NOME')}" habilitado="false" width="60%"  />
+		<texto:TextInput id="txtRgIe" labelText="{resourceManager.getString('ApplicationResource','RG')}" habilitado="false" width="20%"  />
+		<texto:TextInput id="txtCpfCnpj" labelText="{resourceManager.getString('ApplicationResource','CPF')}" habilitado="false" width="20%"  />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="numeroNotaFiscal" habilitado="false"  labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="25%" />
+		<componentes:DataInput id="dataNotaFiscal" enabled="false" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="10%" inputHeight="20" />
+		<componentes:DataInput id="dataEntradaNotaFiscal" enabled="false" labelText="{resourceManager.getString('ApplicationResource','DATA_RECEBIMENTO_NOTA_FISCAL')}" width="10%" inputHeight="20" />
+		<texto:TextInputDinheiro2d id="valorNotaFiscal" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','VALOR_NOTA_FISCAL')}" width="15%" />
+		<texto:TextInput id="txtCaseAvaya" labelText="{resourceManager.getString('ApplicationResource','CASE_AVAYA')}" width="20%" habilitado="false" />
+		<texto:TextInput id="txtClienteAvaya" labelText="{resourceManager.getString('ApplicationResource','CLIENTE_AVAYA')}" width="20%" habilitado="false" />	
+	</mx:HBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_notaFiscal.itensDaNotaFiscal}">
+		<grid:columns>
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="cCodigo" width=".05"
+							   headerText = "{resourceManager.getString('ApplicationResource','CODIGO')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="codigo"							   
+							   />
+			<mx:DataGridColumn id="cDescricao" dataField="nome" width=".20"
+							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+							   textAlign="center"
+							   sortable="false"					   
+							   />
+			<mx:DataGridColumn id="cNcm" dataField="ncm" width=".0875"
+							   headerText = "{resourceManager.getString('ApplicationResource','NCM')}"
+							   textAlign="center"
+							   sortable="false"							   
+							   />
+			<mx:DataGridColumn id="cCst" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CST')}"
+							   dataField = "cst" textAlign="center"
+							   width=".0875"
+							   />
+			<mx:DataGridColumn id="cCfop" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CFOP')}"
+							   dataField = "cfop" textAlign="center"
+							   width=".0875"
+							   />
+			<mx:DataGridColumn id="cUnidadeMedida" 
+							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_MEDIDA')}"
+							   dataField = "unidadeMedida" textAlign="center"
+							   width=".0875"
+							   />
+			<mx:DataGridColumn id="cQuantidade" 
+							   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
+							   dataField = "quantidade" textAlign="center"
+							   width=".05"
+							   />
+			<mx:DataGridColumn id="cValorUnitario"  textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','VALOR_UNITARIO')}"
+							   labelFunction="formatarColunaValorUnitario"
+							   width=".10"
+							   />
+			<mx:DataGridColumn id="cUnidadeServilogi" 
+							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_SERVILOGI')}"
+							   dataField = "unidadeString" textAlign="center"
+							   width=".10"
+							   />
+			<mx:DataGridColumn id="cLpu" 
+							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}"
+							   dataField = "lpuString" textAlign="center"
+							   width=".10"
+							   />
+		</grid:columns>
+	</grid:MantisTable>
+</mx:VBox>

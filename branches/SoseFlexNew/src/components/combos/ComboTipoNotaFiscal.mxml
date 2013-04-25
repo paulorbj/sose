@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0"
+		 creationPolicy="all"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Defeito;
+			import entities.administrativo.parceiros.Pessoa;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.ScreenUtils;
+			import utils.TipoNotaFiscal;
+			
+			private var _pessoa:Pessoa;
+			
+			[Bindable]
+			public var changeFunction:Function = null;
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			private function onCreationComplete():void
+			{
+				comboBox.labelField = "nome";
+				comboBox.textoPadrao = "Selecione um tipo de nota...";
+				
+			}
+			
+			
+			private function onListarDefeitoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo tipo de nota] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function get pessoa():Pessoa
+			{
+				return _pessoa;
+			}
+			
+			public function set pessoa(value:Pessoa):void
+			{
+				if(value == null){
+					comboBox.dataProvider = ScreenUtils.tipoNotaFiscalList as ArrayCollection;
+					comboBox.enabled = false;
+				}else{
+					if(value.tipoPessoa == 1){
+						comboBox.dataProvider = new ArrayCollection();
+						comboBox.dataProvider.addItem(ScreenUtils.tipoNotaFiscalList.getItemAt(0));
+						comboBox.enabled = true;
+					}else if (value.tipoPessoa == 2){
+						if((value.nomeRazaoSocial != null && value.nomeRazaoSocial.toLowerCase().indexOf("avaya") != -1) || 
+							(value.nomeSistema != null && value.nomeSistema.toLowerCase().indexOf("avaya") != -1))
+						{
+							comboBox.dataProvider = new ArrayCollection();
+							comboBox.dataProvider.addAll(ScreenUtils.tipoNotaFiscalList);
+							comboBox.dataProvider.removeItemAt(0);
+							comboBox.enabled = true;
+						}else{
+							comboBox.dataProvider = new ArrayCollection();
+							comboBox.dataProvider.addItem(ScreenUtils.tipoNotaFiscalList.getItemAt(0));	
+							comboBox.enabled = true;
+						}
+					}				
+				}
+				_pessoa = value;
+			}
+			
+			
+			public function get labelText():String
+			{
+				return comboBox.labelText;
+			}
+			
+			public function set labelText(value:String):void
+			{
+				if(comboBox)
+					comboBox.labelText = value;
+			}
+			
+			[Bindable]
+			public function get tipoNotaFiscalSelecionada():TipoNotaFiscal 
+			{
+				if(comboBox.selectedItem == null)
+					return null;
+				else
+					return comboBox.selectedItem as TipoNotaFiscal; 
+			}
+			
+			public function set tipoNotaFiscalSelecionada(tipoNotaFiscal:TipoNotaFiscal):void 
+			{
+				comboBox.selectedItem = tipoNotaFiscal;
+			}
+			
+			public function limpar():void
+			{
+				comboBox.clean();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" />
+</mx:VBox>

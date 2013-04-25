@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="Autenticar técnico"
+				xmlns:components="components.*"
+				creationComplete="doInit()"
+				initialize="addListeners()"
+				creationPolicy="all"
+				xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		
+		<mx:RemoteObject id="usuarioService"  destination="usuarioService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="autenticarUsuario"      
+					   fault="onfindByUserRegisterFault(event)" 
+					   result="onfindByUserRegisterResult(event)"
+					   />
+		</mx:RemoteObject>
+
+		<!-- Validators -->
+		<mx:StringValidator id = "usuarioValidator"
+							source = "{usuario}"
+							property = "text"
+							required = "true"							
+							requiredFieldError = "Campo obrigatório"/>
+		<mx:StringValidator id = "senhaValidator"
+							source = "{senha}"
+							property = "text"
+							required = "true"							
+							requiredFieldError = "Campo obrigatório"/>
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.Message;
+			import components.messages.MessageFactory;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Usuario;
+			
+			import modules.reparoOrcamento.ListagemGeral;
+			import modules.view.Login;
+			import modules.view.MainPanel;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+					
+			private var yesListeners:ArrayCollection = new ArrayCollection();
+			private var metodoRetorno:Function;
+			public var myParentObject:DisplayObject;
+			
+			override public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void {
+				yesListeners.addItem(listener);
+				metodoRetorno = listener;
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			
+			private function doInit():void
+			{
+				usuario.setFocus();
+			}
+			
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}else if(e.keyCode==Keyboard.ENTER){
+					confirm();
+				}
+			}
+			
+			private function confirm():void	
+			{				
+				if(Validator.validateAll([usuarioValidator,senhaValidator]).length==0){	
+					usuarioService.autenticarUsuario(usuario.text,senha.text);
+				}	
+			}
+			
+			private function close():void
+			{
+				PopupModalController.getInstance().hideUserModal();
+				clear();
+			}
+			
+			/** Handles success return from findAll() function */
+			private function onfindByUserRegisterResult(event:ResultEvent = null):void
+			{
+				var usuarioAutenticado:Usuario = event.result as Usuario;
+				
+				if (usuarioAutenticado == null){
+					MainPanel.barraNotificacao.addMessage("Falha ao logar! Usuário e/ou senha incorreto!", MessageType.ERROR, 5000);
+					Login.usuarioAutenticado = null;
+				} else if (usuarioAutenticado.bloqueado) {
+					MainPanel.barraNotificacao.addMessage("O usuário " + usuarioAutenticado.usuario + " se encontra bloqueado!", MessageType.ERROR, 5000);
+					Login.usuarioAutenticado = null;
+				} else{
+					Login.usuarioAutenticado = usuarioAutenticado;
+					var eventRegister:UserRegisterNumberModalEvent = new UserRegisterNumberModalEvent(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL,usuarioAutenticado,true, false);
+					dispatchEvent(eventRegister);
+				}
+				close();
+			}
+			
+			/** Handles fail return from findAll() function */
+			private function onfindByUserRegisterFault(event:FaultEvent = null):void
+			{
+				FlexGlobals.topLevelApplication.enabled=true;
+				close();
+				trace("[findByRegisterNumber] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			public function clear():void 
+			{
+				var test:Boolean = this.hasEventListener(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL);
+				var teste2:Boolean = this.willTrigger(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL);
+				for (var i:int = 0; i < yesListeners.length; i++) {
+					this.removeEventListener(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL, yesListeners.getItemAt(i) as Function);
+				}
+				yesListeners = new ArrayCollection;
+				
+				removeEventListener(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL, metodoRetorno,false);
+			}
+			
+			private function autenticarNovoUsuario():void
+			{
+				Login.usuarioAutenticado = null;
+				usuario.text = "";
+				usuario.enabled = true;
+				usuario.setFocus();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox horizontalAlign="center" verticalAlign="bottom" width="100%" creationPolicy="all">
+		<mx:HBox horizontalAlign="center" verticalAlign="bottom" width="100%" creationPolicy="all">
+			<s:Label  text="{resourceManager.getString('ApplicationResource','USERNAME')}"/>
+			<s:Spacer width="100%" />
+			<s:TextInput
+				id="usuario"
+				width="150" height="25"
+				enter="confirm()"/>
+		</mx:HBox>
+		<mx:HBox horizontalAlign="center" verticalAlign="bottom" width="100%" creationPolicy="all">
+			<s:Label  text="{resourceManager.getString('ApplicationResource','PASSWORD')}"/>
+			<s:Spacer width="100%" />
+			<s:TextInput  
+				id="senha" displayAsPassword="true"
+				width="150" height="25"
+				enter="confirm()"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:ControlBar horizontalAlign="center" width="100%">
+		<mx:HBox width="100%">	
+			<mx:Button click="confirm()" width="50%"
+					   label="{resourceManager.getString('ApplicationResource','AUTENTICAR')}"
+					   icon="@Embed(source='/assets/icons/yes.png')"/>
+			<mx:Button click="close()" width="50%"
+					   label="{resourceManager.getString('ApplicationResource','CANCELAR')}"
+					   icon="@Embed(source='/assets/icons/no.png')"/>
+		</mx:HBox>
+	</mx:ControlBar>
+	
+	<mx:Button click="autenticarNovoUsuario()" width="100%" textDecoration="underline"
+			   label="Autenticar como outro usuário" />
+	
+</mx:TitleWindow>

@@ -1,0 +1,1196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="onInit()"
+		 xmlns:combos="components.combos.*" xmlns:grid="components.grid.*"
+		 xmlns:texto="components.textInput.*" xmlns:componentes="components.*"
+		 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="100%" height="100%"
+		 paddingBottom.editarBuscarComponente="10" paddingLeft.editarBuscarComponente="10" paddingRight.editarBuscarComponente="10" paddingTop.editarBuscarComponente="10"
+		 >
+	<fx:Declarations>
+		<mx:RemoteObject id="componenteService" showBusyCursor="true" destination="componenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarComponentes"      
+					   fault="onListarComponentesFault(event)" 
+					   result="onListarComponentesResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="componenteOrcRepService" concurrency="single" showBusyCursor="true" destination="componenteOrcRepService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarComponentesPosicaoPorRequisicao"      
+					   fault="onListarComponentesPosicaoPorRequisicaoFault(event)" 
+					   result="onListarComponentesPosicaoPorRequisicaoResult(event)"
+					   />
+			<mx:method name="componenteDefeituosoOrcRep"      
+					   fault="onComponenteDefeituosoFault(event)" 
+					   result="onComponenteDefeituosoResult(event)"
+					   />
+			<mx:method name="componentePerdidoOrcRep"      
+					   fault="onComponentePerdidoFault(event)" 
+					   result="onComponentePerdidoResult(event)"
+					   />
+			<mx:method name="devolverComponenteOrcRep"      
+					   fault="onDevolverComponenteFault(event)" 
+					   result="onDevolverComponenteResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="requisicaoComponenteService" concurrency="single" showBusyCursor="true"  destination="requisicaoComponenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="efetivarRequisicao"      
+					   fault="onEfetivarRequisicaoFault(event)" 
+					   result="onEfetivarRequisicaoResult(event)"
+					   />
+			<mx:method name="receberMaterial"      
+					   fault="onReceberMaterialFault(event)" 
+					   result="onReceberMaterialResult(event)"
+					   />
+		</mx:RemoteObject>
+		<mx:RemoteObject id="estoqueController" concurrency="single" showBusyCursor="true" destination="estoqueController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			
+			<mx:method name="receberMaterial"      
+					   fault="onReceberMaterialFault(event)" 
+					   result="onReceberMaterialResult(event)"
+					   />
+			<mx:method name="cancelarRequisicao"      
+					   fault="onCancelarRequisicaoFault(event)" 
+					   result="onCancelarRequisicaoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Producer id="produtorReparoService" destination="ReparoMessageServicePush" /> 
+		
+		<mx:Producer id="produtorOrcamentoService" destination="OrcamentoMessageServicePush" />
+		
+		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
+		
+		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
+
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Componente;
+			import entities.administrativo.Usuario;
+			import entities.orcamentoreparo.ComponenteOrcRep;
+			import entities.orcamentoreparo.Orcamento;
+			import entities.orcamentoreparo.Reparo;
+			import entities.orcamentoreparo.RequisicaoComponente;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.reparoOrcamento.eventos.ComponenteEvent;
+			import modules.reparoOrcamento.eventos.OrcamentoEvent;
+			import modules.reparoOrcamento.eventos.ReparoEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			
+			private var _reparo:Reparo;;
+			
+			private var _orcamento:Orcamento;
+			
+			[Bindable]
+			private var _componente:Componente;
+			
+			[Bindable]
+			private var listaComponentes:ArrayCollection;
+			
+			[Bindable]
+			private var listaComponentesFiltrados:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var listaComponentesFiltradosAux:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var listaRequisicoes:ArrayCollection;
+			
+			[Bindable]
+			public var listaComponentePosicao:ArrayCollection;
+			
+			[Bindable]
+			private var _requisicao:RequisicaoComponente;
+			
+			[Bindable]
+			private var _posicaoComponente:ComponenteOrcRep;
+			
+			[Bindable]
+			private var validatorArr:Array;
+			
+//			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
+//				var message:AsyncMessage = new AsyncMessage();
+//				var messageGlobal:GlobalMessage=new GlobalMessage();
+//				messageGlobal.mensagem=msg;
+//				messageGlobal.conteudo = req;				
+//				message.body=messageGlobal;
+//				produtorEstoqueService.send(message);	
+//			}
+//			
+//			private function publicarReparo(rep:Reparo, msg:String):void   { 								
+//				var message:AsyncMessage = new AsyncMessage();
+//				var messageGlobal:GlobalMessage=new GlobalMessage();
+//				messageGlobal.mensagem=msg;
+//				messageGlobal.conteudo = rep;				
+//				message.body=messageGlobal;
+//				produtorReparoService.send(message);	
+//			}
+//			
+//			private function publicarOrcamento(orc:Orcamento, msg:String):void   { 								
+//				var message:AsyncMessage = new AsyncMessage();
+//				var messageGlobal:GlobalMessage=new GlobalMessage();
+//				messageGlobal.mensagem=msg;
+//				messageGlobal.conteudo = orc;				
+//				message.body=messageGlobal;
+//				produtorOrcamentoService.send(message);	
+//			}
+//			
+//			private function publicarComponente(orc:Componente, msg:String):void   { 								
+//				var message:AsyncMessage = new AsyncMessage();
+//				var messageGlobal:GlobalMessage=new GlobalMessage();
+//				messageGlobal.mensagem=msg;
+//				messageGlobal.conteudo = orc;				
+//				message.body=messageGlobal;
+//				produtorEstoqueService.send(message);	
+//			}
+			
+			private function onMsgEstoque(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
+					var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
+
+					if(_reparo != null && req.reparo != null){
+						if(req.reparo.id == _reparo.id){
+							addRequisicao(req);
+						}
+					}
+					if(_orcamento != null && req.orcamento != null){
+						if(req.orcamento.id == _orcamento.id){
+							addRequisicao(req);
+						}
+					}
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR){
+					var req1:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
+					if(_reparo != null && req1.reparo != null){
+						if(req1.reparo.id == _reparo.id){
+							addRequisicao(req1);
+						}
+					}
+					if(_orcamento != null && req1.orcamento != null){
+						if(req1.orcamento.id == _orcamento.id){
+							addRequisicao(req1);
+						}
+					}
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR){
+					var comp:Componente = globalMessage.conteudo as Componente;
+					atualizarComponente(comp);
+				}
+			} 
+			
+			public function addRequisicao(req:RequisicaoComponente):void
+			{
+				var requisicaoAux:RequisicaoComponente = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaRequisicoes.length; i++){
+					requisicaoAux = listaRequisicoes.getItemAt(i) as RequisicaoComponente; 
+					if(requisicaoAux.id == req.id){
+						listaRequisicoes.removeItemAt(i);
+						listaRequisicoes.addItemAt(req,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaRequisicoes.addItem(req);
+				}
+				_requisicao = null;
+				_componente = null;
+				componenteQuantidade.inputText = "";
+			}
+
+			
+			public function setReparo(value:Reparo):void
+			{
+				
+				_reparo = value;
+				_orcamento = null;
+				if(_reparo.listaRequisicao){
+					listaRequisicoes = _reparo.listaRequisicao;
+				}else{
+					listaRequisicoes = new ArrayCollection();
+				}
+				
+				listaComponentePosicao = _reparo.listaComponente;
+			}
+			
+			public function setOrcamento(value:Orcamento):void
+			{
+	
+				_orcamento = value;
+				_reparo = null;
+				if(_orcamento.listaRequisicao){
+					listaRequisicoes = _orcamento.listaRequisicao;
+				}else{
+					listaRequisicoes = new ArrayCollection();
+				}
+				listaComponentePosicao = _orcamento.listaComponente;
+			}
+			
+			private function onInit():void
+			{
+				componenteService.listarComponentes();
+				this.addEventListener(ComponenteEvent.ADICIONAR_REQUISICAO,onAdicionarRequisicao);
+				consumidorEstoqueService.subscribe();
+			}
+			
+			private function onAdicionarRequisicao(event:ComponenteEvent):void
+			{
+				var requisicao:RequisicaoComponente = event.requisicao;
+				var requisicaoAux:RequisicaoComponente = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaRequisicoes.length; i++){
+					requisicaoAux = listaRequisicoes.getItemAt(i) as RequisicaoComponente; 
+					if(requisicaoAux.id == requisicao.id){
+						listaRequisicoes.removeItemAt(i);
+						listaRequisicoes.addItemAt(requisicao,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaRequisicoes.addItem(requisicao);
+				}
+				_requisicao = null;
+				_componente = null;
+				componenteQuantidade.inputText = "";
+			}
+			
+			private function atualizarComponente(componente:Componente):void
+			{
+				var componenteAux:Componente = null;
+				for(var i:int=0; i<listaComponentes.length; i++){
+					componenteAux = listaComponentes.getItemAt(i) as Componente; 
+					if(componenteAux.id == componente.id){
+						listaComponentes.removeItemAt(i);
+						listaComponentes.addItemAt(componente,i);
+					}
+				}
+				
+				for(var i:int=0; i<listaComponentesFiltrados.length; i++){
+					componenteAux = listaComponentesFiltrados.getItemAt(i) as Componente; 
+					if(componenteAux.id == componente.id){
+						listaComponentesFiltrados.removeItemAt(i);
+						listaComponentesFiltrados.addItemAt(componente,i);
+					}
+				}
+				
+			}
+			
+			private function onListarComponentesResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				listaComponentes = event.result as ArrayCollection;
+				listaComponentesFiltrados.addAll(listaComponentes);
+			}
+			
+			private function onListarComponentesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function realizarRequisicao(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaComponentes.getItemAt(event2.rowIndex);				
+				}
+				
+				_componente = data as Componente;
+				_requisicao.componente = _componente;
+				this.currentState = "editarRequisicao";
+				tn.tabIndex = 0;
+				
+			}
+			
+			private function adicionarRequisicao(event:MouseEvent):void
+			{
+				this.currentState = "editarBuscarComponente";
+				_requisicao = new RequisicaoComponente();
+				limparBuscar();
+				if(_reparo){
+					dispatchEvent(new ReparoEvent(ReparoEvent.SALVAR_REPARO, null));
+				}else{
+					dispatchEvent(new OrcamentoEvent(OrcamentoEvent.SALVAR_ORCAMENTO, null));
+				}
+			}
+			
+			private function limparBuscar():void
+			{
+				searchInput.clean();
+				listaComponentesFiltrados.removeAll();
+				listaComponentesFiltrados.addAll(listaComponentes);
+			}
+			
+			public function efetivarRequisicaoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				efetivarRequisicao();
+			}
+			
+			private function efetivarRequisicao(event:MouseEvent=null):void
+			{
+				var qtdRequisitada:Number = parseInt(componenteQuantidade.inputText);
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(qtdRequisitada < 1){
+						dispatchEvent(new MensagemEvent("Quantidade requisitada menor que 1", MessageType.WARNING, 10000));
+						return;
+					}
+					if(qtdRequisitada > 255){
+						dispatchEvent(new MensagemEvent("Quantidade requisitada maior do que a permitida", MessageType.WARNING, 10000));
+						return;
+					}
+					var total:Number = 0;
+					for each(var req:RequisicaoComponente in listaRequisicoes){
+						total += req.quantidade;
+					}
+					total += qtdRequisitada;
+					if(total > 255){
+						dispatchEvent(new MensagemEvent("Quantidade requisitada excede o total já requisitado", MessageType.WARNING, 10000));
+						return;
+					}
+					
+					if(_reparo != null ? usr.id == _reparo.tecnicoResponsavel.id : usr.id == _orcamento.tecnicoResponsavel.id){
+						if(validateForm()){
+							if(_reparo){
+								_requisicao.reparo = _reparo;
+								_orcamento = null;
+							}else{
+								_requisicao.orcamento = _orcamento;
+								_reparo = null;
+							}
+							
+							_requisicao.requisitante = usr;
+							_requisicao.quantidade = qtdRequisitada;
+							requisicaoComponenteService.efetivarRequisicao(_requisicao,usr);
+						}else{
+							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
+						}
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(efetivarRequisicaoAutenticar);
+				}
+				
+			}
+			
+			private function onEfetivarRequisicaoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_requisicao = event.result as RequisicaoComponente;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA,_requisicao);
+				//publicarRequisicao(_requisicao, MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA);
+				atualizarComponente(_requisicao.componente);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR,_requisicao.componente)
+				//publicarComponente(_requisicao.componente,MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR);
+				if(_orcamento){
+					_orcamento = _requisicao.orcamento;
+					dispatchEvent(new OrcamentoEvent(OrcamentoEvent.ATUALIZAR_ORCAMENTO, _orcamento));
+					Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_EDITADO,_orcamento);
+					//publicarOrcamento(_orcamento,MensagensAplicacao.ORCAMENTO_EDITADO);
+				}else{
+					_reparo = _requisicao.reparo;
+					Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_EDITADO,_reparo);
+					//publicarReparo(_reparo, MensagensAplicacao.REPARO_EDITADO);
+					dispatchEvent(new ReparoEvent(ReparoEvent.ATUALIZAR_REPARO, _reparo));
+				}
+				//listaRequisicoes.addItemAt(_requisicao,0);
+				_requisicao = null;
+				_componente = null;
+				componenteQuantidade.inputText = "";
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_EFETUADA_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onEfetivarRequisicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.search("SaldoInsuficienteException") != -1){
+					dispatchEvent(new MensagemEvent("Saldo insuficiente", MessageType.WARNING, 10000));
+					abrirModalCriarPedidoCompra();
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_EFETUADA_ERRO'), MessageType.ERROR, 10000));	
+				}				
+			}
+			
+			private function abrirModalCriarPedidoCompra():void {
+				var criarPedidoCompra:ModalSaldoInsuficiente=ModalSaldoInsuficiente(PopUpManager.createPopUp( this, ModalSaldoInsuficiente , true));
+				criarPedidoCompra["myParentObject"] = this;
+				PopUpManager.centerPopUp(criarPedidoCompra);
+				var os:OrdemServico = null;
+				if(_requisicao.reparo){
+					os = _requisicao.reparo.ordemServico
+				}else{
+					os = _requisicao.orcamento.ordemServico;
+				}
+				criarPedidoCompra.novoPedidoCompra(os,_requisicao);
+			}
+			
+			public function materialRecebido(data:Object=null, event:Event=null):void
+			{		
+				if(this.currentState == "editarRequisicao"){
+					//for double click
+					if(data==null && event is ListEvent){
+						var event2:ListEvent = event as ListEvent						
+						data = listaRequisicoes.getItemAt(event2.rowIndex);				
+					}
+					
+					if(data != null)
+						_requisicao = data as RequisicaoComponente;
+					
+					var usr:Usuario = Login.usuarioAutenticado;
+					if(usr){
+						if(_reparo != null ? usr.id == _reparo.tecnicoResponsavel.id : usr.id == _orcamento.tecnicoResponsavel.id){
+							estoqueController.receberMaterial(_requisicao,usr);	
+						}else{
+							dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+							Login.usuarioAutenticado = null;
+						}
+					}else{
+						PopupModalController.getInstance().showModalAutenticacaoUsuario(receberMaterialAutenticar);
+					}
+					
+					
+				}
+			}
+			
+			public function receberMaterialAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				materialRecebido();
+			}
+			
+			private function onReceberMaterialResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = listaRequisicoes.getItemIndex(_requisicao);
+				_requisicao = event.result as RequisicaoComponente;
+				
+				//publicarRequisicao(_requisicao,MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR,_requisicao);
+				//componenteOrcRepService.listarComponentesPosicaoPorRequisicao(_requisicao);
+				
+				//listaRequisicoes.removeItemAt(index);
+				//listaRequisicoes.addItemAt( _requisicao, index);
+				
+				if(_requisicao.reparo){
+					dispatchEvent(new ReparoEvent(ReparoEvent.ATUALIZAR_REPARO, _requisicao.reparo));
+					//publicarReparo(_requisicao.reparo, MensagensAplicacao.REPARO_EDITADO);
+					Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_EDITADO,_requisicao.reparo);
+				}else{
+					dispatchEvent(new OrcamentoEvent(OrcamentoEvent.ATUALIZAR_ORCAMENTO, _requisicao.orcamento));
+					//publicarOrcamento(_requisicao.orcamento,MensagensAplicacao.ORCAMENTO_EDITADO);
+					Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_EDITADO,_requisicao.orcamento);
+				}
+				
+				_requisicao = null;
+				_componente = null;
+				componenteQuantidade.inputText = "";
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','MATERIAL_RECEBIDO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onReceberMaterialFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.indexOf("java.lang.Exception") != -1){
+					var index:Number = event.fault.faultString.lastIndexOf(":");
+					var str:String = event.fault.faultString.substr(index+1);
+					//str = str + ". ";
+					dispatchEvent(new MensagemEvent(str, MessageType.WARNING, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','MATERIAL_RECEBIDO_ERRO'), MessageType.ERROR, 10000));
+				}
+			}
+			
+			private function onListarComponentesPosicaoPorRequisicaoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var listaCompPosicao:ArrayCollection = event.result as ArrayCollection;
+				listaComponentePosicao.addAll(listaCompPosicao);
+			}
+			
+			private function onListarComponentesPosicaoPorRequisicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function cancelarRequisicao(data:Object=null, event:Event=null):void
+			{
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					//					data = _listaRequisicoes.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data)
+					_requisicao = data as RequisicaoComponente;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_reparo != null ? usr.id == _reparo.tecnicoResponsavel.id : usr.id == _orcamento.tecnicoResponsavel.id){
+						estoqueController.cancelarRequisicao(_requisicao,usr);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(cancelarRequisicaoAutenticar);
+				}
+				
+			}
+			
+			public function cancelarRequisicaoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				cancelarRequisicao();
+			}
+			
+			private function onCancelarRequisicaoResult(event:ResultEvent = null):void
+			{
+				_requisicao = event.result as RequisicaoComponente;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR,_requisicao);
+				//publicarRequisicao(_requisicao,MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR);
+				atualizarComponente(_requisicao.componente);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR,_requisicao.componente);
+				//publicarComponente(_requisicao.componente,MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR);
+				if(_orcamento){
+					_orcamento = _requisicao.orcamento;
+					dispatchEvent(new OrcamentoEvent(OrcamentoEvent.ATUALIZAR_ORCAMENTO, _orcamento));
+					//publicarOrcamento(_orcamento,MensagensAplicacao.ORCAMENTO_EDITADO);
+					Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_EDITADO, _orcamento);
+				}else{
+					_reparo = _requisicao.reparo;
+					//publicarReparo(_reparo, MensagensAplicacao.REPARO_EDITADO);
+					Publicador.enviarMensagemReparo(MensagensAplicacao.REPARO_EDITADO,_reparo);
+					dispatchEvent(new ReparoEvent(ReparoEvent.ATUALIZAR_REPARO, _reparo));
+				}
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_CANCELADA_SUCESSO'), MessageType.SUCCESS, 10000));	
+			}
+			
+			private function onCancelarRequisicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onCriarNotaFiscalRemessaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.indexOf("java.lang.Exception") != -1){
+					var index:Number = event.fault.faultString.lastIndexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substr(index+1), MessageType.WARNING, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_CANCELADA_ERRO'), MessageType.ERROR, 10000));
+				}
+			}
+			
+			private function validateForm():Boolean {	
+				validatorArr = new Array();
+				validatorArr.push(componenteNome.stringValidator);
+				validatorArr.push(componenteQuantidade.stringValidator);
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				return isValidForm;
+			}	
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				this.currentState = "editarRequisicao";
+			}
+			
+			private function onSearch(event:Event):void
+			{
+				// Getting search input
+				var token:String = searchInput.searchInput.text;
+				var tokens:Array = token.split(" ");
+				var tokensEncontrados:Array = new Array();
+				
+				for each(var str:String in tokens){
+					if(str != ""){
+						tokensEncontrados.push(str);
+					}
+				}
+				
+				
+				// Clean search data provider
+				listaComponentesFiltradosAux.removeAll();
+				
+				var strAvaliada:String = "";
+				var a:int = 0;
+				if(tokensEncontrados.length > 0){
+					for each(var strToken:String in tokensEncontrados){
+						// Search for in the main data provider
+						listaComponentesFiltrados.removeAll();
+						if(a == 0){
+							for (var i:int = 0; i < listaComponentes.length; i++) {
+								var obj:Componente;
+								
+								obj = listaComponentes.getItemAt(i) as Componente;
+								
+								strAvaliada = "";
+								
+								// CHANGE HERE THE SEARCH CRITERIAS
+								if(obj.nome != null){
+									strAvaliada = strAvaliada.concat(obj.nome + " ");
+								}
+								if(obj.descricao != null){
+									strAvaliada = strAvaliada.concat(obj.descricao + " ");
+								}
+								if(obj != null && obj.nomeTipoComponente != null){
+									strAvaliada = strAvaliada.concat(obj.nomeTipoComponente + " ");
+								}
+								if(obj != null && obj.nomeFabricante != null){
+									strAvaliada = strAvaliada.concat(obj.nomeFabricante + " ");
+								}
+								if(obj != null && obj.nomeEncapsulamento != null){
+									strAvaliada = strAvaliada.concat(obj.nomeEncapsulamento);
+								}
+								
+								if (strAvaliada.toLowerCase().indexOf(strToken.toLowerCase()) > -1) {
+									listaComponentesFiltrados.addItem(obj);
+									continue;
+								}
+							}
+						}else{
+							for (var j:int = 0; j < listaComponentesFiltradosAux.length; j++) {
+								var obj1:Componente;
+								
+								obj1 = listaComponentesFiltradosAux.getItemAt(j) as Componente;
+								
+								strAvaliada = "";
+								
+								// CHANGE HERE THE SEARCH CRITERIAS
+								if(obj1.nome != null){
+									strAvaliada = strAvaliada.concat(obj1.nome + " ");
+								}
+								if(obj1.descricao != null){
+									strAvaliada = strAvaliada.concat(obj1.descricao + " ");
+								}
+								if(obj1 != null && obj1.nomeTipoComponente != null){
+									strAvaliada = strAvaliada.concat(obj.nomeTipoComponente + " ");
+								}
+								if(obj1 != null && obj1.nomeFabricante != null){
+									strAvaliada = strAvaliada.concat(obj1.nomeFabricante + " ");
+								}
+								if(obj1 != null && obj1.nomeEncapsulamento != null){
+									strAvaliada = strAvaliada.concat(obj1.nomeEncapsulamento);
+								}
+								
+								if (strAvaliada.toLowerCase().indexOf(strToken.toLowerCase()) > -1) {
+									listaComponentesFiltrados.addItem(obj1);		
+									continue;
+								}						
+							}
+						}
+						listaComponentesFiltradosAux.removeAll();
+						listaComponentesFiltradosAux.addAll(listaComponentesFiltrados);
+						a++;
+					}
+				}else{
+					listaComponentesFiltrados.removeAll();
+					listaComponentesFiltrados.addAll(listaComponentes);
+				}
+			}
+			
+			public function devolverComponente(data:Object=null, event:Event=null):void
+			{
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					//					data = _listaRequisicoes.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data)
+					_posicaoComponente = data as ComponenteOrcRep;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_reparo != null ? usr.id == _reparo.tecnicoResponsavel.id : usr.id == _orcamento.tecnicoResponsavel.id){
+						componenteOrcRepService.devolverComponenteOrcRep(_posicaoComponente,usr);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(devolverComponenteAutenticar);
+				}
+				
+			}
+			
+			private function onDevolverComponenteResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var i:int = listaComponentePosicao.getItemIndex(_posicaoComponente);
+				listaComponentePosicao.removeItemAt(i);
+				_posicaoComponente = event.result as ComponenteOrcRep;
+				listaComponentePosicao.addItemAt(_posicaoComponente,i);
+				
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_DEVOLVIDO_SUCESSO'), MessageType.SUCCESS, 5000));
+			}
+			
+			private function onDevolverComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_DEVOLVIDO_ERRO'), MessageType.ERROR, 5000));	
+			}
+			
+			public function devolverComponenteAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				devolverComponente();
+			}
+			
+			public function componenteDefeituoso(data:Object=null, event:Event=null):void
+			{
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					//					data = _listaRequisicoes.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data)
+					_posicaoComponente = data as ComponenteOrcRep;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_reparo != null ? usr.id == _reparo.tecnicoResponsavel.id : usr.id == _orcamento.tecnicoResponsavel.id){
+						componenteOrcRepService.componenteDefeituosoOrcRep(_posicaoComponente,Login.usuarioAutenticado);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(componenteDefeituosoAutenticar);
+				}
+				
+			}
+			
+			private function onComponenteDefeituosoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				
+				var i:int = listaComponentePosicao.getItemIndex(_posicaoComponente);
+				listaComponentePosicao.removeItemAt(i);
+				_posicaoComponente = event.result as ComponenteOrcRep;
+				listaComponentePosicao.addItemAt(_posicaoComponente,i);
+				
+				
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_DEFEITO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onComponenteDefeituosoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_DEFEITO_ERRO'), MessageType.ERROR, 10000));	
+			}
+			
+			public function componenteDefeituosoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				componenteDefeituoso();
+			}
+			
+			public function componentePerdido(data:Object=null, event:Event=null):void
+			{
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					//					data = _listaRequisicoes.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data)
+					_posicaoComponente = data as ComponenteOrcRep;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					if(_reparo != null ? usr.id == _reparo.tecnicoResponsavel.id : usr.id == _orcamento.tecnicoResponsavel.id){
+						componenteOrcRepService.componentePerdidoOrcRep(_posicaoComponente,usr);
+					}else{
+						dispatchEvent(new MensagemEvent("Usuário não é o técnico responsável!", MessageType.WARNING, 3000));
+						Login.usuarioAutenticado = null;
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(componentePerdidoAutenticar);
+				}
+				
+			}
+			
+			private function onComponentePerdidoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var i:int = listaComponentePosicao.getItemIndex(_posicaoComponente);
+				listaComponentePosicao.removeItemAt(i);
+				_posicaoComponente = event.result as ComponenteOrcRep;
+				listaComponentePosicao.addItemAt(_posicaoComponente,i);
+				
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_PERDIDO_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onComponentePerdidoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_PERDIDO_ERRO'), MessageType.ERROR, 10000));	
+			}
+			
+			public function componentePerdidoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				componentePerdido();
+			}
+			
+			private function getRowColor(item:Object,
+										 rowIndex:int,
+										 dataIndex:int,
+										 color:uint):uint
+			{
+				var colorReturn:uint = 0xF0F8FF;
+				if(item.qtdEstoque > 0){
+					colorReturn = 0xF0F8FF;
+				}
+				if(item.qtdEstoque == 0){
+					colorReturn = 0xFF9900;
+				}
+				if(item.qtdEstoque < item.qtdEstoqueMinimo ){
+					colorReturn = 0xFFFF33;
+				}
+				return colorReturn;
+			}
+			
+			public function onIniciar():void
+			{
+				tn.selectedIndex = 0;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="componenteNome.inputText" destination="_requisicao.componente.nome" twoWay="true" />
+	
+	
+	<mx:states>
+		<s:State name="editarRequisicao"/>
+		<s:State name="visualizarRequisicao"/>
+		<s:State name="editarBuscarComponente"/>
+		<s:State name="visualizarBuscarComponente"/>
+	</mx:states>
+	
+	
+	<mx:TabNavigator id="tn"  width="100%" height="100%"
+					 tabWidth="{tn.width/tn.numChildren}" color="0x323232" includeIn="editarRequisicao,visualizarRequisicao" >
+		<!-- Define each panel using a VBox container. -->
+		
+		<s:NavigatorContent label="Requisições de componentes" width="100%" height="100%" >
+			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				
+				<mx:HBox verticalAlign="bottom" width="70%">
+					<mx:Button id="btAdicionarRequisicao" 
+							   toolTip="Buscar"
+							   enabled.visualizarRequisicao="false" width="15%"
+							   icon="@Embed(source='/assets/icons/search.png')"
+							   click="adicionarRequisicao(event)"/>	
+					<texto:TextInput id="componenteNome" habilitado="false" required="true" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE')}" width="50%" />
+					<texto:TextInput id="componenteQuantidade" restrict="0-9" required="true" habilitado.visualizarRequisicao="false" labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE')}" width="10%" />
+					<mx:Button id="btEfetivarPedido"
+							   label="Enviar"
+							   height="25" enabled.visualizarRequisicao="false" 
+							   icon="@Embed(source='/assets/icons/save.png')"
+							   click="efetivarRequisicao(event)"/>	
+				</mx:HBox>
+				
+				<grid:MantisTable id="requisicaoTable"
+								  width="100%"
+								  height="100%" editable="false"
+								  dataProvider="{listaRequisicoes}">
+					<grid:columns>
+						
+						<!-- CHANGE HERE THE ENTITY COLUMNS -->
+						
+						<!-- EDIT/REMOVE COLUMNS -->
+						
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+										   draggable="false" width="50"						 
+										   editable="false"
+										   sortable="false">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center"
+											 verticalAlign="middle"
+											 >
+										
+										<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+												  click="parentDocument.cancelarRequisicao(data, event)"
+												  buttonMode="true"
+												  useHandCursor="true"
+												  toolTip="{resourceManager.getString('ApplicationResource','CANCELAR_REQUISICAO')}"
+												  />
+										
+										<mx:Image source="@Embed(source='/assets/icons/clock.png')"
+												  click="parentDocument.materialRecebido(data, event)"
+												  buttonMode="true"
+												  useHandCursor="true"
+												  toolTip="{resourceManager.getString('ApplicationResource','RECEBER_MATERIAL')}"
+												  />
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						
+						<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="id"							   
+										   />
+						
+						<mx:DataGridColumn id="cComponente"  editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+										   dataField = "componente.nome"
+										   />
+						
+						<mx:DataGridColumn id="descricao1" itemRenderer="components.grid.SearchResult"
+										   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="componente.descricao"							   
+										   />
+						<mx:DataGridColumn id="tipo1" itemRenderer="components.grid.SearchResult"
+										   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="componente.tipo.nome"							   
+										   />
+						
+						<mx:DataGridColumn id="encapsulamento1" itemRenderer="components.grid.SearchResult"
+										   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
+										   dataField = "componente.encapsulamento.nome"
+										   width="80"
+										   />
+						
+						<mx:DataGridColumn id="fabricante1" itemRenderer="components.grid.SearchResult"
+										   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="componente.fabricante.nome"							   
+										   />
+						
+						<mx:DataGridColumn id="cPinos1"
+										   headerText = "{resourceManager.getString('ApplicationResource','PINOS')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="componente.pinos"							   
+										   />
+						
+						<mx:DataGridColumn id="quantidade" width="50"
+										   headerText = "{resourceManager.getString('ApplicationResource','QTD_REQUISICAO')}"
+										   textAlign="center"
+										   sortable="false" editable="true"
+										   dataField="quantidade"							   
+										   />
+						
+						<mx:DataGridColumn id="cStatus" width="200" editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
+										   textAlign="center"
+										   sortable="false"
+										   dataField="statusString"							   
+										   />
+					</grid:columns>
+				</grid:MantisTable>
+			</mx:VBox>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Localização na placa" width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				<grid:MantisTable id="posicaoTable" editable="true"
+								  width="100%"
+								  height="100%"
+								  dataProvider="{listaComponentePosicao}">
+					<grid:columns>
+						
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+										   draggable="false" width="50" textAlign="center"							 
+										   editable="false"
+										   sortable="false">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center"
+											 verticalAlign="middle"
+											 >
+										
+										<mx:Image source="@Embed(source='/assets/icons/link_go.png')"
+												  click="parentDocument.devolverComponente(data, event)"
+												  buttonMode="true" enabled="{data.condicao == 'Utilizado'}"
+												  useHandCursor="true" 
+												  toolTip="Devolver componente"
+												  />
+										<mx:Image source="@Embed(source='/assets/icons/link_delete.png')"
+												  click="parentDocument.componentePerdido(data, event)"
+												  buttonMode="true" enabled="{data.condicao == 'Utilizado'}"
+												  useHandCursor="true"
+												  toolTip="Componente perdido"
+												  />
+										<mx:Image source="@Embed(source='/assets/icons/link_break.png')"
+												  click="parentDocument.componenteDefeituoso(data, event)"
+												  buttonMode="true" enabled="{data.condicao == 'Utilizado'}"
+												  useHandCursor="true"
+												  toolTip="Componente defeituoso"
+												  />
+										
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						
+						<mx:DataGridColumn id="cNumeroRequisicao2" width="70"
+										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
+										   textAlign="center" editable="false"
+										   sortable="false"
+										   dataField="requisicao.id"							   
+										   />
+						
+						<mx:DataGridColumn id="componente_posicao"  textAlign="center" editable="false"
+										   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+										   dataField = "componente.nome"
+										   />
+						
+						<mx:DataGridColumn id="posicao" width="100"
+										   headerText = "{resourceManager.getString('ApplicationResource','POSICAO')}"
+										   textAlign="center"
+										   sortable="false" editable="{data.condicao == 'Utilizado'}" 
+										   dataField="posicao"							   
+										   />
+						
+						<mx:DataGridColumn id="condicao" width="50"
+										   headerText = "{resourceManager.getString('ApplicationResource','CONDICAO')}"
+										   textAlign="center"
+										   sortable="false" editable="false"
+										   dataField="condicao"							   
+										   />
+						
+					</grid:columns>
+				</grid:MantisTable>
+			</mx:VBox>
+		</s:NavigatorContent>
+	</mx:TabNavigator>
+	
+	<mx:VBox includeIn="editarBuscarComponente" width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+		<mx:HBox  verticalAlign="bottom" width="100%" paddingBottom="4" >
+			<componentes:SearchInput id="searchInput"
+									 change="onSearch"/>
+			<mx:Button id="btVoltar"
+					   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+					   height="25" 
+					   icon="@Embed(source='/assets/icons/back.png')"
+					   click="voltar(event)"/>	
+		</mx:HBox>
+		
+		<grid:MantisTable id="componentesTable"
+						  width="100%"
+						  height="100%"
+						  draggableColumns="true"
+						  rowColorFunction="getRowColor"
+						  dataProvider="{listaComponentesFiltrados}">
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false"	width="50"						 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/add.png')"
+										  click="parentDocument.realizarRequisicao(data, event)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','SELECIONAR_COMPONENTE')}"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn id="tipo" itemRenderer="components.grid.SearchResult"
+								   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="nomeTipoComponente"							   
+								   />
+				
+				<mx:DataGridColumn id="componente" itemRenderer="components.grid.SearchResult" 
+								   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+								   dataField = "nome"
+								   />
+				
+				<mx:DataGridColumn id="encapsulamento" itemRenderer="components.grid.SearchResult"
+								   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
+								   dataField = "nomeEncapsulamento"
+								   width="80"
+								   />
+				
+				<mx:DataGridColumn id="fabricante" itemRenderer="components.grid.SearchResult"
+								   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="nomeFabricante"							   
+								   />
+				
+				<mx:DataGridColumn id="cPinos" itemRenderer="components.grid.SearchResult"
+								   headerText = "{resourceManager.getString('ApplicationResource','PINOS')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="pinos"							   
+								   />
+				
+				<mx:DataGridColumn id="descricao" itemRenderer="components.grid.SearchResult"
+								   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="descricao"							   
+								   />
+				
+				<mx:DataGridColumn id="estoqueMinimo"
+								   headerText = "{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="qtdEstoqueMinimo"							   
+								   />
+				
+				<mx:DataGridColumn id="estoque"
+								   headerText = "{resourceManager.getString('ApplicationResource','QTD_ESTOQUE')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="qtdEstoque"							   
+								   />
+			</grid:columns>
+		</grid:MantisTable>
+		
+	</mx:VBox>
+	
+	
+</mx:VBox>

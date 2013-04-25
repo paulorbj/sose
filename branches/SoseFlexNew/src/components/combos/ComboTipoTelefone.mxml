@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0"
+		 creationPolicy="all" width="200"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import spark.collections.Sort;
+			import spark.collections.SortField;
+			
+			import utils.ScreenUtils;
+
+			import utils.TipoTelefone;
+			
+			[Bindable]
+			public var labelText:String;
+			
+			private function onCreationComplete():void
+			{
+				comboBox.dataProvider = new ArrayCollection(ScreenUtils.tipoTelefones);
+				comboBox.textoPadrao = "Selecione um tipo...";
+			}
+			
+			public function limpar():void {
+				comboBox.clean();
+			}
+
+			
+			[Bindable]
+			public function get tipoSelecionado():TipoTelefone 
+			{
+				if(comboBox.selectedItem == null)
+					return null;
+				else
+					return comboBox.selectedItem as TipoTelefone; 
+			}
+			
+			public function set tipoSelecionado(value:TipoTelefone):void 
+			{
+				comboBox.selectedItem = value;
+			}
+			
+			public function setTipoSelecionado(value:String):void
+			{
+				if(comboBox.dataProvider && comboBox.dataProvider.length != 0){
+					var tiposTelefone:ArrayCollection = new ArrayCollection(ScreenUtils.tipoTelefones);
+					for each(var e:TipoTelefone in tiposTelefone){
+						if(ObjectUtil.compare(e.nome,value) == 0){
+							comboBox.selectedItem = e;
+							break;
+						}
+					}
+				}
+	
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox"  labelField="nome" sortField="nome" labelText="{labelText}" />
+</mx:VBox>

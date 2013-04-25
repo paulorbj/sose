@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:texto="components.textInput.*"
+		 xmlns:combos="components.combos.*"
+		 xmlns:grid="components.grid.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" >
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.recebimento.ItemNotaFiscal;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			
+			[Bindable]
+			var listaItem:ArrayCollection;
+			
+			[Bindable]
+			var item:ItemNotaFiscal;
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaItem.getItemAt(event2.rowIndex);				
+				}
+				
+				item = data as ItemNotaFiscal;
+			}
+			
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				item = data as ItemNotaFiscal;
+				var indice:Number = listaItem.getItemIndex(data);
+//				if(item.id == null || item.id == 0){
+//					item = listaItem.removeItemAt(indice);
+//				}
+			}
+			
+			private function adicionar(event:MouseEvent = null):void
+			{
+//				if(item.id == null || item.id ==0){
+//					//Novo item
+//					
+//				}else{
+//					//Item sendo editado
+//					
+//				}
+
+			}
+			
+			
+		]]>
+	</fx:Script>
+		
+	
+	<mx:HBox>
+		<texto:TextInput id="codigo" labelText="{resourceManager.getString('ApplicationResource','CODIGO_PRODUTO')}" width="200" />
+		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO_PRODUTO')}" width="600" />
+	</mx:HBox>
+	<mx:HBox>
+		<combos:ComboNCM id="ncm" labelText="{resourceManager.getString('ApplicationResource','NCM')}"  />
+		<combos:ComboCST id="cst" labelText="{resourceManager.getString('ApplicationResource','CST')}" />
+		<combos:ComboCFOP id="cfop" labelText="{resourceManager.getString('ApplicationResource','CFOP')}" />
+		<combos:ComboUnidadeMedida id="unidadeMedida" labelText="{resourceManager.getString('ApplicationResource','UNIDADE_MEDIDA')}" />
+		<combos:ComboUnidade id="unidadeServilogi" labelText="{resourceManager.getString('ApplicationResource','UNIDADE_SERVILOGI')}" />
+		<combos:ComboLpu id="unidadeLpu" labelText="{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}" />
+	</mx:HBox>
+	<mx:HBox>
+		<texto:TextInputDinheiro2d id="valorUnitario" labelText="{resourceManager.getString('ApplicationResource','VALOR_UNITARIO')}" />
+		<texto:TextInput id="quantidade" labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE_PRODUTO')}" width="100" />
+		<texto:TextInputDinheiro2d id="valorTotal" labelText="{resourceManager.getString('ApplicationResource','VALOR_TOTAL')}" />
+	</mx:HBox>
+	
+	<mx:HBox width="900">
+		<mx:Button id="btAdicionar" 
+				   label="{resourceManager.getString('ApplicationResource','ADICIONAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionar(event)"
+				   />
+	</mx:HBox>
+	
+	<mx:HBox>
+		<grid:MantisTable id="viewTable"
+						  width="100%"
+						  draggableColumns="true"
+						  dataProvider="{listaItem}">
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				
+				<mx:DataGridColumn id="cCodigo"
+								   headerText = "{resourceManager.getString('ApplicationResource','CODIGO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="codigo"							   
+								   />
+				
+				<mx:DataGridColumn id="cDescricao" dataField="descricao"
+								   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+								   textAlign="center"
+								   sortable="false"					   
+								   />
+				
+				<mx:DataGridColumn id="cNcm" dataField="ncm.codigo"
+								   headerText = "{resourceManager.getString('ApplicationResource','NCM')}"
+								   textAlign="center"
+								   sortable="false"							   
+								   />
+				
+				<mx:DataGridColumn id="cCst" 
+								   headerText = "{resourceManager.getString('ApplicationResource','CST')}"
+								   dataField = "cst.codigo"
+								   width="80"
+								   />
+				
+				<mx:DataGridColumn id="cCfop" 
+								   headerText = "{resourceManager.getString('ApplicationResource','CFOP')}"
+								   dataField = "cfop.codigo"
+								   width="80"
+								   />
+
+				<mx:DataGridColumn id="cQuantidade" 
+								   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE')}"
+								   dataField = "quantidade"
+								   width="80"
+								   />
+				
+				<mx:DataGridColumn id="cValorUnitario" 
+								   headerText = "{resourceManager.getString('ApplicationResource','VALOR_UNITARIO')}"
+								   dataField = "valorUnitario"
+								   width="80"
+								   />
+
+				<mx:DataGridColumn id="cUnidadeServilogi" 
+								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_SERVILOGI')}"
+								   dataField = "unidade.nome"
+								   width="80"
+								   />
+				
+				<mx:DataGridColumn id="cLpu" 
+								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}"
+								   dataField = "lpu.nome"
+								   width="80"
+								   />
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.editItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />
+								
+								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+										  click="parentDocument.excluirItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</grid:columns>
+		</grid:MantisTable>
+
+	</mx:HBox>
+	
+	
+</mx:VBox>

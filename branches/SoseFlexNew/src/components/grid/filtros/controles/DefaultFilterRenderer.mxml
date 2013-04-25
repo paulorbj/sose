@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FilterRendererBase xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="components.grid.filtros.controles.*" 
+	direction="vertical">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ICollectionView;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			
+			[Bindable]
+			private var _data:Object;
+			
+			override public function onFilter(item:Object, itemLabelField:String):Boolean 
+			{
+				return itemLabelField == list.selectedItem;
+			}
+			
+			override public function get data():Object
+			{
+				return _data;
+			}
+			
+			/**
+			 *  @private
+			 */
+			override public function set data(value:Object):void
+			{
+	
+				if (value is ICollectionView)
+				{
+					var sortA:Sort = new Sort();
+					sortA.fields=[new SortField(null,true,false,false)];
+					value.sort = sortA;
+					value.refresh();
+				}
+				super.data = value;
+				_data = value;
+			}
+			
+			private function sortItens ():Sort
+			{
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				return sortA;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:List id="list" dataProvider="{_data}" width="250" change="filter()"/>
+	
+</FilterRendererBase>

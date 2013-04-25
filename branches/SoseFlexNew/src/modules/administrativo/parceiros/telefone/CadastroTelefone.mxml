@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:telefone="modules.administrativo.parceiros.telefone.*"
+		 preinitialize="onPreinitialize()"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="telefoneService" destination="telefoneService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarTelefones"      
+					   fault="onListarTelefonesFault(event)" 
+					   result="onListarTelefonesResult(event)"
+					   />
+			<mx:method name="salvarTelefone"      
+					   fault="onSalvarTelefoneFault(event)" 
+					   result="onSalvarTelefoneResult(event)"
+					   />
+			<mx:method name="excluirTelefone"      
+					   fault="onExcluirTelefoneFault(event)" 
+					   result="onExcluirTelefoneResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Telefone;
+			
+			import modules.administrativo.parceiros.telefone.eventos.TelefoneEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]			
+			private var _telefone:Telefone;
+			
+			[Bindable]	
+			private var _listaTelefone:ArrayCollection = new ArrayCollection;
+			
+			private function onPreinitialize():void
+			{
+				
+			}
+			
+			private function onCreationComplete():void
+			{
+				telefoneService.listarTelefones();	
+				this.addEventListener(TelefoneEvent.EDITAR_TELEFONE,onEditar);
+				this.addEventListener(TelefoneEvent.EXCLUIR_TELEFONE,onExcluir);
+			}
+			
+			private function onEditar(event:TelefoneEvent):void
+			{
+				dados.telefone = event.telefone;
+			}
+			
+			private function onExcluir(event:TelefoneEvent):void
+			{
+				_telefone = event.telefone;
+				telefoneService.excluirTelefone(event.telefone);
+			}
+			
+			private function onListarTelefonesResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaTelefone.removeAll();
+				_listaTelefone = event.result as ArrayCollection;
+				listagem.setListaTelefone(_listaTelefone);
+			}
+			
+			private function onListarTelefonesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarTelefonesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onSalvarTelefoneResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_telefone = event.result as Telefone;
+				if(dados.telefone.id == 0){
+					_listaTelefone.addItem(_telefone);
+				}else{
+					var index:int = _listaTelefone.getItemIndex(dados.telefone);
+					_listaTelefone.removeItemAt(index);
+					_listaTelefone.addItemAt(_telefone, index);
+				}
+				listagem.setListaTelefone(_listaTelefone);
+				dados.limpar();
+			}
+			
+			private function onSalvarTelefoneFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarTelefoneFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onExcluirTelefoneResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _listaTelefone.getItemIndex(_telefone);
+				_listaTelefone.removeItemAt(index);
+				listagem.setListaTelefone(_listaTelefone);
+				_telefone = new Telefone();
+				dados.limpar();
+			}
+			
+			private function onExcluirTelefoneFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirTelefoneFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				telefoneService.salvarTelefone(dados.telefone);
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				_telefone = new Telefone();
+				dados.limpar();
+			}
+		]]>
+	</fx:Script>
+	
+	<telefone:DadosTelefone id="dados" />
+	
+	<telefone:ListagemTelefoneCadastrado id="listagem" />
+	
+	<mx:Button id="saveButton"
+			   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+			   height="25"
+			   icon="@Embed(source='/assets/icons/save.png')"
+			   click="salvar(event)"
+			   />
+	<mx:Button id="cleanButton"
+			   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+			   height="25"
+			   icon="@Embed(source='/assets/icons/save.png')"
+			   click="limpar(event)"
+			   />
+</mx:VBox>

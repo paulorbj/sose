@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="initializeListagem()"
+		 xmlns:components="components.*" width="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="laboratorioService" destination="laboratorioService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Laboratorio;
+			
+			import modules.administrativo.laboratorio.eventos.LaboratorioEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var listaLaboratorio:ArrayCollection = new ArrayCollection;
+			
+			private var laboratorio:Laboratorio;
+			
+			[Bindable]
+			private var listaLaboratorioCompleta:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaFiltroLaboratorio:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var laboratorioSelecionada:String;
+			
+			private var sortLaboratorio:mx.collections.Sort;
+			
+			private function initializeListagem():void
+			{
+				sortLaboratorio = new Sort();
+				sortLaboratorio.fields=[new SortField("nome",true,false,false)];
+			}
+			
+			private function sortListaLaboratorio(lista:ArrayCollection):void
+			{
+				lista.sort = sortLaboratorio;
+				lista.refresh();
+			}
+			
+			public function setListaLaboratorio(lista:ArrayCollection):void
+			{
+				if(lista){
+					sortListaLaboratorio(lista);
+					listaLaboratorio = lista;
+					listaLaboratorioCompleta = new ArrayCollection();
+					if(listaLaboratorio){
+						listaLaboratorioCompleta.addAll(listaLaboratorio);
+					}else{
+						listaLaboratorio = new ArrayCollection();
+					}
+					popularFiltros();
+					atualizaCombos();
+				}
+			}
+			
+			public function adicionarLaboratorio(laboratorio:Laboratorio):void
+			{
+				var laboratorioAux:Laboratorio = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaLaboratorio.length; i++){
+					laboratorioAux = listaLaboratorio.getItemAt(i) as Laboratorio; 
+					if(laboratorioAux.id == laboratorio.id){	
+						var orcRepSub:Object = listaLaboratorio.removeItemAt(i);
+						listaLaboratorio.addItemAt(laboratorio,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaLaboratorio.addItem(laboratorio);
+				}
+				
+				for(var i:int=0; i<listaLaboratorioCompleta.length; i++){
+					laboratorioAux = listaLaboratorioCompleta.getItemAt(i) as Laboratorio; 
+					if(laboratorioAux.id == laboratorio.id){	
+						var laboratorioSub:Object = listaLaboratorioCompleta.removeItemAt(i);
+						listaLaboratorioCompleta.addItemAt(laboratorio,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaLaboratorioCompleta.addItem(laboratorio);
+				}
+				
+				sortListaLaboratorio(listaLaboratorio);
+				sortListaLaboratorio(listaLaboratorioCompleta);
+
+				
+				popularFiltros();
+				atualizaCombos();
+			}
+			
+			private function onBuscarPorIdResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var laboratorio:Laboratorio = event.result as Laboratorio;
+				dispatchEvent(new LaboratorioEvent(LaboratorioEvent.EDITAR_LABORATORIO, laboratorio));
+			}
+			
+			private function onBuscarPorIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarLaboratorioFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao buscar laboratório", MessageType.ERROR, 10000));			
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaLaboratorio.getItemAt(event2.rowIndex);				
+				}
+				
+				laboratorioService.buscarPorId((data as Laboratorio).id);
+				
+			}
+			
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{			
+				laboratorio = data as Laboratorio;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				dispatchEvent(new LaboratorioEvent(LaboratorioEvent.EXCLUIR_LABORATORIO,laboratorio));
+				laboratorio = null;
+			}
+			
+			
+			public function atualizaCombos(event:Event=null):void{
+				configurarFiltroLista();
+			}
+			
+			private function configurarFiltroLista():void
+			{
+				listaLaboratorio.filterFunction = function stateFilterFunc(item:Object):Boolean 
+				{
+					var bolLaboratorio:Boolean;
+					if(cbLaboratorio.selectedItem == null || cbLaboratorio.selectedItem == "" || cbLaboratorio.selectedItem == 'Todos'){
+						bolLaboratorio = true;
+					}else{
+						bolLaboratorio = item.nome.toLowerCase() == cbLaboratorio.selectedItem.toLowerCase();
+					}
+					
+					return bolLaboratorio;
+					
+				};		
+				listaLaboratorio.refresh();
+			}
+			
+			private function popularFiltros():void
+			{
+				laboratorioSelecionada = cbLaboratorio.selectedItem as String;
+				listaFiltroLaboratorio = new ArrayCollection();
+				
+				for each (var laboratorio:Laboratorio in listaLaboratorio){
+					listaFiltroLaboratorio.addItem(laboratorio.nome);
+				}
+				
+				
+				//Filtro status
+				var sortA:Sort = new Sort();
+				sortA.fields=[new SortField(null,true,false,false)];
+				listaFiltroLaboratorio.sort=sortA;
+				listaFiltroLaboratorio.refresh();
+				listaFiltroLaboratorio.sort = null;
+				listaFiltroLaboratorio.addItemAt("Todos",0);
+				
+				cbLaboratorio.enabled = true;
+				cbLaboratorio.dataProvider = listaFiltroLaboratorio;
+				
+				if(listaFiltroLaboratorio.length > 0){
+					if(laboratorioSelecionada){
+						cbLaboratorio.selectedItem = laboratorioSelecionada;
+					}
+				}
+				
+				
+			}
+			
+			
+		]]>
+	</fx:Script>		
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<components:DropBoxInput id="cbLaboratorio" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
+	</mx:HBox>	
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{listaLaboratorio}"
+					  itemDoubleClick="editItem(data, event,false)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="nome"
+							   headerText = "{resourceManager.getString('ApplicationResource','NOME_LABORATORIO')}"
+							   textAlign="center" width=".20"
+							   sortable="false"
+							   dataField="nome"							   
+							   />
+			
+			<mx:DataGridColumn id="cLider"  width=".20"
+							   headerText = "Líder"
+							   dataField = "nomeLider"
+							   />
+			
+			<mx:DataGridColumn id="descricao"  width=".50"
+							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+							   dataField = "descricao"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".10"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>
