@@ -100,6 +100,7 @@ public class PropostaDao extends HibernateDaoGenerico<Proposta, Long> {
 				"LEFT JOIN FETCH h.itensProposta ip " +
 				"LEFT JOIN FETCH ip.ordemServico os " +
 				"LEFT JOIN FETCH os.placasFilhas pf " +
+				"LEFT JOIN FETCH os.orcamentoDiferenciado orcDif " +
 				"LEFT JOIN FETCH os.orcamento orc " +
 				"LEFT JOIN FETCH os.reparo rep " +
 				"LEFT JOIN FETCH orc.listaDefeito " +
