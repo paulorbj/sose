@@ -59,6 +59,7 @@
 			import mx.collections.Sort;
 			import mx.collections.SortField;
 			import mx.core.FlexGlobals;
+			import mx.events.DataGridEvent;
 			import mx.managers.CursorManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -705,6 +706,13 @@
 				_modalObservacao.listarObservacoes();
 			}
 			
+			private function disableEditing(event:DataGridEvent):void {
+				
+				if((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).ordemServico.unidadePai != null)
+				{  
+					event.preventDefault(); 
+				}
+			} 
 			
 		]]>
 	</fx:Script>
@@ -816,6 +824,7 @@
 						  dataProvider="{_listaItensProposta}"
 						  dataProvider.editarItemProposta="{_listaItensPropostaEdicao}"
 						  doubleClickEnabled="false"
+						  itemEditBeginning="disableEditing(event);"
 						  >
 			<grid:columns>
 				
