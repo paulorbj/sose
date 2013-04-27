@@ -129,13 +129,9 @@ public class ItemNotaFiscalService {
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public ItemNotaFiscal excluirItemNotaFiscal(ItemNotaFiscal itemNotaFiscal) throws Exception {
-		ItemNotaFiscal itemRemovido = null;
 		try {
 			itemNotaFiscalDao.delete(itemNotaFiscal);
-			if(itemRemovido != null)
-				return 	itemNotaFiscal;
-			else
-				return null;
+			return 	itemNotaFiscal;
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
