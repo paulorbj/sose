@@ -65,7 +65,7 @@ public class ItemEstoqueAvayaDao extends HibernateDaoGenerico<ItemEstoqueAvaya, 
 				" WHERE " +
 				" h.statusString = 'Estocado' OR " +
 				" h.statusString = 'Disponível para estoque' OR " +
-				" ((h.statusString = 'Retirado' OR h.statusString = 'Reposto' OR h.statusString = 'Substituído') AND (h.ordemServicoOriginal.notaFiscalSaida IS NULL) )");
+				" ((h.statusString = 'Reposto' OR h.statusString = 'Substituído') AND (h.ordemServicoOriginal.notaFiscalSaida IS NULL) )");
 
 		return q.list();
 
