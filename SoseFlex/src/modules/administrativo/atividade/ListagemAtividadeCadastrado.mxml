@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:s="library://ns.adobe.com/flex/spark" initialize="initializeListagem()"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"  height="100%"
 		 xmlns:components="components.*" width="100%"
@@ -63,8 +63,6 @@
 					listaAtividade = lista;
 					listaAtividadeCompleta = new ArrayCollection();
 					listaAtividadeCompleta.addAll(listaAtividade);
-					popularFiltros();
-					atualizaCombos();
 				}
 			}
 			
@@ -100,9 +98,6 @@
 				
 				sortListaAtividade(listaAtividade);
 				sortListaAtividade(listaAtividadeCompleta);
-
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function editItem(data:Object, event:Event, edit:Boolean):void
@@ -131,65 +126,9 @@
 				atividade = null;
 				
 			}
-			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaAtividade.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolAtividade:Boolean;
-					if(cbAtividade.selectedItem == null || cbAtividade.selectedItem == "" || cbAtividade.selectedItem == 'Todos'){
-						bolAtividade = true;
-					}else{
-						bolAtividade = item.nome.toLowerCase() == cbAtividade.selectedItem.toLowerCase();
-					}
-					
-					return bolAtividade;
-					
-				};		
-				listaAtividade.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				atividadeSelecionada = cbAtividade.selectedItem as String;
-				listaFiltroAtividade = new ArrayCollection();
 				
-				for each (var atividade:Atividade in listaAtividade){
-					listaFiltroAtividade.addItem(atividade.nome);
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFiltroAtividade.sort=sortA;
-				listaFiltroAtividade.refresh();
-				listaFiltroAtividade.sort = null;
-				listaFiltroAtividade.addItemAt("Todos",0);
-				
-				cbAtividade.enabled = true;
-				cbAtividade.dataProvider = listaFiltroAtividade;
-				
-				if(listaFiltroAtividade.length > 0){
-					if(atividadeSelecionada){
-						cbAtividade.selectedItem = atividadeSelecionada;
-					}
-				}
-				
-				
-			}
-			
-			
 		]]>
 	</fx:Script>		
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<components:DropBoxInput id="cbAtividade" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
-	</mx:HBox>
 	
 	<grid:MantisTable id="viewTable"
 					  width="100%" height="100%"
@@ -199,14 +138,14 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="nome" width=".40"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome" width=".40"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_ATIVIDADE')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="descricao" width=".50" textAlign="center"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" width=".50" textAlign="center"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   />

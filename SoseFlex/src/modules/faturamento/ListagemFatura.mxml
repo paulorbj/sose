@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:components="components.*" width="100%" height="100%" horizontalAlign="center"
 		 paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
 		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
@@ -143,16 +143,12 @@
 				}
 				if(!encontrou){
 					_listaFatura.addItem(fatura);
-				}
-				popularFiltros();
-				atualizaCombos();
-				
+				}				
 			}
 			
 			private function onListarFaturasResult(event:ResultEvent = null):void
 			{
 				_listaFatura = event.result as ArrayCollection;
-				popularFiltros();
 			}
 			
 			private function onListarFaturasFault(event:FaultEvent = null):void
@@ -376,127 +372,7 @@
 			
 			public function editarFaturaAutenticar(event:UserRegisterNumberModalEvent=null):void{
 				editarFatura();
-			}
-			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				_listaFatura.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolStatus:Boolean;
-					if(cbStatus.selectedItem == null || cbStatus.selectedItem == "" || cbStatus.selectedItem == 'Todos'){
-						bolStatus = true;
-					}else{
-						bolStatus = item.statusString.toLowerCase() == cbStatus.selectedItem.toLowerCase();
-					}
-					
-					var bolCliente:Boolean;
-					if(cbCliente.selectedItem == null || cbCliente.selectedItem == "" || cbCliente.selectedItem == 'Todos'){
-						bolCliente = true;
-					}else{
-						if(item != null && item.cliente != null){
-							bolCliente = item.cliente.nomeSistema.toLowerCase() == cbCliente.selectedItem.toLowerCase();
-						}else{
-							bolCliente = false;
-						}
-					}
-					
-					var bolNumero:Boolean;
-					if(cbNome.selectedItem == null || cbNome.selectedItem == "" || cbNome.selectedItem == 'Todos'){
-						bolNumero = true;
-					}else{
-						if(item != null && item.nome != null){
-							bolNumero = item.nome.toLowerCase() == cbNome.selectedItem.toLowerCase();
-						}else{
-							bolNumero = false;
-						}
-					}
-					
-					
-					return bolStatus && bolCliente && bolNumero;	
-				};		
-				_listaFatura.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				statusSelecionado = cbStatus.selectedItem as String;
-				listaStatus = new ArrayCollection();
-				clienteSelecionado = cbCliente.selectedItem as String;
-				listaCliente = new ArrayCollection();
-				apelidoSelecionado = cbNome.selectedItem as String;
-				listaApelido = new ArrayCollection();
-				
-				for each (var fatura:Faturamento in _listaFatura){
-					if(fatura.statusString != null && fatura.statusString.length > 0 && !listaStatus.contains(fatura.statusString)){
-						listaStatus.addItem(fatura.statusString);
-					}
-					if(fatura.cliente != null && fatura.cliente.nomeSistema.length > 0 && !listaCliente.contains(fatura.cliente.nomeSistema)){
-						listaCliente.addItem(fatura.cliente.nomeSistema);
-					}
-					if(fatura.nome != null && fatura.nome.length > 0 && !listaApelido.contains(fatura.nome)){
-						listaApelido.addItem(fatura.nome);
-					}
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaStatus.sort=sortA;
-				listaStatus.refresh();
-				listaStatus.sort = null;
-				listaStatus.addItemAt("Todos",0);
-				
-				cbStatus.enabled = true;
-				cbStatus.dataProvider = listaStatus;
-				
-				if(listaStatus.length > 0){
-					if(statusSelecionado){
-						cbStatus.selectedItem = statusSelecionado;
-					}
-				}
-				
-				
-				//Filtro numero da nota
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaApelido.sort=sortA;
-				listaApelido.refresh();
-				listaApelido.sort = null;
-				listaApelido.addItemAt("Todos",0);
-				
-				cbNome.enabled = true;
-				cbNome.dataProvider = listaApelido;
-				
-				if(listaApelido.length > 0){
-					if(apelidoSelecionado){
-						cbNome.selectedItem = apelidoSelecionado;
-					}
-				}
-				
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaCliente.sort=sortA;
-				listaCliente.refresh();
-				listaCliente.sort = null;
-				listaCliente.addItemAt("Todos",0);
-				
-				cbCliente.enabled = true;
-				cbCliente.dataProvider = listaCliente;
-				
-				if(listaCliente.length > 0){
-					if(clienteSelecionado){
-						cbCliente.selectedItem = clienteSelecionado;
-					}
-				}
-				
-			}
+			}		
 			
 			private function exportar(event:MouseEvent):void
 			{
@@ -582,11 +458,6 @@
 		<s:State name="edicao"/>
 	</mx:states>
 	
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left" excludeFrom="edicao">
-		<components:DropBoxInput id="cbNome" labelText="Apelido" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbStatus" labelText="Status" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbCliente" labelText="Cliente" change="atualizaCombos" requireSelectionFlag="true"  />
-	</mx:HBox>
 	<grid:MantisTable id="viewTable"
 					  width="100%"
 					  height="100%"
@@ -622,48 +493,48 @@
 				</mx:itemRenderer>
 			</mx:DataGridColumn>
 			
-			<mx:DataGridColumn id="nome"
+			<dc:DataGridColumnFilter id="nome"
 							   headerText = "Apelido da fatura"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="cliente"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="cliente.nomeSistema"							   
 							   />
 			
-			<mx:DataGridColumn id="dataCriacao"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="dataCriacao"
 							   headerText = "Nº Fatura"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="numeroFatura"							   
 							   />
 			
-			<mx:DataGridColumn id="status" 
+			<dc:DataGridColumnFilter id="status" 
 							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 							   dataField = "statusString"
 							   width="80"
 							   />
 			
-			<mx:DataGridColumn id="dataEmissaoFatura"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataEmissaoFatura"
 							   headerText = "Data emissão"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="dataEmissaoFaturaString"							   
 							   />
 			
-			<mx:DataGridColumn id="dataVencimentoFatura"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataVencimentoFatura"
 							   headerText = "Data vencimento"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="dataVencimentoFaturaString"							   
 							   />
 			
-			<mx:DataGridColumn id="dataPagamentoFatura"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataPagamentoFatura"
 							   headerText = "Data pagamento"
 							   textAlign="center"
 							   sortable="false"

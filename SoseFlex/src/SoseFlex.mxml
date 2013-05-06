@@ -10,7 +10,7 @@
 			   xmlns:table="components.datagrid.*"
 			   xmlns:teste="modules.recebimento.notaFiscal.componentesInformacoesNotaFiscal.*"
 			   xmlns:pessoa="modules.administrativo.parceiros.pessoa.*"
-			   xmlns:view="modules.view.*" preinitialize="preInit()" initialize="init()"
+			   xmlns:view="modules.view.*" preinitialize="preInit()" initialize="init()" creationComplete="onCreation()"
 			   minWidth="955" minHeight="600">
 
 
@@ -25,6 +25,14 @@
 		</s:ChannelSet>
 		
 		<mx:Consumer id="consumidorRecebimentoMessageService" destination="RecebimentoMessageServicePush" message="onMsgAreaTecnica(event)" />
+		
+		<mx:RemoteObject concurrency="single" id="timeUtils" destination="timeUtils" channelSet="{channelSet}"
+						 endpoint="{resourceManager.getString('ConfigurationResource','amf')}">				
+			<mx:method name="dataAtual"      
+					   fault="onDataAtualFault(event)" 
+					   result="onDataAtualResult(event)"
+					   />
+		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<!-- Action Scripts -->
@@ -45,8 +53,11 @@
 			import mx.logging.ILogger;
 			import mx.logging.Log;
 			import mx.logging.LogEventLevel;
+			import mx.managers.CursorManager;
 			import mx.messaging.FlexClient;
 			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			
 			import utils.ConfigurationUtil;
 			import utils.ConfigureI18N;
@@ -57,6 +68,8 @@
 			public static const LOG:ILogger = Log.getLogger("RemoteLogging");
 
 			private var mainPainel:MainPanel;
+			
+			public var dataAtual:Date;
 			
 			/**
 			 * Configurations made before any component creation
@@ -76,6 +89,22 @@
 			private function init():void
 			{
 				consumidorRecebimentoMessageService.subscribe();
+			}
+			
+			private function onCreation():void
+			{
+				timeUtils.dataAtual();
+			}
+			
+			private function onDataAtualResult(event:ResultEvent = null):void
+			{
+				dataAtual = event.result as Date;
+			}
+			
+			private function onDataAtualFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
 			
 			private function onMsgAreaTecnica(event:MessageEvent):void{ 
