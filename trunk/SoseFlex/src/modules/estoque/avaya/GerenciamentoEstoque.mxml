@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
 		 xmlns:components="components.*" horizontalAlign="center" xmlns:texto="components.textInput.*"
 		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
@@ -192,8 +192,6 @@
 				if(!encontrou){
 					_listaItemEstoqueAvaya.addItem(req);
 				}
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function removeItemEstoqueAvaya(req:ItemEstoqueAvaya):void
@@ -208,8 +206,6 @@
 						break;
 					}
 				}
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function validarSelecao():ItemEstoqueAvaya
@@ -248,7 +244,6 @@
 			{
 				_listaItemEstoqueAvaya = event.result as ArrayCollection;
 				atualizaTotalComponentes(_listaItemEstoqueAvaya);	
-				popularFiltros();
 				ordenarListaPorOs();
 			}
 			
@@ -497,422 +492,7 @@
 				}
 			}
 			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				_listaItemEstoqueAvaya.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolControle:Boolean;
-					if(cbNControle.selectedItem == null || cbNControle.selectedItem == "" || cbNControle.selectedItem == 'Todos'){
-						bolControle = true;
-					}else{
-						bolControle = item.id.toString().toLowerCase() == cbNControle.selectedItem.toString().toLowerCase();
-					}
-					
-					var bolStatus:Boolean;
-					if(cbStatus.selectedItem == null || cbStatus.selectedItem == "" || cbStatus.selectedItem == 'Todos'){
-						bolStatus = true;
-					}else{
-						bolStatus = item.statusString.toLowerCase() == cbStatus.selectedItem.toLowerCase();
-					}
-					
-					var bolUnidade:Boolean;
-					if(cbUnidade.selectedItem == null || cbUnidade.selectedItem == "" || cbUnidade.selectedItem == 'Todos'){
-						bolUnidade = true;
-					}else{
-						if(item != null && item.unidade != null){
-							bolUnidade = item.unidade.toLowerCase() == cbUnidade.selectedItem.toLowerCase();
-						}else{
-							bolUnidade = false;
-						}
-					}
-					
-					var bolUsuario:Boolean;
-					if(cbUsuario.selectedItem == null || cbUsuario.selectedItem == "" || cbUsuario.selectedItem == 'Todos'){
-						bolUsuario = true;
-					}else{
-						if(item != null && item.usuarioOperacao != null){
-							bolUsuario = item.usuarioOperacao.toLowerCase() == cbUsuario.selectedItem.toLowerCase();
-						}else{
-							bolUsuario = false;
-						}
-					}
-					
-					var bolOsOriginal:Boolean;
-					if(cbOsOriginal.selectedItem == null || cbOsOriginal.selectedItem == "" || cbOsOriginal.selectedItem == 'Todos'){
-						bolOsOriginal = true;
-					}else{
-						if(item != null && item.numeroOsOriginal != null){
-							bolOsOriginal = item.numeroOsOriginal.toLowerCase() == cbOsOriginal.selectedItem.toLowerCase();
-						}else{
-							bolOsOriginal = false;
-						}
-					}
-					
-					var bolNClienteOriginal:Boolean;
-					if(cbNClienteOriginal.selectedItem == null || cbNClienteOriginal.selectedItem == "" || cbNClienteOriginal.selectedItem == 'Todos'){
-						bolNClienteOriginal = true;
-					}else{
-						if(item != null && item.nsClienteOriginal != null){
-							bolNClienteOriginal = item.nsClienteOriginal.toLowerCase() == cbNClienteOriginal.selectedItem.toLowerCase();
-						}else{
-							bolNClienteOriginal = false;
-						}
-					}
-					
-					var bolNFabricanteOriginal:Boolean;
-					if(cbNFabricanteOriginal.selectedItem == null || cbNFabricanteOriginal.selectedItem == "" || cbNFabricanteOriginal.selectedItem == 'Todos'){
-						bolNFabricanteOriginal = true;
-					}else{
-						if(item != null && item.nsFabricanteOriginal != null){
-							bolNFabricanteOriginal = item.nsFabricanteOriginal.toLowerCase() == cbNFabricanteOriginal.selectedItem.toLowerCase();
-						}else{
-							bolNFabricanteOriginal = false;
-						}
-					}
-					
-					var bolNfOriginal:Boolean;
-					if(cbNfOriginal.selectedItem == null || cbNfOriginal.selectedItem == "" || cbNfOriginal.selectedItem == 'Todos'){
-						bolNfOriginal = true;
-					}else{
-						if(item != null && item.nfOriginal != null){
-							bolNfOriginal = item.nfOriginal.toLowerCase() == cbNfOriginal.selectedItem.toLowerCase();
-						}else{
-							bolNfOriginal = false;
-						}
-					}
-					
-					var bolOsSubstituida:Boolean;
-					if(cbOsSubstituida.selectedItem == null || cbOsSubstituida.selectedItem == "" || cbOsSubstituida.selectedItem == 'Todos'){
-						bolOsSubstituida = true;
-					}else{
-						if(item != null && item.ordemServicoSubstituida != null && item.ordemServicoSubstituida.numeroOrdemServico != null){
-							bolOsSubstituida = item.ordemServicoSubstituida.numeroOrdemServico.toLowerCase() == cbOsSubstituida.selectedItem.toLowerCase();
-						}else{
-							bolOsSubstituida = false;
-						}
-					}
-					
-					var bolNClienteSubstituida:Boolean;
-					if(cbNClienteSubstituida.selectedItem == null || cbNClienteSubstituida.selectedItem == "" || cbNClienteSubstituida.selectedItem == 'Todos'){
-						bolNClienteSubstituida = true;
-					}else{
-						if(item != null && item.nsClienteSubstituida != null){
-							bolNClienteSubstituida = item.nsClienteSubstituida.toLowerCase() == cbNClienteSubstituida.selectedItem.toLowerCase();
-						}else{
-							bolNClienteSubstituida = false;
-						}
-					}
-					
-					var bolNFabricanteSubstituida:Boolean;
-					if(cbNFabricanteSubstituida.selectedItem == null || cbNFabricanteSubstituida.selectedItem == "" || cbNFabricanteSubstituida.selectedItem == 'Todos'){
-						bolNFabricanteSubstituida = true;
-					}else{
-						if(item != null && item.nsFabricanteSubstituida != null){
-							bolNFabricanteSubstituida = item.nsFabricanteSubstituida.toLowerCase() == cbNFabricanteSubstituida.selectedItem.toLowerCase();
-						}else{
-							bolNFabricanteSubstituida = false;
-						}
-					}
-					
-					var bolNfSubstituida:Boolean;
-					if(cbNfSubstituida.selectedItem == null || cbNfSubstituida.selectedItem == "" || cbNfSubstituida.selectedItem == 'Todos'){
-						bolNfSubstituida = true;
-					}else{
-						if(item != null && item.nfSubstituida != null){
-							bolNfSubstituida = item.nfSubstituida.toLowerCase() == cbNfSubstituida.selectedItem.toLowerCase();
-						}else{
-							bolNfSubstituida = false;
-						}
-					}
-					
-					return bolControle && bolStatus && bolUnidade && bolOsOriginal && bolNFabricanteOriginal && bolNClienteOriginal && bolNfOriginal && bolOsSubstituida && bolNFabricanteSubstituida && bolNClienteSubstituida && bolNfSubstituida && bolUsuario;	
-				};		
-				_listaItemEstoqueAvaya.refresh();
-				totalComponentes = _listaItemEstoqueAvaya.length;
-			}
-			
-			private function popularFiltros():void
-			{
-				statusSelecionado = cbStatus.selectedItem as String;
-				listaStatus = new ArrayCollection();
-				unidadeSelecionado = cbUnidade.selectedItem as String;
-				listaUnidade = new ArrayCollection();
-				nControleSelecionado = cbNControle.selectedItem as String;
-				listaNControle = new ArrayCollection();
-				usuarioSelecionado = cbUsuario.selectedItem as String;
-				listaUsuario = new ArrayCollection();
-				
-				osOriginalSelecionado = cbOsOriginal.selectedItem as String;
-				listaOsOriginal = new ArrayCollection();
-				nClienteOriginalSelecionado = cbNClienteOriginal.selectedItem as String;
-				listaNClienteOriginal = new ArrayCollection();
-				nFabricanteOriginalSelecionado = cbNFabricanteOriginal.selectedItem as String;
-				listaNFabricanteOriginal = new ArrayCollection();
-				nfOriginalSelecionado = cbNfOriginal.selectedItem as String;
-				listaNfOrignal = new ArrayCollection();
-				
-				osSubstituidaSelecionado = cbOsSubstituida.selectedItem as String;
-				listaOsSubstituida = new ArrayCollection();
-				nClienteSubstituidaSelecionado = cbNClienteSubstituida.selectedItem as String;
-				listaNClienteSubstituida = new ArrayCollection();
-				nFabricanteSubstituidaSelecionado = cbNFabricanteSubstituida.selectedItem as String;
-				listaNFabricanteSubstituida = new ArrayCollection();
-				nfSubstituidaSelecionado = cbNfSubstituida.selectedItem as String;
-				listaNfOrignal = new ArrayCollection();
-				
-				for each (var itemEstoqueAvaya:ItemEstoqueAvaya in _listaItemEstoqueAvaya){
-					if(!listaNControle.contains(itemEstoqueAvaya.id.toString())){
-						listaNControle.addItem(itemEstoqueAvaya.id.toString());
-					}
-					if(itemEstoqueAvaya.statusString != null && itemEstoqueAvaya.statusString.length > 0 && !listaStatus.contains(itemEstoqueAvaya.statusString)){
-						listaStatus.addItem(itemEstoqueAvaya.statusString);
-					}
-					if(itemEstoqueAvaya.unidade != null && itemEstoqueAvaya.unidade.length > 0 && !listaUnidade.contains(itemEstoqueAvaya.unidade)){
-						listaUnidade.addItem(itemEstoqueAvaya.unidade);
-					}
-					if(itemEstoqueAvaya.nsClienteOriginal != null && itemEstoqueAvaya.nsClienteOriginal.length > 0 && !listaNClienteOriginal.contains(itemEstoqueAvaya.nsClienteOriginal)){
-						listaNClienteOriginal.addItem(itemEstoqueAvaya.nsClienteOriginal);
-					}
-					if(itemEstoqueAvaya.nsFabricanteOriginal != null && itemEstoqueAvaya.nsFabricanteOriginal.length > 0 && !listaNFabricanteOriginal.contains(itemEstoqueAvaya.nsFabricanteOriginal)){
-						listaNFabricanteOriginal.addItem(itemEstoqueAvaya.nsFabricanteOriginal);
-					}
-					if(itemEstoqueAvaya.nfOriginal != null && itemEstoqueAvaya.nfOriginal.length > 0 && !listaNfOrignal.contains(itemEstoqueAvaya.nfOriginal)){
-						listaNfOrignal.addItem(itemEstoqueAvaya.nfOriginal);
-					}
-					if(itemEstoqueAvaya.numeroOsOriginal != null && itemEstoqueAvaya.numeroOsOriginal.length > 0 && !listaOsOriginal.contains(itemEstoqueAvaya.numeroOsOriginal)){
-						listaOsOriginal.addItem(itemEstoqueAvaya.numeroOsOriginal);
-					}
-					
-					if(itemEstoqueAvaya.nsClienteSubstituida != null && itemEstoqueAvaya.nsClienteSubstituida.length > 0 && !listaNClienteSubstituida.contains(itemEstoqueAvaya.nsClienteSubstituida)){
-						listaNClienteSubstituida.addItem(itemEstoqueAvaya.nsClienteSubstituida);
-					}
-					if(itemEstoqueAvaya.nsFabricanteSubstituida != null && itemEstoqueAvaya.nsFabricanteSubstituida.length > 0 && !listaNFabricanteSubstituida.contains(itemEstoqueAvaya.nsFabricanteSubstituida)){
-						listaNFabricanteSubstituida.addItem(itemEstoqueAvaya.nsFabricanteSubstituida);
-					}
-					if(itemEstoqueAvaya.nfSubstituida != null && itemEstoqueAvaya.nfSubstituida.length > 0 && !listaNfSubstituida.contains(itemEstoqueAvaya.nfSubstituida)){
-						listaNfSubstituida.addItem(itemEstoqueAvaya.nfSubstituida);
-					}
-					if(itemEstoqueAvaya.numeroOsSubstituida != null && itemEstoqueAvaya.numeroOsSubstituida.length > 0 && !listaOsSubstituida.contains(itemEstoqueAvaya.numeroOsSubstituida)){
-						listaOsSubstituida.addItem(itemEstoqueAvaya.numeroOsSubstituida);
-					}
-					
-					if(itemEstoqueAvaya.operacaoRealizadaPor != null && itemEstoqueAvaya.operacaoRealizadaPor.usuario.length > 0 && !listaUsuario.contains(itemEstoqueAvaya.operacaoRealizadaPor.usuario)){
-						listaUsuario.addItem(itemEstoqueAvaya.operacaoRealizadaPor.usuario);
-					}
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaStatus.sort=sortA;
-				listaStatus.refresh();
-				listaStatus.sort = null;
-				listaStatus.addItemAt("Todos",0);
-				
-				cbStatus.enabled = true;
-				cbStatus.dataProvider = listaStatus;
-				
-				if(listaStatus.length > 0){
-					if(statusSelecionado){
-						cbStatus.selectedItem = statusSelecionado;
-					}
-				}
-				
-				
-				//Filtro numero da nota
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNClienteOriginal.sort=sortA;
-				listaNClienteOriginal.refresh();
-				listaNClienteOriginal.sort = null;
-				listaNClienteOriginal.addItemAt("Todos",0);
-				
-				cbNClienteOriginal.enabled = true;
-				cbNClienteOriginal.dataProvider = listaNClienteOriginal;
-				
-				if(listaNClienteOriginal.length > 0){
-					if(nClienteOriginalSelecionado){
-						cbNClienteOriginal.selectedItem = nClienteOriginalSelecionado;
-					}
-				}
-				
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNClienteSubstituida.sort=sortA;
-				listaNClienteSubstituida.refresh();
-				listaNClienteSubstituida.sort = null;
-				listaNClienteSubstituida.addItemAt("Todos",0);
-				
-				cbNClienteSubstituida.enabled = true;
-				cbNClienteSubstituida.dataProvider = listaNClienteSubstituida;
-				
-				if(listaNClienteSubstituida.length > 0){
-					if(nClienteSubstituidaSelecionado){
-						cbNClienteSubstituida.selectedItem = nClienteSubstituidaSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,true)];
-				listaNControle.sort=sortA;
-				listaNControle.refresh();
-				listaNControle.sort = null;
-				listaNControle.addItemAt("Todos",0);
-				
-				cbNControle.enabled = true;
-				cbNControle.dataProvider = listaNControle;
-				
-				if(listaNControle.length > 0){
-					if(nControleSelecionado){
-						cbNControle.selectedItem = nControleSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNFabricanteOriginal.sort=sortA;
-				listaNFabricanteOriginal.refresh();
-				listaNFabricanteOriginal.sort = null;
-				listaNFabricanteOriginal.addItemAt("Todos",0);
-				
-				cbNFabricanteOriginal.enabled = true;
-				cbNFabricanteOriginal.dataProvider = listaNFabricanteOriginal;
-				
-				if(listaNFabricanteOriginal.length > 0){
-					if(nFabricanteOriginalSelecionado){
-						cbNFabricanteOriginal.selectedItem = nFabricanteOriginalSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNFabricanteSubstituida.sort=sortA;
-				listaNFabricanteSubstituida.refresh();
-				listaNFabricanteSubstituida.sort = null;
-				listaNFabricanteSubstituida.addItemAt("Todos",0);
-				
-				cbNFabricanteSubstituida.enabled = true;
-				cbNFabricanteSubstituida.dataProvider = listaNFabricanteSubstituida;
-				
-				if(listaNFabricanteSubstituida.length > 0){
-					if(nFabricanteSubstituidaSelecionado){
-						cbNFabricanteSubstituida.selectedItem = nFabricanteSubstituidaSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNfOrignal.sort=sortA;
-				listaNfOrignal.refresh();
-				listaNfOrignal.sort = null;
-				listaNfOrignal.addItemAt("Todos",0);
-				
-				cbNfOriginal.enabled = true;
-				cbNfOriginal.dataProvider = listaNfOrignal;
-				
-				if(listaNfOrignal.length > 0){
-					if(nfOriginalSelecionado){
-						cbNfOriginal.selectedItem = nfOriginalSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNfSubstituida.sort=sortA;
-				listaNfSubstituida.refresh();
-				listaNfSubstituida.sort = null;
-				listaNfSubstituida.addItemAt("Todos",0);
-				
-				cbNfSubstituida.enabled = true;
-				cbNfSubstituida.dataProvider = listaNfSubstituida;
-				
-				if(listaNfSubstituida.length > 0){
-					if(nfSubstituidaSelecionado){
-						cbNfSubstituida.selectedItem = nfSubstituidaSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaOsOriginal.sort=sortA;
-				listaOsOriginal.refresh();
-				listaOsOriginal.sort = null;
-				listaOsOriginal.addItemAt("Todos",0);
-				
-				cbOsOriginal.enabled = true;
-				cbOsOriginal.dataProvider = listaOsOriginal;
-				
-				if(listaOsOriginal.length > 0){
-					if(osOriginalSelecionado){
-						cbOsOriginal.selectedItem = osOriginalSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaOsSubstituida.sort=sortA;
-				listaOsSubstituida.refresh();
-				listaOsSubstituida.sort = null;
-				listaOsSubstituida.addItemAt("Todos",0);
-				
-				cbOsSubstituida.enabled = true;
-				cbOsSubstituida.dataProvider = listaOsSubstituida;
-				
-				if(listaOsSubstituida.length > 0){
-					if(osSubstituidaSelecionado){
-						cbOsSubstituida.selectedItem = osSubstituidaSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaUnidade.sort=sortA;
-				listaUnidade.refresh();
-				listaUnidade.sort = null;
-				listaUnidade.addItemAt("Todos",0);
-				
-				cbUnidade.enabled = true;
-				cbUnidade.dataProvider = listaUnidade;
-				
-				if(listaUnidade.length > 0){
-					if(unidadeSelecionado){
-						cbUnidade.selectedItem = unidadeSelecionado;
-					}
-				}
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaUsuario.sort=sortA;
-				listaUsuario.refresh();
-				listaUsuario.sort = null;
-				listaUsuario.addItemAt("Todos",0);
-				
-				cbUsuario.enabled = true;
-				cbUsuario.dataProvider = listaUsuario;
-				
-				if(listaUsuario.length > 0){
-					if(usuarioSelecionado){
-						cbUsuario.selectedItem = usuarioSelecionado;
-					}
-				}
-			}
-			
+						
 		]]>
 	</fx:Script>
 	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
@@ -943,20 +523,7 @@
 				   icon="@Embed(source='/assets/icons/user.png')"
 				   click="salvar(event)"/>
 	</mx:HBox>
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
-		<components:DropBoxInput id="cbNControle" labelText="Nº Controle" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbStatus" labelText="Status" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbUnidade" labelText="Unidade" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbOsOriginal" labelText="OS Orig." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbNFabricanteOriginal" labelText="N/S Fab. Orig." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbNClienteOriginal" labelText="N/S Cli. Orig." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbNfOriginal" labelText="NF Orig." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbOsSubstituida" labelText="OS Subst." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbNFabricanteSubstituida" labelText="N/S Fab. Subst." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbNClienteSubstituida" labelText="N/S Cli. Subst." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbNfSubstituida" labelText="NF Subst." change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbUsuario" labelText="Usuário" change="atualizaCombos" requireSelectionFlag="true"  />
-	</mx:HBox>
+	
 	<mx:VBox width="100%" height="100%" verticalGap="0">
 		<grid:MantisTable id="requisicoesTable"
 						  width="100%"
@@ -974,87 +541,87 @@
 								   dataField="isSelected" editable="false"
 								   />
 
-				<mx:DataGridColumn id="cOSOriginal"  width="130"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cOSOriginal"  width="130"
 								   headerText = "OS original"
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="numeroOsOriginal"							   
 								   />
 				
-				<mx:DataGridColumn id="cStatusEstoque" 
+				<dc:DataGridColumnFilter id="cStatusEstoque" 
 								   headerText = "Status estoque"
 								   dataField = "statusString"
 								   width="170" editable="false"
 								   />
 				
-				<mx:DataGridColumn id="cPosicao" editable="true"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cPosicao" editable="true"
 								   headerText = "Posição"
 								   dataField = "posicao"
 								   width="170"
 								   />
 				
-				<mx:DataGridColumn id="cUnidade" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cUnidade" 
 								   headerText = "Unidade"
 								   dataField="unidade"
 								   width="170" editable="false"
 								   />
 				
 				
-				<mx:DataGridColumn id="cNSOrigFabricante" width="70"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNSOrigFabricante" width="70"
 								   headerText = "N/S Fabr. Orig."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsFabricanteOriginal"						   
 								   />
 				
-				<mx:DataGridColumn id="cNSOrigCliente"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNSOrigCliente"
 								   headerText = "N/S Cliente Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsClienteOriginal"							   
 								   />
 				
-				<mx:DataGridColumn id="cNotaFiscalOrig"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNotaFiscalOrig"
 								   headerText = "NF Orig."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nfOriginal"							   
 								   />
 				
-				<mx:DataGridColumn id="cOSSubstituida" width="70"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cOSSubstituida" width="70"
 								   headerText = "OS substituição"
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="numeroOsSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cNSSubstFabricante" width="70"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNSSubstFabricante" width="70"
 								   headerText = "N/S Fabr. Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsFabricanteSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cNSSubstCliente"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNSSubstCliente"
 								   headerText = "N/S Cliente Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsClienteSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cNotaFiscalSubst"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNotaFiscalSubst"
 								   headerText = "NF Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nfSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cDtOperacao" width="80"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="cDtOperacao" width="80"
 								   headerText = "Data"
 								   dataField = "dataOperacao" editable="false"
 								   />
 				
-				<mx:DataGridColumn id="cUsrOperacao" width="110" editable="false"
+				<dc:DataGridColumnFilter id="cUsrOperacao" width="110" editable="false"
 								   headerText = "Usuário"
 								   dataField = "usuarioOperacao"
 								   />

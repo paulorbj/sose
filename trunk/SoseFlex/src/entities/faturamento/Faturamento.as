@@ -241,6 +241,18 @@ package entities.faturamento
 		{
 			_totalFatura = value;
 		}
+		
+		public function get totalSistema():Number
+		{
+			var total:Number = 0;
+			if(_listaOrdemServico){
+				for each(var os:OrdemServico in _listaOrdemServico){
+					total = total + os.valorSistema;
+				}
+			}
+			return total;
+		}
+		
 
 		public function get freteCobrado():Number
 		{

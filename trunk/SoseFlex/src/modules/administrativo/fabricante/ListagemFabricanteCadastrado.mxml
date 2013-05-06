@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:s="library://ns.adobe.com/flex/spark" initialize="initializeListagem()"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"  width="100%" height="100%"
 		 xmlns:components="components.*" 
@@ -61,8 +61,7 @@
 				listaFabricante = lista;
 				listaFabricanteCompleta = new ArrayCollection();
 				listaFabricanteCompleta.addAll(listaFabricante);
-				popularFiltros();
-				atualizaCombos();
+			
 			}
 			
 			public function adicionarFabricante(fabricante:Fabricante):void
@@ -97,9 +96,7 @@
 				
 				sortListaFabricante(listaFabricante);
 				sortListaFabricante(listaFabricanteCompleta);
-				
-				popularFiltros();
-				atualizaCombos();
+			
 			}
 			
 			public function editItem(data:Object, event:Event, edit:Boolean):void
@@ -129,65 +126,10 @@
 			}
 			
 			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaFabricante.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolFabricante:Boolean;
-					if(cbFabricante.selectedItem == null || cbFabricante.selectedItem == "" || cbFabricante.selectedItem == 'Todos'){
-						bolFabricante = true;
-					}else{
-						bolFabricante = item.nome.toLowerCase() == cbFabricante.selectedItem.toLowerCase();
-					}
-					
-					return bolFabricante;
-					
-				};		
-				listaFabricante.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				fabricanteSelecionada = cbFabricante.selectedItem as String;
-				listaFiltroFabricante = new ArrayCollection();
-				
-				for each (var fabricante:Fabricante in listaFabricante){
-					listaFiltroFabricante.addItem(fabricante.nome);
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFiltroFabricante.sort=sortA;
-				listaFiltroFabricante.refresh();
-				listaFiltroFabricante.sort = null;
-				listaFiltroFabricante.addItemAt("Todos",0);
-				
-				cbFabricante.enabled = true;
-				cbFabricante.dataProvider = listaFiltroFabricante;
-				
-				if(listaFiltroFabricante.length > 0){
-					if(fabricanteSelecionada){
-						cbFabricante.selectedItem = fabricanteSelecionada;
-					}
-				}
-				
-				
-			}
-			
 			
 		]]>
 	</fx:Script>		
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<components:DropBoxInput id="cbFabricante" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
-	</mx:HBox>	
-	
+		
 	<grid:MantisTable id="viewTable"
 					  width="100%" height="100%"
 					  draggableColumns="true"
@@ -196,14 +138,14 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="nome"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_FABRICANTE')}"
 							   width=".40" textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="descricao" width=".50" textAlign="center"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" width=".50" textAlign="center"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   
