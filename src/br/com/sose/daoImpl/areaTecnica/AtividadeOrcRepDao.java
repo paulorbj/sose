@@ -10,7 +10,7 @@ import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.orcrepGenerico.AtividadeOrcRep;
 import br.com.sose.entity.reparo.Reparo;
 
-@Repository("atividadeOrcRep")
+@Repository("atividadeOrcRepDao")
 public class AtividadeOrcRepDao extends HibernateDaoGenerico<AtividadeOrcRep, Long> {
 
 	public AtividadeOrcRepDao() {
