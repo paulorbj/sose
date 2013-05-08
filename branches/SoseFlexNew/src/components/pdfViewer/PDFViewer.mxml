@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				close="close()"
+				showCloseButton="true"
+				initialize="addListeners()"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="Visualizador de PDF" width="100%" height="100%"
+				xmlns:flexiframe="http://code.google.com/p/flex-iframe/"
+				xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.Message;
+			import components.messages.MessageFactory;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Usuario;
+			
+			import modules.reparoOrcamento.ListagemGeral;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			public var listagemGeral:ListagemGeral;
+			
+			private var yesListeners:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var urlSource:String = "";
+			
+			override public function addEventListener(
+				type:String, listener:Function,
+				useCapture:Boolean = false,
+				priority:int = 0,
+				useWeakReference:Boolean = false):void {
+				yesListeners.addItem(listener);
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}
+			}
+						
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" borderStyle="solid" verticalScrollPolicy="off" horizontalAlign="center" horizontalScrollPolicy="off">
+		<flexiframe:IFrame id="googleIFrame"
+						   scrollPolicy="no"
+						   label="Google"
+						   source="{urlSource}"
+						   width="100%"
+						   height="100%"/>
+	</mx:VBox>
+	
+	
+</mx:TitleWindow>
