@@ -1,8 +1,315 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx">
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:texto="components.textInput.*"
+		 preinitialize="onPreinitialize()"
+		 creationComplete="onCreationComplete()"
+		 width="100%" horizontalAlign="center" height="100%" 
+		 paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" >
+	
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:RemoteObject id="avisoService" destination="avisoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarAvisos"      
+					   fault="onListarAvisosFault(event)" 
+					   result="onListarAvisoResult(event)"
+					   />
+			<mx:method name="salvarAviso"      
+					   fault="onSalvarAvisoFault(event)" 
+					   result="onSalvarAvisoResult(event)"
+					   />
+			<mx:method name="excluirAviso"      
+					   fault="onExcluirAvisoFault(event)" 
+					   result="onExcluirAvisoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
 	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.componentes.Aviso;
+			
+			import modules.administrativo.atividade.eventos.AtividadeEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]			
+			private var _aviso:Aviso;
+			
+			[Bindable]	
+			private var _listaAviso:ArrayCollection = new ArrayCollection;
+			
+			private function onPreinitialize():void
+			{
+				
+			}
+			
+			private function onCreationComplete():void
+			{
+				avisoService.listarAvisos();	
+			}
+			
+			private function editar(event:AtividadeEvent):void
+			{
+				this.currentState = "edicao";
+				_atividade = event.atividade;
+				dados.atividade = _atividade;
+			}
+			
+			private function excluir(event:AtividadeEvent):void
+			{
+				_atividade = event.atividade;
+				atividadeService.excluirAtividade(event.atividade);
+			}
+			
+			private function onListarAvisosResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaAviso.removeAll();
+				_listaAviso = event.result as ArrayCollection;
+			}
+			
+			private function onListarAvisosFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAvisosFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onSalvarAtividadeResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_atividade = event.result as Atividade;
+				if(dados.atividade.id == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}
+				listagem.adicionarAtividade(_atividade);
+				dados.limpar();
+			}
+			
+			private function onSalvarAtividadeFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_SALVAR_ERRO'), MessageType.ERROR, 10000));	
+				}		
+			}
+			
+			private function onExcluirAtividadeResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _listaAtividade.getItemIndex(_atividade);
+				_listaAtividade.removeItemAt(index);
+				listagem.setListaAtividade(_listaAtividade);
+				limpar();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_REMOVER_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onExcluirAtividadeFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var i:Number;
+				if(event.fault.faultString.search("br.com.sose.exceptions") != -1){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_REMOVER_ERRO'), MessageType.ERROR, 10000));	
+				}	
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				if(dados.validarCampos()){
+					atividadeService.salvarAtividade(dados.atividade);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				_atividade = new Atividade();
+				if(dados)
+					dados.limpar();
+			}
+			
+			private function novo(event:MouseEvent = null):void
+			{
+				this.currentState = "insercao";
+				limpar();			
+			}
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				this.currentState = "listagem";
+				limpar();
+			}
+			
+			private function salvarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					salvar();
+				}
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}
+			
+			private function voltarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					voltar();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:VBox width="100%" horizontalAlign="center">
+		<s:Label fontSize="15" fontWeight="bold" text="{resourceManager.getString('ApplicationResource','LISTA_ATIVIDADE')}" includeIn="listagem"/>
+		<s:Label fontSize="15" fontWeight="bold" text="{resourceManager.getString('ApplicationResource','DETALHAMENTO_ATIVIDADE')}" excludeFrom="listagem"/>
+	</mx:VBox>	
+	
+	
+	
+	
+	<mx:VBox verticalAlign="bottom" width="100%" includeIn="edicao">
+		<mx:HBox width="100%">
+			<mx:CheckBox id="visivel" label="Visível" />
+			<texto:TextInput id="dataCriacao" habilitado="false" labelText="Data criação" width="30%"  />
+			<texto:TextInput id="criadoPor" habilitado="false" labelText="Criado por" width="50%" />	
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<s:Label text="Mensagem" />
+			<s:Spacer width="100%" />
+			<s:Label text="(0 / 3000)" />
+		</mx:HBox>
+		<s:TextArea id="mensagem" width="100%" />
+	</mx:VBox>
+	
+	<mx:VBox width="100%" horizontalAlign="left">
+		<mx:Button id="newButton" includeIn="listagem"
+				   label="{resourceManager.getString('ApplicationResource','NOVO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/new.png')"
+				   click="novo(event)"
+				   />
+	</mx:VBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_listaAviso}"
+					  itemDoubleClick="editItem(data, event)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="cVisivel" width=".40"
+							   headerText = "Visível"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="visivel"							   
+							   />
+			
+			<mx:DataGridColumn id="cDtCriacao" width=".50" textAlign="center"
+							   headerText = "Data criação"
+							   dataField = "dataCriacaoString"
+							   />
+			
+			<mx:DataGridColumn id="ccDtAlteracaoVisivel" width=".50" textAlign="center"
+							   headerText = "Visível alterado em"
+							   dataField = "dataVisivelAlteradooString"
+							   />
+			
+			<mx:DataGridColumn id="cCriadoPor" width=".50" textAlign="center"
+							   headerText = "Criado por"
+							   dataField = "criadoPor.usuario"
+							   />
+			
+			<mx:DataGridColumn id="cMensagem" width=".50" textAlign="center"
+							   headerText = "Mensagem"
+							   dataField = "mensagem"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".10" textAlign="center"	 						 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+	<mx:HBox width="100%" excludeFrom="listagem">
+		<mx:Button id="saveButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   keyDown="salvarEnter(event)"
+				   click="salvar(event)"
+				   />
+		<mx:Button id="cleanButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+		<mx:Button id="voltarButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   keyDown="voltarEnter(event)"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
 </mx:VBox>
