@@ -9,13 +9,15 @@
 	xmlns:messages="components.messages.*"
 	xmlns:components="components.*"
 	creationComplete="creationCompleteHandler()" verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	width="100%" height="100%" xmlns:s="library://ns.adobe.com/flex/spark">
+	width="100%" height="100%" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:pdfViewer="components.pdfViewer.*">
 	
 	<mx:Script>
 		<![CDATA[
 			import components.messages.MensagemEvent;
 			import components.messages.MessageType;
 			import components.messages.NotificationEvent;
+			import components.pdfViewer.PDFViewer;
+			import components.pdfViewer.PDFViewerEvent;
 			
 			import entities.administrativo.Perfil;
 			
@@ -40,10 +42,17 @@
 			
 			public static var barraNotificacao:NotificationBar = null;
 			
+			public var moduloCorrente:VBox = null;
+			
+			public var visualizadoPDF:PDFViewer = new PDFViewer();
+			
 			public function creationCompleteHandler():void
 			{
 				this.addEventListener(MensagemEvent.EXIBIR_MENSAGEM,onMensagem);
 				this.addEventListener(NotificationEvent.LIMPAR_NOTIFICACOES,onLimpar);
+				this.addEventListener(PDFViewerEvent.ABRIR_VIEWER,onAbrirPDF);
+				this.addEventListener(PDFViewerEvent.FECHAR_VIEWER,onFecharPDF);
+
 				var msg:String = "Bem vindo ao SOSE";
 				notificationBar.addMessage(msg.toString(), MessageType.INFO);
 				barraNotificacao = notificationBar;
@@ -129,6 +138,19 @@
 				notificationBar.closeAllMessages();
 			}
 			
+			private function onAbrirPDF(event:PDFViewerEvent):void
+			{
+				containerPrincipal.removeAllChildren();
+				visualizadoPDF.urlSource = event.urlString;
+				containerPrincipal.addChild(visualizadoPDF);
+			}
+			
+			private function onFecharPDF(event:PDFViewerEvent):void
+			{
+				containerPrincipal.removeAllChildren();
+				containerPrincipal.addChild(moduloCorrente);
+			}
+			
 			/**
 			 * Synchronize the local SQLite database with the "central" database. In this
 			 * version of Salesbuilder we simulate the sever database using an xml file
@@ -149,43 +171,43 @@
 				{
 					case 0:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaHome());
+						containerPrincipal.addChild(moduloCorrente = new TelaHome());
 						break;
 					case 1:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaAdministrativo());
+						containerPrincipal.addChild(moduloCorrente = new TelaAdministrativo());
 						break;
 					case 2:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaRecebimento());
+						containerPrincipal.addChild(moduloCorrente = new TelaRecebimento());
 						break;
 					case 3:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaAreaTecnica());
+						containerPrincipal.addChild(moduloCorrente = new TelaAreaTecnica());
 						break;
 					case 4:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaExpedicao());
+						containerPrincipal.addChild(moduloCorrente = new TelaExpedicao());
 						break;
 					case 5:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaProposta());
+						containerPrincipal.addChild(moduloCorrente = new TelaProposta());
 						break;
 					case 6:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaEstoque());
+						containerPrincipal.addChild(moduloCorrente = new TelaEstoque());
 						break;
 					case 8:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaFaturamento());
+						containerPrincipal.addChild(moduloCorrente = new TelaFaturamento());
 						break;
 					case 9:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaEstoqueAvaya());
+						containerPrincipal.addChild(moduloCorrente = new TelaEstoqueAvaya());
 						break;
 					case 10:
 						containerPrincipal.removeAllChildren();
-						containerPrincipal.addChild(new TelaConsulta());
+						containerPrincipal.addChild(moduloCorrente = new TelaConsulta());
 						break;
 					
 				}
@@ -237,6 +259,10 @@
 		]]>
 	</mx:Script>
 	
+	<mx:states>
+		<s:State name="programa"/>
+		<s:State name="visualizadorPDF"/>
+	</mx:states>
 	
 	<!-- The Window Header -->
 	<mx:Canvas id="header" top="0" left="0" right="0">
@@ -291,11 +317,11 @@
 		
 	</mx:Canvas>
 	
-	<mx:VBox id="containerPrincipal" styleName="tabContainer" top="62" left="14" right="14" bottom="65" depth="100"
+	<mx:VBox id="containerPrincipal"  styleName="tabContainer" top="62" left="14" right="14" bottom="65" depth="100"
 			 paddingTop="1" paddingLeft="2" paddingBottom="2" paddingRight="2" verticalScrollPolicy="off" horizontalScrollPolicy="off"
-			 horizontalAlign="center" width="100%" height="100%" >
+			 horizontalAlign="center" width="0" height="0" >
 	</mx:VBox>
-	
+		
 	<messages:NotificationBar id="notificationBar" bottom="14" left="17" right="17" depth="0" 
 							  width="100%" height="50" />
 	

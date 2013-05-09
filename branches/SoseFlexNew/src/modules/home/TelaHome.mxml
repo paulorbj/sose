@@ -13,8 +13,12 @@
 		 verticalGap="0" xmlns:cc="components.imageviewer1.cc.*" xmlns:flextras="http://www.flextras.com/mxml" >
 	<fx:Script>
 		<![CDATA[
+			import components.pdfViewer.PDFViewer;
+			import components.pdfViewer.PDFViewerEvent;
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
 			
 			protected function autocompletecomboboxlite1_creationCompleteHandler(event:FlexEvent):void
 			{
@@ -74,7 +78,21 @@
 				{label:"Wisconsin", data:49},
 				{label:"Wyoming", data:50},
 			]);
-							
+			
+			public function abrir():void
+			{			
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, "http://localhost:8080/SoseWeb/view/assets/teste.pdf"));
+			}
+			
+			public function abrir2():void
+			{			
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, "http://www.uol.com.br"));
+			}
+			
+			public function abrir3():void
+			{			
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, "http://localhost:8080/SoseWeb/view/assets/teste2.pdf"));
+			}
 		]]>
 	</fx:Script>
 	
@@ -83,7 +101,9 @@
 		<mx:Fade id="fadeOut" duration="100" alphaFrom="1" alphaTo="0"/>
 	</fx:Declarations>
 	
-	<s:Label text="Home page" />
+	<s:Button label="Abrir" click="abrir();" />
+	<s:Button label="Abrir 2" click="abrir2();" />
+	<s:Button label="Abrir 2" click="abrir3();" />
 	<flextras:AutoCompleteComboBoxLite id="teste" 
 									   dataProvider="{dataProvider}"
 									   creationComplete="autocompletecomboboxlite1_creationCompleteHandler(event)" />
