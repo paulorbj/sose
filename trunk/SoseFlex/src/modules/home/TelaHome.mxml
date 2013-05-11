@@ -6,14 +6,13 @@
 		 xmlns:fileupload2="components.fileupload2.*"
 		 xmlns:imageviewer1="components.imageviewer1.*"
 		 xmlns:imageviewer2="components.imageviewer2.*"
-		 paddingLeft="12" creationComplete="oncreation()"
+		 paddingLeft="12" 
 		 paddingRight="12"
 		 paddingBottom="20" paddingTop="20"
 		 width="100%" height="100%"
 		 verticalGap="0" xmlns:cc="components.imageviewer1.cc.*" xmlns:flextras="http://www.flextras.com/mxml" >
 	<fx:Script>
 		<![CDATA[
-			import components.pdfViewer.PDFViewer;
 			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
@@ -78,13 +77,6 @@
 				{label:"Wyoming", data:50},
 			]);
 			
-			public function oncreation():void
-			{			
-				var modal:PDFViewer=PDFViewer(PopUpManager.createPopUp( this, PDFViewer , true));
-				modal.urlSource = "http://127.0.0.1:8080/SoseWeb/view/assets/teste.pdf";
-				PopUpManager.centerPopUp(modal);
-				
-			}
 							
 		]]>
 	</fx:Script>
@@ -95,9 +87,7 @@
 	</fx:Declarations>
 	
 	<s:Label text="Home page" />
-	
-	<mx:Button click="oncreation();" label="Ver PDF"/>
-	
+		
 	<flextras:AutoCompleteComboBoxLite id="teste" 
 									   dataProvider="{dataProvider}"
 									   creationComplete="autocompletecomboboxlite1_creationCompleteHandler(event)" />

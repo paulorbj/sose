@@ -430,7 +430,7 @@
 				for each (var item:ItemNotaFiscal in _notaFiscal.itensDaNotaFiscal){
 					totalItens = totalItens + (item.valorUnitario * item.quantidade)
 				}
-				if(totalItens.toPrecision(4) != valorNotaFiscal.getValor().toPrecision(4)){
+				if(totalItens.toFixed(4) != valorNotaFiscal.getValor().toFixed(4)){
 					isValidForm = false;
 					dispatchEvent(new MensagemEvent("O valor total da nota fiscal: "+valorNotaFiscal.getValor() + " não confere com o valor total dos itens da nota: " + totalItens, MessageType.WARNING, 5000));
 					return isValidForm;
