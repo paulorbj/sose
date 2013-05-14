@@ -15,17 +15,17 @@
 
 
 	<context-param>
-          <param-name>contextConfigLocation</param-name>
-          <param-value>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
                 classpath:net/bull/javamelody/monitoring-spring-datasource.xml
                 /WEB-INF/applicationContext.xml
           </param-value>
-    </context-param>
-        
+	</context-param>
+
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-	
+
 
 	<listener>
 		<listener-class>flex.messaging.HttpFlexSession</listener-class>
@@ -111,7 +111,7 @@
 		<servlet-name>LoggerServlet</servlet-name>
 		<url-pattern>/logger</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet>
 		<servlet-name>UploadServlet</servlet-name>
 		<servlet-class>br.com.sose.servlets.UploadServlet</servlet-class>
@@ -120,6 +120,15 @@
 	<servlet-mapping>
 		<servlet-name>UploadServlet</servlet-name>
 		<url-pattern>/uploadservlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ConteudoServlet</servlet-name>
+		<servlet-class>br.com.sose.utils.ConteudoServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ConteudoServlet</servlet-name>
+		<url-pattern>/arquivo_servilogi/*</url-pattern>
 	</servlet-mapping>
 
 	<filter>
@@ -133,7 +142,7 @@
 	<listener>
 		<listener-class>net.bull.javamelody.SessionListener</listener-class>
 	</listener>
-	
+
 	<listener>
 		<listener-class>br.com.sose.utils.SoseSessionFlex</listener-class>
 	</listener>
