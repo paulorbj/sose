@@ -81,7 +81,7 @@
 			
 			public function abrir():void
 			{			
-				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, "http://localhost:8080/SoseWeb/view/assets/teste.pdf"));
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, "http://localhost:8080/SoseWeb/arquivo_servilogi/unidade/1/teste.pdf"));
 			}
 			
 			public function abrir2():void
@@ -91,7 +91,7 @@
 			
 			public function abrir3():void
 			{			
-				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, "http://localhost:8080/SoseWeb/view/assets/teste2.pdf"));
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, "http://localhost:8080/SoseWeb/arquivo_servilogi/unidade/1/teste2.pdf"));
 			}
 		]]>
 	</fx:Script>
@@ -105,7 +105,7 @@
 	<s:Button label="Abrir 2" click="abrir2();" />
 	<s:Button label="Abrir 2" click="abrir3();" />
 	
-	<s:Image source="http://localhost:8080/SoseWeb/arquivo_servilogi/unidade/1/1368297046488.jpg" width="200" height="200" />
+	<s:Image source="http://localhost:8080/SoseWeb/arquivo_servilogi/unidade/1/1368297046488.jpg" width="80" height="80" />
 	
 	<quadroAviso:QuadroAvisoGerenciamento />
 	
