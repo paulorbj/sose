@@ -10,7 +10,7 @@
 		 paddingRight="12"
 		 paddingBottom="20" paddingTop="20"
 		 width="100%" height="100%"
-		 verticalGap="0" xmlns:cc="components.imageviewer1.cc.*" xmlns:flextras="http://www.flextras.com/mxml" >
+		 verticalGap="0" xmlns:cc="components.imageviewer1.cc.*" xmlns:flextras="http://www.flextras.com/mxml" xmlns:quadroAviso="modules.home.quadroAviso.*" >
 	<fx:Script>
 		<![CDATA[
 			import components.pdfViewer.PDFViewer;
@@ -104,14 +104,16 @@
 	<s:Button label="Abrir" click="abrir();" />
 	<s:Button label="Abrir 2" click="abrir2();" />
 	<s:Button label="Abrir 2" click="abrir3();" />
+	
+	<s:Image source="http://localhost:8080/SoseWeb/arquivo_servilogi/unidade/1/1368297046488.jpg" width="200" height="200" />
+	
+	<quadroAviso:QuadroAvisoGerenciamento />
+	
 	<flextras:AutoCompleteComboBoxLite id="teste" 
 									   dataProvider="{dataProvider}"
 									   creationComplete="autocompletecomboboxlite1_creationCompleteHandler(event)" />
 	<mx:HBox>
 		<fileupload2:FileUploadApp  />	
-	</mx:HBox>
-	
-	<mx:HBox>
 		<imageviewer1:ListDemo />
 	</mx:HBox>
 	
