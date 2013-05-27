@@ -10,6 +10,16 @@
 			private const _strDomain:String = new String("http://127.0.0.1:8080/SoseWeb/");
 			private const _strUploadScript:String = new String(_strDomain + "uploadservlet");
 			
+			public static const T_ENTIDADE_UNIDADE:String = new String("UNIDADE");
+			public static const T_ENTIDADE_COMPONENTE:String = new String("COMPONENTE");
+			public static const T_ENTIDADE_USUARIO:String = new String("USUARIO");
+			public static const T_ENTIDADE_LAUDO_TECNICO:String = new String("LAUDO_TECNICO");
+			
+			[Bindable]
+			public var idObjeto:Number;
+			
+			[Bindable]
+			public var tipoEntidade:String;
 			// Initalize
 			private function initApp():void {
 				Security.allowDomain(_strDomain);
@@ -20,8 +30,8 @@
 	
 	<mx:Canvas width="400" height="300" horizontalCenter="0" verticalCenter="0">
 		<com:FileUpload
-			identificadorObjeto="1"
-			tipoObjeto="unidade"
+			identificadorObjeto="{idObjeto}"
+			tipoObjeto="{tipoEntidade}"
 			width="100%" height="100%"
 			uploadUrl="{_strUploadScript}"
 			uploadComplete="Alert.show('File(s) have been uploaded.', 'Upload successful')" 

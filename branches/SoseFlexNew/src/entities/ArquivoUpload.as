@@ -10,7 +10,7 @@ package entities
 		private var _nome:String;
 		private var _nomeOriginal:String;
 		private var _caminho:String;
-		private var _identificadorEntidade:String;
+		private var _identificadorEntidade:Number;
 		private var _tipoEntidade:String;
 		private var _dataUpload:Date;
 		private var _tipoArquivo:String;
@@ -55,12 +55,12 @@ package entities
 			_caminho = value;
 		}
 
-		public function get identificadorEntidade():String
+		public function get identificadorEntidade():Number
 		{
 			return _identificadorEntidade;
 		}
 
-		public function set identificadorEntidade(value:String):void
+		public function set identificadorEntidade(value:Number):void
 		{
 			_identificadorEntidade = value;
 		}
@@ -95,7 +95,15 @@ package entities
 			_tipoArquivo = value;
 		}
 
-
+		public function get caminhoImagem():String
+		{
+			return "http://localhost:8080/SoseWeb/arquivo_servilogi/" + _tipoEntidade + "/" + _identificadorEntidade + "/" + _nome;
+		}
+		
+		public function set caminhoImagem(value:String):void
+		{
+			
+		}
 	}
 	
 }
