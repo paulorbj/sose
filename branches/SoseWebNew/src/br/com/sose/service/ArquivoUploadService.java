@@ -1,5 +1,7 @@
 package br.com.sose.service;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.flex.remoting.RemotingDestination;
@@ -38,6 +40,12 @@ public class ArquivoUploadService {
 			throw e;
 		}
 		return arquivoUploadSalvo;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<ArquivoUpload> listarPorEntidadePorIdentificador(String entidade, Long idEntidade) {
+		return arquivoUploadDao.listarPorEntidadePorIdentificador(entidade, idEntidade);
 	}
 
 }
