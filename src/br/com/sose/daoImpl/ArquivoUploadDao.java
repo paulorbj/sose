@@ -1,5 +1,7 @@
 package br.com.sose.daoImpl;
 
+import java.util.List;
+
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
@@ -27,6 +29,16 @@ public class ArquivoUploadDao extends HibernateDaoGenerico<ArquivoUpload, Long> 
 		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
 		q.setParameter("id", id);
 		return (ArquivoUpload)q.uniqueResult();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ArquivoUpload> listarPorEntidadePorIdentificador(String entidade, Long idEntidade) {
+		String queryString = "SELECT h FROM "+ entityClass.getName() + " h WHERE h.identificadorEntidade = :idEntidade AND h.tipoEntidade = :tipoEntidade";
+		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
+		q.setParameter("tipoEntidade", entidade);
+		q.setParameter("idEntidade", idEntidade);
+		List<ArquivoUpload> listaTemp = (List<ArquivoUpload>)q.list();
+		return listaTemp;
 	}
 
 	public Boolean remover(final ArquivoUpload arquivoUpload){

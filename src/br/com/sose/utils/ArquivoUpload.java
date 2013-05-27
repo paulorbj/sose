@@ -34,7 +34,7 @@ public class ArquivoUpload implements Serializable {
 	private String caminho;
 	
 	@Column(name="identificador_entidade")
-	private String identificadorEntidade;
+	private Long identificadorEntidade;
 	
 	@Column(name="tipo_entidade")
 	private String tipoEntidade;
@@ -69,11 +69,11 @@ public class ArquivoUpload implements Serializable {
 		this.caminho = caminho;
 	}
 
-	public String getIdentificadorEntidade() {
+	public Long getIdentificadorEntidade() {
 		return identificadorEntidade;
 	}
 
-	public void setIdentificadorEntidade(String identificadorEntidade) {
+	public void setIdentificadorEntidade(Long identificadorEntidade) {
 		this.identificadorEntidade = identificadorEntidade;
 	}
 
