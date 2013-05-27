@@ -31,31 +31,54 @@
 			
 			*/
 			
-			import mx.controls.*;
-			import mx.managers.*;
-            import mx.events.*;
 			import flash.events.*;
 			import flash.net.*;
 			
+			import mx.controls.*;
+			import mx.events.*;
+			import mx.managers.*;
+			
 			private var _strUploadUrl:String;
 			private var _tipoObjeto:String;
-			private var _identificadorObjeto:String;
+			private var _identificadorObjeto:Number;
 			private var _refAddFiles:FileReferenceList;	
 			private var _refUploadFile:FileReference;
 			private var _arrUploadFiles:Array;
 			private var _numCurrentUpload:Number = 0;			
+			
+			[Bindable]
+			public var funcaoSalvar:Function;
 			
 			// Set uploadUrl
 			public function set uploadUrl(strUploadUrl:String):void {
 				_strUploadUrl = strUploadUrl;
 			}
 			
+			[Bindable]
+			public function get tipoObjeto():String
+			{
+				return _tipoObjeto;
+			}
 			public function set tipoObjeto(tipoObjeto:String):void {
 				_tipoObjeto = tipoObjeto;
 			}
 			
-			public function set identificadorObjeto(identificadorObjeto:String):void {
+			[Bindable]
+			public function get identificadorObjeto():Number
+			{
+				return _identificadorObjeto;
+			}
+			public function set identificadorObjeto(identificadorObjeto:Number):void {
 				_identificadorObjeto = identificadorObjeto;
+			}
+			
+			public function realizarUpload():void
+			{
+				if(isNaN(_identificadorObjeto) || _identificadorObjeto == 0){
+					//Salvar antes de realizar upload
+				}else{
+					startUpload();
+				}
 			}
 			
 			// Initalize
