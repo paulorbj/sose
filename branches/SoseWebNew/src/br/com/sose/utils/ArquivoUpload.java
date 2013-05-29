@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -31,8 +32,6 @@ public class ArquivoUpload implements Serializable {
 	@Column(name="nome_original")
 	private String nomeOriginal;
 	
-	private String caminho;
-	
 	@Column(name="identificador_entidade")
 	private Long identificadorEntidade;
 	
@@ -44,6 +43,9 @@ public class ArquivoUpload implements Serializable {
 	
 	@Column(name="tipo_arquivo")
 	private String tipoArquivo;
+	
+	@Transient
+	private String caminhoImagem;
 
 	public Long getId() {
 		return id;
@@ -59,14 +61,6 @@ public class ArquivoUpload implements Serializable {
 
 	public void setNome(String nome) {
 		this.nome = nome;
-	}
-
-	public String getCaminho() {
-		return caminho;
-	}
-
-	public void setCaminho(String caminho) {
-		this.caminho = caminho;
 	}
 
 	public Long getIdentificadorEntidade() {
@@ -107,6 +101,14 @@ public class ArquivoUpload implements Serializable {
 
 	public void setNomeOriginal(String nomeOriginal) {
 		this.nomeOriginal = nomeOriginal;
+	}
+
+	public String getCaminhoImagem() {
+		return caminhoImagem;
+	}
+
+	public void setCaminhoImagem(String caminhoImagem) {
+		this.caminhoImagem = caminhoImagem;
 	}
 	
 	
