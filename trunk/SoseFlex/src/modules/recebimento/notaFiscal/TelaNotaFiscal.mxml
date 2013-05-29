@@ -546,7 +546,8 @@
 						_ordemServico.ordemServicoCliente = nOSCliente.text;
 						//logger.info("Depois##INFORMAÇÕES OS: Nº OS: " + ordemServicoRetorno.getNumeroOrdemServico() + " - S/N Fabricante: " + ordemServicoRetorno.getSerieFabricante() + " - S/N Cliente: " + ordemServicoRetorno.getSerieCliente() + " - OS Cliente: " + ordemServicoRetorno.getOrdemServicoCliente());
 						SoseFlex.LOG.info("Tela##INFORMAÇÕES OS: Nº OS: " + _ordemServico.numeroOrdemServico + " - S/N Fabricante: " + _ordemServico.serieFabricante + " - S/N Cliente: " + _ordemServico.serieCliente + " - OS Cliente: " + _ordemServico.ordemServicoCliente);
-						PopupModalController.getInstance().showModalConfirmarInformacoes(atualizarConfirmacaoInformacao,_ordemServico);
+						//PopupModalController.getInstance().showModalConfirmarInformacoes(atualizarConfirmacaoInformacao,_ordemServico);
+						ordemServicoService.verificarGarantia(_ordemServico);
 
 					}else{
 						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
