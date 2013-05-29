@@ -14,6 +14,7 @@ package entities
 		private var _tipoEntidade:String;
 		private var _dataUpload:Date;
 		private var _tipoArquivo:String;
+		private var _caminhoImagem:String;
 		
 		public function get id():Number
 		{
@@ -97,13 +98,16 @@ package entities
 
 		public function get caminhoImagem():String
 		{
-			return "http://localhost:8080/SoseWeb/arquivo_servilogi/" + _tipoEntidade + "/" + _identificadorEntidade + "/" + _nome;
+			_caminhoImagem =  "http://localhost:8080/SoseWeb/arquivo_servilogi/" + _tipoEntidade + "/" + _identificadorEntidade + "/" + _nome;
+			return _caminhoImagem;
 		}
-		
+
 		public function set caminhoImagem(value:String):void
 		{
-			
+			_caminhoImagem = value;
 		}
+
+
 	}
 	
 }

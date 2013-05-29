@@ -47,8 +47,10 @@
 		]]>
 	</fx:Script>
 	
-	<s:List id="carouselContainer" dataProvider="{listaImagem}" itemRenderer="components.imageviewer3.RendererDGImage"
-					   height="170" color="0x323232"   >
+	<s:List id="carouselContainer" dataProvider="{listaImagem}" 
+			width="300" horizontalScrollPolicy="auto"
+			itemRenderer="components.imageviewer3.RendererDGImage"
+					   height="120" color="0x323232"   >
 		<s:layout>
 			<s:HorizontalLayout gap="4"/>
 		</s:layout>
