@@ -45,7 +45,8 @@ public class ArquivoUploadService {
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public List<ArquivoUpload> listarPorEntidadePorIdentificador(String entidade, Long idEntidade) {
-		return arquivoUploadDao.listarPorEntidadePorIdentificador(entidade, idEntidade);
+		List<ArquivoUpload> listaRetorno = arquivoUploadDao.listarPorEntidadePorIdentificador(entidade, idEntidade);
+		return listaRetorno;
 	}
 
 }
