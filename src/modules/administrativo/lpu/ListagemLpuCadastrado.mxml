@@ -110,60 +110,29 @@
 					  itemDoubleClick="editItem(data, event,false)"	>
 		<grid:columns>
 			
-			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="unidade"
-							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente" 
+									 headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+									 dataField = "cliente.nomeSistema"
+									 width="80"
+									 />
+			
+			<mx:DataGridColumn headerText = ""	dataField="componentePendente"
+							   draggable="false" width="25"							 
+							   editable="false" itemRenderer="modules.reparoOrcamento.ImageItemRenderer"
+							   sortable="false" />
+			
+			<mx:DataGridColumn id="carregadoEm"
+							   headerText = "Carregada em"
 							   textAlign="center"
 							   sortable="false"
-							   dataField="unidade"							   
+							   dataField="dataVencimentoFaturaString"							   
 							   />
 			
-			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" 
-							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
-							   dataField = "descricao"
-							   width="80"
-							   />
-			
-			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="codigo1" 
-							   headerText = "{resourceManager.getString('ApplicationResource','CODIGO1_LPU')}"
-							   dataField = "codigo1"
-							   width="80"
-							   />
-			
-			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="codigo2" 
-							   headerText = "{resourceManager.getString('ApplicationResource','CODIGO2_LPU')}"
-							   dataField = "codigo2"
-							   width="80"
-							   />
-			
-			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente" 
-							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
-							   dataField = "cliente.nomeSistema"
-							   width="80"
-							   />
-			
-			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="fabricante" 
-							   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
-							   dataField = "fabricante.nome"
-							   width="80"
-							   />
-			
-			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="equipamento" 
-							   headerText = "{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}"
-							   dataField = "equipamento.nome"
-							   width="80"
-							   />
-			
-			<mx:DataGridColumn id="moeda" 
-							   headerText = "{resourceManager.getString('ApplicationResource','MOEDA_LPU')}"
-							   dataField = "moeda"
-							   width="80"
-							   />
-			
-			<mx:DataGridColumn id="valorReparo" 
-							   headerText = "{resourceManager.getString('ApplicationResource','VALOR_LPU')}"
-							   dataField = "valorReparo"
-							   width="80"
+			<mx:DataGridColumn id="validoAte"
+							   headerText = "Válida até"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="dataVencimentoFaturaString"							   
 							   />
 			
 			<!-- EDIT/REMOVE COLUMNS -->
@@ -183,6 +152,13 @@
 									  buttonMode="true"
 									  useHandCursor="true"
 									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
 									  />
 							
 							<mx:Image source="@Embed(source='/assets/icons/delete.png')"

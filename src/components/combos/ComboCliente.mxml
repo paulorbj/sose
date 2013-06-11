@@ -39,6 +39,9 @@
 			[Bindable]
 			public var possuiContrato:Boolean = true;
 			
+			[Bindable]
+			private var _labelText:String = "";
+			
 			private function onCreationComplete():void
 			{
 				if(filtrarContrato){
@@ -78,16 +81,12 @@
 			[Bindable]
 			public function get labelText():String 
 			{
-				if(comboBox)
-					return comboBox.labelText;
-				else
-					return "";
+				return _labelText;
 			}
 			
 			public function set labelText(value:String):void 
 			{
-				if(comboBox)
-					comboBox.labelText = value;
+				_labelText = value;
 			}
 			
 			public function limpar():void
@@ -99,5 +98,5 @@
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" sortField="nomeSistema" />
+	<combo:ComboBoxInput id="comboBox" required="{required}" labelText="{_labelText}" change="{changeFunction}" sortField="nomeSistema" />
 </mx:VBox>
