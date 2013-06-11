@@ -1219,7 +1219,7 @@
 	
 	<fx:Binding source="itemNota.inputText" destination="_ordemServico.itemNotaFiscal.nome" twoWay="true" />
 	<fx:Binding source="unidadeServilogi.inputText" destination="_ordemServico.itemNotaFiscal.unidade.nome" twoWay="true" />
-	<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.itemNotaFiscal.lpu.unidade" twoWay="true" />
+	<!--<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.itemNotaFiscal.lpu.unidade" twoWay="true" />-->
 	<fx:Binding source="fabricante.inputText" destination="_ordemServico.itemNotaFiscal.unidade.fabricante.nome" twoWay="true" />
 	<fx:Binding source="equipamento.inputText" destination="_ordemServico.itemNotaFiscal.unidade.equipamento.nome" twoWay="true" />
 	<fx:Binding source="laboratorio.inputText" destination="_ordemServico.itemNotaFiscal.unidade.laboratorio.nome" twoWay="true" />

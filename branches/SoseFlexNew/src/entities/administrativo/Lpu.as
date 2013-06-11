@@ -2,79 +2,49 @@ package entities.administrativo
 {
 	import entities.administrativo.parceiros.Pessoa;
 	
+	import mx.collections.ArrayCollection;
+	
+	import utils.ScreenUtils;
+	
 	[Bindable]	
 	[RemoteClass(alias="br.com.sose.entity.admistrativo.Lpu")]	
 	public class Lpu
 	{
 		
 		private var _id:Number;
-		private var _descricao:String;
 		private var _cliente:Pessoa;
-		private var _unidade:String;
-		private var _codigo1:String;
-		private var _codigo2:String;
-		private var _fabricante:Fabricante;
-		private var _equipamento:Equipamento;
-		private var _moeda:String;
-		private var _valorReparo:Number;
-		private var _cadastroSistemaRealizadoEm:Date;
-		private var _cadastroSistemaRealizadoPor:Usuario;
-		private var _cadastroSistemaAtivo:Boolean;
+		private var _celulaUnidade:String;
+		private var _celulaCodigo1:String;
+		private var _celulaCodigo2:String;
+		private var _celulaFabricante:String;
+		private var _celulaEquipamento:String;
+		private var _celulaValor:String;
+
+		private var _linhaCabecalho:String;
+		private var _primeiraLinhaDados:String;
+		private var _ultimaLinhaDados:String;
+				
+		private var _ativa:Boolean;
+		
+		private var _validoAte:Date;
+		
+		private var _uploadEm:Date;
+		
+		private var _rodouAutoAssociar:Boolean;
+				
+		private var _listaItemLpu:ArrayCollection;
 		
 		public function Lpu(){
-			_unidade = "";
-			_id = 0;
-			_cadastroSistemaAtivo = true;
 		}
-		
+	
 		public function get id():Number
 		{
 			return _id;
 		}
-		
+
 		public function set id(value:Number):void
 		{
 			_id = value;
-		}
-		
-		public function get descricao():String
-		{
-			return _descricao;
-		}
-		
-		public function set descricao(value:String):void
-		{
-			_descricao = value;
-		}
-		
-		public function get cadastroSistemaRealizadoEm():Date
-		{
-			return _cadastroSistemaRealizadoEm;
-		}
-		
-		public function set cadastroSistemaRealizadoEm(value:Date):void
-		{
-			_cadastroSistemaRealizadoEm = value;
-		}
-		
-		public function get cadastroSistemaRealizadoPor():Usuario
-		{
-			return _cadastroSistemaRealizadoPor;
-		}
-		
-		public function set cadastroSistemaRealizadoPor(value:Usuario):void
-		{
-			_cadastroSistemaRealizadoPor = value;
-		}
-		
-		public function get cadastroSistemaAtivo():Boolean
-		{
-			return _cadastroSistemaAtivo;
-		}
-		
-		public function set cadastroSistemaAtivo(value:Boolean):void
-		{
-			_cadastroSistemaAtivo = value;
 		}
 
 		public function get cliente():Pessoa
@@ -87,74 +57,171 @@ package entities.administrativo
 			_cliente = value;
 		}
 
-		public function get unidade():String
+		public function get celulaUnidade():String
 		{
-			return _unidade;
+			return _celulaUnidade;
 		}
 
-		public function set unidade(value:String):void
+		public function set celulaUnidade(value:String):void
 		{
-			_unidade = value;
+			_celulaUnidade = value;
 		}
 
-		public function get codigo1():String
+		public function get celulaCodigo1():String
 		{
-			return _codigo1;
+			return _celulaCodigo1;
 		}
 
-		public function set codigo1(value:String):void
+		public function set celulaCodigo1(value:String):void
 		{
-			_codigo1 = value;
+			_celulaCodigo1 = value;
 		}
 
-		public function get codigo2():String
+		public function get celulaCodigo2():String
 		{
-			return _codigo2;
+			return _celulaCodigo2;
 		}
 
-		public function set codigo2(value:String):void
+		public function set celulaCodigo2(value:String):void
 		{
-			_codigo2 = value;
+			_celulaCodigo2 = value;
 		}
 
-		public function get fabricante():Fabricante
+		public function get celulaFabricante():String
 		{
-			return _fabricante;
+			return _celulaFabricante;
 		}
 
-		public function set fabricante(value:Fabricante):void
+		public function set celulaFabricante(value:String):void
 		{
-			_fabricante = value;
+			_celulaFabricante = value;
 		}
 
-		public function get equipamento():Equipamento
+		public function get celulaEquipamento():String
 		{
-			return _equipamento;
+			return _celulaEquipamento;
 		}
 
-		public function set equipamento(value:Equipamento):void
+		public function set celulaEquipamento(value:String):void
 		{
-			_equipamento = value;
+			_celulaEquipamento = value;
 		}
 
-		public function get moeda():String
+		public function get celulaValor():String
 		{
-			return _moeda;
+			return _celulaValor;
 		}
 
-		public function set moeda(value:String):void
+		public function set celulaValor(value:String):void
 		{
-			_moeda = value;
+			_celulaValor = value;
 		}
 
-		public function get valorReparo():Number
+		public function get linhaCabecalho():String
 		{
-			return _valorReparo;
+			return _linhaCabecalho;
 		}
 
-		public function set valorReparo(value:Number):void
+		public function set linhaCabecalho(value:String):void
 		{
-			_valorReparo = value;
+			_linhaCabecalho = value;
+		}
+
+		public function get primeiraLinhaDados():String
+		{
+			return _primeiraLinhaDados;
+		}
+
+		public function set primeiraLinhaDados(value:String):void
+		{
+			_primeiraLinhaDados = value;
+		}
+
+		public function get ultimaLinhaDados():String
+		{
+			return _ultimaLinhaDados;
+		}
+
+		public function set ultimaLinhaDados(value:String):void
+		{
+			_ultimaLinhaDados = value;
+		}
+
+		public function get ativa():Boolean
+		{
+			return _ativa;
+		}
+
+		public function set ativa(value:Boolean):void
+		{
+			_ativa = value;
+		}
+
+		public function get validoAte():Date
+		{
+			return _validoAte;
+		}
+
+		public function set validoAte(value:Date):void
+		{
+			_validoAte = value;
+		}
+		
+		public function get validoAteString():String
+		{
+			if(_validoAte)
+				return ScreenUtils.formatarDataDDMMYYYY(_validoAte);
+			else{
+				return "";
+			}
+		}
+		
+		public function set validoAteString(value:String):void
+		{
+
+		}
+
+		public function get uploadEm():Date
+		{
+			return _uploadEm;
+		}
+
+		public function set uploadEm(value:Date):void
+		{
+			_uploadEm = value;
+		}
+		
+		public function get uploadEmString():String
+		{
+			if(_uploadEm)
+				return ScreenUtils.formatarDataDDMMYYYY(_uploadEm);
+			else{
+				return "";
+			}
+		}
+		
+		public function set uploadEmString(value:String):void
+		{
+		}
+
+		public function get rodouAutoAssociar():Boolean
+		{
+			return _rodouAutoAssociar;
+		}
+
+		public function set rodouAutoAssociar(value:Boolean):void
+		{
+			_rodouAutoAssociar = value;
+		}
+
+		public function get listaItemLpu():ArrayCollection
+		{
+			return _listaItemLpu;
+		}
+
+		public function set listaItemLpu(value:ArrayCollection):void
+		{
+			_listaItemLpu = value;
 		}
 
 

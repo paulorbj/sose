@@ -34,7 +34,7 @@
 	
 	<fx:Binding source="itemNota.inputText" destination="_ordemServico.itemNotaFiscal.nome" twoWay="true" />
 	<fx:Binding source="unidadeServilogi.inputText" destination="_ordemServico.unidade.nome" twoWay="true" />
-	<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.lpu.unidade" twoWay="true" />
+	<!--<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.lpu.unidade" twoWay="true" /> -->
 	<fx:Binding source="fabricante.inputText" destination="_ordemServico.unidade.fabricante.nome" twoWay="true" />
 	<fx:Binding source="equipamento.inputText" destination="_ordemServico.unidade.equipamento.nome" twoWay="true" />
 	<fx:Binding source="laboratorio.inputText" destination="_ordemServico.unidade.laboratorio.nome" twoWay="true" />

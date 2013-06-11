@@ -47,12 +47,26 @@
 		]]>
 	</fx:Script>
 	
-	<s:List id="carouselContainer" dataProvider="{listaImagem}" 
-			width="300" horizontalScrollPolicy="auto"
-			itemRenderer="components.imageviewer3.RendererDGImage"
-					   height="120" color="0x323232"   >
-		<s:layout>
-			<s:HorizontalLayout gap="4"/>
-		</s:layout>
-	</s:List>
+	<mx:Panel title="{horizontalList.selectedItem.nome}"
+			  height="500"
+			  horizontalAlign="center">
+		<mx:Image id="img"
+				  source="{'http://localhost:8080/SoseWeb/arquivo_servilogi/' + horizontalList.selectedItem.tipoEntidade + '/' + horizontalList.selectedItem.identificadorEntidade + '/' + horizontalList.selectedItem.tipoArquivo + '/' + horizontalList.selectedItem.nome}"
+				  maintainAspectRatio="true"
+				  horizontalAlign="center"
+				  width="{horizontalList.width}"
+				  height="100%" />
+		<mx:ControlBar horizontalAlign="center">
+			<mx:HorizontalList id="horizontalList"
+							   labelField="nome"
+							   iconField="caminhoImagem"
+							   dataProvider="{listaImagem}"
+							   itemRenderer="components.imageviewer3.RendererDGImage"
+							   columnCount="4"
+							   columnWidth="125"
+							   rowCount="1"
+							   rowHeight="100"
+							   horizontalScrollPolicy="on" />
+		</mx:ControlBar>
+	</mx:Panel>
 </mx:VBox>

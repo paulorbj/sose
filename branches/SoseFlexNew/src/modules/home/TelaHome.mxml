@@ -13,6 +13,7 @@
 		 verticalGap="0" xmlns:cc="components.imageviewer1.cc.*" xmlns:flextras="http://www.flextras.com/mxml" xmlns:quadroAviso="modules.home.quadroAviso.*" xmlns:imageviewer3="components.imageviewer3.*" >
 	<fx:Script>
 		<![CDATA[
+			import components.fileupload2.FileUploadApp;
 			import components.pdfViewer.PDFViewer;
 			import components.pdfViewer.PDFViewerEvent;
 			
@@ -20,10 +21,10 @@
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
-			protected function autocompletecomboboxlite1_creationCompleteHandler(event:FlexEvent):void
-			{
-				teste.textInput.editable = false;			
-			}
+//			protected function autocompletecomboboxlite1_creationCompleteHandler(event:FlexEvent):void
+//			{
+//				teste.textInput.editable = false;			
+//			}
 			
 			[Bindable] public var dataProvider : ArrayCollection = new ArrayCollection([
 				{label:"United States of America", data:0},
@@ -103,14 +104,6 @@
 		
 	<s:Button click="abrir2()" label="Teste" />
 	
-	<s:Image source="http://localhost:8080/SoseWeb/arquivo_servilogi/unidade/1/1368297046488.jpg" width="80" height="80" />
-		
-	<flextras:AutoCompleteComboBoxLite id="teste" 
-									   dataProvider="{dataProvider}"
-									   creationComplete="autocompletecomboboxlite1_creationCompleteHandler(event)" />
-	<mx:HBox>
-		<fileupload2:FileUploadApp tipoEntidade="{FileUploadApp.T_ENTIDADE_COMPONENTE}" idObjeto="{1}"  />	
-		<imageviewer3:ImageCarousel id="imageCarousel" tipoEntidade="{FileUploadApp.T_ENTIDADE_COMPONENTE}" idEntidade="{1}" />
-	</mx:HBox>
+	<imageviewer3:ImageCarousel id="imageCarousel" tipoEntidade="{FileUploadApp.T_ENTIDADE_COMPONENTE}" idEntidade="{1}" />
 	
 </mx:VBox>

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
-		 xmlns:texto="components.textInput.*" xmlns:combos="components.combos.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="900"
+		 xmlns:texto="components.textInput.*" 
+		 xmlns:combos="components.combos.*"
+		 xmlns:grid="components.grid.*"
 		 >
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -17,70 +19,127 @@
 			[Bindable]
 			private var _lpu:Lpu = new Lpu();
 			
-			
-			public function get lpu():Lpu
-			{
-				_lpu.fabricante = cbFabricante.fabricanteSelecionado;
-				_lpu.equipamento = cbEquipamento.equipamentoSelecionado;
-				_lpu.cliente = cbCliente.clienteSelecionado;
-				_lpu.valorReparo = valorLpu.getValor();
-				return _lpu;
-			}
-
-			public function set lpu(value:Lpu):void
-			{
-				_lpu = value;
-				cbFabricante.fabricanteSelecionado = value.fabricante;
-				cbEquipamento.equipamentoSelecionado = value.equipamento;
-				cbCliente.clienteSelecionado = value.cliente;
-				valorLpu.setValor(value.valorReparo);
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{			
 				
-			}
-			
-			public function limpar():void
-			{
-				_lpu = new Lpu();
-				cbCliente.limpar();
-				cbFabricante.limpar();
-				cbEquipamento.limpar();
-				valorLpu.setValor(0);
-			}
-			
-			public function validarCampos():Boolean {	
-				var validatorArr:Array = new Array();
-				validatorArr.push(txtUnidade.stringValidator);
-				validatorArr.push(txtCodigo1.stringValidator);
-				validatorArr.push(cbCliente.comboBox.comboValidator);
-				validatorArr.push(cbFabricante.comboBox.comboValidator);
-				validatorArr.push(cbEquipamento.comboBox.comboValidator);
-				
-				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
-				var isValidForm:Boolean = validatorErrorArray.length == 0;			
-				return isValidForm;
 			}
 
 		]]>
 	</fx:Script>
 	
-	<fx:Binding destination="txtUnidade.input.text" source="_lpu.unidade" twoWay="true"/>
-	<fx:Binding destination="txtDescricao.input.text" source="_lpu.descricao" twoWay="true"/>
-	<fx:Binding destination="txtCodigo1.input.text" source="_lpu.codigo1" twoWay="true"/>
-	<fx:Binding destination="txtCodigo2.input.text" source="_lpu.codigo2" twoWay="true"/>
-	<fx:Binding destination="txtMoeda.input.text" source="_lpu.moeda" twoWay="true"/>
-	<fx:Binding destination="ativo.selected" source="_lpu.cadastroSistemaAtivo" twoWay="true"/>
+	<fx:Binding destination="txtCliente.input.text" source="_lpu.cliente.nomeSistema" twoWay="true"/>
+	<fx:Binding destination="txtCarregadoEm.input.text" source="_lpu.uploadEmString" twoWay="true"/>
+	<fx:Binding destination="txtValidoAte.input.text" source="_lpu.validoAteString" twoWay="true"/>
+	<fx:Binding destination="ativo.selected" source="_lpu.ativa" twoWay="true"/>
 	
 	<mx:HBox width="100%" verticalAlign="bottom">
-		<texto:TextInput id="txtUnidade" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_LPU')}" width="30%"  />
-		<texto:TextInput id="txtDescricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="30%" />
-		<texto:TextInput id="txtCodigo1" required="true" labelText="{resourceManager.getString('ApplicationResource','CODIGO1_LPU')}" width="15%"  />
-		<texto:TextInput id="txtCodigo2" labelText="{resourceManager.getString('ApplicationResource','CODIGO2_LPU')}" width="15%" />
-		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
+		<texto:TextInput id="txtCliente" labelText="Cliente" width="50%"  />
+		<texto:TextInput id="txtCarregadoEm" labelText="Carregada em" width="20%" />
+		<texto:TextInput id="txtValidoAte" labelText="Válido até" width="20%"  />
+		<mx:CheckBox id="ativo" label="Ativo" />
 	</mx:HBox>
+	
+	<mx:HBox>
+		<s:Button label="Auto associar" /> 
+		<s:Button icon="@Embed(source='/assets/icons/bug_add.png')" />
+	</mx:HBox>
+	
+	<mx:VBox id="configBox" >
+		
+	</mx:VBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_lpu.listaItemLpu}"
+					  itemDoubleClick="visualizarDetalhe(data, event)"	>
+		<grid:columns>
+			
+			<mx:DataGridColumn headerText = "Associação realizada"	dataField="componentePendente"
+							   draggable="false" width="25"							 
+							   editable="false" itemRenderer="modules.reparoOrcamento.ImageItemRenderer"
+							   sortable="false" />
+			
+			<mx:DataGridColumn id="cUnidadeLpu"
+							   headerText = "Unidade LPU"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="cliente.nomeSistema"							   
+							   />
+			
+			<mx:DataGridColumn id="cUnidadeServilogi"
+							   headerText = "Unidade Servilogi"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="cliente.nomeSistema"							   
+							   />
+			
+			<mx:DataGridColumn id="cValor"
+							   headerText = "Valor"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="cliente.nomeSistema"							   
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
 	<mx:HBox width="100%" verticalAlign="bottom">
-		<combos:ComboCliente id="cbCliente" filtrarContrato="true" possuiContrato="true" required="true" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="25%" />
-		<combos:ComboFabricante id="cbFabricante" required="true" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="25%" />
-		<combos:ComboEquipamento id="cbEquipamento" required="true"  labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="25%" />
-		<texto:TextInput id="txtMoeda" labelText="{resourceManager.getString('ApplicationResource','MOEDA_LPU')}" width="10%" />
-		<texto:TextInputDinheiro2d id="valorLpu" labelText="{resourceManager.getString('ApplicationResource','VALOR_LPU')}" width="15%" />
+		<mx:VBox width="35%" borderStyle="solid" >
+			<texto:TextInput id="txtUnidadeArquivo" labelText="Unidade" width="90%" habilitado="false" />
+			<texto:TextInput id="txtFabricanteArquivo" labelText="Fabricante" width="90%" habilitado="false" />
+			<texto:TextInput id="txtEquipamentoArquivo"  labelText="Equipamento" width="90%" habilitado="false" />
+			<texto:TextInput id="txtCodigo1Arquivo" labelText="Código 1" width="90%" habilitado="false" />
+			<texto:TextInput id="txtCodigo2Arquivo" labelText="Código 2" width="90%" habilitado="false" />
+		</mx:VBox>
+		<mx:VBox width="35%" borderStyle="solid" >
+			<combos:ComboUnidade id="unidadeServilogi" />
+			<texto:TextInput id="txtUnidadeSistema" labelText="Unidade" width="90%" habilitado="false" />
+			<texto:TextInput id="txtFabricanteSistema" labelText="Fabricante" width="90%" habilitado="false" />
+			<texto:TextInput id="txtEquipamentoSistema" labelText="Equipamento" width="90%" habilitado="false" />
+			<texto:TextInput id="txtCodigo1Sistema" labelText="Código 1" width="90%" habilitado="false" />
+			<texto:TextInput id="txtCodigo2Sistema" labelText="Código 2" width="90%" habilitado="false" />
+		</mx:VBox>
+		<mx:VBox width="30%" borderStyle="solid" >
+			<texto:TextInput id="txtValor" labelText="Valor" width="90%"  />
+			<s:Button id="Associar" />
+		</mx:VBox>
 	</mx:HBox>
 </mx:VBox>

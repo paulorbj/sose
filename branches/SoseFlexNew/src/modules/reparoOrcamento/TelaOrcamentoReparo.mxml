@@ -586,9 +586,11 @@
 				infoDefeitos.limpar();
 				
 				//Notifica o usuario que nao existe um valor definido para o reparo
+				/**
 				if(_reparo.ordemServico.lpu != null && _reparo.ordemServico.lpu.valorReparo == 0){
 					dispatchEvent(new MensagemEvent("LPU não possui valor de reparo definido ou a unidade é placa filha, Verificar!", MessageType.WARNING,10000));
 				}
+				 */
 			}
 			
 			private function visualizarReparo():void
