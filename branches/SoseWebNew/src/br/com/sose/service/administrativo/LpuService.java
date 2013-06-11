@@ -117,10 +117,10 @@ public class LpuService {
 	public Lpu salvarLpu(Lpu lpu) throws Exception {
 		Lpu lpuSalva;
 		try {
-			lpuSalva = buscarPorNomeECliente(lpu.getUnidade(), lpu.getCliente());
-			if(lpuSalva != null && !lpuSalva.getId().equals(lpu.getId())){
-				throw new LpuExistenteException(lpu.getUnidade()); 
-			}
+//			lpuSalva = buscarPorNomeECliente(lpu.getUnidade(), lpu.getCliente());
+//			if(lpuSalva != null && !lpuSalva.getId().equals(lpu.getId())){
+//				throw new LpuExistenteException(lpu.getUnidade()); 
+//			}
 
 			if(lpu.getId() == null || lpu.getId().equals(new Long(0))){
 				lpuSalva =(Lpu) lpuDao.save(lpu);	
@@ -129,11 +129,8 @@ public class LpuService {
 			}
 			
 			lpuDao.atualizarValor(lpu);
-		} catch (LpuExistenteException e) {
-			logger.error(e);
-			throw e;
-		}catch (Exception e) {
-			logger.error("Erro ao salvar lpu: " + lpu.getUnidade());;
+		} catch (Exception e) {
+			//logger.error("Erro ao salvar lpu: " + lpu.getUnidade());;
 			throw e;
 		}
 		return lpuSalva;
@@ -144,10 +141,26 @@ public class LpuService {
 	public Lpu excluirLpu(Lpu lpu) throws Exception {
 		try {
 			lpuDao.remover(lpu);	
-			logger.info("Lpu com o nome: "+lpu.getUnidade()+" foi removida do sistema");
+			//logger.info("Lpu com o nome: "+lpu.getUnidade()+" foi removida do sistema");
 		} catch (ConstraintViolationException e) {
 			logger.error(e);
-			throw new LpuNaoExclusaoDependenciaExistenteException(lpu.getUnidade());
+			//throw new LpuNaoExclusaoDependenciaExistenteException(lpu.getUnidade());
+		}catch (Exception e) {
+			logger.error(e);
+			throw e;
+		}
+		return lpu;
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public Lpu importarLpu(Lpu lpu) throws Exception {
+		try {
+			lpuDao.remover(lpu);	
+			//logger.info("Lpu com o nome: "+lpu.getUnidade()+" foi removida do sistema");
+		} catch (ConstraintViolationException e) {
+			logger.error(e);
+			//throw new LpuNaoExclusaoDependenciaExistenteException(lpu.getUnidade());
 		}catch (Exception e) {
 			logger.error(e);
 			throw e;

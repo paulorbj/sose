@@ -468,9 +468,10 @@ public class OrdemServico implements Serializable {
 
 	public void setLpu(Lpu lpu) {
 		this.lpu = lpu;
-		if(null != lpu)
-			this.nomeUnidadeLpu = lpu.getUnidade();
-		else{
+		if(null != lpu){
+			//TODO - verificar LPU
+			//this.nomeUnidadeLpu = lpu.getUnidade();
+		}else{
 			this.nomeUnidadeLpu = "";
 		}
 	}

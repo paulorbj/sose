@@ -157,7 +157,8 @@ public class ItemNotaFiscal implements Serializable{
 
 	public void setLpu(Lpu lpu) {
 		this.lpu = lpu;
-		this.lpuString = lpu.getUnidade();
+		//TODO - verificar LPU
+		//this.lpuString = lpu.getUnidade();
 	}
 
 	public Set<OrdemServico> getOrdensServico() {
