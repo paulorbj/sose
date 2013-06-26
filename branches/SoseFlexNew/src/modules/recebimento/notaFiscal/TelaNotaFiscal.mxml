@@ -421,12 +421,18 @@
 				for each (var item:ItemNotaFiscal in _notaFiscal.itensDaNotaFiscal){
 					totalItens = totalItens + (item.valorUnitario * item.quantidade)
 				}
-				if(totalItens.toFixed(4) != valorNotaFiscal.getValor().toFixed(4)){
+				var ti:Number = arredonda(totalItens,10000);
+				var vnf:Number = arredonda(valorNotaFiscal.getValor(),10000);
+				if(ti != vnf){
 					isValidForm = false;
-					dispatchEvent(new MensagemEvent("O valor total da nota fiscal: "+valorNotaFiscal.getValor() + " não confere com o valor total dos itens da nota: " + totalItens, MessageType.WARNING, 5000));
+					dispatchEvent(new MensagemEvent("O valor total da nota fiscal: "+vnf + " não confere com o valor total dos itens da nota: " + ti, MessageType.WARNING, 5000));
 					return isValidForm;
 				}
 				return isValidForm;
+			}
+			
+			private function arredonda(number:Number, factor:Number):Number {
+				return (Math.round(number * factor)/factor);
 			}
 			
 			private function validateFormItemNF():Boolean {	

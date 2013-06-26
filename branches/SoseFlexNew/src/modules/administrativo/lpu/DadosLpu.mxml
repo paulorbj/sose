@@ -56,7 +56,7 @@
 		<grid:columns>
 			
 			<mx:DataGridColumn headerText = "Associação realizada"	dataField="componentePendente"
-							   draggable="false" width="25"							 
+							   draggable="false" 							 
 							   editable="false" itemRenderer="modules.reparoOrcamento.ImageItemRenderer"
 							   sortable="false" />
 			
@@ -84,7 +84,7 @@
 			<!-- EDIT/REMOVE COLUMNS -->
 			
 			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-							   draggable="false"							 
+							   draggable="false" width="110"							 
 							   editable="false"
 							   sortable="false">
 				<mx:itemRenderer>
