@@ -2,7 +2,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 xmlns:texto="components.textInput.*" width="100%"
-		 xmlns:combos="components.combos.*"
+		 xmlns:combos="components.combos.*" xmlns:fileupload="components.fileupload.*"
 		 >
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -43,6 +43,7 @@
 				cbEquipamento.limpar();
 				cbLaboratorio.limpar();
 				cbPrestadorServico.limpar();
+				componenteUpload.limpar();
 			}
 			
 			public function validarCampos():Boolean {	
@@ -78,4 +79,7 @@
 		<combos:ComboLaboratorio id="cbLaboratorio" required="true" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="219" />
 		<combos:ComboPrestadorServico id="cbPrestadorServico"  labelText="{resourceManager.getString('ApplicationResource','PRESTADOR_SERVICO')}" width="219" />
 	</mx:HBox>
+	
+	<fileupload:ComponenteUpload id="componenteUpload" idObjeto="{_unidade.id}" tipoEntidade="{ComponenteUpload.T_ENTIDADE_UNIDADE}" />
+
 </mx:VBox>

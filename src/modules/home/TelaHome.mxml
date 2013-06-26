@@ -13,7 +13,7 @@
 		 verticalGap="0" xmlns:cc="components.imageviewer1.cc.*" xmlns:flextras="http://www.flextras.com/mxml" xmlns:quadroAviso="modules.home.quadroAviso.*" xmlns:imageviewer3="components.imageviewer3.*" >
 	<fx:Script>
 		<![CDATA[
-			import components.fileupload2.FileUploadApp;
+			import components.fileupload.ComponenteUpload;
 			import components.pdfViewer.PDFViewer;
 			import components.pdfViewer.PDFViewerEvent;
 			
@@ -104,6 +104,6 @@
 		
 	<s:Button click="abrir2()" label="Teste" />
 	
-	<imageviewer3:ImageCarousel id="imageCarousel" tipoEntidade="{FileUploadApp.T_ENTIDADE_COMPONENTE}" idEntidade="{1}" />
+	<imageviewer3:ImageCarousel id="imageCarousel" tipoEntidade="{ComponenteUpload.T_ENTIDADE_COMPONENTE}" idEntidade="{1}" />
 	
 </mx:VBox>
