@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:com="components.fileupload2.com.flashdev.file.*" 
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:com="components.fileupload.com.flashdev.file.*" 
 	creationComplete="initApp()" >
 	
 	<mx:Script>
@@ -20,16 +20,27 @@
 			
 			[Bindable]
 			public var tipoEntidade:String;
+			
+			[Bindable]
+			public var altura:Number = 180;
+	
+			[Bindable]
+			public var largura:Number = 300;
+			
 			// Initalize
 			private function initApp():void {
 				Security.allowDomain(_strDomain);
 			}
 			
+			public function limpar():void {
+				componenteUpload.removeFiles();
+			}
+			
 		]]>
 	</mx:Script>
 	
-	<mx:Canvas width="400" height="300" horizontalCenter="0" verticalCenter="0">
-		<com:FileUpload
+	<mx:Canvas width="{largura}" height="{altura}" horizontalCenter="0" verticalCenter="0">
+		<com:FileUpload id="componenteUpload"
 			identificadorObjeto="{idObjeto}"
 			tipoObjeto="{tipoEntidade}"
 			width="100%" height="100%"
