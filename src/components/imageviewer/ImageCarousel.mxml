@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorEntidadePorIdentificador"      
+					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
+					   result="onListarPorEntidadePorIdentificadorResult(event)"
+					   />
+		</mx:RemoteObject>	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var listaImagem:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var idEntidade:Number;
+			
+			[Bindable]
+			public var tipoEntidade:String;
+			
+			
+			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				listaImagem.removeAll();
+				listaImagem = event.result as ArrayCollection;
+			}
+			
+			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function recarregarImagens():void
+			{
+				arquivoUploadService.listarPorEntidadePorIdentificador(tipoEntidade,idEntidade);
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:Panel title="{horizontalList.selectedItem.nome}"
+			  height="500"
+			  horizontalAlign="center">
+		<mx:Image id="img"
+				  source="{'http://localhost:8080/SoseWeb/arquivo_servilogi/' + horizontalList.selectedItem.tipoEntidade + '/' + horizontalList.selectedItem.identificadorEntidade + '/' + horizontalList.selectedItem.tipoArquivo + '/' + horizontalList.selectedItem.nome}"
+				  maintainAspectRatio="true"
+				  horizontalAlign="center"
+				  width="{horizontalList.width}"
+				  height="100%" />
+		<mx:ControlBar horizontalAlign="center">
+			<mx:HorizontalList id="horizontalList"
+							   labelField="nome"
+							   iconField="caminhoImagem"
+							   dataProvider="{listaImagem}"
+							   itemRenderer="components.imageviewer3.RendererDGImage"
+							   columnCount="4"
+							   columnWidth="125"
+							   rowCount="1"
+							   rowHeight="100"
+							   horizontalScrollPolicy="on" />
+		</mx:ControlBar>
+	</mx:Panel>
+</mx:VBox>

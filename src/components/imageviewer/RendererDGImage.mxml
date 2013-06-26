@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 horizontalAlign="center"
+		 verticalAlign="middle">
+	
+	<mx:Image
+		width="50" height="50"
+		source="{'http://localhost:8080/SoseWeb/arquivo_servilogi/' + data.tipoEntidade + '/' + data.identificadorEntidade + '/' + data.tipoArquivo + '/' + data.nome}" />
+	
+	<mx:Label text="{data.nome}" />
+	
+</mx:VBox>
