@@ -55,21 +55,21 @@
 				
 				<!-- CHANGE HERE THE ENTITY COLUMNS -->
 				
-				<mx:DataGridColumn id="tipo"
+				<mx:AdvancedDataGridColumn id="tipo"
 								   headerText = "{resourceManager.getString('ApplicationResource','TIPO_TELEFONE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="tipo"							   
 								   />
 				
-				<mx:DataGridColumn id="ddd"
+				<mx:AdvancedDataGridColumn id="ddd"
 								   headerText = "{resourceManager.getString('ApplicationResource','DDD_TELEFONE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="ddd"							   
 								   />
 				
-				<mx:DataGridColumn id="numero" 
+				<mx:AdvancedDataGridColumn id="numero" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_TELEFONE')}"
 								   dataField = "numero"
 								   width="80"
@@ -77,7 +77,7 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false"							 
 								   editable="false"
 								   sortable="false">
@@ -104,7 +104,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 

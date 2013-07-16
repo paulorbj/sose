@@ -72,7 +72,7 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false"							 
 							   editable="false"
 							   sortable="false">
@@ -91,22 +91,22 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:DataGridColumn>
+			</mx:AdvancedDataGridColumn>
 			
-			<mx:DataGridColumn id="cliente"
+			<mx:AdvancedDataGridColumn id="cliente"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="cliente.nomeSistema"							   
 							   />
 			
-			<mx:DataGridColumn id="status" 
+			<mx:AdvancedDataGridColumn id="status" 
 							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 							   dataField = "statusString"
 							   width="80"
 							   />
 			
-			<mx:DataGridColumn id="dataCriacao"
+			<mx:AdvancedDataGridColumn id="dataCriacao"
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA_CRIACAO')}"
 							   textAlign="center"
 							   sortable="false"
@@ -114,14 +114,14 @@
 							   />
 			
 			
-			<mx:DataGridColumn id="dataSaida"
+			<mx:AdvancedDataGridColumn id="dataSaida"
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA_SAIDA')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="dtSaida"							   
 							   />
 			
-			<mx:DataGridColumn id="numeroNF"
+			<mx:AdvancedDataGridColumn id="numeroNF"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 							   textAlign="center"
 							   sortable="false"

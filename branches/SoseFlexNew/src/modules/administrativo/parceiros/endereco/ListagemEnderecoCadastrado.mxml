@@ -71,7 +71,7 @@
 				endereco = null;
 			}
 			
-			public function labelFunction(item:Object, column:DataGridColumn):String
+			public function labelFunction(item:Object, column:AdvancedDataGridColumn):String
 			{
 				return (item as Endereco).logradouro + ", " + (item as Endereco).numero;
 			}
@@ -94,7 +94,7 @@
 				
 				<!-- CHANGE HERE THE ENTITY COLUMNS -->
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"	
 								   draggable="false" width="70"	textAlign="center"						 
 								   editable="false"
 								   sortable="false">
@@ -119,34 +119,34 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 				
-				<mx:DataGridColumn id="logradouro" labelFunction="labelFunction"
+				<mx:AdvancedDataGridColumn id="logradouro" labelFunction="labelFunction"
 								   headerText = "{resourceManager.getString('ApplicationResource','LOGRADOURO')}"
 								   textAlign="center" width="290"
 								   sortable="false"
 								   dataField="logradouro"							   
 								   />
 				
-				<mx:DataGridColumn id="cep" textAlign="center"
+				<mx:AdvancedDataGridColumn id="cep" textAlign="center"
 								   headerText = "{resourceManager.getString('ApplicationResource','CEP')}"
 								   dataField = "cep"
 								   width="78"
 								   />
 				
-				<mx:DataGridColumn id="cidade" textAlign="center"
+				<mx:AdvancedDataGridColumn id="cidade" textAlign="center"
 								   headerText = "{resourceManager.getString('ApplicationResource','CIDADE')}"
 								   dataField = "cidade"
 								   width="138"
 								   />
 				
-				<mx:DataGridColumn id="estado" textAlign="center"
+				<mx:AdvancedDataGridColumn id="estado" textAlign="center"
 								   headerText = "{resourceManager.getString('ApplicationResource','ESTADO')}"
 								   dataField = "estado"
 								   width="130"
 								   />
 				
-				<mx:DataGridColumn id="telefone" textAlign="center"
+				<mx:AdvancedDataGridColumn id="telefone" textAlign="center"
 								   headerText = "{resourceManager.getString('ApplicationResource','TELEFONE')}"
 								   dataField = "telefone"
 								   width="100"
@@ -154,7 +154,7 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" textAlign="center"							 
 								   editable="false"
 								   sortable="false">
@@ -181,7 +181,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 

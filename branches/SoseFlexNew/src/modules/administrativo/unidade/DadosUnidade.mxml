@@ -2,21 +2,53 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 xmlns:texto="components.textInput.*" width="100%"
-		 xmlns:combos="components.combos.*" xmlns:fileupload="components.fileupload.*"
+		 xmlns:combos="components.combos.*" xmlns:fileupload="components.fileupload.*" xmlns:imageviewer="components.imageviewer.*"
 		 >
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorEntidadePorIdentificador"      
+					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
+					   result="onListarPorEntidadePorIdentificadorResult(event)"
+					   />
+			<mx:method name="salvarArquivoUpload"      
+					   fault="onSalvarArquivoUploadFault(event)" 
+					   result="onSalvarArquivoUploadResult(event)"
+					   />
+			<mx:method name="excluirArquivoUpload"      
+					   fault="onExcluirArquivoUploadFault(event)" 
+					   result="onExcluirArquivoUploadResult(event)"
+					   />	
+		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			import components.fileupload.ComponenteUpload;
+			import components.fileupload.ComponenteUploadModal;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.ArquivoUpload;
 			import entities.administrativo.Unidade;
 			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			import mx.validators.Validator;
 			
 			[Bindable]
 			private var _unidade:Unidade = new Unidade();
 			
+			[Bindable]
+			private var _arquivoUpload:ArquivoUpload = null;
+			
+			[Bindable]
+			public var listaImagem:ArrayCollection = new ArrayCollection();
 			
 			public function get unidade():Unidade
 			{
@@ -26,7 +58,7 @@
 				_unidade.prestadorServicoExterno = cbPrestadorServico.prestadorServicoSelecionado;
 				return _unidade;
 			}
-
+			
 			public function set unidade(value:Unidade):void
 			{
 				_unidade = value;
@@ -34,6 +66,7 @@
 				cbEquipamento.equipamentoSelecionado = value.equipamento;
 				cbLaboratorio.laboratorioSelecionado = value.laboratorio;
 				cbPrestadorServico.prestadorServicoSelecionado = value.prestadorServicoExterno;
+				arquivoUploadService.listarPorEntidadePorIdentificador("UNIDADE",_unidade.id);
 			}
 			
 			public function limpar():void
@@ -43,7 +76,8 @@
 				cbEquipamento.limpar();
 				cbLaboratorio.limpar();
 				cbPrestadorServico.limpar();
-				componenteUpload.limpar();
+				listaImagem = new ArrayCollection();
+				_arquivoUpload = null;
 			}
 			
 			public function validarCampos():Boolean {	
@@ -57,7 +91,110 @@
 				var isValidForm:Boolean = validatorErrorArray.length == 0;			
 				return isValidForm;
 			}
+			
+			public function validarCampoArquivoUpload():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(txtNomeOriginal.stringValidator);
+								
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				listaImagem.removeAll();
+				listaImagem = event.result as ArrayCollection;
+			}
+			
+			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onSalvarArquivoUploadResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_arquivoUpload = null;
+			}
+			
+			private function onSalvarArquivoUploadFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				if(validarCampoArquivoUpload()){
+					arquivoUploadService.salvarArquivoUpload(_arquivoUpload);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
+				}
+			}
+			
+			private function salvarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					salvar();
+				}
+			}
+			
+			public function editItem(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaImagem.getItemAt(event2.rowIndex);				
+				}
+				
+				_arquivoUpload = data as ArquivoUpload;
+			}
+			
+			public function excluirItem(data:Object, event:Event):void
+			{			
+				_arquivoUpload = data as ArquivoUpload;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				arquivoUploadService.excluirArquivoUpload(_arquivoUpload);
 
+			}
+			
+			private function onExcluirArquivoUploadResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_arquivoUpload = null;
+			}
+			
+			private function onExcluirArquivoUploadFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function carregar(event:MouseEvent = null):void
+			{
+				var modal:ComponenteUploadModal=ComponenteUploadModal(PopUpManager.createPopUp( this, ComponenteUploadModal , true));
+				PopUpManager.centerPopUp(modal);
+				modal.idObjeto = _unidade.id;
+				modal.tipoEntidade = ComponenteUpload.T_ENTIDADE_UNIDADE;
+				modal.callbackFunction = funcaoCallbackModal;
+			}
+			
+			private function funcaoCallbackModal():void
+			{
+				arquivoUploadService.listarPorEntidadePorIdentificador("UNIDADE",_unidade.id);
+			}
+
+			
 		]]>
 	</fx:Script>
 	
@@ -66,20 +203,83 @@
 	<fx:Binding destination="descricao.inputText" source="_unidade.descricao" twoWay="true"/>
 	<fx:Binding destination="ativo.selected" source="_unidade.cadastroSistemaAtivo" twoWay="true"/>
 	
+	<fx:Binding destination="txtNomeSistema.inputText" source="_arquivoUpload.nome" twoWay="true"/>
+	<fx:Binding destination="txtNomeOriginal.inputText" source="_arquivoUpload.nomeOriginal" twoWay="true"/>
+	
 	<mx:HBox verticalAlign="bottom" width="100%">
-		<texto:TextInput id="nome" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_UNIDADE')}" width="200"  />
-		<texto:TextInput id="codigo" labelText="{resourceManager.getString('ApplicationResource','CODIGO_UNIDADE')}" width="200"  />
-		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="355" />
+		<texto:TextInput id="nome" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_UNIDADE')}" width="400"  />
+		<texto:TextInput id="codigo" labelText="{resourceManager.getString('ApplicationResource','CODIGO_UNIDADE')}" width="200"  />		
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="400" />
 		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
 	</mx:HBox>
 	
 	<mx:HBox width="100%">
-		<combos:ComboFabricante id="cbFabricante" required="true" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="218" />
-		<combos:ComboEquipamento id="cbEquipamento" required="true" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="219" />
-		<combos:ComboLaboratorio id="cbLaboratorio" required="true" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="219" />
-		<combos:ComboPrestadorServico id="cbPrestadorServico"  labelText="{resourceManager.getString('ApplicationResource','PRESTADOR_SERVICO')}" width="219" />
+		<combos:ComboFabricante id="cbFabricante" required="true" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="300" />
+		<combos:ComboEquipamento id="cbEquipamento" required="true" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="300" />		
 	</mx:HBox>
 	
-	<fileupload:ComponenteUpload id="componenteUpload" idObjeto="{_unidade.id}" tipoEntidade="{ComponenteUpload.T_ENTIDADE_UNIDADE}" />
+	<mx:HBox width="100%">
+		<combos:ComboLaboratorio id="cbLaboratorio" required="true" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="300" />
+		<combos:ComboPrestadorServico id="cbPrestadorServico"  labelText="{resourceManager.getString('ApplicationResource','PRESTADOR_SERVICO')}" width="300" />
+	</mx:HBox>
 
+		<mx:VBox width="100%">
+			<mx:HBox verticalAlign="bottom" >
+				<mx:Button id="loadButton" 
+						   height="25" toolTip="Carregar arquivos"
+						   icon="@Embed(source='/assets/icons/page_white_get.png')"
+						   enabled="{_unidade != null &amp;&amp; (!isNaN(_unidade.id) || _unidade.id != 0) }"
+						   click="carregar(event)"
+						   />
+			<texto:TextInput id="txtNomeSistema" labelText="Nome sistema" enabled="false" width="200"  />
+			<texto:TextInput id="txtTipo" labelText="Tipo" enabled="false" width="100"  />
+			<texto:TextInput id="txtNomeOriginal" required="true" labelText="Nome original" width="200"  />
+			<mx:Button id="saveButton" 
+					   height="25" toolTip="Salvar alteração"
+					   icon="@Embed(source='/assets/icons/save.png')"
+					   keyDown="salvarEnter(event)"
+					   enabled="{_arquivoUpload != null}"
+					   click="salvar(event)"
+					   />
+				
+			</mx:HBox>	
+			<mx:AdvancedDataGrid id="dgArquivosUpload" dataProvider="{listaImagem}"
+						 draggableColumns="false" resizableColumns="false" sortableColumns="false">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn headerText="Nome Sistema" dataField="nome" width="200" />
+					<mx:AdvancedDataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
+					<mx:AdvancedDataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="200" />
+					<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+									   draggable="false"  textAlign="center" width="100"							 
+									   editable="false"
+									   sortable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox horizontalAlign="center"
+										 verticalAlign="middle"
+										 >
+									<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+											  click="parentDocument.editItem(data, event)"
+											  buttonMode="true"
+											  useHandCursor="true"
+											  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+											  />
+									
+									<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+											  click="parentDocument.excluirItem(data, event)"
+											  buttonMode="true"
+											  useHandCursor="true"
+											  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+											  />
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+		</mx:VBox>
+	
 </mx:VBox>

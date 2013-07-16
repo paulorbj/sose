@@ -3,7 +3,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 xmlns:lpu="modules.administrativo.lpu.*" width="100%" height="100%"
-		 horizontalAlign="left"
+		 horizontalAlign="left" horizontalScrollPolicy="off"
 		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
 		 creationComplete="onCreationComplete()">
 	
@@ -20,6 +20,10 @@
 			<mx:method name="excluirLpu"      
 					   fault="onExcluirLpuFault(event)" 
 					   result="onExcluirLpuResult(event)"
+					   />
+			<mx:method name="buscarCompletoId"      
+					   fault="onBuscarCompletoIdFault(event)" 
+					   result="onBuscarCompletoIdResult(event)"
 					   />
 		</mx:RemoteObject>
 		
@@ -54,8 +58,26 @@
 			
 			private function onEditar(event:LpuEvent):void
 			{
+				lpuService.buscarCompletoId(event.lpu.id);
+			}
+			
+			private function onBuscarCompletoIdResult(event:ResultEvent = null):void
+			{
 				this.currentState = "edicao";
-				//dados.lpu = event.lpu;
+				dados.lpu = event.result as Lpu;
+			}
+			
+			private function onBuscarCompletoIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var i:Number;
+				if(event.fault.faultString.search("br.com.sose.exceptions") != -1){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LPU_REMOVER_ERRO'), MessageType.ERROR, 10000));
+				}	
 			}
 			
 			private function onExcluir(event:LpuEvent):void
@@ -137,20 +159,14 @@
 			
 			private function salvar(event:MouseEvent = null):void
 			{
-				/**
-				if(dados.validarCampos()){
-					lpuService.salvarLpu(dados.lpu);
-				}else{
-					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
-				}
-				 */
+				lpuService.salvarLpu(dados.lpu);
 			}
 			
 			private function limpar(event:MouseEvent = null):void
 			{
 				_lpu = new Lpu();
 				if(dados){
-					//dados.limpar();
+					dados.limpar();
 				}
 			}
 			
@@ -227,7 +243,7 @@
 	
 	<lpu:ListagemLpuCadastrado id="listagem" includeIn="listagem" />
 	
-	<lpu:DadosLpu id="dados" includeIn="insercao" />
+	<lpu:DadosLpu id="dados" includeIn="insercao,edicao" />
 	
 	<lpu:UploadLpu id="up" includeIn="upload" />
 

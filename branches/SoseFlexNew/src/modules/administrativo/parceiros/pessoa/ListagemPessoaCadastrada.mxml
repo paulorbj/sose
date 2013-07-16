@@ -172,7 +172,7 @@
 				pessoa = null;
 			}
 			
-			private function labelFunctionTipo(item:Object, column:DataGridColumn):String{
+			private function labelFunctionTipo(item:Object, column:AdvancedDataGridColumn):String{
 				switch((item as Pessoa).tipo)
 				{
 					case ScreenUtils.TIPO_CLIENTE.id:
@@ -188,7 +188,7 @@
 				}
 			}
 			
-			private function labelFunctionTipoPessoa(item:Object, column:DataGridColumn):String{
+			private function labelFunctionTipoPessoa(item:Object, column:AdvancedDataGridColumn):String{
 				switch((item as Pessoa).tipoPessoa)
 				{
 					case ScreenUtils.TIPO_PESSOA_FISICA.id:
@@ -419,38 +419,38 @@
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
 			
 			
-			<mx:DataGridColumn id="nome"
+			<mx:AdvancedDataGridColumn id="nome"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nomeSistema"							   
 							   />
 			
-			<mx:DataGridColumn id="tipo" labelFunction="labelFunctionTipo"
+			<mx:AdvancedDataGridColumn id="tipo" labelFunction="labelFunctionTipo"
 							   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
 							   textAlign="center"
 							   sortable="false"					   
 							   />
 			
-			<mx:DataGridColumn id="tipoPessoa" labelFunction="labelFunctionTipoPessoa"
+			<mx:AdvancedDataGridColumn id="tipoPessoa" labelFunction="labelFunctionTipoPessoa"
 							   headerText = "{resourceManager.getString('ApplicationResource','TIPO_PESSOA')}"
 							   textAlign="center"
 							   sortable="false"							   
 							   />
 			
-			<mx:DataGridColumn id="rgIe" 
+			<mx:AdvancedDataGridColumn id="rgIe" 
 							   headerText = "{resourceManager.getString('ApplicationResource','RGIE')}"
 							   dataField = "rgIe"
 							   />
 			
-			<mx:DataGridColumn id="cpfCnpj" 
+			<mx:AdvancedDataGridColumn id="cpfCnpj" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CPFCNPJ')}"
 							   dataField = "cpfCnpj"
 							   />
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width="100"	 						 
 							   editable="false"
 							   sortable="false">
@@ -477,7 +477,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:DataGridColumn>
+			</mx:AdvancedDataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

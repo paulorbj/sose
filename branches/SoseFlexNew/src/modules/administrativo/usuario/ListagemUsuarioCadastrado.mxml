@@ -254,50 +254,50 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="nome" width=".20"
+			<mx:AdvancedDataGridColumn id="nome" width=".20"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_USUARIO')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="cLogin" 
+			<mx:AdvancedDataGridColumn id="cLogin" 
 							   headerText = "{resourceManager.getString('ApplicationResource','USERNAME')}"
 							   dataField = "usuario"
 							   width=".20" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cPerfil" 
+			<mx:AdvancedDataGridColumn id="cPerfil" 
 							   headerText = "{resourceManager.getString('ApplicationResource','PERFIL')}"
 							   dataField = "nomePerfil"
 							   width=".20" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cDataNascimento" 
+			<mx:AdvancedDataGridColumn id="cDataNascimento" 
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA_NASCIMENTO')}"
 							   dataField = "dataNascimento"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cRg" 
+			<mx:AdvancedDataGridColumn id="cRg" 
 							   headerText = "{resourceManager.getString('ApplicationResource','RG')}"
 							   dataField = "rg"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cCpf" 
+			<mx:AdvancedDataGridColumn id="cCpf" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CPF')}"
 							   dataField = "cpf"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cTelefone" 
+			<mx:AdvancedDataGridColumn id="cTelefone" 
 							   headerText = "{resourceManager.getString('ApplicationResource','TELEFONE')}"
 							   dataField = "telefone"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cCelular" 
+			<mx:AdvancedDataGridColumn id="cCelular" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CELULAR')}"
 							   dataField = "celular"
 							   width=".10" textAlign="center"
@@ -305,7 +305,7 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".10" textAlign="center"							 
 							   editable="false"
 							   sortable="false">
@@ -332,7 +332,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:DataGridColumn>
+			</mx:AdvancedDataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

@@ -2,28 +2,167 @@
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="900"
-		 xmlns:texto="components.textInput.*" 
+		 xmlns:texto="components.textInput.*" horizontalScrollPolicy="off"
 		 xmlns:combos="components.combos.*"
-		 xmlns:grid="components.grid.*"
+		 xmlns:grid="components.grid.*" xmlns:dc="components.grid.filtros.controles.*"
 		 >
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:RemoteObject id="itemLpuService" destination="itemLpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="autoAssociarItensLpu"      
+					   fault="onAutoAssociarItensLpuFault(event)" 
+					   result="onAutoAssociarItensLpuResult(event)"
+					   />
+			<mx:method name="salvarItemLpu"      
+					   fault="onSalvarItemLpuFault(event)" 
+					   result="onSalvarItemLpuResult(event)"
+					   />
+			<mx:method name="associarItemLpu"      
+					   fault="onAssociarItemLpuFault(event)" 
+					   result="onAssociarItemLpuResult(event)"
+					   />
+			
+		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
-			import entities.administrativo.Lpu;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
 			
-			import mx.validators.Validator;
+			import entities.administrativo.ItemLpu;
+			import entities.administrativo.Lpu;
+			import entities.administrativo.Unidade;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			
 			[Bindable]
 			private var _lpu:Lpu = new Lpu();
+			
+			[Bindable]
+			private var _itemLpu:ItemLpu;
+			
+			[Bindable]
+			private var _unidadeSelecionada:Unidade;
 			
 			public function visualizarDetalhe(data:Object, event:Event):void
 			{			
 				
 			}
 
+			[Bindable]
+			public function get lpu():Lpu
+			{
+				return _lpu;
+			}
+
+			public function set lpu(value:Lpu):void
+			{
+				_lpu = value;
+			}
+			
+			private function visualizarConfig():void
+			{
+				if(this.currentState == "config"){
+					this.currentState = "normal";
+				}else{
+					this.currentState = "config";
+				}
+			}
+			
+			private function autoAssociar():void
+			{
+				itemLpuService.autoAssociarItensLpu(_lpu.listaItemLpu);
+			}
+			
+			public function limpar():void
+			{
+				_lpu = new Lpu();
+				limparTela();
+			}
+			
+			public function limparTela():void
+			{
+				_unidadeSelecionada = null;
+				_itemLpu = null;
+				txtValor.limpar();
+				unidadeServilogi.limpar();
+			}
+			
+			private function onSalvarItemLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+
+			}
+			
+			private function onSalvarItemLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onSalvarItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onAutoAssociarItensLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_lpu.listaItemLpu = event.result as ArrayCollection;
+				dispatchEvent(new MensagemEvent("Auto associação realizada com sucesso", MessageType.SUCCESS, 10000));
+			}
+			
+			private function onAutoAssociarItensLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onAutoAssociarItensLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao auto associar", MessageType.ERROR, 10000));
+			}
+			
+			private function onAssociarItemLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _lpu.listaItemLpu.getItemIndex(_itemLpu);
+				_lpu.listaItemLpu.setItemAt(event.result as ItemLpu, index);
+				limparTela();
+				
+			}
+			
+			private function onAssociarItemLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onSalvarItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function editItem(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _lpu.listaItemLpu.getItemAt(event2.rowIndex);				
+				}
+				
+				_itemLpu = data as ItemLpu;
+				_unidadeSelecionada = null;
+			}
+
+			public function atualiza(event:Event):void{
+				_unidadeSelecionada = unidadeServilogi.unidadeSelecionado;
+			}
+
+			private function associar():void
+			{
+				_itemLpu.valor = txtValor.getValor();
+				if(_itemLpu == null){
+					dispatchEvent(new MensagemEvent("Selecione um item lpu", MessageType.WARNING, 5000));
+					return;
+				}
+				if(_unidadeSelecionada == null){
+					dispatchEvent(new MensagemEvent("Selecione uma unidade", MessageType.WARNING, 5000));
+					return;
+				}
+				itemLpuService.associarItemLpu(_itemLpu,_unidadeSelecionada);
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -32,114 +171,135 @@
 	<fx:Binding destination="txtValidoAte.input.text" source="_lpu.validoAteString" twoWay="true"/>
 	<fx:Binding destination="ativo.selected" source="_lpu.ativa" twoWay="true"/>
 	
+	<fx:Binding destination="txtUnidadeArquivo.input.text" source="_itemLpu.unidade" twoWay="true"/>
+	<fx:Binding destination="txtFabricanteArquivo.input.text" source="_itemLpu.fabricante" twoWay="true"/>
+	<fx:Binding destination="txtEquipamentoArquivo.input.text" source="_itemLpu.equipamento" twoWay="true"/>
+	<fx:Binding destination="txtCodigo1Arquivo.input.text" source="_itemLpu.codigo1" twoWay="true"/>
+	<fx:Binding destination="txtCodigo2Arquivo.input.text" source="_itemLpu.codigo2" twoWay="true"/>
+	
+	<fx:Binding destination="txtUnidadeSistema.input.text" source="_unidadeSelecionada.nome" twoWay="true"/>
+	<fx:Binding destination="txtFabricanteSistema.input.text" source="_unidadeSelecionada.fabricante.nome" twoWay="true"/>
+	<fx:Binding destination="txtEquipamentoSistema.input.text" source="_unidadeSelecionada.equipamento.nome" twoWay="true"/>
+	<fx:Binding destination="txtCodigo1Sistema.input.text" source="_unidadeSelecionada.codigo" twoWay="true"/>
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="config"/>
+	</mx:states>
+	
 	<mx:HBox width="100%" verticalAlign="bottom">
-		<texto:TextInput id="txtCliente" labelText="Cliente" width="50%"  />
-		<texto:TextInput id="txtCarregadoEm" labelText="Carregada em" width="20%" />
+		<texto:TextInput id="txtCliente" labelText="Cliente" width="50%" habilitado="false"  />
+		<texto:TextInput id="txtCarregadoEm" labelText="Carregada em" habilitado="false" width="20%" />
 		<texto:TextInput id="txtValidoAte" labelText="Válido até" width="20%"  />
 		<mx:CheckBox id="ativo" label="Ativo" />
 	</mx:HBox>
 	
-	<mx:HBox>
-		<s:Button label="Auto associar" /> 
-		<s:Button icon="@Embed(source='/assets/icons/bug_add.png')" />
+	<mx:HBox> 
+		<s:Button icon="@Embed(source='/assets/icons/link_add.png')" label="Auto associar" click="autoAssociar()" /> 
+		<s:Button icon="@Embed(source='/assets/icons/table_gear.png')" toolTip="Configurar auto associar" click="visualizarConfig()" />
 	</mx:HBox>
 	
-	<mx:VBox id="configBox" >
-		
+	<mx:VBox id="configBox" includeIn="config" >
+		<s:Label text="configuração" />
 	</mx:VBox>
 	
-	<grid:MantisTable id="viewTable"
-					  width="100%" height="100%"
-					  draggableColumns="true"
-					  dataProvider="{_lpu.listaItemLpu}"
-					  itemDoubleClick="visualizarDetalhe(data, event)"	>
+	<grid:MantisTable id="viewTable" variableRowHeight="true"
+					  width="800" height="100%" dataProvider="{_lpu.listaItemLpu}"
+					  draggableColumns="false">
+		
+		
 		<grid:columns>
 			
-			<mx:DataGridColumn headerText = "Associação realizada"	dataField="componentePendente"
+			<mx:AdvancedDataGridColumn headerText = ""	width="25" id="cAutoAssociar"
 							   draggable="false" 							 
-							   editable="false" itemRenderer="modules.reparoOrcamento.ImageItemRenderer"
+							   editable="false" 
 							   sortable="false" />
 			
-			<mx:DataGridColumn id="cUnidadeLpu"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cUnidadeLpu" width="300"
 							   headerText = "Unidade LPU"
 							   textAlign="center"
 							   sortable="false"
-							   dataField="cliente.nomeSistema"							   
+							   dataField="unidade"							   
 							   />
 			
-			<mx:DataGridColumn id="cUnidadeServilogi"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cUnidadeServilogi" width="300"
 							   headerText = "Unidade Servilogi"
 							   textAlign="center"
 							   sortable="false"
-							   dataField="cliente.nomeSistema"							   
+							   dataField="unidadeServilogi.nome"							   
 							   />
 			
-			<mx:DataGridColumn id="cValor"
+			<mx:AdvancedDataGridColumn id="cValor" width="100"
 							   headerText = "Valor"
 							   textAlign="center"
 							   sortable="false"
-							   dataField="cliente.nomeSistema"							   
+							   dataField="valor"							   
 							   />
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-							   draggable="false" width="110"							 
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width="75"	id="cAcoes"						 
 							   editable="false"
-							   sortable="false">
-				<mx:itemRenderer>
+							   sortable="false" />
+
+		</grid:columns>
+		
+		<grid:rendererProviders>
+			<mx:AdvancedDataGridRendererProvider column="{cAcoes}">
+				<mx:renderer>
 					<fx:Component>
 						<mx:HBox horizontalAlign="center"
 								 verticalAlign="middle"
 								 >
 							
 							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
-									  click="parentDocument.editItem(data, event, true)"
+									  click="parentDocument.editItem(data, event)"
 									  buttonMode="true"
 									  useHandCursor="true"
 									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
 									  />
 							
 							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
-									  click="parentDocument.excluirItem(data, event, true)"
+									  click="parentDocument.excluirItem(data, event)"
 									  buttonMode="true"
 									  useHandCursor="true"
 									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
-									  />
-							
-							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
-									  click="parentDocument.excluirItem(data, event, true)"
-									  buttonMode="true"
-									  useHandCursor="true"
-									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
-									  />
-							
+									  />							
 						</mx:HBox>
 					</fx:Component>
-				</mx:itemRenderer>
-			</mx:DataGridColumn>
-		</grid:columns>
+				</mx:renderer>
+			</mx:AdvancedDataGridRendererProvider>	
+			
+			<mx:AdvancedDataGridRendererProvider column="{cAutoAssociar}" renderer="modules.administrativo.lpu.AutoAssociadoItemRenderer" />
+			
+			<mx:AdvancedDataGridRendererProvider  
+				renderer="modules.administrativo.lpu.DetalhamentoItemLpu" 
+				columnIndex="0"
+				columnSpan="0"/>
+			
+		</grid:rendererProviders>
+		
 	</grid:MantisTable>
 	
-	<mx:HBox width="100%" verticalAlign="bottom">
-		<mx:VBox width="35%" borderStyle="solid" >
+	<mx:HBox width="900" verticalAlign="bottom">
+		<mx:VBox width="350" borderStyle="solid" >
 			<texto:TextInput id="txtUnidadeArquivo" labelText="Unidade" width="90%" habilitado="false" />
 			<texto:TextInput id="txtFabricanteArquivo" labelText="Fabricante" width="90%" habilitado="false" />
 			<texto:TextInput id="txtEquipamentoArquivo"  labelText="Equipamento" width="90%" habilitado="false" />
 			<texto:TextInput id="txtCodigo1Arquivo" labelText="Código 1" width="90%" habilitado="false" />
 			<texto:TextInput id="txtCodigo2Arquivo" labelText="Código 2" width="90%" habilitado="false" />
 		</mx:VBox>
-		<mx:VBox width="35%" borderStyle="solid" >
-			<combos:ComboUnidade id="unidadeServilogi" />
+		<mx:VBox width="350" borderStyle="solid" >
+			<combos:ComboUnidade id="unidadeServilogi" changeFunction="atualiza" />
 			<texto:TextInput id="txtUnidadeSistema" labelText="Unidade" width="90%" habilitado="false" />
 			<texto:TextInput id="txtFabricanteSistema" labelText="Fabricante" width="90%" habilitado="false" />
 			<texto:TextInput id="txtEquipamentoSistema" labelText="Equipamento" width="90%" habilitado="false" />
 			<texto:TextInput id="txtCodigo1Sistema" labelText="Código 1" width="90%" habilitado="false" />
-			<texto:TextInput id="txtCodigo2Sistema" labelText="Código 2" width="90%" habilitado="false" />
 		</mx:VBox>
-		<mx:VBox width="30%" borderStyle="solid" >
-			<texto:TextInput id="txtValor" labelText="Valor" width="90%"  />
-			<s:Button id="Associar" />
+		<mx:VBox width="100" height="100%" verticalAlign="middle" horizontalAlign="center" borderStyle="solid" >
+			<texto:TextInputDinheiro2d id="txtValor"  labelText="Valor" width="90%" />
+			<s:Button id="Associar" label="Associar" click="associar()" />
 		</mx:VBox>
 	</mx:HBox>
 </mx:VBox>
