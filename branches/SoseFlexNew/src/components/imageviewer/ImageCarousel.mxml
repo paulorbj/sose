@@ -61,7 +61,7 @@
 							   labelField="nome"
 							   iconField="caminhoImagem"
 							   dataProvider="{listaImagem}"
-							   itemRenderer="components.imageviewer3.RendererDGImage"
+							   itemRenderer="components.imageviewer.RendererDGImage"
 							   columnCount="4"
 							   columnWidth="125"
 							   rowCount="1"

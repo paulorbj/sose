@@ -318,8 +318,8 @@
 			allowMultipleSelection="true" verticalScrollPolicy="on"
 			draggableColumns="false" resizableColumns="false" sortableColumns="false">
 			<mx:columns>
-				<mx:DataGridColumn headerText="Arquivo" dataField="name" wordWrap="true"/>
-				<mx:DataGridColumn headerText="Tamanho" dataField="size" width="75" textAlign="right"/>
+				<mx:AdvancedDataGridColumn headerText="Arquivo" dataField="name" wordWrap="true"/>
+				<mx:AdvancedDataGridColumn headerText="Tamanho" dataField="size" width="75" textAlign="right"/>
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Canvas>
@@ -329,6 +329,6 @@
 		<mx:ProgressBar id="progBar" mode="manual" label="" labelPlacement="center" width="100%"/>
 		<mx:Button id="btnCancel" toolTip="Cancel upload" icon="@Embed('assets/cancel2.png')" width="26" click="onUploadCanceled()"/>
 		<mx:Button label="Upload" toolTip="Upload file(s)" id="btnUpload" click="realizarUpload()" icon="@Embed('assets/bullet_go.png')"/>
-		<mx:Button id="btnView" toolTip="Show/Hide file(s)" icon="@Embed('assets/application_get.png')" width="26" enabled="false" click="changeView()"/>
+		<mx:Button id="btnView" toolTip="Show/Hide file(s)" icon="@Embed('assets/application_get.png')" width="26" enabled="true" click="changeView()"/>
 	</mx:ControlBar>	
 </mx:Panel>
