@@ -925,7 +925,7 @@
 						
 						<!-- EDIT/REMOVE COLUMNS -->
 						
-						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+						<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 										   draggable="false" width="50"						 
 										   editable="false"
 										   sortable="false">
@@ -951,61 +951,61 @@
 									</mx:HBox>
 								</fx:Component>
 							</mx:itemRenderer>
-						</mx:DataGridColumn>
+						</mx:AdvancedDataGridColumn>
 						
-						<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+						<mx:AdvancedDataGridColumn id="cNumeroRequisicao" width="70"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="id"							   
 										   />
 						
-						<mx:DataGridColumn id="cComponente"  editable="false"
+						<mx:AdvancedDataGridColumn id="cComponente"  editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
 										   dataField = "componente.nome"
 										   />
 						
-						<mx:DataGridColumn id="descricao1" itemRenderer="components.grid.SearchResult"
+						<mx:AdvancedDataGridColumn id="descricao1" itemRenderer="components.grid.SearchResult"
 										   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="componente.descricao"							   
 										   />
-						<mx:DataGridColumn id="tipo1" itemRenderer="components.grid.SearchResult"
+						<mx:AdvancedDataGridColumn id="tipo1" itemRenderer="components.grid.SearchResult"
 										   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="componente.tipo.nome"							   
 										   />
 						
-						<mx:DataGridColumn id="encapsulamento1" itemRenderer="components.grid.SearchResult"
+						<mx:AdvancedDataGridColumn id="encapsulamento1" itemRenderer="components.grid.SearchResult"
 										   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
 										   dataField = "componente.encapsulamento.nome"
 										   width="80"
 										   />
 						
-						<mx:DataGridColumn id="fabricante1" itemRenderer="components.grid.SearchResult"
+						<mx:AdvancedDataGridColumn id="fabricante1" itemRenderer="components.grid.SearchResult"
 										   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="componente.fabricante.nome"							   
 										   />
 						
-						<mx:DataGridColumn id="cPinos1"
+						<mx:AdvancedDataGridColumn id="cPinos1"
 										   headerText = "{resourceManager.getString('ApplicationResource','PINOS')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="componente.pinos"							   
 										   />
 						
-						<mx:DataGridColumn id="quantidade" width="50"
+						<mx:AdvancedDataGridColumn id="quantidade" width="50"
 										   headerText = "{resourceManager.getString('ApplicationResource','QTD_REQUISICAO')}"
 										   textAlign="center"
 										   sortable="false" editable="true"
 										   dataField="quantidade"							   
 										   />
 						
-						<mx:DataGridColumn id="cStatus" width="200" editable="false"
+						<mx:AdvancedDataGridColumn id="cStatus" width="200" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
 										   textAlign="center"
 										   sortable="false"
@@ -1024,7 +1024,7 @@
 								  dataProvider="{listaComponentePosicao}">
 					<grid:columns>
 						
-						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+						<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 										   draggable="false" width="50" textAlign="center"							 
 										   editable="false"
 										   sortable="false">
@@ -1056,28 +1056,28 @@
 									</mx:HBox>
 								</fx:Component>
 							</mx:itemRenderer>
-						</mx:DataGridColumn>
+						</mx:AdvancedDataGridColumn>
 						
-						<mx:DataGridColumn id="cNumeroRequisicao2" width="70"
+						<mx:AdvancedDataGridColumn id="cNumeroRequisicao2" width="70"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
 										   textAlign="center" editable="false"
 										   sortable="false"
 										   dataField="requisicao.id"							   
 										   />
 						
-						<mx:DataGridColumn id="componente_posicao"  textAlign="center" editable="false"
+						<mx:AdvancedDataGridColumn id="componente_posicao"  textAlign="center" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
 										   dataField = "componente.nome"
 										   />
 						
-						<mx:DataGridColumn id="posicao" width="100"
+						<mx:AdvancedDataGridColumn id="posicao" width="100"
 										   headerText = "{resourceManager.getString('ApplicationResource','POSICAO')}"
 										   textAlign="center"
 										   sortable="false" editable="{data.condicao == 'Utilizado'}" 
 										   dataField="posicao"							   
 										   />
 						
-						<mx:DataGridColumn id="condicao" width="50"
+						<mx:AdvancedDataGridColumn id="condicao" width="50"
 										   headerText = "{resourceManager.getString('ApplicationResource','CONDICAO')}"
 										   textAlign="center"
 										   sortable="false" editable="false"
@@ -1113,7 +1113,7 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false"	width="50"						 
 								   editable="false"
 								   sortable="false">
@@ -1133,55 +1133,55 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 				
-				<mx:DataGridColumn id="tipo" itemRenderer="components.grid.SearchResult"
+				<mx:AdvancedDataGridColumn id="tipo" itemRenderer="components.grid.SearchResult"
 								   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="nomeTipoComponente"							   
 								   />
 				
-				<mx:DataGridColumn id="componente" itemRenderer="components.grid.SearchResult" 
+				<mx:AdvancedDataGridColumn id="componente" itemRenderer="components.grid.SearchResult" 
 								   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
 								   dataField = "nome"
 								   />
 				
-				<mx:DataGridColumn id="encapsulamento" itemRenderer="components.grid.SearchResult"
+				<mx:AdvancedDataGridColumn id="encapsulamento" itemRenderer="components.grid.SearchResult"
 								   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
 								   dataField = "nomeEncapsulamento"
 								   width="80"
 								   />
 				
-				<mx:DataGridColumn id="fabricante" itemRenderer="components.grid.SearchResult"
+				<mx:AdvancedDataGridColumn id="fabricante" itemRenderer="components.grid.SearchResult"
 								   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="nomeFabricante"							   
 								   />
 				
-				<mx:DataGridColumn id="cPinos" itemRenderer="components.grid.SearchResult"
+				<mx:AdvancedDataGridColumn id="cPinos" itemRenderer="components.grid.SearchResult"
 								   headerText = "{resourceManager.getString('ApplicationResource','PINOS')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="pinos"							   
 								   />
 				
-				<mx:DataGridColumn id="descricao" itemRenderer="components.grid.SearchResult"
+				<mx:AdvancedDataGridColumn id="descricao" itemRenderer="components.grid.SearchResult"
 								   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="descricao"							   
 								   />
 				
-				<mx:DataGridColumn id="estoqueMinimo"
+				<mx:AdvancedDataGridColumn id="estoqueMinimo"
 								   headerText = "{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="qtdEstoqueMinimo"							   
 								   />
 				
-				<mx:DataGridColumn id="estoque"
+				<mx:AdvancedDataGridColumn id="estoque"
 								   headerText = "{resourceManager.getString('ApplicationResource','QTD_ESTOQUE')}"
 								   textAlign="center"
 								   sortable="false"
