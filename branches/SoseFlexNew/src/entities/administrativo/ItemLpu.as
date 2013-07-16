@@ -5,8 +5,8 @@ package entities.administrativo
 	import mx.collections.ArrayCollection;
 	
 	[Bindable]	
-	[RemoteClass(alias="br.com.sose.entity.admistrativo.Lpu")]	
-	public class Lpu
+	[RemoteClass(alias="br.com.sose.entity.admistrativo.ItemLpu")]	
+	public class ItemLpu
 	{
 		
 		private var _id:Number;
@@ -22,7 +22,11 @@ package entities.administrativo
 		
 		private var _unidadeServilogi:Unidade;
 		
-		public function Lpu(){
+		private var _associacaoRealizada:Boolean;
+
+		private var _referenciaExcel:String;
+		
+		public function ItemLpu(){
 		}
 	
 		public function get id():Number
@@ -113,6 +117,26 @@ package entities.administrativo
 		public function set unidadeServilogi(value:Unidade):void
 		{
 			_unidadeServilogi = value;
+		}
+
+		public function get associacaoRealizada():Boolean
+		{
+			return _associacaoRealizada;
+		}
+
+		public function set associacaoRealizada(value:Boolean):void
+		{
+			_associacaoRealizada = value;
+		}
+
+		public function get referenciaExcel():String
+		{
+			return _referenciaExcel;
+		}
+
+		public function set referenciaExcel(value:String):void
+		{
+			_referenciaExcel = value;
 		}
 
 

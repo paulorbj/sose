@@ -71,7 +71,7 @@
 			
 			public function limpar():void
 			{
-				//input.text = "R$0,00";
+				input.text = "";
 			}
 			
 			public function isValorValido(str:String):Boolean
