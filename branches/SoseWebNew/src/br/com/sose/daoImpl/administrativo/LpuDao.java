@@ -32,6 +32,18 @@ public class LpuDao extends HibernateDaoGenerico<Lpu, Long> {
 		q.setParameter("nome", nome);
 		return (Lpu)q.uniqueResult();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Lpu buscarCompletoId(final Long id) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h  INNER JOIN FETCH h.listaItemLpu WHERE h.id = :id");
+		q.setParameter("id", id);
+		return (Lpu)q.uniqueResult();
+	}
+	
+	public List<Lpu> findAll() {
+		Query q = this.sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h ");
+		return q.list();
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<Lpu> findAllAtivoOrderByNome(){		

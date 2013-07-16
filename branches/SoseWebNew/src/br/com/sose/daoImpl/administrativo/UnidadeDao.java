@@ -23,6 +23,14 @@ public class UnidadeDao extends HibernateDaoGenerico<Unidade, Long> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<Unidade> listarPorNome(final String nome) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.nome = :nome");
+		q.setParameter("nome", nome);
+		List<Unidade> listUnidade = (List<Unidade>)q.list();
+		return listUnidade;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public Unidade buscarPorIdCompleto(final Long id) {
 		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h " +
 				"LEFT JOIN FETCH h.equipamento e " +
