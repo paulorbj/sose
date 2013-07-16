@@ -546,7 +546,7 @@
 				_modalObservacao.listarObservacoes();
 			}
 			
-			private function labelCondicao(item:Object, column:DataGridColumn):String
+			private function labelCondicao(item:Object, column:AdvancedDataGridColumn):String
 			{	
 				if(item.reparo){
 					var str:String = item.reparo.condicao;
@@ -574,7 +574,7 @@
 				return "";
 			}
 			
-			private function labelFunction(item:Object, column:DataGridColumn):String {
+			private function labelFunction(item:Object, column:AdvancedDataGridColumn):String {
 				var os:OrdemServico = item as OrdemServico;
 				if(os.garantia){
 					return "SIM";
@@ -656,83 +656,83 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = ""	width=".10"						   
+				<mx:AdvancedDataGridColumn headerText = ""	width=".10"						   
 								   itemRenderer="components.grid.CheckBoxItemRendererBaixaExpedicao"
 								   headerRenderer="components.grid.CheckBoxItemRendererBaixaExpedicao"
 								   resizable="false" draggable="false" sortable="false"
 								   dataField="isSelected"
 								   />
 				
-				<mx:DataGridColumn id="numeroOs" width=".10"	
+				<mx:AdvancedDataGridColumn id="numeroOs" width=".10"	
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="numeroOsPai" width=".10"	
+				<mx:AdvancedDataGridColumn id="numeroOsPai" width=".10"	
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidadePai.numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="diasServilogi" 
+				<mx:AdvancedDataGridColumn id="diasServilogi" 
 								   headerText = "Serv."
 								   width=".10" sortable="false" dataField = "tempoNaServilogi"
 								   />
 				
-				<mx:DataGridColumn id="analiseTecnica" width=".10"
+				<mx:AdvancedDataGridColumn id="analiseTecnica" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
 								   labelFunction="labelCondicao"
 								   />
 				
-				<mx:DataGridColumn id="unidade" width=".20"	
+				<mx:AdvancedDataGridColumn id="unidade" width=".20"	
 								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidade.nome"							   
 								   />
 				
-				<mx:DataGridColumn id="nSerieFabricante" 
+				<mx:AdvancedDataGridColumn id="nSerieFabricante" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 								   dataField = "serieFabricante"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nSerieCliente" 
+				<mx:AdvancedDataGridColumn id="nSerieCliente" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 								   dataField = "serieCliente"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nCaseAvaya" 
+				<mx:AdvancedDataGridColumn id="nCaseAvaya" 
 								   headerText = "Case avaya"
 								   dataField = "caseAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nClienteAvaya" 
+				<mx:AdvancedDataGridColumn id="nClienteAvaya" 
 								   headerText = "Ciente avaya"
 								   dataField = "clienteAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="numeroNF" width=".10"	
+				<mx:AdvancedDataGridColumn id="numeroNF" width=".10"	
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="notaFiscal.numero"							   
 								   />
 				
-				<mx:DataGridColumn id="garantia" width=".10"	
+				<mx:AdvancedDataGridColumn id="garantia" width=".10"	
 								   headerText = "Em garantia"
 								   textAlign="center"
 								   sortable="false"
 								   labelFunction="labelFunction"						   
 								   />
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" width=".10"							 
 								   editable="false"
 								   sortable="false">
@@ -751,7 +751,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 	</mx:TitleWindow>
@@ -767,76 +767,76 @@
 						  >
 			<grid:columns>
 				
-				<mx:DataGridColumn id="numeroOs1" width=".10"
+				<mx:AdvancedDataGridColumn id="numeroOs1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="numeroOsPai1" width=".10"
+				<mx:AdvancedDataGridColumn id="numeroOsPai1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidadePai.numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="diasServilogi1" 
+				<mx:AdvancedDataGridColumn id="diasServilogi1" 
 								   headerText = "Serv."
 								   width=".10" sortable="false" dataField = "tempoNaServilogi"
 								   />
 				
-				<mx:DataGridColumn id="analiseTecnica1" width=".10"
+				<mx:AdvancedDataGridColumn id="analiseTecnica1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
 								   labelFunction="labelCondicao"
 								   />
 				
-				<mx:DataGridColumn id="unidade1" width=".10"
+				<mx:AdvancedDataGridColumn id="unidade1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidade.nome"							   
 								   />
 				
-				<mx:DataGridColumn id="nSerieFabricante1" 
+				<mx:AdvancedDataGridColumn id="nSerieFabricante1" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 								   dataField = "serieFabricante"
 								   width=".10"
 								   />
 				
-				<mx:DataGridColumn id="nSerieCliente1" 
+				<mx:AdvancedDataGridColumn id="nSerieCliente1" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 								   dataField = "serieCliente"
 								   width=".10"
 								   />
 				
-				<mx:DataGridColumn id="nCaseAvaya1" 
+				<mx:AdvancedDataGridColumn id="nCaseAvaya1" 
 								   headerText = "Case avaya"
 								   dataField = "caseAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nClienteAvaya1" 
+				<mx:AdvancedDataGridColumn id="nClienteAvaya1" 
 								   headerText = "Ciente avaya"
 								   dataField = "clienteAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="numeroNF1" width=".10"
+				<mx:AdvancedDataGridColumn id="numeroNF1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="notaFiscal.numero"							   
 								   />
 				
-				<mx:DataGridColumn id="cGarantia" width=".10"	
+				<mx:AdvancedDataGridColumn id="cGarantia" width=".10"	
 								   headerText = "Em garantia"
 								   textAlign="center"
 								   sortable="false"
 								   labelFunction="labelFunction"						   
 								   />
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" width=".10"							 
 								   editable="false"
 								   sortable="false">
@@ -855,7 +855,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 	</mx:TitleWindow>

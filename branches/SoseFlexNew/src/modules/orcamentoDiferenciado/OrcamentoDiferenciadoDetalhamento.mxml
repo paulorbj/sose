@@ -51,7 +51,7 @@
 			}
 			
 			
-			private function labelFunction(item:Object, column:DataGridColumn):String
+			private function labelFunction(item:Object, column:AdvancedDataGridColumn):String
 			{
 				var texto:String="";
 				for each(var def:DefeitoOrcRep in item.listaDefeito){
@@ -158,42 +158,42 @@
 					<grid:columns>
 						
 						
-						<mx:DataGridColumn id="status" width=".15" editable="false"
+						<mx:AdvancedDataGridColumn id="status" width=".15" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 										   textAlign="center"
 										   resizable="false" draggable="false" sortable="false"
 										   dataField="statusString"							   
 										   />
 						
-						<mx:DataGridColumn id="numeroNF" editable="false"
+						<mx:AdvancedDataGridColumn id="numeroNF" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_ABREVIADO')}"
 										   textAlign="center" width=".10"
 										   resizable="false" draggable="false" sortable="false"
 										   dataField="ordemServico.notaFiscal.numero"							   
 										   />
 						
-						<mx:DataGridColumn id="numeroOs" editable="false"
+						<mx:AdvancedDataGridColumn id="numeroOs" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 										   textAlign="center" width=".10"
 										   resizable="false" draggable="false" sortable="false"
 										   dataField="ordemServico.numeroOrdemServico"							   
 										   />
 						
-						<mx:DataGridColumn id="numeroOsPai" editable="false"
+						<mx:AdvancedDataGridColumn id="numeroOsPai" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 										   textAlign="center" width=".10"
 										   resizable="false" draggable="false" sortable="false"
 										   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
 										   />
 						
-						<mx:DataGridColumn id="cUnidade" editable="false"
+						<mx:AdvancedDataGridColumn id="cUnidade" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 										   textAlign="center" width=".25"
 										   resizable="false" draggable="false" sortable="false"
 										   dataField="ordemServico.unidade.nome"							   
 										   />	
 						
-						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
+						<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
 										   draggable="false" width=".15" labelFunction="labelFunction" dataTipFunction="labelFunction2"				 
 										   editable="false"
 										   sortable="false" />

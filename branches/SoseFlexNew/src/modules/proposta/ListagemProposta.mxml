@@ -638,7 +638,7 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".05"						 
 							   editable="false"
 							   sortable="false">
@@ -657,7 +657,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:DataGridColumn>
+			</mx:AdvancedDataGridColumn>
 			
 			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nProposta" width=".15"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_PROPOSTA')}"
@@ -686,7 +686,7 @@
 							   width=".20"
 							   />
 			
-			<mx:DataGridColumn id="dataCriacao" width=".10"
+			<mx:AdvancedDataGridColumn id="dataCriacao" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA_CRIACAO')}"
 							   textAlign="center"
 							   sortable="false" resizable="true"

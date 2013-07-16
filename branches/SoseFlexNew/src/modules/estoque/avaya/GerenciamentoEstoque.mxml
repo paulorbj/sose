@@ -967,94 +967,94 @@
 						  >
 			<grid:columns>
 				
-				<mx:DataGridColumn headerText = ""	width="40"						   
+				<mx:AdvancedDataGridColumn headerText = ""	width="40"						   
 								   itemRenderer="components.grid.CheckBoxItemRenderer"
 								   headerRenderer="components.grid.CheckBoxItemRenderer"
 								   resizable="false" draggable="false" sortable="false"
 								   dataField="isSelected" editable="false"
 								   />
 
-				<mx:DataGridColumn id="cOSOriginal"  width="130"
+				<mx:AdvancedDataGridColumn id="cOSOriginal"  width="130"
 								   headerText = "OS original"
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="numeroOsOriginal"							   
 								   />
 				
-				<mx:DataGridColumn id="cStatusEstoque" 
+				<mx:AdvancedDataGridColumn id="cStatusEstoque" 
 								   headerText = "Status estoque"
 								   dataField = "statusString"
 								   width="170" editable="false"
 								   />
 				
-				<mx:DataGridColumn id="cPosicao" editable="true"
+				<mx:AdvancedDataGridColumn id="cPosicao" editable="true"
 								   headerText = "Posição"
 								   dataField = "posicao"
 								   width="170"
 								   />
 				
-				<mx:DataGridColumn id="cUnidade" 
+				<mx:AdvancedDataGridColumn id="cUnidade" 
 								   headerText = "Unidade"
 								   dataField="unidade"
 								   width="170" editable="false"
 								   />
 				
 				
-				<mx:DataGridColumn id="cNSOrigFabricante" width="70"
+				<mx:AdvancedDataGridColumn id="cNSOrigFabricante" width="70"
 								   headerText = "N/S Fabr. Orig."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsFabricanteOriginal"						   
 								   />
 				
-				<mx:DataGridColumn id="cNSOrigCliente"
+				<mx:AdvancedDataGridColumn id="cNSOrigCliente"
 								   headerText = "N/S Cliente Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsClienteOriginal"							   
 								   />
 				
-				<mx:DataGridColumn id="cNotaFiscalOrig"
+				<mx:AdvancedDataGridColumn id="cNotaFiscalOrig"
 								   headerText = "NF Orig."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nfOriginal"							   
 								   />
 				
-				<mx:DataGridColumn id="cOSSubstituida" width="70"
+				<mx:AdvancedDataGridColumn id="cOSSubstituida" width="70"
 								   headerText = "OS substituição"
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="numeroOsSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cNSSubstFabricante" width="70"
+				<mx:AdvancedDataGridColumn id="cNSSubstFabricante" width="70"
 								   headerText = "N/S Fabr. Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsFabricanteSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cNSSubstCliente"
+				<mx:AdvancedDataGridColumn id="cNSSubstCliente"
 								   headerText = "N/S Cliente Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nsClienteSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cNotaFiscalSubst"
+				<mx:AdvancedDataGridColumn id="cNotaFiscalSubst"
 								   headerText = "NF Subst."
 								   textAlign="center"
 								   sortable="false" editable="false"
 								   dataField="nfSubstituida"							   
 								   />
 				
-				<mx:DataGridColumn id="cDtOperacao" width="80"
+				<mx:AdvancedDataGridColumn id="cDtOperacao" width="80"
 								   headerText = "Data"
 								   dataField = "dataOperacao" editable="false"
 								   />
 				
-				<mx:DataGridColumn id="cUsrOperacao" width="110" editable="false"
+				<mx:AdvancedDataGridColumn id="cUsrOperacao" width="110" editable="false"
 								   headerText = "Usuário"
 								   dataField = "usuarioOperacao"
 								   />

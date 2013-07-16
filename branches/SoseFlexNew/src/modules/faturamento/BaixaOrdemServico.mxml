@@ -519,7 +519,7 @@
 				this.currentState = "normal";
 			}
 			
-			private function labelCondicao(item:Object, column:DataGridColumn):String
+			private function labelCondicao(item:Object, column:AdvancedDataGridColumn):String
 			{	
 				if(item.reparo){
 					var str:String = item.reparo.condicao;
@@ -547,12 +547,12 @@
 				return "";
 			}
 			
-			private function labelFunctionSistema(item:Object, column:DataGridColumn):String {
+			private function labelFunctionSistema(item:Object, column:AdvancedDataGridColumn):String {
 				var os:OrdemServico = item as OrdemServico;
 				return Formatador.formatarValorNumber(os.valorSistema);
 			}
 			
-			private function valorFreteFunction(item:Object, column:DataGridColumn):String {
+			private function valorFreteFunction(item:Object, column:AdvancedDataGridColumn):String {
 				var os:OrdemServico = item as OrdemServico;
 				if(os.freteUnitarioExpedicao > os.freteUnitarioProposta){
 					return Formatador.formatarValorNumber(os.freteUnitarioExpedicao);
@@ -562,7 +562,7 @@
 				
 			}
 			
-			private function labelFunctionFaturado(item:Object, column:DataGridColumn):String {
+			private function labelFunctionFaturado(item:Object, column:AdvancedDataGridColumn):String {
 				var os:OrdemServico = item as OrdemServico;
 				return Formatador.formatarValorNumber(os.valorFaturado);
 			}
@@ -630,7 +630,7 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = ""	width=".05"						   
+				<mx:AdvancedDataGridColumn headerText = ""	width=".05"						   
 								   itemRenderer="components.grid.CheckBoxItemRenderer"
 								   headerRenderer="components.grid.CheckBoxItemRenderer"
 								   resizable="false" draggable="false" sortable="false"
@@ -683,17 +683,17 @@
 								   dataField = "origemFaturamento"
 								   />
 				
-				<mx:DataGridColumn id="valorSistema" width=".10" textAlign="center"
+				<mx:AdvancedDataGridColumn id="valorSistema" width=".10" textAlign="center"
 								   headerText = "Valor Sistema"
 								   labelFunction="labelFunctionSistema"
 								   />
 				
-				<mx:DataGridColumn id="valorFaturado" width=".10" textAlign="center"
+				<mx:AdvancedDataGridColumn id="valorFaturado" width=".10" textAlign="center"
 								   headerText = "Valor Faturado" 
 								   labelFunction="labelFunctionFaturado"
 								   />
 
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" width=".05"							 
 								   editable="false"
 								   sortable="false">
@@ -712,7 +712,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 	</mx:TitleWindow>
@@ -773,22 +773,22 @@
 								   dataField = "origemFaturamento"
 								   />
 				
-				<mx:DataGridColumn id="valorSistema1" width=".10" textAlign="center"
+				<mx:AdvancedDataGridColumn id="valorSistema1" width=".10" textAlign="center"
 								   headerText = "Valor Sistema" editable="false"
 								   labelFunction="labelFunctionSistema"
 								   />
 				
-				<mx:DataGridColumn id="valorFaturado1" width=".10" textAlign="center"
+				<mx:AdvancedDataGridColumn id="valorFaturado1" width=".10" textAlign="center"
 								   headerText = "Valor Faturado" dataField="valorFaturado"
 								   editable="true"
 								   />
 				
-				<mx:DataGridColumn id="valorFrete1" width=".10" textAlign="center"
+				<mx:AdvancedDataGridColumn id="valorFrete1" width=".10" textAlign="center"
 								   headerText = "Frete Sistema" editable="false"
 								   labelFunction="valorFreteFunction"
 								   />
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" width=".05"							 
 								   editable="false"
 								   sortable="false">
@@ -807,7 +807,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 		<mx:HBox verticalAlign="bottom" width="100%">

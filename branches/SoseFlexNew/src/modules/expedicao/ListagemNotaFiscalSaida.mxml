@@ -560,7 +560,7 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" width="40"							 
 								   editable="false"
 								   sortable="false">
@@ -579,7 +579,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 				
 				<dc:DataGridColumnFilter  id="cliente" width="250" filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
 								   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
@@ -593,7 +593,7 @@
 								   dataField = "statusString"
 								   />
 				
-				<mx:DataGridColumn id="dataCriacao" width="80"
+				<mx:AdvancedDataGridColumn id="dataCriacao" width="80"
 								   headerText = "{resourceManager.getString('ApplicationResource','DATA_CRIACAO')}"
 								   textAlign="center"
 								   sortable="false"
@@ -601,7 +601,7 @@
 								   />
 				
 				
-				<mx:DataGridColumn id="dataSaida" width="80"
+				<mx:AdvancedDataGridColumn id="dataSaida" width="80"
 								   headerText = "Data saída"
 								   textAlign="center"
 								   sortable="false"
