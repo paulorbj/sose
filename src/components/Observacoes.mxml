@@ -357,26 +357,26 @@
 				<!-- CHANGE HERE THE ENTITY COLUMNS -->
 				
 				
-				<mx:DataGridColumn id="cData" width=".13"
+				<mx:AdvancedDataGridColumn id="cData" width=".13"
 								   headerText = "{resourceManager.getString('ApplicationResource','DATA')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="dataString"							   
 								   />
 				
-				<mx:DataGridColumn id="cOrigem" dataField="origem" width=".13"
+				<mx:AdvancedDataGridColumn id="cOrigem" dataField="origem" width=".13"
 								   headerText = "{resourceManager.getString('ApplicationResource','ORIGEM')}"
 								   textAlign="center"
 								   sortable="false"					   
 								   />
 				
-				<mx:DataGridColumn id="cUsuario" dataField="usuario.usuario" width=".13"
+				<mx:AdvancedDataGridColumn id="cUsuario" dataField="usuario.usuario" width=".13"
 								   headerText = "{resourceManager.getString('ApplicationResource','USUARIO')}"
 								   textAlign="center"
 								   sortable="false"					   
 								   />
 				
-				<mx:DataGridColumn id="cTexto" dataField="texto" width=".60"
+				<mx:AdvancedDataGridColumn id="cTexto" dataField="texto" width=".60"
 								   headerText = "{resourceManager.getString('ApplicationResource','TEXTO')}"
 								   textAlign="left" wordWrap="true"
 								   sortable="false"							   
