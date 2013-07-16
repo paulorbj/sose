@@ -5,8 +5,6 @@
 
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.DataGrid;
-			import mx.controls.dataGridClasses.DataGridBase;
 			
 			private var isColumnSortable:Boolean;
 			
