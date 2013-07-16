@@ -10,7 +10,9 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.containers.Grid;
+			import mx.controls.AdvancedDataGrid;
 			import mx.controls.DataGrid;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.listClasses.BaseListData;
 			
@@ -24,7 +26,7 @@
 			
 			private var _listData:BaseListData;
 			
-			private var dataGrid:DataGrid;
+			private var dataGrid:AdvancedDataGrid;
 			
 			[Bindable("dataChange")]
 			public function get listData():BaseListData
@@ -36,7 +38,7 @@
 			{
 				_listData = value;
 				
-				dataGrid = value.owner as DataGrid;
+				dataGrid = value.owner as AdvancedDataGrid;
 			}
 			
 			override public function set data(value:Object):void
@@ -49,7 +51,7 @@
 				
 				this.addChild(checkBox);
 				
-				if (value is DataGridColumn) {	// Header
+				if (value is AdvancedDataGridColumn) {	// Header
 					
 					var dataProvider:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
 					
