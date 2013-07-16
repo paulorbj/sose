@@ -131,6 +131,16 @@
 		<url-pattern>/arquivo_servilogi/*</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>UploadLpuServlet</servlet-name>
+		<servlet-class>br.com.sose.servlets.UploadLpuServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>UploadLpuServlet</servlet-name>
+		<url-pattern>/uploadlpuservlet</url-pattern>
+	</servlet-mapping>
+	
 	<filter>
 		<filter-name>monitoring</filter-name>
 		<filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
