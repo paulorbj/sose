@@ -29,7 +29,7 @@
 			override public function set data(value:Object):void
 			{
 				_data = value;
-				if(_data.componentePendente == true){
+				if(_data != null && _data.componentePendente == true){
 					this.source = component_icon;
 					this.toolTip = "Possui componente pendente";
 				}else{

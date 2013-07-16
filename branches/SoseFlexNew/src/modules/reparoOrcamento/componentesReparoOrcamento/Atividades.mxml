@@ -241,7 +241,7 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width="50"								 
 							   editable="false"
 							   sortable="false">
@@ -268,26 +268,26 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:DataGridColumn>
-						<mx:DataGridColumn id="cAtividade" width="150"
+			</mx:AdvancedDataGridColumn>
+						<mx:AdvancedDataGridColumn id="cAtividade" width="150"
 							   headerText = "{resourceManager.getString('ApplicationResource','ATIVIDADE')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="atividade.nome"							   
 							   />
 			
-			<mx:DataGridColumn id="cJustificativa" dataField="justificativa" width="300"
+			<mx:AdvancedDataGridColumn id="cJustificativa" dataField="justificativa" width="300"
 							   headerText = "{resourceManager.getString('ApplicationResource','JUSTIFICATIVA')}"
 							   textAlign="center"
 							   sortable="false"					   
 							   />
 			
-			<mx:DataGridColumn id="cDtInclusao" width="100" textAlign="center"
+			<mx:AdvancedDataGridColumn id="cDtInclusao" width="100" textAlign="center"
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA')}"
 							   dataField = "data"
 							   />
 			
-			<mx:DataGridColumn id="cUsuario" width="100" textAlign="center"
+			<mx:AdvancedDataGridColumn id="cUsuario" width="100" textAlign="center"
 							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
 							   dataField = "usuario.usuario"
 							   />
