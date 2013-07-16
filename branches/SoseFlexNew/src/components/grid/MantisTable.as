@@ -8,6 +8,7 @@ package components.grid
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.ICollectionView;
+	import mx.controls.AdvancedDataGrid;
 	import mx.controls.DataGrid;
 	import mx.controls.Label;
 	import mx.core.ClassFactory;
@@ -18,7 +19,7 @@ package components.grid
 	 * This is an extension of the DataGrid component used for change row
 	 * colors.
 	 */
-	public class MantisTable extends DataGrid
+	public class MantisTable extends AdvancedDataGrid
 	{
 		/**
 		 * Exposed function that defines the row color. It must have the follow
