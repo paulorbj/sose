@@ -262,36 +262,36 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="cVisivel" width=".40"
+			<mx:AdvancedDataGridColumn id="cVisivel" width=".40"
 							   headerText = "Visível"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="visivel"							   
 							   />
 			
-			<mx:DataGridColumn id="cDtCriacao" width=".50" textAlign="center"
+			<mx:AdvancedDataGridColumn id="cDtCriacao" width=".50" textAlign="center"
 							   headerText = "Data criação"
 							   dataField = "dataCriacaoString"
 							   />
 			
-			<mx:DataGridColumn id="ccDtAlteracaoVisivel" width=".50" textAlign="center"
+			<mx:AdvancedDataGridColumn id="ccDtAlteracaoVisivel" width=".50" textAlign="center"
 							   headerText = "Visível alterado em"
 							   dataField = "dataVisivelAlteradooString"
 							   />
 			
-			<mx:DataGridColumn id="cCriadoPor" width=".50" textAlign="center"
+			<mx:AdvancedDataGridColumn id="cCriadoPor" width=".50" textAlign="center"
 							   headerText = "Criado por"
 							   dataField = "criadoPor.usuario"
 							   />
 			
-			<mx:DataGridColumn id="cMensagem" width=".50" textAlign="center"
+			<mx:AdvancedDataGridColumn id="cMensagem" width=".50" textAlign="center"
 							   headerText = "Mensagem"
 							   dataField = "mensagem"
 							   />
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".10" textAlign="center"	 						 
 							   editable="false"
 							   sortable="false">
@@ -318,7 +318,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:DataGridColumn>
+			</mx:AdvancedDataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

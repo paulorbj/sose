@@ -723,11 +723,73 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn id="cAcoes" headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".05"							 
 							   editable="false"
-							   sortable="false">
-				<mx:itemRenderer>
+							   sortable="false" />
+			
+			<mx:AdvancedDataGridColumn id="status" 
+							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+							   dataField = "statusString" textAlign="center"
+							   width=".10"
+							   />
+			
+			<mx:AdvancedDataGridColumn id="numeroOs"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="ordemServico.numeroOrdemServico"							   
+							   />
+			
+			<mx:AdvancedDataGridColumn id="numeroOsPai"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
+							   />
+			
+			<mx:AdvancedDataGridColumn id="cliente" dataField="ordemServico.cliente.nomeSistema"
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+							   textAlign="center" width=".10"
+							   sortable="false"					   
+							   />
+			
+			<mx:AdvancedDataGridColumn id="unidade"
+							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+							   textAlign="center"
+							   sortable="false" width=".10"
+							   dataField="ordemServico.unidade.nome"							   
+							   />
+			
+			<mx:AdvancedDataGridColumn id="nSerieFabricante" 
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+							   dataField = "ordemServico.serieFabricante"
+							   width=".10"
+							   />
+			
+			<mx:AdvancedDataGridColumn id="nSerieCliente" 
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+							   dataField = "ordemServico.serieCliente"
+							   width=".10"
+							   />
+			
+			<mx:AdvancedDataGridColumn id="cLaboratorio" 
+							   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+							   dataField = "ordemServico.unidade.laboratorio.nome"
+							   width=".10"
+							   />
+			
+			<mx:AdvancedDataGridColumn id="cUsuario" 
+							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+							   dataField = "criadoPor.usuario"
+							   width=".10"
+							   />
+		</grid:columns>
+		
+		<!--
+		<grid:rendererProviders>
+			<mx:AdvancedDataGridRendererProvider column="{cAcoes}">
+				<mx:renderer>
 					<fx:Component>
 						<mx:HBox horizontalAlign="center"
 								 verticalAlign="middle"
@@ -741,68 +803,10 @@
 									  />						
 						</mx:HBox>
 					</fx:Component>
-				</mx:itemRenderer>
-			</mx:DataGridColumn>
-			
-			<mx:DataGridColumn id="status" 
-							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
-							   dataField = "statusString" textAlign="center"
-							   width=".10"
-							   />
-			
-			<mx:DataGridColumn id="numeroOs"
-							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
-							   textAlign="center"
-							   sortable="false" width=".10"
-							   dataField="ordemServico.numeroOrdemServico"							   
-							   />
-			
-			<mx:DataGridColumn id="numeroOsPai"
-							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
-							   textAlign="center"
-							   sortable="false" width=".10"
-							   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
-							   />
-			
-			<mx:DataGridColumn id="cliente" dataField="ordemServico.cliente.nomeSistema"
-							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
-							   textAlign="center" width=".10"
-							   sortable="false"					   
-							   />
-			
-			<mx:DataGridColumn id="unidade"
-							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
-							   textAlign="center"
-							   sortable="false" width=".10"
-							   dataField="ordemServico.unidade.nome"							   
-							   />
-			
-			<mx:DataGridColumn id="nSerieFabricante" 
-							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
-							   dataField = "ordemServico.serieFabricante"
-							   width=".10"
-							   />
-			
-			<mx:DataGridColumn id="nSerieCliente" 
-							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
-							   dataField = "ordemServico.serieCliente"
-							   width=".10"
-							   />
-			
-			<mx:DataGridColumn id="cLaboratorio" 
-							   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
-							   dataField = "ordemServico.unidade.laboratorio.nome"
-							   width=".10"
-							   />
-			
-			<mx:DataGridColumn id="cUsuario" 
-							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
-							   dataField = "criadoPor.usuario"
-							   width=".10"
-							   />
-			
-			
-		</grid:columns>
+				</mx:renderer>
+			</mx:AdvancedDataGridRendererProvider>
+		</grid:rendererProviders>
+		-->
 	</grid:MantisTable>
 	
 	<orcamentoDiferenciado:OrcamentoDiferenciadoDetalhamento id="detalhamentoOrcamentoDiferenciado" excludeFrom="listagem" />

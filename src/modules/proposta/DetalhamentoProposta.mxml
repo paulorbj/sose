@@ -546,7 +546,7 @@
 				_listaItensPropostaEdicao.addItem(_itemProposta);
 			}
 			
-			private function statusLabelFunction(item:Object, column:DataGridColumn):String
+			private function statusLabelFunction(item:Object, column:AdvancedDataGridColumn):String
 			{
 				if((item as ItemProposta).dataAprovacao == null){
 					return "Aguardando aprovação";
@@ -617,7 +617,7 @@
 				totalSemDescontoComFrete.setValor(valorFrete.getValor() + totalValoresItem);
 			}
 			
-			private function labelFunction(item:Object, column:DataGridColumn):String
+			private function labelFunction(item:Object, column:AdvancedDataGridColumn):String
 			{
 				if(item.proposta.tipo == "Orçamento"){
 					var texto:String="";
@@ -668,7 +668,7 @@
 				}
 			}
 			
-			public function labelGarantia(item:Object, column:DataGridColumn):String
+			public function labelGarantia(item:Object, column:AdvancedDataGridColumn):String
 			{
 				if(item.ordemServico.garantia){
 					return "Com garantia";
@@ -677,7 +677,7 @@
 				}
 			}
 			
-			private function labelCondicao(item:Object, column:DataGridColumn):String
+			private function labelCondicao(item:Object, column:AdvancedDataGridColumn):String
 			{	
 				if(item.proposta.tipo == "Orçamento"){
 					return item.ordemServico.orcamento.condicao;
@@ -686,7 +686,7 @@
 				}
 			}
 			
-			private function labelFunction4(item:Object, column:DataGridColumn):String {
+			private function labelFunction4(item:Object, column:AdvancedDataGridColumn):String {
 				var itemProposta:ItemProposta = item as ItemProposta;
 				return Formatador.formatarValorNumber(itemProposta.valorSemDesconto);
 			}	
@@ -823,7 +823,7 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" excludeFrom="editarItemProposta"	width="80"		 
 								   editable="false" id="cAcoes"
 								   sortable="false">
@@ -865,9 +865,9 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 				
-				<mx:DataGridColumn headerText = ""							   
+				<mx:AdvancedDataGridColumn headerText = ""							   
 								   itemRenderer="components.grid.CheckBoxItemRenderer"
 								   headerRenderer="components.grid.CheckBoxItemRenderer"
 								   excludeFrom="editarItemProposta"  editable="false"
@@ -875,64 +875,64 @@
 								   dataField="isSelected" 
 								   />
 				
-				<mx:DataGridColumn id="status" width="75" editable="false"
+				<mx:AdvancedDataGridColumn id="status" width="75" editable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 								   textAlign="center"
 								   resizable="true" draggable="false" sortable="false"
 								   dataField="statusItem"							   
 								   />
 				
-				<mx:DataGridColumn id="numeroNF" editable="false"
+				<mx:AdvancedDataGridColumn id="numeroNF" editable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_ABREVIADO')}"
 								   textAlign="center" width="50"
 								   resizable="true" draggable="false" sortable="false"
 								   dataField="ordemServico.notaFiscal.numero"							   
 								   />
 				
-				<mx:DataGridColumn id="numeroOs" editable="false"
+				<mx:AdvancedDataGridColumn id="numeroOs" editable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center" width="50"
 								   resizable="true" draggable="false" sortable="false"
 								   dataField="ordemServico.numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="numeroOsPai" editable="false"
+				<mx:AdvancedDataGridColumn id="numeroOsPai" editable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 								   textAlign="center" width="50"
 								   resizable="true" draggable="false" sortable="false"
 								   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="cGarantia"  editable="false"
+				<mx:AdvancedDataGridColumn id="cGarantia"  editable="false"
 								   headerText = "Garantia" resizable="true"
 								   labelFunction="labelGarantia"
 								   width="50"
 								   />
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','CONDICAO')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','CONDICAO')}"	
 								   draggable="false" width="75" labelFunction="labelCondicao"			 
 								   editable="false" resizable="true"
 								   sortable="false" />
 				
-				<mx:DataGridColumn id="unidade" editable="false"
+				<mx:AdvancedDataGridColumn id="unidade" editable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 								   textAlign="center" width="75"
 								   resizable="true" draggable="false" sortable="false"
 								   dataField="ordemServico.unidade.nome"						   
 								   />	
 				
-				<mx:DataGridColumn id="nSerieFabricante"  resizable="true"
+				<mx:AdvancedDataGridColumn id="nSerieFabricante"  resizable="true"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 								   dataField = "ordemServico.serieFabricante"
 								   width="50" textAlign="center" editable="false"
 								   />
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
 								   draggable="false" width="75" labelFunction="labelFunction" dataTipFunction="labelFunction2"				 
 								   editable="false" resizable="true"
 								   sortable="false" />
 				
-				<mx:DataGridColumn id="preco"  width="50"
+				<mx:AdvancedDataGridColumn id="preco"  width="50"
 								   headerText = "{resourceManager.getString('ApplicationResource','PRECO')}" dataField="valorSemDesconto"
 								   editable="true" itemEditor="components.textInput.TextInputDinheiro2dTable" editorDataField="valor"
 								   resizable="true" draggable="false" sortable="false"

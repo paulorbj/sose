@@ -529,26 +529,10 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:AdvancedDataGridColumn id="cAcoes" headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".05"							 
 							   editable="false"
-							   sortable="false">
-				<mx:itemRenderer>
-					<fx:Component>
-						<mx:HBox horizontalAlign="center"
-								 verticalAlign="middle"
-								 >
-							
-							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
-									  click="parentDocument.visualizarDetalhe(data, event)"
-									  buttonMode="true"
-									  useHandCursor="true"
-									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
-									  />						
-						</mx:HBox>
-					</fx:Component>
-				</mx:itemRenderer>
-			</mx:DataGridColumn>
+							   sortable="false" />
 			
 			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nControle"
 									 headerText = "{resourceManager.getString('ApplicationResource','CONTROLE')}"
@@ -618,6 +602,29 @@
 									 />			
 			
 		</grid:columns>
+		
+		<!--
+		<grid:rendererProviders>
+			<mx:AdvancedDataGridRendererProvider column="{cAcoes}">
+				<mx:renderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.visualizarDetalhe(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />						
+						</mx:HBox>
+					</fx:Component>
+				</mx:renderer>
+			</mx:AdvancedDataGridRendererProvider>	
+			
+		</grid:rendererProviders>
+		-->
 	</grid:MantisTable>
 	
 	<laudoTecnico:LaudoTecnicoDetalhamento id="detalhamentoLaudoTecnico" excludeFrom="listagem" />

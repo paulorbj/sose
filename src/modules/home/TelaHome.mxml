@@ -10,7 +10,7 @@
 		 paddingRight="12"
 		 paddingBottom="20" paddingTop="20"
 		 width="100%" height="100%"
-		 verticalGap="0" xmlns:cc="components.imageviewer1.cc.*" xmlns:flextras="http://www.flextras.com/mxml" xmlns:quadroAviso="modules.home.quadroAviso.*" xmlns:imageviewer3="components.imageviewer3.*" >
+		 verticalGap="0" xmlns:flextras="http://www.flextras.com/mxml" xmlns:quadroAviso="modules.home.quadroAviso.*" xmlns:imageviewer="components.imageviewer.*" >
 	<fx:Script>
 		<![CDATA[
 			import components.fileupload.ComponenteUpload;
@@ -104,6 +104,6 @@
 		
 	<s:Button click="abrir2()" label="Teste" />
 	
-	<imageviewer3:ImageCarousel id="imageCarousel" tipoEntidade="{ComponenteUpload.T_ENTIDADE_COMPONENTE}" idEntidade="{1}" />
+	<imageviewer:ImageCarousel id="imageCarousel" tipoEntidade="{ComponenteUpload.T_ENTIDADE_COMPONENTE}" idEntidade="{1}" />
 	
 </mx:VBox>
