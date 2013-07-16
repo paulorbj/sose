@@ -87,7 +87,7 @@
 				dispatchEvent(new MensagemEvent("Erro ao buscar proposta", MessageType.ERROR, 10000));
 			}
 			
-			private function statusLabelFunction(item:Object, column:DataGridColumn):String
+			private function statusLabelFunction(item:Object, column:AdvancedDataGridColumn):String
 			{
 				if((item as ItemProposta).dataAprovacao == null){
 					return "Aguardando aprovação";
@@ -128,7 +128,7 @@
 				totalSemDesconto.setValor(totalValoresItem);
 				totalSemDescontoComFrete.setValor(valorFrete.getValor() + totalValoresItem);
 			}
-			private function labelFunction(item:Object, column:DataGridColumn):String {
+			private function labelFunction(item:Object, column:AdvancedDataGridColumn):String {
 				var itemProposta:ItemProposta = item as ItemProposta;
 				return Formatador.formatarValorNumber(itemProposta.valorSemDesconto);
 			}
@@ -199,35 +199,35 @@
 							  >
 				<grid:columns>
 					
-					<mx:DataGridColumn id="status" width=".15" editable="false"
+					<mx:AdvancedDataGridColumn id="status" width=".15" editable="false"
 									   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 									   textAlign="center"
 									   resizable="false" draggable="false" sortable="false"
 									   dataField="statusItem"							   
 									   />
 					
-					<mx:DataGridColumn id="numeroNF" editable="false"
+					<mx:AdvancedDataGridColumn id="numeroNF" editable="false"
 									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL_ABREVIADO')}"
 									   textAlign="center" width=".10"
 									   resizable="false" draggable="false" sortable="false"
 									   dataField="ordemServico.notaFiscal.numero"							   
 									   />
 					
-					<mx:DataGridColumn id="numeroOs" editable="false"
+					<mx:AdvancedDataGridColumn id="numeroOs" editable="false"
 									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 									   textAlign="center" width=".10"
 									   resizable="false" draggable="false" sortable="false"
 									   dataField="ordemServico.numeroOrdemServico"							   
 									   />
 					
-					<mx:DataGridColumn id="numeroOsPai" editable="false"
+					<mx:AdvancedDataGridColumn id="numeroOsPai" editable="false"
 									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 									   textAlign="center" width=".10"
 									   resizable="false" draggable="false" sortable="false"
 									   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
 									   />
 					
-					<mx:DataGridColumn id="unidade" editable="false"
+					<mx:AdvancedDataGridColumn id="unidade" editable="false"
 									   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 									   textAlign="center" width=".25"
 									   resizable="false" draggable="false" sortable="false"
@@ -236,7 +236,7 @@
 					
 					
 					
-					<mx:DataGridColumn id="preco"  width=".10"
+					<mx:AdvancedDataGridColumn id="preco"  width=".10"
 									   headerText = "{resourceManager.getString('ApplicationResource','PRECO')}"
 									   labelFunction="labelFunction"
 									   resizable="false" draggable="false" sortable="false"

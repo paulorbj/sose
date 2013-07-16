@@ -104,7 +104,7 @@
 	</fx:Script>		
 
 	<grid:MantisTable id="viewTable"
-					  width="100%" height="100%"
+					  width="600" height="100%"
 					  draggableColumns="true"
 					  dataProvider="{listaLpu}"
 					  itemDoubleClick="editItem(data, event,false)"	>
@@ -113,32 +113,32 @@
 			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente" 
 									 headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 									 dataField = "cliente.nomeSistema"
-									 width="80"
+									 width="275"
 									 />
 			
-			<mx:DataGridColumn headerText = ""	dataField="componentePendente"
+			<mx:AdvancedDataGridColumn headerText = ""	dataField="ativa"
 							   draggable="false" width="25"							 
-							   editable="false" itemRenderer="modules.reparoOrcamento.ImageItemRenderer"
+							   editable="false" itemRenderer="modules.administrativo.lpu.ImageItemRenderer"
 							   sortable="false" />
 			
-			<mx:DataGridColumn id="carregadoEm"
+			<mx:AdvancedDataGridColumn id="uploadEm" width="100"
 							   headerText = "Carregada em"
 							   textAlign="center"
 							   sortable="false"
-							   dataField="dataVencimentoFaturaString"							   
+							   dataField="uploadEmString"							   
 							   />
 			
-			<mx:DataGridColumn id="validoAte"
+			<mx:AdvancedDataGridColumn id="validoAte" width="100"
 							   headerText = "Válida até"
 							   textAlign="center"
 							   sortable="false"
-							   dataField="dataVencimentoFaturaString"							   
+							   dataField="validoAteString"							   
 							   />
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-							   draggable="false"							 
+			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width="100"							 
 							   editable="false"
 							   sortable="false">
 				<mx:itemRenderer>
@@ -171,7 +171,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:DataGridColumn>
+			</mx:AdvancedDataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

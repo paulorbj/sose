@@ -87,41 +87,41 @@
 			<grid:columns>
 				
 				<!-- CHANGE HERE THE ENTITY COLUMNS -->
-				<mx:DataGridColumn id="nome"
+				<mx:AdvancedDataGridColumn id="nome"
 								   headerText = "{resourceManager.getString('ApplicationResource','NOME_CONTATO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="nome"							   
 								   />
 				
-				<mx:DataGridColumn id="cargo" 
+				<mx:AdvancedDataGridColumn id="cargo" 
 								   headerText = "{resourceManager.getString('ApplicationResource','CARGO_CONTATO')}"
 								   dataField = "cargo"
 								   />
 				
-				<mx:DataGridColumn id="email" 
+				<mx:AdvancedDataGridColumn id="email" 
 								   headerText = "{resourceManager.getString('ApplicationResource','EMAIL_CONTATO')}"
 								   dataField = "email"
 								   />
 				
-				<mx:DataGridColumn id="departamento" 
+				<mx:AdvancedDataGridColumn id="departamento" 
 								   headerText = "{resourceManager.getString('ApplicationResource','DEPARTAMENTO_CONTATO')}"
 								   dataField = "departamento"
 								   />
 				
-				<mx:DataGridColumn id="infoAdicionais" 
+				<mx:AdvancedDataGridColumn id="infoAdicionais" 
 								   headerText = "{resourceManager.getString('ApplicationResource','INFO_ADICIONAIS_CONTATO')}"
 								   dataField = "informacoesAdicionais"
 								   />
 				
-				<mx:DataGridColumn id="pessoa" 
+				<mx:AdvancedDataGridColumn id="pessoa" 
 								   headerText = "{resourceManager.getString('ApplicationResource','PESSOA')}"
 								   dataField = "cliente.nome"
 								   />
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false"							 
 								   editable="false"
 								   sortable="false">
@@ -148,7 +148,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 

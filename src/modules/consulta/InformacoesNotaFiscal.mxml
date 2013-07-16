@@ -34,7 +34,7 @@
 				habilitaCampos();
 			}
 			
-			public function formatarColunaValorUnitario(item:Object, column:DataGridColumn):String
+			public function formatarColunaValorUnitario(item:Object, column:AdvancedDataGridColumn):String
 			{
 				var itemNf:ItemNotaFiscal = item as ItemNotaFiscal;
 				if(itemNf.valorUnitario != 0){
@@ -99,53 +99,53 @@
 					  dataProvider="{_notaFiscal.itensDaNotaFiscal}">
 		<grid:columns>
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="cCodigo" width=".05"
+			<mx:AdvancedDataGridColumn id="cCodigo" width=".05"
 							   headerText = "{resourceManager.getString('ApplicationResource','CODIGO')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="codigo"							   
 							   />
-			<mx:DataGridColumn id="cDescricao" dataField="nome" width=".20"
+			<mx:AdvancedDataGridColumn id="cDescricao" dataField="nome" width=".20"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   textAlign="center"
 							   sortable="false"					   
 							   />
-			<mx:DataGridColumn id="cNcm" dataField="ncm" width=".0875"
+			<mx:AdvancedDataGridColumn id="cNcm" dataField="ncm" width=".0875"
 							   headerText = "{resourceManager.getString('ApplicationResource','NCM')}"
 							   textAlign="center"
 							   sortable="false"							   
 							   />
-			<mx:DataGridColumn id="cCst" 
+			<mx:AdvancedDataGridColumn id="cCst" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CST')}"
 							   dataField = "cst" textAlign="center"
 							   width=".0875"
 							   />
-			<mx:DataGridColumn id="cCfop" 
+			<mx:AdvancedDataGridColumn id="cCfop" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CFOP')}"
 							   dataField = "cfop" textAlign="center"
 							   width=".0875"
 							   />
-			<mx:DataGridColumn id="cUnidadeMedida" 
+			<mx:AdvancedDataGridColumn id="cUnidadeMedida" 
 							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_MEDIDA')}"
 							   dataField = "unidadeMedida" textAlign="center"
 							   width=".0875"
 							   />
-			<mx:DataGridColumn id="cQuantidade" 
+			<mx:AdvancedDataGridColumn id="cQuantidade" 
 							   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
 							   dataField = "quantidade" textAlign="center"
 							   width=".05"
 							   />
-			<mx:DataGridColumn id="cValorUnitario"  textAlign="center"
+			<mx:AdvancedDataGridColumn id="cValorUnitario"  textAlign="center"
 							   headerText = "{resourceManager.getString('ApplicationResource','VALOR_UNITARIO')}"
 							   labelFunction="formatarColunaValorUnitario"
 							   width=".10"
 							   />
-			<mx:DataGridColumn id="cUnidadeServilogi" 
+			<mx:AdvancedDataGridColumn id="cUnidadeServilogi" 
 							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_SERVILOGI')}"
 							   dataField = "unidadeString" textAlign="center"
 							   width=".10"
 							   />
-			<mx:DataGridColumn id="cLpu" 
+			<mx:AdvancedDataGridColumn id="cLpu" 
 							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}"
 							   dataField = "lpuString" textAlign="center"
 							   width=".10"

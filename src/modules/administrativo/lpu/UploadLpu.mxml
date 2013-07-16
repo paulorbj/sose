@@ -12,6 +12,10 @@
 					   fault="onSalvarLpuFault(event)" 
 					   result="onSalvarLpuResult(event)"
 					   />
+			<mx:method name="processarLpu"      
+					   fault="onProcessarLpuFault(event)" 
+					   result="onProcessarLpuResult(event)"
+					   />
 		</mx:RemoteObject>
 		
 	</fx:Declarations>
@@ -36,7 +40,7 @@
 			private var allTypes:Array;
 			
 			private const _strDomain:String = new String("http://127.0.0.1:8080/SoseWeb/");
-			private const _strUploadScript:String = new String(_strDomain + "uploadservlet");
+			private const _strUploadScript:String = new String(_strDomain + "uploadlpuservlet");
 			
 			public function get lpu():Lpu
 			{
@@ -92,6 +96,7 @@
 			
 			private function importar():void {
 				if(validarCampos()){
+					_lpu.cliente = comboCliente.clienteSelecionado;
 					lpuService.salvarLpu(_lpu);
 				}else{
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
@@ -110,7 +115,7 @@
 			
 				var sendVars:URLVariables = new URLVariables();
 				sendVars.action = "uploadlpuservlet";
-				sendVars.tipoObjeto = _lpu;
+				sendVars.idLpu = _lpu.id;
 
 				var request:URLRequest = new URLRequest();
 				request.data = sendVars;
@@ -133,6 +138,28 @@
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LPU_SALVAR_ERRO'), MessageType.ERROR, 10000));	
 				}	
 			}
+			
+			
+			private function onProcessarLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_lpu = event.result as Lpu;
+								
+			}
+			
+			private function onProcessarLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onProcessarLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao importar o excel", MessageType.ERROR, 10000));	
+				}	
+			}
 				
 			
 			private function fileRef_progress(evt:ProgressEvent):void {
@@ -140,8 +167,7 @@
 			}
 			
 			private function fileRef_complete(evt:Event):void {
-				var test:String;
-				test = "TESTE";
+				lpuService.processarLpu(_lpu);
 			}
 
 		]]>
@@ -158,9 +184,9 @@
 	<fx:Binding destination="txtPrimeiraLinhaDados.input.text" source="_lpu.primeiraLinhaDados" twoWay="true"/>
 	<fx:Binding destination="txtUltimaLinhaDados.input.text" source="_lpu.ultimaLinhaDados" twoWay="true"/>
 	
-	<combos:ComboCliente id="comboCliente" required="true" labelText="Cliente" width="200" />
+	<combos:ComboCliente id="comboCliente" required="true" labelText="Cliente" width="400" />
 	
-	<mx:TitleWindow title="Configuração de campos (Informe a letra correspondente a coluna)" width="100%">
+	<mx:TitleWindow title="Configuração de campos (Informe a letra correspondente a coluna)" width="600">
 		<mx:HBox width="100%" >
 			<texto:TextInput id="txtUnidade" required="true" labelText="Unidade" width="33%" restrict="A-Za-z" maxLength="2" />
 			<texto:TextInput id="txtEquipamento" labelText="Equipamento" width="33%" restrict="A-Za-z" maxLength="2" />
@@ -174,7 +200,7 @@
 		</mx:HBox>
 	</mx:TitleWindow>
 	
-	<mx:TitleWindow title="Configuração da leitura de dados (Informe o número correspondente a linha)" width="100%">
+	<mx:TitleWindow title="Configuração da leitura de dados (Informe o número correspondente a linha)" width="600">
 		<mx:HBox width="100%" >
 			<texto:TextInput id="txtLinhaCabecalho" labelText="Linha do cabeçalho" required="true" width="33%" restrict="0-9" maxLength="9" />
 			<texto:TextInput id="txtPrimeiraLinhaDados" labelText="Primeira linha de dados" required="true" width="33%" restrict="0-9" maxLength="9" />
@@ -182,13 +208,13 @@
 		</mx:HBox>
 	</mx:TitleWindow>
 	
-	<mx:HBox width="100%" verticalAlign="bottom">
+	<mx:HBox width="600" verticalAlign="bottom">
 		<s:Button label="Selecionar LPU"  click="selecionarArquivo()" height="25" width="200" icon="@Embed(source='/assets/icons/folder.png')" />
 		<texto:TextInput id="txtCaminhoArquivo" required="true" habilitado="false" width="100%" />
 		<s:Button label="Importar" click="importar()" height="25" width="100" icon="@Embed(source='/assets/icons/arrow_up.png')" />
 	</mx:HBox>
 	
-	<mx:HBox width="100%" verticalAlign="bottom">
+	<mx:HBox width="600" verticalAlign="bottom">
 		<s:Button label="Voltar" click="voltar()" height="25" width="200" icon="@Embed(source='/assets/icons/back.png')" />
 	</mx:HBox>
 	

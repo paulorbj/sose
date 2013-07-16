@@ -157,14 +157,14 @@
 								  itemDoubleClick="adicionarMembro(data, event)"	>
 					<grid:columns>
 						
-						<mx:DataGridColumn headerText = ""							   
+						<mx:AdvancedDataGridColumn headerText = ""							   
 										   itemRenderer="components.grid.CheckBoxItemRenderer"
 										   headerRenderer="components.grid.CheckBoxItemRenderer"
 										   width="25" resizable="false" draggable="false" sortable="false"
 										   dataField="isSelected"
 										   />
 						
-						<mx:DataGridColumn id="nomeUsuarioDisponivel" dataField="nome"
+						<mx:AdvancedDataGridColumn id="nomeUsuarioDisponivel" dataField="nome"
 										   headerText = "{resourceManager.getString('ApplicationResource','NOME_USUARIO')}"
 										   textAlign="center"
 										   sortable="false"							   
@@ -174,7 +174,7 @@
 						
 						<!-- EDIT/REMOVE COLUMNS -->
 						
-						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+						<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 										   draggable="false"							 
 										   editable="false"
 										   sortable="false">
@@ -196,7 +196,7 @@
 									</mx:HBox>
 								</fx:Component>
 							</mx:itemRenderer>
-						</mx:DataGridColumn>
+						</mx:AdvancedDataGridColumn>
 						
 						
 					</grid:columns>
@@ -210,14 +210,14 @@
 								  itemDoubleClick="excluirMembro(data, event)"	>
 					<grid:columns>
 						
-						<mx:DataGridColumn headerText = ""							   
+						<mx:AdvancedDataGridColumn headerText = ""							   
 										   itemRenderer="components.grid.CheckBoxItemRenderer"
 										   headerRenderer="components.grid.CheckBoxItemRenderer"
 										   width="25" resizable="false" draggable="false" sortable="false"
 										   dataField="isSelected"
 										   />
 						
-						<mx:DataGridColumn id="nomeUsuarioSelecionado"
+						<mx:AdvancedDataGridColumn id="nomeUsuarioSelecionado"
 										   headerText = "{resourceManager.getString('ApplicationResource','NOME_USUARIO')}"
 										   textAlign="center"
 										   sortable="false"
@@ -228,7 +228,7 @@
 						
 						<!-- EDIT/REMOVE COLUMNS -->
 						
-						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+						<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 										   draggable="false"							 
 										   editable="false"
 										   sortable="false">
@@ -248,7 +248,7 @@
 									</mx:HBox>
 								</fx:Component>
 							</mx:itemRenderer>
-						</mx:DataGridColumn>
+						</mx:AdvancedDataGridColumn>
 						
 						
 					</grid:columns>
