@@ -36,16 +36,22 @@
 				componenteUpload.removeFiles();
 			}
 			
+			public function retornoUploadComplete():void
+			{
+				Alert.show('Arquivo(s) carregado(s) com sucesso.', 'Carregado com sucesso', mx.controls.Alert.OK);
+				dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_COMPLETO));
+			}
+			
 		]]>
 	</mx:Script>
 	
-	<mx:Canvas width="{largura}" height="{altura}" horizontalCenter="0" verticalCenter="0">
+	<mx:Canvas width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
 		<com:FileUpload id="componenteUpload"
 			identificadorObjeto="{idObjeto}"
 			tipoObjeto="{tipoEntidade}"
 			width="100%" height="100%"
 			uploadUrl="{_strUploadScript}"
-			uploadComplete="Alert.show('File(s) have been uploaded.', 'Upload successful')" 
+			uploadComplete="retornoUploadComplete()" 
 			uploadIOError="Alert.show('IO Error in uploading file.', 'Error')" 
 			uploadSecurityError="Alert.show('Security Error in uploading file.', 'Error')"/>
 	</mx:Canvas>
