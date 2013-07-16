@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -42,6 +43,21 @@ public class ItemLpu implements Serializable {
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="unidade_id", referencedColumnName="id")
 	private Unidade unidadeServilogi;
+	
+	@Column(name="associacao_realizada")
+	private Boolean associacaoRealizada;
+	
+	@Column(name="referencia_excel")
+	private String referenciaExcel;
+	
+	public ItemLpu() {
+		unidade = "";
+		equipamento = "";
+		fabricante = "";
+		codigo1 = "";
+		codigo2 = "";
+		valor = new BigDecimal(0);
+	}
 
 	public Long getId() {
 		return id;
@@ -113,5 +129,21 @@ public class ItemLpu implements Serializable {
 
 	public void setUnidadeServilogi(Unidade unidadeServilogi) {
 		this.unidadeServilogi = unidadeServilogi;
+	}
+
+	public Boolean getAssociacaoRealizada() {
+		return associacaoRealizada;
+	}
+
+	public void setAssociacaoRealizada(Boolean associacaoRealizada) {
+		this.associacaoRealizada = associacaoRealizada;
+	}
+
+	public String getReferenciaExcel() {
+		return referenciaExcel;
+	}
+
+	public void setReferenciaExcel(String referenciaExcel) {
+		this.referenciaExcel = referenciaExcel;
 	}
 }

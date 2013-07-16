@@ -40,6 +40,16 @@ public class ArquivoUploadDao extends HibernateDaoGenerico<ArquivoUpload, Long> 
 		List<ArquivoUpload> listaTemp = (List<ArquivoUpload>)q.list();
 		return listaTemp;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public ArquivoUpload buscarArquivoUploadLpu(Long idEntidade) {
+		String queryString = "SELECT h FROM "+ entityClass.getName() + " h WHERE h.identificadorEntidade = :idEntidade AND h.tipoEntidade = :tipoEntidade";
+		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
+		q.setParameter("tipoEntidade", "LPU");
+		q.setParameter("idEntidade", idEntidade);
+		ArquivoUpload lpuTemp = (ArquivoUpload)q.uniqueResult();
+		return lpuTemp;
+	}
 
 	public Boolean remover(final ArquivoUpload arquivoUpload){
 		Query q = sessionFactory.getCurrentSession().createSQLQuery("DELETE FROM ArquivoUpload WHERE id = :id");

@@ -263,12 +263,12 @@ public class ExportXlsUtil {
 			}
 
 			if(consultaGeralTO[5]  != null){
-				//				sw.createCell(6,consultaGeralTO[5].toString());
+				// N/S Fabricante
 				sw.createCell(9,StringEscapeUtils.escapeXml((consultaGeralTO[5].toString())));
 			}
 
 			if(consultaGeralTO[6]  != null){
-				//				sw.createCell(7,consultaGeralTO[6].toString());
+				// N/S Cliente
 				sw.createCell(10,StringEscapeUtils.escapeXml((consultaGeralTO[6].toString())));
 			}
 			if(consultaGeralTO[7]  != null){
@@ -333,8 +333,10 @@ public class ExportXlsUtil {
 			}
 
 			if(consultaGeralTO[16]  != null){
-				//				sw.createCell(17,consultaGeralTO[16].toString());
-				sw.createCell(21,StringEscapeUtils.escapeXml((consultaGeralTO[16].toString())));
+				// Valor unitário
+				if(consultaGeralTO[1] == null){
+					sw.createCell(21,StringEscapeUtils.escapeXml((consultaGeralTO[16].toString())));
+				}
 			}
 
 			if(consultaGeralTO[17]  != null){

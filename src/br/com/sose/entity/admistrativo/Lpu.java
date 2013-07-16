@@ -2,6 +2,7 @@ package br.com.sose.entity.admistrativo;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Cacheable;
@@ -15,11 +16,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
+import br.com.sose.entity.recebimento.ItemNotaFiscal;
 
 @Entity
 @Configurable
@@ -192,6 +195,9 @@ public class Lpu implements Serializable {
 	}
 
 	public Set<ItemLpu> getListaItemLpu() {
+		if(!Hibernate.isInitialized(listaItemLpu) || listaItemLpu == null){
+			listaItemLpu = new HashSet<ItemLpu>();
+		}
 		return listaItemLpu;
 	}
 

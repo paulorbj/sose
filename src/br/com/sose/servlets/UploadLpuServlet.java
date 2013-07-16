@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,12 +19,12 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import br.com.sose.entity.admistrativo.Lpu;
 import br.com.sose.service.ArquivoUploadService;
+import br.com.sose.service.administrativo.LpuService;
 import br.com.sose.utils.ArquivoUpload;
 
 public class UploadLpuServlet extends HttpServlet {
@@ -45,8 +44,12 @@ public class UploadLpuServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-		String tipoObjeto = null;
-		Long identificadorObjeto = null;
+		Long idLpu = null;
+		Lpu lpu = null;
+		ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+		ArquivoUploadService arquivoUploadService = (ArquivoUploadService)  context.getBean("arquivoUploadService");
+		LpuService lpuService = (LpuService)  context.getBean("lpuService");
+		
 		logger.debug("request: "+request);
 		if (!isMultipart) {
 			logger.warn("File Not Uploaded");
@@ -67,17 +70,20 @@ public class UploadLpuServlet extends HttpServlet {
 				FileItem item = (FileItem) itr.next();
 				if (item.isFormField()){
 					String name = item.getFieldName();
-					if(name.equals("cliente_id")){
-						tipoObjeto = item.getString();
+					if(name.equals("idLpu")){
+						idLpu = Long.valueOf(item.getString());
+						try{
+							lpu = lpuService.buscarId(idLpu);	
+						}catch(Exception e){
+							e.printStackTrace();
+						}						
 					}
-					if(name.equals("identificadorObjeto")){
-						identificadorObjeto = new Long(item.getString());
-					}
+
 
 				} else {
 					try {
 						
-						String caminhoParaSalvar = caminho + tipoObjeto + "\\" + identificadorObjeto + "\\" +  getTipoArquivo(getExtensaoArquivo(item.getName()));
+						String caminhoParaSalvar = caminho + "lpu\\" + idLpu + "\\" +  getTipoArquivo(getExtensaoArquivo(item.getName()));
 						File localParaSalvar = new File(caminhoParaSalvar);
 						
 						if(!localParaSalvar.exists()){
@@ -92,20 +98,23 @@ public class UploadLpuServlet extends HttpServlet {
 
 						item.write(caminhoDefinitivoFile);
 						
-						ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
-						ArquivoUploadService aus = (ArquivoUploadService)  context.getBean("arquivoUploadService");
-						
-						ArquivoUpload au = new ArquivoUpload();
+						ArquivoUpload au = arquivoUploadService.buscarArquivoUploadLpu(lpu.getId());
+						if(au == null){
+							au = new ArquivoUpload();
+						}else{
+							File localParaDeletar = new File(caminhoParaSalvar + "\\" + au.getNome());
+							localParaDeletar.delete();
+						}
 						
 						//au.setCaminho(caminhoDefinitivo);
 						au.setDataUpload(nomeGerado);
 						au.setNomeOriginal(item.getName());
-						au.setIdentificadorEntidade(identificadorObjeto);
-						au.setTipoEntidade(tipoObjeto);
+						au.setIdentificadorEntidade(idLpu);
+						au.setTipoEntidade("LPU");
 						au.setNome(new Long(nomeGerado.getTime()).toString() + "." + getExtensaoArquivo(item.getName()));
 						au.setTipoArquivo(getTipoArquivo(getExtensaoArquivo(item.getName())));
 						
-						au = aus.salvarArquivoUpload(au);
+						au = arquivoUploadService.salvarArquivoUpload(au);
 						
 					} catch (Exception e) {
 						logger.error(e);
