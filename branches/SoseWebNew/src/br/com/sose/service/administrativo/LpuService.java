@@ -188,6 +188,7 @@ public class LpuService {
 			Row rowAtual = null;
 			Cell cellAtual = null;
 			CellReference cellReference = null;
+			System.out.println("Processando LPU...");
 			for(int linhaExcel = Integer.parseInt(lpuSalva.getPrimeiraLinhaDados()); linhaExcel <= Integer.parseInt(lpuSalva.getUltimaLinhaDados()); linhaExcel++){
 				itemLpu = new ItemLpu();
 				
@@ -240,8 +241,9 @@ public class LpuService {
 			}
 
 			lpuSalva.setListaItemLpu(listaItemLpu);
+			System.out.println("Finalizando processamento LPU...");
 		} catch (Exception e) {
-			//logger.error("Erro ao salvar lpu: " + lpu.getUnidade());;
+			e.printStackTrace();
 			throw e;
 		}
 		return lpuSalva;
