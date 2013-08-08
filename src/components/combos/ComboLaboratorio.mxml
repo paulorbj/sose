@@ -33,6 +33,9 @@
 			[Bindable]
 			public var required:Boolean = false;
 			
+			[Bindable]
+			private var _labelText:String = "";
+			
 			private function onCreationComplete():void
 			{
 				laboratorioService.listarLaboratorios();
@@ -67,25 +70,22 @@
 			[Bindable]
 			public function get labelText():String 
 			{
-				if(comboBox)
-					return comboBox.labelText;
-				else
-					return "";
+				return _labelText;
 			}
 			
 			public function set labelText(value:String):void 
 			{
-				if(comboBox)
-					comboBox.labelText = value;
+				_labelText = value;
 			}
 			
 			public function limpar():void
 			{
-				comboBox.clean();
+				comboBox.selectedItem = new Laboratorio();
+				//comboBox.clean();
 			}
 			
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" />
+	<combo:ComboBoxInput id="comboBox" required="{required}" labelText="{_labelText}" change="{changeFunction}" />
 </mx:VBox>
