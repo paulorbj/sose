@@ -40,6 +40,9 @@
 			[Bindable]
 			public var required:Boolean = false;
 			
+			[Bindable]
+			private var _labelText:String = "";
+			
 			private function onCreationComplete():void
 			{
 				usuarioService.listarUsuarios();
@@ -101,7 +104,7 @@
 				return _laboratorio;
 			}
 			
-			public function set cliente(value:Laboratorio):void
+			public function set laboratorio(value:Laboratorio):void
 			{
 				if(value){
 					usuarioService.listarPorLaboratorio(value);
@@ -111,24 +114,25 @@
 				_laboratorio = value;
 			}
 			
-			public function get labelText():String
+			[Bindable]
+			public function get labelText():String 
 			{
-				return comboBox.labelText;
+				return _labelText;
 			}
 			
-			public function set labelText(value:String):void
+			public function set labelText(value:String):void 
 			{
-				if(comboBox)
-					comboBox.labelText = value;
+				_labelText = value;
 			}
 			
 			//TODO - não está removendo o item selecionado
 			public function limpar():void
 			{
-				comboBox.clean();
+				comboBox.selectedItem = new Usuario();
+				//comboBox.clean();
 			}
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" sortField="usuario" change="{changeFunction}" />
+	<combo:ComboBoxInput id="comboBox" required="{required}" labelText="{_labelText}" sortField="usuario" change="{changeFunction}" />
 </mx:VBox>
