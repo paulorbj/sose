@@ -2,6 +2,7 @@
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
 		 xmlns:texto="components.textInput.*" xmlns:componentes="components.*" xmlns:combos="components.combos.*"
 		 width="100%" xmlns:componentesReparoOrcamento="modules.reparoOrcamento.componentesReparoOrcamento.*"
 		 >

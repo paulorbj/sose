@@ -18,6 +18,14 @@
 					   />
 		</mx:RemoteObject>
 		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="relatorioLaudoTecnico" destination="relatorioLaudoTecnico" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="gerarRelatorio"      
+					   fault="onGerarRelatorioFault(event)" 
+					   result="onGerarRelatorioResult(event)"
+					   />
+
+		</mx:RemoteObject>
+		
 		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="laudoTecnicoController" destination="laudoTecnicoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
 			<mx:method name="iniciarLaudoTecnico"      
 					   fault="onIniciarLaudoTecnicoFault(event)" 
@@ -417,7 +425,48 @@
 			
 			private function gerarPDF(event:MouseEvent):void
 			{
-				
+				relatorioLaudoTecnico.gerarRelatorio(_laudoTecnico);
+			}
+			
+			private function onGerarRelatorioResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				byteArray = event.result as ByteArray;
+				dispatchEvent(new MensagemEvent("Relatório laudo técnico criado com sucesso", MessageType.SUCCESS, 5000));
+				Alert.noLabel = "Não";
+				Alert.yesLabel = "Sim"
+				var alert:Alert = new Alert();
+				alert = Alert.show("Deseja salvar o arquivo?","Relatório concluído",
+					3, 
+					this, 
+					alertPDFClickHandler);
+				PopUpManager.centerPopUp(alert);
+				var newY:Number = 180;
+				alert.move(alert.x, newY);
+			}
+			
+			private function alertPDFClickHandler(event:CloseEvent):void
+			{
+				if (event.detail == Alert.YES)
+				{
+					saveFile();
+				}
+				else
+				{
+					
+				}
+			}
+
+			private function saveFile():void
+			{
+				fileRef.save(byteArray, "Laudo_tecnico_"+_laudoTecnico.controle+".pdf");	
+			}
+			
+			private function onGerarRelatorioFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onGerarRelatorioFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar relatório do laudo técnico", MessageType.ERROR, 3000));
 			}
 			
 			private function voltar(event:MouseEvent):void
@@ -603,7 +652,6 @@
 			
 		</grid:columns>
 		
-		<!--
 		<grid:rendererProviders>
 			<mx:AdvancedDataGridRendererProvider column="{cAcoes}">
 				<mx:renderer>
@@ -624,7 +672,7 @@
 			</mx:AdvancedDataGridRendererProvider>	
 			
 		</grid:rendererProviders>
-		-->
+		
 	</grid:MantisTable>
 	
 	<laudoTecnico:LaudoTecnicoDetalhamento id="detalhamentoLaudoTecnico" excludeFrom="listagem" />
@@ -666,7 +714,7 @@
 				   height="25"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="gerarPDF(event)"
-				   enabled="{_laudoTecnico.statusString == 'Finalizado' || _laudoTecnico.statusString == 'Rejeitado'}"
+				   enabled="{_laudoTecnico.statusString == 'Finalizado' || _laudoTecnico.statusString == 'Rejeitado'  || _laudoTecnico.statusString == 'Aprovado'}"
 				   />
 		<s:Spacer width="50" />
 		<mx:Button id="btVoltar" 

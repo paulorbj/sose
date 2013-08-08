@@ -217,7 +217,7 @@
 										   />	
 						
 						<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
-										   draggable="false" width=".15" labelFunction="labelFunction" dataTipFunction="labelFunction2"				 
+										   draggable="false" width=".15" labelFunction="labelFunction" 				 
 										   editable="false"
 										   sortable="false" />
 						
