@@ -8,8 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.daoImpl.consulta.GraficoDao;
+import br.com.sose.entity.admistrativo.Laboratorio;
+import br.com.sose.entity.admistrativo.Usuario;
+import br.com.sose.entity.admistrativo.parceiros.Pessoa;
+import br.com.sose.entity.grafico.RetornoGraficoPizza;
 
 @Service(value="graficoService")
 @RemotingDestination(value="graficoService")
@@ -23,5 +28,21 @@ public class GraficoService {
 	@RemotingInclude
 	public void totalUnidadeFinalizadaPorLaboratorio(Date startDate, Date finalDate){
 		//return npiDao.returnNpisGroupByStatus(startDate, finalDate);
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<RetornoGraficoPizza> buscarInfoGraficoReparoFinalizadoPorCondicao(Date startDate, Date finalDate, Pessoa cliente, Laboratorio laboratorio, Usuario usuario){
+		if(cliente == null || cliente.getId().equals(new Long(0))){
+			cliente = null;
+		}
+		if(laboratorio == null || laboratorio.getId().equals(new Long(0))){
+			laboratorio = null;
+		}
+		if(usuario == null || usuario.getId().equals(new Long(0))){
+			usuario = null;
+		}
+		List<RetornoGraficoPizza> retorno = graficoDao.buscarInfoGraficoReparoFinalizadoPorCondicao(startDate, finalDate, cliente, laboratorio, usuario);
+		return retorno;
 	}
 }

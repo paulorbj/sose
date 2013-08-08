@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorioLaudoTecnico" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8faf10dc-1e69-4f1c-9240-5ffd41d8f0a4">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="203"/>
+	<property name="ireport.y" value="625"/>
+	<field name="id" class="java.lang.Long"/>
+	<field name="controle" class="java.lang.String"/>
+	<field name="informacaoTecnica" class="java.lang.String"/>
+	<field name="ordemServico.numeroOrdemServico" class="java.lang.String"/>
+	<field name="ordemServico.itemNotaFiscal.unidade.laboratorio.nome" class="java.lang.String"/>
+	<field name="ordemServico.serieFabricante" class="java.lang.String"/>
+	<field name="ordemServico.serieCliente" class="java.lang.String"/>
+	<field name="ordemServico.ordemServicoCliente" class="java.lang.String"/>
+	<field name="ordemServico.cliente.nomeSistema" class="java.lang.String"/>
+	<field name="dataCriacao" class="java.lang.String"/>
+	<field name="dataInicio" class="java.lang.String"/>
+	<field name="dataFim" class="java.lang.String"/>
+	<field name="criadoPor.usuario" class="java.lang.String"/>
+	<field name="descricao" class="java.lang.String"/>
+	<field name="ordemServico.itemNotaFiscal.unidade.nome" class="java.lang.String"/>
+	<field name="ordemServico.itemNotaFiscal.unidade.fabricante.nome" class="java.lang.String"/>
+	<field name="ordemServico.itemNotaFiscal.unidade.equipamento.nome" class="java.lang.String"/>
+	<field name="ordemServico.notaFiscal.numero" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="53" splitType="Stretch">
+			<image>
+				<reportElement uuid="a608c2e5-6958-4e26-9357-4d935ad70232" x="182" y="0" width="273" height="46"/>
+				<imageExpression><![CDATA["C:\\Users\\Negaum\\ProjetoSose\\SoseWeb\\src\\br\\com\\sose\\relatorio\\imagens\\logo_servilogi.png"]]></imageExpression>
+			</image>
+			<line>
+				<reportElement uuid="ba32f563-0afc-493d-8e0a-88c6c736f784" x="-22" y="52" width="597" height="1"/>
+			</line>
+		</band>
+	</title>
+	<detail>
+		<band height="485" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="f860c424-810b-44f9-8755-a1a22387da3e" x="24" y="77" width="48" height="13"/>
+				<textElement textAlignment="Center">
+					<font fontName="Calibri"/>
+				</textElement>
+				<text><![CDATA[Controle]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="0fb62d0e-9c74-4e90-bc92-3e8fd4effb35" mode="Opaque" x="25" y="91" width="72" height="14" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{controle}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="5ae4be3f-459d-4e37-84be-9e9ffaf41d4f" mode="Opaque" x="24" y="22" width="507" height="29" backcolor="#CCCCCC"/>
+				<box>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Calibri" size="20"/>
+				</textElement>
+				<text><![CDATA[Laudo técnico]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7ef6b2a2-d579-479f-b32c-99364a74eb23" x="27" y="113" width="32" height="14"/>
+				<textElement/>
+				<text><![CDATA[Cliente]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="dbad7c8d-5497-4873-9e8a-b5215ee6cd7b" mode="Opaque" x="27" y="127" width="258" height="14" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.cliente.nomeSistema}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b591987c-3048-452a-90c6-568fa9fb48b5" x="185" y="76" width="38" height="13"/>
+				<textElement/>
+				<text><![CDATA[N. OS]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="8c77fcbf-289c-4ddf-beaf-5b66d05b0852" mode="Opaque" x="185" y="90" width="100" height="14" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.numeroOrdemServico}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="60eac7f5-fe01-4ca5-b635-c3c76a702216" x="304" y="113" width="83" height="14"/>
+				<textElement/>
+				<text><![CDATA[Técnico]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="1eee1e31-bed9-4093-b637-941ab9ad5fa3" mode="Opaque" x="304" y="127" width="94" height="14" backcolor="#F0F0F0"/>
+				<box>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{criadoPor.usuario}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="74a1d545-6ff8-4e83-aa8c-fa09783eb24a" x="398" y="113" width="85" height="14"/>
+				<textElement/>
+				<text><![CDATA[Laboratório]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="845c7233-a630-4225-a5e9-784fae6d4aa4" mode="Opaque" x="398" y="127" width="133" height="14" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.itemNotaFiscal.unidade.laboratorio.nome}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="c186b070-661e-485b-8d34-73c9a53586b6" x="144" y="149" width="113" height="20"/>
+				<textElement/>
+				<text><![CDATA[Série fabricante]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="2d1f1ff9-ab12-47eb-b309-7d7fab51eb57" mode="Opaque" x="144" y="169" width="141" height="20" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.serieFabricante}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e8b73039-18fe-4f47-b17c-224e8c02c81a" x="304" y="149" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Série cliente]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="cca97dce-fd8d-4c95-b773-71fe7f97c1b6" mode="Opaque" x="304" y="169" width="227" height="20" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.serieCliente}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="0d611e51-0d0a-4e86-b0a8-34b6e2ea109c" x="27" y="200" width="45" height="13"/>
+				<textElement>
+					<font fontName="Calibri"/>
+				</textElement>
+				<text><![CDATA[Unidade]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="5cccb4c1-4c84-4385-8800-e92cbe0135e6" mode="Opaque" x="27" y="213" width="258" height="13" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.itemNotaFiscal.unidade.nome}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="d6e7f06c-c1f1-4401-a223-b9a26d8dd1bd" x="302" y="200" width="51" height="13"/>
+				<textElement>
+					<font fontName="Calibri"/>
+				</textElement>
+				<text><![CDATA[Fabricante]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="78831bf8-2782-4da7-a239-b71027664c1f" mode="Opaque" x="304" y="213" width="227" height="13" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.itemNotaFiscal.unidade.fabricante.nome}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="01e4842f-5395-4deb-a622-c9de97304d53" x="27" y="247" width="100" height="13"/>
+				<textElement>
+					<font fontName="Calibri"/>
+				</textElement>
+				<text><![CDATA[Informações técnicas]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="aa610f47-9561-4992-bcb7-c762f262b6b4" mode="Opaque" x="27" y="261" width="504" height="49" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{informacaoTecnica}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="1922b5e7-5094-4c39-9172-be3eac4f5120" positionType="Float" x="27" y="327" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Descrição]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="833aacad-b12e-41ec-8d8a-966c82126073" positionType="Float" mode="Opaque" x="27" y="347" width="504" height="52" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{descricao}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="a7622623-be4b-4402-afc5-7e5a2ee9354c" positionType="Float" x="399" y="426" width="100" height="14"/>
+				<textElement/>
+				<text><![CDATA[Data]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="e5129da8-f445-444f-b683-c62fb13dcf77" positionType="Float" mode="Opaque" x="399" y="440" width="132" height="14" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{dataFim}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b2a2629f-15e2-4339-8e61-0b327534b5ec" x="24" y="149" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[N. Nota fiscal]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="d0c6c667-45c7-4351-8098-d2c3e53a0db5" mode="Opaque" x="24" y="169" width="100" height="20" backcolor="#F0F0F0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ordemServico.notaFiscal.numero}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="d32085c9-7447-49b5-8460-a57ae74fa88f" x="112" y="15" width="316" height="39"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<text><![CDATA[SERVILOGI   Telecomunicações Ltda.
+Rua Abaúna, 66  -  CEP 04284-080  -  Moinho Velho -  Bairro Ipiranga - São Paulo - SP
+Fones/ Fax : 55  (11) 2068-4588 / 2068-6677
+http://www.servilogi.com.br   -  E-mail:  servilogi@servilogi.com.br
+]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="3cc0f957-9abc-481f-b7ed-d98f187a71eb" x="-22" y="3" width="597" height="1"/>
+			</line>
+		</band>
+	</pageFooter>
+</jasperReport>
