@@ -82,12 +82,14 @@
 			import entities.orcamentoreparo.RequisicaoComponente;
 			import entities.recebimento.OrdemServico;
 			
+			import modules.administrativo.componente.ModalCadastroComponente;
 			import modules.reparoOrcamento.eventos.ComponenteEvent;
 			import modules.reparoOrcamento.eventos.OrcamentoEvent;
 			import modules.reparoOrcamento.eventos.ReparoEvent;
 			import modules.view.Login;
 			
 			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
 			import mx.events.ListEvent;
 			import mx.managers.CursorManager;
 			import mx.managers.PopUpManager;
@@ -130,6 +132,10 @@
 			
 			[Bindable]
 			private var validatorArr:Array;
+			
+			private var _modalCadastroComponente:ModalCadastroComponente;
+			
+			private var app:SoseFlex = FlexGlobals.topLevelApplication as SoseFlex;
 			
 //			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
 //				var message:AsyncMessage = new AsyncMessage();
@@ -315,7 +321,7 @@
 				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
 			
-			public function realizarRequisicao(data:Object, event:Event):void
+			public function realizarRequisicao(data:Object, event:Event=null):void
 			{					
 				//for double click
 				if(data==null && event is ListEvent){
@@ -617,6 +623,22 @@
 			private function voltar(event:MouseEvent = null):void
 			{
 				this.currentState = "editarRequisicao";
+			}
+			
+			private function novoComponente(event:MouseEvent = null):void
+			{
+				showModalCadastroNovoComponente();
+			}
+			
+			public function showModalCadastroNovoComponente(event:MouseEvent = null):void {
+				_modalCadastroComponente = new ModalCadastroComponente();
+				_modalCadastroComponente.myParentObject = this;
+				PopUpManager.addPopUp(_modalCadastroComponente, app, true);
+				PopUpManager.centerPopUp(_modalCadastroComponente);
+			}
+			
+			public function hideModalCadastroNovoComponente():void {
+				PopUpManager.removePopUp(_modalCadastroComponente);
 			}
 			
 			private function onSearch(event:Event):void
@@ -1094,6 +1116,11 @@
 		<mx:HBox  verticalAlign="bottom" width="100%" paddingBottom="4" >
 			<componentes:SearchInput id="searchInput"
 									 change="onSearch"/>
+			<mx:Button id="btRequisitarNovo"
+					   label="Cadastrar novo componente"
+					   height="25" 
+					   icon="@Embed(source='/assets/icons/new.png')"
+					   click="novoComponente(event)"/>
 			<mx:Button id="btVoltar"
 					   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
 					   height="25" 
