@@ -115,6 +115,15 @@ public class HibernateDaoGenerico<T, ID extends Serializable> implements Generic
 		}  
 	} 
 
+	public void flush() {  
+		try {  
+			this.sessionFactory.getCurrentSession().flush();   
+		} catch (final HibernateException ex) {  
+			HibernateDaoGenerico.LOG.error(ex);  
+			throw ex;  
+		}  
+	} 
+	
 	protected List<T> findByCriteria(Criterion... criterion) {  
 		try {  
 			Criteria crit = this.sessionFactory.getCurrentSession().createCriteria(getPersistentClass());  
