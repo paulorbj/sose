@@ -10,7 +10,7 @@
 			   xmlns:table="components.datagrid.*"
 			   xmlns:teste="modules.recebimento.notaFiscal.componentesInformacoesNotaFiscal.*"
 			   xmlns:pessoa="modules.administrativo.parceiros.pessoa.*"
-			   xmlns:view="modules.view.*" preinitialize="preInit()" initialize="init()"
+			   xmlns:view="modules.view.*" preinitialize="preInit()" initialize="init()" creationComplete="creationComplete()"
 			   minWidth="955" minHeight="600">
 
 
@@ -66,16 +66,20 @@
 				trace("Loading I18N strings...");
 				ConfigureI18N.loadLocale();
 				ConfigurationUtil.loadLocale();
-				var target:utils.RemoteTarget = new RemoteTarget();
-				//target.url = "http://127.0.0.1:8080/SoseWeb/logger";
-				target.url = "http://192.168.1.3:8080/SoseWeb/logger";
-				target.level = LogEventLevel.INFO;
-				Log.addTarget(target);
 			}
 			
 			private function init():void
 			{
 				consumidorRecebimentoMessageService.subscribe();
+				
+			}
+			
+			private function creationComplete():void
+			{
+				var target:utils.RemoteTarget = new RemoteTarget();
+				target.url = resourceManager.getString('ApplicationResource','URL_SERVIDOR_SOSE') + 'logger';
+				target.level = LogEventLevel.INFO;
+				Log.addTarget(target);
 			}
 			
 			private function onMsgAreaTecnica(event:MessageEvent):void{ 
