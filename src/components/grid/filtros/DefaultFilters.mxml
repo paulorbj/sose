@@ -6,7 +6,7 @@
 	<mx:Script>
 		<![CDATA[
 		
-			private function birthLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+			private function birthLabelFunction(item:Object, column:DataGridColumn):String
 			{
 				return dateFormatter.format(item.birth);
 			}
@@ -31,7 +31,7 @@
 	<dc:DataGridFilter width="280" height="250" dataProvider="{myData}">
 		<dc:columns>
 			<dc:DataGridColumnFilter headerText="Name" dataField="name"/>
-			<mx:AdvancedDataGridColumn headerText="Birth" dataField="birth" labelFunction="birthLabelFunction" width="90"/>
+			<mx:DataGridColumn headerText="Birth" dataField="birth" labelFunction="birthLabelFunction" width="90"/>
 			<dc:DataGridColumnFilter headerText="Age" dataField="age" width="70"/>
 		</dc:columns>
 	</dc:DataGridFilter>
