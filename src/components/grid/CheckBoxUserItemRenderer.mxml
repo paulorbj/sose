@@ -12,8 +12,8 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.containers.Grid;
-			import mx.controls.AdvancedDataGrid;
-			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.controls.DataGrid;
+			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.listClasses.BaseListData;
 			
 			import spark.components.CheckBox;
@@ -26,7 +26,7 @@
 			
 			private var _listData:BaseListData;
 			
-			private var dataGrid:AdvancedDataGrid;
+			private var dataGrid:DataGrid;
 			
 			private var idCurrentUser:int = -1;
 			
@@ -45,7 +45,7 @@
 			{
 				_listData = value;
 				
-				dataGrid = value.owner as AdvancedDataGrid;
+				dataGrid = value.owner as DataGrid;
 			}
 			
 			override public function set data(value:Object):void
@@ -58,7 +58,7 @@
 				
 				this.addChild(checkBox);
 				
-				if (value is AdvancedDataGridColumn) {	// Header
+				if (value is DataGridColumn) {	// Header
 					
 					var dataProvider:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
 					
@@ -103,8 +103,7 @@
 			private function onChange(event:Event):void
 			{
 				if (_data != null) {
-					
-					if (_data is AdvancedDataGridColumn) {
+					if (_data is DataGridColumn) {
 						
 						var dataProvider:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
 						
