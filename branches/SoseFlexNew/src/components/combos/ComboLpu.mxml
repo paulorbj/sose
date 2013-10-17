@@ -40,10 +40,13 @@
 			[Bindable]
 			public var required:Boolean = false;
 			
+			[Bindable]
+			public var labelText:String = "";
+			
 			private function onCreationComplete():void
 			{
 				comboBox.labelField = "unidade";
-				comboBox.textoPadrao = "Selecione uma unidade...";
+				comboBox.textoPadrao = "Selecione uma unidade lpu...";
 			}
 			
 			private function onListarLpusResult(event:ResultEvent = null):void
@@ -97,17 +100,6 @@
 				_cliente = value;
 			}
 			
-			public function get labelText():String
-			{
-				return comboBox.labelText;
-			}
-			
-			public function set labelText(value:String):void
-			{
-				if(comboBox)
-					comboBox.labelText = value;
-			}
-			
 			//TODO - não está removendo o item selecionado
 			public function limpar():void
 			{
@@ -121,5 +113,5 @@
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" sortField="unidade" />
+	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" labelText="{labelText}" sortField="unidade" />
 </mx:VBox>

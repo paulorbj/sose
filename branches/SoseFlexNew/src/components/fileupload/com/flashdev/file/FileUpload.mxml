@@ -163,6 +163,13 @@
 				uploadCheck();
 			}
 			
+			// Called to remove selected file(s) for upload
+			public function realizarResetComponente():void {
+				initCom();
+				listFiles.dataProvider = _arrUploadFiles;
+				updateProgBar(0);
+			}
+			
 			// Called to check if there is at least one file to upload
 			private function uploadCheck():void {
 				if (_arrUploadFiles.length == 0) {
@@ -179,7 +186,7 @@
 				btnAdd.enabled = false;
 				btnRemove.enabled = false;
 				btnUpload.enabled = false;
-				btnCancel.enabled = true;
+				//btnCancel.enabled = true;
 				listFiles.enabled = false;
 				listFiles.verticalScrollPolicy = "off";
 			}
@@ -189,7 +196,7 @@
 				btnAdd.enabled = true;
 				btnRemove.enabled = true;
 				btnUpload.enabled = true;
-				btnCancel.enabled = false;
+				//btnCancel.enabled = false;
 				listFiles.enabled = true;
 				listFiles.verticalScrollPolicy = "on";
 			}
@@ -271,8 +278,8 @@
 				if (_numCurrentUpload < _arrUploadFiles.length) {
 					startUpload();
 				} else {
-					enableUI();
 					clearUpload();
+					realizarResetComponente();
 					dispatchEvent(new Event("uploadComplete"));
 				}
 			}
@@ -303,7 +310,7 @@
 		<mx:State name="mini">
 			<mx:SetProperty name="height" value="60"/>
 			<mx:SetProperty name="minHeight" value="60"/>
-			<mx:SetStyle target="{btnView}" name="icon" value="@Embed('assets/application_put.png')"/>
+			<!--<mx:SetStyle target="{btnView}" name="icon" value="@Embed('assets/application_put.png')"/>-->
 		</mx:State>
 	</mx:states>
 	
@@ -318,8 +325,8 @@
 			allowMultipleSelection="true" verticalScrollPolicy="on"
 			draggableColumns="false" resizableColumns="false" sortableColumns="false">
 			<mx:columns>
-				<mx:AdvancedDataGridColumn headerText="Arquivo" dataField="name" wordWrap="true"/>
-				<mx:AdvancedDataGridColumn headerText="Tamanho" dataField="size" width="75" textAlign="right"/>
+				<mx:DataGridColumn headerText="Arquivo" dataField="name" wordWrap="true"/>
+				<mx:DataGridColumn headerText="Tamanho" dataField="size" width="75" textAlign="right"/>
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Canvas>
@@ -327,8 +334,8 @@
 		<mx:Button id="btnAdd" toolTip="Add file(s)" click="addFiles()" icon="@Embed('assets/add.png')" width="26"/>
 		<mx:Button id="btnRemove" toolTip="Remove file(s)" click="removeFiles()" icon="@Embed('assets/delete.png')" width="26"/>
 		<mx:ProgressBar id="progBar" mode="manual" label="" labelPlacement="center" width="100%"/>
-		<mx:Button id="btnCancel" toolTip="Cancel upload" icon="@Embed('assets/cancel2.png')" width="26" click="onUploadCanceled()"/>
+		<!--<mx:Button id="btnCancel" toolTip="Cancel upload" icon="@Embed('assets/cancel2.png')" width="26" click="onUploadCanceled()"/> -->
 		<mx:Button label="Upload" toolTip="Upload file(s)" id="btnUpload" click="realizarUpload()" icon="@Embed('assets/bullet_go.png')"/>
-		<mx:Button id="btnView" toolTip="Show/Hide file(s)" icon="@Embed('assets/application_get.png')" width="26" enabled="true" click="changeView()"/>
+		<!--<mx:Button id="btnView" toolTip="Show/Hide file(s)" icon="@Embed('assets/application_get.png')" width="26" enabled="true" click="changeView()"/> -->
 	</mx:ControlBar>	
 </mx:Panel>

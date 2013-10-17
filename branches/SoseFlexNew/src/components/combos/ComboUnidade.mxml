@@ -33,6 +33,9 @@
 			[Bindable]
 			public var required:Boolean = false;
 			
+			[Bindable]
+			public var labelText:String = "";
+			
 			private function onCreationComplete():void
 			{
 				unidadeService.listarUnidadesCombo();
@@ -65,17 +68,6 @@
 				comboBox.selectedItem = unidade;
 			}
 			
-			public function get labelText():String
-			{
-				return comboBox.labelText;
-			}
-			
-			public function set labelText(value:String):void
-			{
-				if(comboBox)
-					comboBox.labelText = value;
-			}
-			
 			public function limpar():void
 			{
 				comboBox.selectedItem = new Unidade();
@@ -84,5 +76,5 @@
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}"  sortField="nome" />
+	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" labelText="{labelText}"  sortField="nome" />
 </mx:VBox>
