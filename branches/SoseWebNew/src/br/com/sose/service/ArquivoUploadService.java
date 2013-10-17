@@ -64,6 +64,15 @@ public class ArquivoUploadService {
 	}
 	
 	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<ArquivoUpload> listarImagemPorEntidadePorIdentificador(String entidade, Long idEntidade) {
+		List<ArquivoUpload> listaRetorno = arquivoUploadDao.listarImagemPorEntidadePorIdentificador(entidade, idEntidade);
+		return listaRetorno;
+	}
+	
+	
+	
+	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public ArquivoUpload excluirArquivoUpload(ArquivoUpload arquivoUpload) throws Exception {
 		try {

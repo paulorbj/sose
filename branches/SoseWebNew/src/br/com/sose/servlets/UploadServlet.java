@@ -44,6 +44,7 @@ public class UploadServlet extends HttpServlet {
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		System.out.println("######################## Entrou no post do UploadServlet");
 		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 		String tipoObjeto = null;
 		Long identificadorObjeto = null;
@@ -63,15 +64,19 @@ public class UploadServlet extends HttpServlet {
 				logger.error(e);
 			}
 			Iterator itr = items.iterator();
+			System.out.println("######################### Passo 1");
 			while (itr.hasNext()) {
 				FileItem item = (FileItem) itr.next();
 				if (item.isFormField()){
 					String name = item.getFieldName();
 					if(name.equals("tipoObjeto")){
 						tipoObjeto = item.getString();
+						System.out.println("######################### Passo 2 " + tipoObjeto);
 					}
 					if(name.equals("identificadorObjeto")){
 						identificadorObjeto = new Long(item.getString());
+						System.out.println("######################### Passo 3 " + identificadorObjeto);
+
 					}
 
 				} else {
@@ -80,39 +85,44 @@ public class UploadServlet extends HttpServlet {
 						String caminhoParaSalvar = caminho + tipoObjeto + "\\" + identificadorObjeto + "\\" +  getTipoArquivo(getExtensaoArquivo(item.getName()));
 						File localParaSalvar = new File(caminhoParaSalvar);
 						
+						System.out.println("######################### Passo 4 " + caminho);
 						if(!localParaSalvar.exists()){
 							localParaSalvar.mkdirs();
 						}
-						
+						System.out.println("######################### Passo 5");
 						Date nomeGerado = new Date();
 						
 						//Gerar ou melhor, recuperar a extensao
 						String caminhoDefinitivo = caminhoParaSalvar + "\\" + new Long(nomeGerado.getTime()).toString() + "." + getExtensaoArquivo(item.getName());
 						File caminhoDefinitivoFile = new File(caminhoDefinitivo);
-
+						
+						System.out.println("######################### Passo 6 "+caminhoDefinitivo);
 						item.write(caminhoDefinitivoFile);
 						
 						ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 						ArquivoUploadService aus = (ArquivoUploadService)  context.getBean("arquivoUploadService");
 						
+						System.out.println("######################### Passo 7");
 						ArquivoUpload au = new ArquivoUpload();
 						
 						//au.setCaminho(caminhoDefinitivo);
-						au.setDataUpload(nomeGerado);
+						au.setDataUpload(new Date());
 						au.setNomeOriginal(item.getName());
 						au.setIdentificadorEntidade(identificadorObjeto);
 						au.setTipoEntidade(tipoObjeto);
 						au.setNome(new Long(nomeGerado.getTime()).toString() + "." + getExtensaoArquivo(item.getName()));
 						au.setTipoArquivo(getTipoArquivo(getExtensaoArquivo(item.getName())));
 						
+						System.out.println("######################### Passo 8");
 						au = aus.salvarArquivoUpload(au);
-						
+						System.out.println("######################### Passo 9 SALVOU O ARQUIVO" );
 					} catch (Exception e) {
 						logger.error(e);
 						e.printStackTrace();
 					}
 				}
 			}
+			System.out.println("######################### Passo 10 RETORNO");
 			response.getWriter().write("sucesso");
 		}
 	}

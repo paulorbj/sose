@@ -182,6 +182,20 @@ public class RequisicaoComponenteService {
 		}
 		return requisicaoComponentes;
 	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public Long listarTotalRequisicoesUltimos6Meses(Componente componente) throws Exception {
+		Long qtdRequisitada;
+		try {
+			qtdRequisitada =(Long) requisicaoComponenteDao.listarTotalRequisicoesUltimos6Meses(componente);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return qtdRequisitada;
+	}
+
 
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
@@ -242,6 +256,17 @@ public class RequisicaoComponenteService {
 				componente = componenteService.salvarComponente(componente);
 				requisicaoComponente.setComponente(componente);
 
+				if(componente.getQtdEstoqueMinimo() > 0){
+					if(saldoEstoque <= componente.getQtdEstoqueMinimo()){
+						PedidoCompra pedidoCompra = new PedidoCompra();
+						pedidoCompra.setDataCriacao(new Date());
+						pedidoCompra.setComponente(componente);
+						pedidoCompra.setOrigemPedido("Estoque mínimo");
+						pedidoCompra.setStatusString("Aguardando compra");
+						pedidoCompra.setQuantidade(componente.getQtdEstoqueMinimo() - saldoEstoque);
+						pedidoCompraService.salvarPedidoCompra(pedidoCompra);
+					}
+				}
 				//TODO - Fazer as alterações para incluir/exibir o icone na listagem geral
 				if(requisicaoComponente.getOrcamento() != null){
 					Orcamento orc = requisicaoComponente.getOrcamento();

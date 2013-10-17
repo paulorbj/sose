@@ -1,4 +1,4 @@
-package br.com.sose.service.administrativo;
+package br.com.sose.service.lpu;
 
 import java.util.List;
 
@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.daoImpl.ArquivoUploadDao;
-import br.com.sose.daoImpl.administrativo.ItemLpuDao;
 import br.com.sose.daoImpl.administrativo.UnidadeDao;
-import br.com.sose.entity.admistrativo.ItemLpu;
+import br.com.sose.daoImpl.lpu.ItemLpuDao;
 import br.com.sose.entity.admistrativo.Unidade;
+import br.com.sose.entity.lpu.ItemLpu;
+import br.com.sose.entity.lpu.Lpu;
+import br.com.sose.entity.lpu.UnidadeItemLpu;
 
 @Service(value="itemLpuService")
 @RemotingDestination(value="itemLpuService")
@@ -30,6 +32,9 @@ public class ItemLpuService {
 
 	@Autowired
 	public UnidadeDao unidadeDao;
+	
+	@Autowired
+	public UnidadeItemLpuService unidadeItemLpuService;
 
 	/********************** Metodos de listagem *********************/
 
@@ -39,6 +44,32 @@ public class ItemLpuService {
 		List<ItemLpu> itensLpu;
 		try {
 			itensLpu =(List<ItemLpu>) itemLpuDao.listAll();	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return itensLpu;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<ItemLpu> listarItemLpuPorLpu(Lpu lpu) throws Exception {
+		List<ItemLpu> itensLpu;
+		try {
+			itensLpu =(List<ItemLpu>) itemLpuDao.buscarPorLpu(lpu);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return itensLpu;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<ItemLpu> listarItemLpuPorLpuPorUnidade(Lpu lpu,Unidade unidade) throws Exception {
+		List<ItemLpu> itensLpu;
+		try {
+			itensLpu =(List<ItemLpu>) itemLpuDao.listarItemLpuPorLpuPorUnidade(lpu,unidade);	
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
@@ -83,7 +114,7 @@ public class ItemLpuService {
 					unidadeEncontrada = unidadeDao.listarPorNome(itemLpu.getUnidade());
 					if(unidadeEncontrada != null && !unidadeEncontrada.isEmpty()){
 						itemLpu.setAssociacaoRealizada(true);
-						itemLpu.setUnidadeServilogi(unidadeEncontrada.get(0));
+						//itemLpu.setUnidadeServilogi(unidadeEncontrada.get(0));
 					}else{
 						itemLpu.setAssociacaoRealizada(false);
 					}
@@ -97,12 +128,11 @@ public class ItemLpuService {
 		return listaItemLpu;
 	}
 
-	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
-	public ItemLpu associarItemLpu(ItemLpu itemLpu, Unidade unidade) throws Exception {
+	private ItemLpu associarItemLpu(ItemLpu itemLpu, UnidadeItemLpu unidadeItemLpu) throws Exception {
 		try {
 			itemLpu.setAssociacaoRealizada(true);
-			itemLpu.setUnidadeServilogi(unidade);
+			itemLpu.setUnidadeItemLpu(unidadeItemLpu);
 			itemLpu = salvarItemLpu(itemLpu);
 			return itemLpu;
 		} catch (Exception e) {
@@ -110,4 +140,41 @@ public class ItemLpuService {
 			throw e;
 		}
 	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public List<ItemLpu> associarItensLpu(List<ItemLpu> itensLpu, Unidade unidade) throws Exception {
+		try {
+			Lpu lpu = itensLpu.get(0).getLpu();
+			UnidadeItemLpu unidadeItemLpu = unidadeItemLpuService.buscarUnidadeItemLpu(unidade, lpu);
+			if(unidadeItemLpu == null){
+				unidadeItemLpu = new UnidadeItemLpu();
+				unidadeItemLpu.setLpu(lpu);
+				unidadeItemLpu.setUnidadeServilogi(unidade);
+				unidadeItemLpu = unidadeItemLpuService.salvarUnidadeItemLpu(unidadeItemLpu);
+			}
+			
+			for(ItemLpu il : itensLpu){
+				il = associarItemLpu(il, unidadeItemLpu);
+			}
+			
+			return itensLpu;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public ItemLpu deletarItemLpu(ItemLpu itemLpu) throws Exception {
+		try {
+			itemLpuDao.remover(itemLpu);
+			return itemLpu;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
 }

@@ -1,4 +1,4 @@
-package br.com.sose.entity.admistrativo;
+package br.com.sose.entity.lpu;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -17,6 +17,8 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import br.com.sose.entity.admistrativo.Unidade;
+
 @Entity
 @Configurable
 @Cacheable
@@ -28,11 +30,7 @@ public class ItemLpu implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="lpu_id", referencedColumnName="id")
-	private Lpu lpu;
-	
+		
 	private String unidade;
 	private String equipamento;
 	private String fabricante;
@@ -41,8 +39,12 @@ public class ItemLpu implements Serializable {
 	private BigDecimal valor;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="unidade_id", referencedColumnName="id")
-	private Unidade unidadeServilogi;
+	@JoinColumn(name="lpu_id", referencedColumnName="id")
+	private Lpu lpu;
+	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="unidade_item_lpu_id", referencedColumnName="id")
+	private UnidadeItemLpu unidadeItemLpu;
 	
 	@Column(name="associacao_realizada")
 	private Boolean associacaoRealizada;
@@ -123,14 +125,6 @@ public class ItemLpu implements Serializable {
 		this.valor = valor;
 	}
 
-	public Unidade getUnidadeServilogi() {
-		return unidadeServilogi;
-	}
-
-	public void setUnidadeServilogi(Unidade unidadeServilogi) {
-		this.unidadeServilogi = unidadeServilogi;
-	}
-
 	public Boolean getAssociacaoRealizada() {
 		return associacaoRealizada;
 	}
@@ -145,5 +139,13 @@ public class ItemLpu implements Serializable {
 
 	public void setReferenciaExcel(String referenciaExcel) {
 		this.referenciaExcel = referenciaExcel;
+	}
+
+	public UnidadeItemLpu getUnidadeItemLpu() {
+		return unidadeItemLpu;
+	}
+
+	public void setUnidadeItemLpu(UnidadeItemLpu unidadeItemLpu) {
+		this.unidadeItemLpu = unidadeItemLpu;
 	}
 }

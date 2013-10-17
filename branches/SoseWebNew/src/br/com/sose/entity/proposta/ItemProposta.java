@@ -19,7 +19,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import br.com.sose.entity.admistrativo.Lpu;
+import br.com.sose.entity.lpu.Lpu;
 import br.com.sose.entity.recebimento.OrdemServico;
 
 @Entity

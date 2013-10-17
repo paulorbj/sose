@@ -1,4 +1,4 @@
-package br.com.sose.service.administrativo;
+package br.com.sose.service.lpu;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -23,11 +23,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.daoImpl.ArquivoUploadDao;
-import br.com.sose.daoImpl.administrativo.LpuDao;
-import br.com.sose.entity.admistrativo.ItemLpu;
-import br.com.sose.entity.admistrativo.Lpu;
+import br.com.sose.daoImpl.lpu.LpuDao;
 import br.com.sose.entity.admistrativo.Unidade;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
+import br.com.sose.entity.lpu.ItemLpu;
+import br.com.sose.entity.lpu.Lpu;
 import br.com.sose.utils.ArquivoUpload;
 
 @Service(value="lpuService")
@@ -59,7 +59,22 @@ public class LpuService {
 		}
 		return lpus;
 	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public Lpu buscarLpuMatriz(Long id) throws Exception {
+		Lpu lpu = null;
+		try {
+			lpu =lpuDao.buscarLpuMatriz(id);
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return lpu;
+	}
 
+	
+	
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public List<Lpu> listarPorUnidade(Unidade unidade) throws Exception {
@@ -120,6 +135,7 @@ public class LpuService {
 		try {
 			return lpuDao.buscarCompletoId(id);
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.info("Não há lpu cadastrada com o id: "+id+" no sistema");
 		}
 		return null;
@@ -164,6 +180,7 @@ public class LpuService {
 				lpuSalva =(Lpu) lpuDao.update(lpu);	
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw e;
 		}
 		return lpuSalva;
@@ -240,7 +257,7 @@ public class LpuService {
 				listaItemLpu.add(itemLpu);
 			}
 
-			lpuSalva.setListaItemLpu(listaItemLpu);
+			//lpuSalva.setListaItemLpu(listaItemLpu);
 			System.out.println("Finalizando processamento LPU...");
 		} catch (Exception e) {
 			e.printStackTrace();

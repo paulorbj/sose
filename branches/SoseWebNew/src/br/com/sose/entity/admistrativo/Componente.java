@@ -3,6 +3,8 @@ package br.com.sose.entity.admistrativo;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -13,11 +15,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
+
+import br.com.sose.entity.compra.ItemCompra;
+import br.com.sose.entity.compra.PedidoCompra;
 
 @Entity
 @Configurable
@@ -54,6 +61,8 @@ public class Componente implements Serializable {
 	private Integer qtdEstoqueMinimo;
 
 	private Integer qtdEstoque;
+	
+	private Integer qtdReservada;
 
 	private String posicaoEstoque;
 
@@ -75,6 +84,14 @@ public class Componente implements Serializable {
 	private String nomeEncapsulamento;
 
 	private String nomeTipoComponente;
+	
+	private Boolean valido;
+	
+	private Integer qtdComprada;
+	
+	@OneToMany(mappedBy = "componenteNotificacao", fetch=FetchType.LAZY)
+	@OrderBy(value="id")
+	private Set<ItemCompra> itensCompraPendentes;
 
 	public Componente() {
 		// TODO Auto-generated constructor stub
@@ -99,7 +116,24 @@ public class Componente implements Serializable {
 		this.pinos = pinos;
 	}
 
-
+	public Componente(Long id, String descricao, String nome,
+			Integer qtdEstoqueMinimo, String nomeFabricante,
+			String nomeEncapsulamento, String nomeTipoComponente, 
+			Integer qtdEstoque, String posicaoEstoque,String pinos, Boolean valido, Integer qtdComprada) {
+		super();
+		this.id = id;
+		this.descricao = descricao;
+		this.nome = nome;
+		this.qtdEstoqueMinimo = qtdEstoqueMinimo;
+		this.nomeFabricante = nomeFabricante;
+		this.nomeEncapsulamento = nomeEncapsulamento;
+		this.nomeTipoComponente = nomeTipoComponente;
+		this.qtdEstoque = qtdEstoque;
+		this.posicaoEstoque = posicaoEstoque;
+		this.pinos = pinos;
+		this.qtdEstoque = qtdComprada;
+		this.valido = valido;
+	}
 
 	public Long getId() {
 		return id;
@@ -282,6 +316,57 @@ public class Componente implements Serializable {
 	public void setNomeEncapsulamento(String nomeEncapsulamento) {
 		if(nomeEncapsulamento != null)
 			this.nomeEncapsulamento = nomeEncapsulamento;
+	}
+
+
+
+	public Integer getQtdReservada() {
+		return qtdReservada;
+	}
+
+
+
+	public void setQtdReservada(Integer qtdReservada) {
+		this.qtdReservada = qtdReservada;
+	}
+
+
+
+	public Boolean getValido() {
+		return valido;
+	}
+
+
+
+	public void setValido(Boolean valido) {
+		this.valido = valido;
+	}
+
+
+
+	public Integer getQtdComprada() {
+		return qtdComprada;
+	}
+
+
+
+	public void setQtdComprada(Integer qtdComprada) {
+		this.qtdComprada = qtdComprada;
+	}
+
+
+
+	public Set<ItemCompra> getItensCompraPendentes() {
+		if(!Hibernate.isInitialized(itensCompraPendentes) || itensCompraPendentes == null){
+			itensCompraPendentes = new HashSet<ItemCompra>();
+		}
+		return itensCompraPendentes;
+	}
+
+
+
+	public void setItensCompraPendentes(Set<ItemCompra> itensCompraPendentes) {
+		this.itensCompraPendentes = itensCompraPendentes;
 	}
 
 
