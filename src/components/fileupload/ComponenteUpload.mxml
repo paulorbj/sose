@@ -7,8 +7,11 @@
 		
 			import mx.controls.Alert;
 			
-			private const _strDomain:String = new String("http://127.0.0.1:8080/SoseWeb/");
-			private const _strUploadScript:String = new String(_strDomain + "uploadservlet");
+			[Bindable]
+			private var _strDomain:String = "";
+			
+			[Bindable]
+			private var _strUploadScript:String = ""
 			
 			public static const T_ENTIDADE_UNIDADE:String = new String("UNIDADE");
 			public static const T_ENTIDADE_COMPONENTE:String = new String("COMPONENTE");
@@ -29,7 +32,7 @@
 			
 			// Initalize
 			private function initApp():void {
-				Security.allowDomain(_strDomain);
+				configurarStringDomain();
 			}
 			
 			public function limpar():void {
@@ -38,8 +41,15 @@
 			
 			public function retornoUploadComplete():void
 			{
-				Alert.show('Arquivo(s) carregado(s) com sucesso.', 'Carregado com sucesso', mx.controls.Alert.OK);
+				Alert.okLabel = "OK";
+				Alert.show('Arquivo(s) carregado(s) com sucesso.', 'Carregado com sucesso', Alert.OK);
 				dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_COMPLETO));
+			}
+			
+			private function configurarStringDomain():void
+			{
+				_strDomain = resourceManager.getString('ApplicationResource','URL_SERVIDOR_SOSE');
+				_strUploadScript = new String(_strDomain + "uploadservlet");
 			}
 			
 		]]>
