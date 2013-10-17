@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FilterRendererBase xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="components.grid.filtros.controles.*" 
+	creationComplete="creationCompleteHandler()" xmlns:components="components.*"
+	paddingTop="0" paddingBottom="0" paddingLeft="0" 
+	paddingRight="0" direction="vertical" xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import entities.administrativo.Componente;
+			
+			import mx.controls.DateField;
+			import mx.utils.ObjectUtil;
+		
+			private function creationCompleteHandler():void
+			{
+			}
+		
+			override public function onFilter(item:Object, itemLabelField:String):Boolean 
+			{
+				var componente:Componente = item as Componente;
+				
+				if(itemLabelField == null || itemLabelField == ''){
+					trace("Nulo ou string vazia");
+					return false;
+				}
+				
+				if(tipoComponenteValido.selectedValue == 'valido'){
+					if((item as Componente).valido){
+						return true;
+					}else{
+						return false;
+					}
+				}else{
+					if((item as Componente).valido){
+						return false;
+					}else{
+						return true;
+					}
+				}
+				return false;
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:VBox>
+		<mx:HBox>
+			<mx:RadioButtonGroup id="tipoComponenteValido" />
+			<mx:RadioButton groupName="tipoComponenteValido" 
+							id="compValido" 
+							value="valido" 
+							label="Componente válido" 
+							width="150"/>
+			<mx:RadioButton groupName="tipoComponenteValido" 
+							id="compInvalido" 
+							value="invalido" 
+							label="Componente inválido" 
+							width="150"/>
+		</mx:HBox>
+		<mx:Button label="OK" click="filter()" />
+	</mx:VBox>	
+</FilterRendererBase>
