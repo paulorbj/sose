@@ -1,4 +1,4 @@
-package br.com.sose.entity.admistrativo;
+package br.com.sose.entity.lpu;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -22,7 +22,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
-import br.com.sose.entity.recebimento.ItemNotaFiscal;
 
 @Entity
 @Configurable
@@ -72,7 +71,9 @@ public class Lpu implements Serializable {
 	private Boolean rodouAutoAssociar;
 	
 	@OneToMany(mappedBy = "lpu", fetch=FetchType.LAZY)
-	private Set<ItemLpu> listaItemLpu;
+	private Set<UnidadeItemLpu> listaUnidadeItemLpu;
+	
+	private String unidade;
 
 	public Long getId() {
 		return id;
@@ -194,17 +195,24 @@ public class Lpu implements Serializable {
 		this.cliente = cliente;
 	}
 
-	public Set<ItemLpu> getListaItemLpu() {
-		if(!Hibernate.isInitialized(listaItemLpu) || listaItemLpu == null){
-			listaItemLpu = new HashSet<ItemLpu>();
+	public Set<UnidadeItemLpu> getListaUnidadeItemLpu() {
+		if(!Hibernate.isInitialized(listaUnidadeItemLpu) || listaUnidadeItemLpu == null){
+			listaUnidadeItemLpu = new HashSet<UnidadeItemLpu>();
 		}
-		return listaItemLpu;
+		return listaUnidadeItemLpu;
 	}
 
-	public void setListaItemLpu(Set<ItemLpu> listaItemLpu) {
-		this.listaItemLpu = listaItemLpu;
+	public void setListaUnidadeItemLpu(Set<UnidadeItemLpu> listaUnidadeItemLpu) {
+		this.listaUnidadeItemLpu = listaUnidadeItemLpu;
 	}
-	
+
+	public String getUnidade() {
+		return unidade;
+	}
+
+	public void setUnidade(String unidade) {
+		this.unidade = unidade;
+	}
 	
 
 }

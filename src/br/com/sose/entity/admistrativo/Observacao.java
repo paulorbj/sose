@@ -73,6 +73,10 @@ public class Observacao implements Comparable<Observacao> {
 	@JoinColumn(referencedColumnName="id",name="ref_faturamento_id")
 	private Faturamento faturamento;
 	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(referencedColumnName="id",name="ref_componente_id")
+	private Componente componente;
+	
 	private String origem;
 	
 	@Column(length = 2000)
@@ -321,6 +325,14 @@ public class Observacao implements Comparable<Observacao> {
 
 	public void setItemProposta(ItemProposta itemProposta) {
 		this.itemProposta = itemProposta;
+	}
+
+	public Componente getComponente() {
+		return componente;
+	}
+
+	public void setComponente(Componente componente) {
+		this.componente = componente;
 	}
 	
 	

@@ -25,12 +25,12 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import br.com.sose.entity.admistrativo.Lpu;
 import br.com.sose.entity.admistrativo.Unidade;
 import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.expedicao.NotaFiscalRemessa;
 import br.com.sose.entity.faturamento.Faturamento;
+import br.com.sose.entity.lpu.Lpu;
 import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.orcamento.OrcamentoDiferenciado;
 import br.com.sose.entity.proposta.Proposta;

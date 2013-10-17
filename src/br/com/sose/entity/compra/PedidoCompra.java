@@ -18,6 +18,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import br.com.sose.entity.admistrativo.Componente;
 import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.orcrepGenerico.RequisicaoComponente;
 import br.com.sose.entity.recebimento.OrdemServico;
@@ -49,6 +50,10 @@ public class PedidoCompra implements Serializable {
 	@JoinColumn(name = "requisicao_id", referencedColumnName = "id")
 	private RequisicaoComponente requisicao;
 	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name = "componente_id", referencedColumnName = "id")
+	private Componente componente;
+	
 	private Boolean possuiAmostra;
 	
 	private Date dataCriacao;
@@ -60,9 +65,15 @@ public class PedidoCompra implements Serializable {
 	private Usuario realizadoPor;
 	
 	private String statusString;
+	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name = "item_compra_id", referencedColumnName = "id")
+	private ItemCompra itemCompra;
 
 	@Transient
 	private StatusCompra status;
+	
+	private String origemPedido;
 	
 	public Long getId() {
 		return id;
@@ -160,4 +171,30 @@ public class PedidoCompra implements Serializable {
 	public void setRealizadoPor(Usuario realizadoPor) {
 		this.realizadoPor = realizadoPor;
 	}
+
+	public ItemCompra getItemCompra() {
+		return itemCompra;
+	}
+
+	public void setItemCompra(ItemCompra itemCompra) {
+		this.itemCompra = itemCompra;
+	}
+
+	public Componente getComponente() {
+		return componente;
+	}
+
+	public void setComponente(Componente componente) {
+		this.componente = componente;
+	}
+
+	public String getOrigemPedido() {
+		return origemPedido;
+	}
+
+	public void setOrigemPedido(String origemPedido) {
+		this.origemPedido = origemPedido;
+	}
+
+	
 }

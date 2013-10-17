@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.daoImpl.consulta.GraficoDao;
 import br.com.sose.entity.admistrativo.Laboratorio;
+import br.com.sose.entity.admistrativo.Unidade;
 import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.grafico.RetornoGraficoPizza;
@@ -32,7 +33,7 @@ public class GraficoService {
 	
 	@RemotingInclude
 	@Transactional(readOnly = true)
-	public List<RetornoGraficoPizza> buscarInfoGraficoReparoFinalizadoPorCondicao(Date startDate, Date finalDate, Pessoa cliente, Laboratorio laboratorio, Usuario usuario){
+	public List<RetornoGraficoPizza> buscarInfoGraficoReparoFinalizadoPorCondicao(Date startDate, Date finalDate, Pessoa cliente, Laboratorio laboratorio, Usuario usuario, Unidade unidade){
 		if(cliente == null || cliente.getId().equals(new Long(0))){
 			cliente = null;
 		}
@@ -42,7 +43,10 @@ public class GraficoService {
 		if(usuario == null || usuario.getId().equals(new Long(0))){
 			usuario = null;
 		}
-		List<RetornoGraficoPizza> retorno = graficoDao.buscarInfoGraficoReparoFinalizadoPorCondicao(startDate, finalDate, cliente, laboratorio, usuario);
+		if(unidade == null || unidade.getId().equals(new Long(0))){
+			unidade = null;
+		}
+		List<RetornoGraficoPizza> retorno = graficoDao.buscarInfoGraficoReparoFinalizadoPorCondicao(startDate, finalDate, cliente, laboratorio, usuario, unidade);
 		return retorno;
 	}
 }

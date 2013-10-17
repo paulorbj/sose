@@ -22,9 +22,9 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import br.com.sose.entity.admistrativo.Lpu;
+import br.com.sose.entity.lpu.Lpu;
 import br.com.sose.service.ArquivoUploadService;
-import br.com.sose.service.administrativo.LpuService;
+import br.com.sose.service.lpu.LpuService;
 import br.com.sose.utils.ArquivoUpload;
 
 public class UploadLpuServlet extends HttpServlet {

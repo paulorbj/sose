@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.daoImpl.compra.PedidoCompraDao;
 import br.com.sose.daoImpl.recebimento.OrdemServicoDao;
+import br.com.sose.entity.admistrativo.Componente;
 import br.com.sose.entity.compra.PedidoCompra;
 import br.com.sose.status.compra.AguardandoCompra;
 import br.com.sose.status.compra.Comprado;
@@ -29,6 +30,19 @@ public class PedidoCompraService {
 
 	@Autowired
 	public OrdemServicoDao ordemServicoDao;
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public PedidoCompra buscarPorId(Long id) throws Exception {
+		PedidoCompra pedidoCompraEncontrado;
+		try {
+			pedidoCompraEncontrado =(PedidoCompra) pedidoCompraDao.buscarPorId(id);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return pedidoCompraEncontrado;
+	}
 
 	@RemotingInclude
 	@Transactional(readOnly = true)
@@ -39,6 +53,35 @@ public class PedidoCompraService {
 			pedidosCompraAux = pedidoCompraDao.listarPedidoCompra(AguardandoCompra.nome);
 			if(pedidosCompraAux != null && !pedidosCompraAux.isEmpty()) pedidosCompra.addAll(pedidosCompraAux);
 			pedidosCompraAux = pedidoCompraDao.listarPedidoCompra(Comprado.nome);
+			if(pedidosCompraAux != null && !pedidosCompraAux.isEmpty()) pedidosCompra.addAll(pedidosCompraAux);
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return pedidosCompra;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<PedidoCompra> listaPedidosCompraEmFaltaPorComponente(Componente componente) throws Exception {
+		List<PedidoCompra> pedidosCompra = new ArrayList<PedidoCompra>();
+		try {
+			pedidosCompra = pedidoCompraDao.listaPedidosCompraEmFaltaPorComponente(componente);
+		
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return pedidosCompra;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<PedidoCompra> listaPedidosCompraAguardandoCompra() throws Exception {
+		List<PedidoCompra> pedidosCompra = new ArrayList<PedidoCompra>();
+		List<PedidoCompra> pedidosCompraAux = null;
+		try {
+			pedidosCompraAux = pedidoCompraDao.listarPedidoCompra(AguardandoCompra.nome);
 			if(pedidosCompraAux != null && !pedidosCompraAux.isEmpty()) pedidosCompra.addAll(pedidosCompraAux);
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
@@ -83,6 +126,21 @@ public class PedidoCompraService {
 			throw e;
 		}
 		return pedidoCompraSalvo;
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public PedidoCompra criarPedidoCompra(PedidoCompra pedidoCompra) throws Exception {
+		try {
+			pedidoCompra.setDataCriacao(new Date());
+			pedidoCompra.setPossuiAmostra(false);
+			pedidoCompra.setStatusString(AguardandoCompra.nome);
+			pedidoCompra =(PedidoCompra) salvarPedidoCompra(pedidoCompra);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return pedidoCompra;
 	}
 
 	@RemotingInclude
