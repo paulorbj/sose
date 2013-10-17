@@ -10,8 +10,8 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.containers.Grid;
-			import mx.controls.AdvancedDataGrid;
-			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.controls.DataGrid;
+			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.listClasses.BaseListData;
 			
 			import spark.components.CheckBox;
@@ -22,9 +22,8 @@
 			
 			private var _enable:Boolean;
 			
-			private var _listData:BaseListData;
-			
-			private var dataGrid:AdvancedDataGrid;
+			private var _listData:BaseListData;			
+			private var dataGrid:DataGrid;
 			
 			[Bindable("dataChange")]
 			public function get listData():BaseListData
@@ -34,12 +33,9 @@
 			
 			public function set listData(value:BaseListData):void
 			{
-				
 				_listData = value;
 				
-				if(value){
-					dataGrid = value.owner as AdvancedDataGrid;
-				}
+				dataGrid = value.owner as DataGrid;
 			}
 			
 			override public function set data(value:Object):void
@@ -52,7 +48,7 @@
 				
 				this.addChild(checkBox);
 				
-				if (value != null && value is AdvancedDataGridColumn) {	// Header
+				if (value is DataGridColumn) {	// Header
 					
 					var dataProvider:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
 					
@@ -85,14 +81,12 @@
 					checkBox.enabled = enabledAll;
 				}
 				else {	// Cell
-					if(value != null && value.isEnabled == true){
+					if(value.isEnabled == true){
 						checkBox.selected = value.isSelected as Boolean;
 					}else{
 						checkBox.selected = false;
 					}
-					if(_data){
-						checkBox.enabled = _data.isEnabled;
-					}
+					checkBox.enabled = _data.isEnabled;
 				}
 				
 				checkBox.addEventListener(Event.CHANGE, onChange);
@@ -108,7 +102,7 @@
 			{
 				if (_data != null) {
 					
-					if (_data is AdvancedDataGridColumn) {
+					if (_data is DataGridColumn) {
 						
 						var dataProvider:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
 						
