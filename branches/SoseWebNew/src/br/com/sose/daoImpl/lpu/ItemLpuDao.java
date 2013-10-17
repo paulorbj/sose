@@ -1,4 +1,4 @@
-package br.com.sose.daoImpl.administrativo;
+package br.com.sose.daoImpl.lpu;
 
 import java.util.List;
 
@@ -6,10 +6,10 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 import br.com.sose.daoImpl.HibernateDaoGenerico;
-import br.com.sose.entity.admistrativo.ItemLpu;
-import br.com.sose.entity.admistrativo.Lpu;
 import br.com.sose.entity.admistrativo.Unidade;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
+import br.com.sose.entity.lpu.ItemLpu;
+import br.com.sose.entity.lpu.Lpu;
 
 @Repository("itemLpuDao")
 public class ItemLpuDao extends HibernateDaoGenerico<ItemLpu, Long> {
@@ -29,6 +29,14 @@ public class ItemLpuDao extends HibernateDaoGenerico<ItemLpu, Long> {
 	public List<ItemLpu> buscarPorLpu(final Lpu lpu) {
 		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.lpu = :lpu");
 		q.setParameter("lpu", lpu);
+		return q.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ItemLpu> listarItemLpuPorLpuPorUnidade(final Lpu lpu, final Unidade unidade) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.lpu = :lpu AND h.unidadeItemLpu.unidadeServilogi = :unidade");
+		q.setParameter("lpu", lpu);
+		q.setParameter("unidade", unidade);
 		return q.list();
 	}
 

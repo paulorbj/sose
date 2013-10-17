@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import br.com.sose.daoImpl.HibernateDaoGenerico;
 import br.com.sose.entity.admistrativo.Laboratorio;
+import br.com.sose.entity.admistrativo.Unidade;
 import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.grafico.RetornoGraficoPizza;
@@ -29,7 +30,7 @@ public class GraficoDao extends HibernateDaoGenerico<OrdemServico, Long> {
 
 
 	@SuppressWarnings("unchecked")
-	public List<RetornoGraficoPizza> buscarInfoGraficoReparoFinalizadoPorCondicao(Date startDate, Date finalDate, Pessoa cliente, Laboratorio laboratorio, Usuario usuario){
+	public List<RetornoGraficoPizza> buscarInfoGraficoReparoFinalizadoPorCondicao(Date startDate, Date finalDate, Pessoa cliente, Laboratorio laboratorio, Usuario usuario, Unidade unidade){
 		try{
 			ArrayList<RetornoGraficoPizza> listaRetorno = new ArrayList<RetornoGraficoPizza> ();
 			Hashtable<String, BigInteger> listaContabilidade = new Hashtable<String, BigInteger>();
@@ -56,6 +57,10 @@ public class GraficoDao extends HibernateDaoGenerico<OrdemServico, Long> {
 			if(usuario != null){
 				sbOrcamento.append("AND u.id = :idUsuario ");
 			}
+			
+			if(unidade != null){
+				sbOrcamento.append("AND uni.id = :idUnidade ");
+			}
 
 			if(startDate == null){
 				startDate = new Date(0);
@@ -80,6 +85,10 @@ public class GraficoDao extends HibernateDaoGenerico<OrdemServico, Long> {
 
 			if(usuario != null){
 				q.setParameter("idUsuario", usuario.getId());
+			}
+			
+			if(unidade != null){
+				q.setParameter("idUnidade", unidade.getId());
 			}
 
 			q.setParameter("startDate", startDate);
@@ -119,6 +128,10 @@ public class GraficoDao extends HibernateDaoGenerico<OrdemServico, Long> {
 			if(usuario != null){
 				sbReparo.append("AND u.id = :idUsuario ");
 			}
+			
+			if(unidade != null){
+				sbReparo.append("AND uni.id = :idUnidade ");
+			}
 
 			if(startDate == null){
 				startDate = new Date(0);
@@ -143,6 +156,10 @@ public class GraficoDao extends HibernateDaoGenerico<OrdemServico, Long> {
 
 			if(usuario != null){
 				qReparo.setParameter("idUsuario", usuario.getId());
+			}
+			
+			if(unidade != null){
+				qReparo.setParameter("idUnidade", unidade.getId());
 			}
 
 			qReparo.setParameter("startDate", startDate);

@@ -47,6 +47,13 @@ public class ComponenteDao extends HibernateDaoGenerico<Componente, Long> {
 		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
 		return q.list();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Componente> findAll(){
+		String queryString = "SELECT h FROM " + entityClass.getName() + " h ORDER BY h.nome";
+		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
+		return q.list();
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<Componente> findAllOrderByNome(){
@@ -60,7 +67,9 @@ public class ComponenteDao extends HibernateDaoGenerico<Componente, Long> {
 				"t.nome," +
 				"h.qtdEstoque," +
 				"h.posicaoEstoque," +
-				"h.pinos) " +
+				"h.pinos," +
+				"h.valido," +
+				"h.qtdComprada) " +
 				"FROM " + entityClass.getName() + " h " +
 				"LEFT JOIN h.fabricante f " +
 				"LEFT JOIN h.encapsulamento e " +
