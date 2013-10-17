@@ -4,7 +4,7 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%">
 	<fx:Declarations>
 		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="listarPorEntidadePorIdentificador"      
+			<mx:method name="listarImagemPorEntidadePorIdentificador"      
 					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
 					   result="onListarPorEntidadePorIdentificadorResult(event)"
 					   />
@@ -13,7 +13,6 @@
 	<fx:Script>
 		<![CDATA[
 			import entities.ArquivoUpload;
-			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
@@ -69,7 +68,7 @@
 			
 			public function recarregarImagens():void
 			{
-				arquivoUploadService.listarPorEntidadePorIdentificador(tipoEntidade,idEntidade);
+				arquivoUploadService.listarImagemPorEntidadePorIdentificador(tipoEntidade,idEntidade);
 			}
 			
 			private function configurarStringDomain():void
