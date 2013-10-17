@@ -42,6 +42,17 @@ public class ArquivoUploadDao extends HibernateDaoGenerico<ArquivoUpload, Long> 
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<ArquivoUpload> listarImagemPorEntidadePorIdentificador(String entidade, Long idEntidade) {
+		String queryString = "SELECT h FROM "+ entityClass.getName() + " h WHERE h.identificadorEntidade = :idEntidade AND h.tipoEntidade = :tipoEntidade AND h.tipoArquivo = :tipoArquivo";
+		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
+		q.setParameter("tipoEntidade", entidade);
+		q.setParameter("idEntidade", idEntidade);
+		q.setParameter("tipoArquivo", "IMAGEM");
+		List<ArquivoUpload> listaTemp = (List<ArquivoUpload>)q.list();
+		return listaTemp;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public ArquivoUpload buscarArquivoUploadLpu(Long idEntidade) {
 		String queryString = "SELECT h FROM "+ entityClass.getName() + " h WHERE h.identificadorEntidade = :idEntidade AND h.tipoEntidade = :tipoEntidade";
 		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
