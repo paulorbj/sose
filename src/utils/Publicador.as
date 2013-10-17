@@ -103,6 +103,10 @@ package utils
 			produtorProposta.send(message);	
 		}
 		
+		public static function enviarMensagemCompra(msg:String, obj:Object):void   { 								
+
+		}
+		
 		public function publicarProposta(msg:String,os:OrdemServico,proposta:Proposta):void   { 								
 			var message:AsyncMessage = new AsyncMessage();
 			var messageGlobal:GlobalMessage=new GlobalMessage();

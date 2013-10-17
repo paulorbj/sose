@@ -249,10 +249,10 @@
 			<mx:AdvancedDataGrid id="dgArquivosUpload" dataProvider="{listaImagem}"
 						 draggableColumns="false" resizableColumns="false" sortableColumns="false">
 				<mx:columns>
-					<mx:AdvancedDataGridColumn headerText="Nome Sistema" dataField="nome" width="200" />
-					<mx:AdvancedDataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
-					<mx:AdvancedDataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="200" />
-					<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+					<mx:DataGridColumn headerText="Nome Sistema" dataField="nome" width="200" />
+					<mx:DataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
+					<mx:DataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="200" />
+					<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 									   draggable="false"  textAlign="center" width="100"							 
 									   editable="false"
 									   sortable="false">
@@ -277,7 +277,7 @@
 								</mx:HBox>
 							</fx:Component>
 						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
+					</mx:DataGridColumn>
 				</mx:columns>
 			</mx:AdvancedDataGrid>
 		</mx:VBox>

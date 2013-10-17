@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx">
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" creationComplete="configurarStringDomain()"
+		 xmlns:s="library://ns.adobe.com/flex/spark" height="100%"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%">
 	<fx:Declarations>
 		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="listarPorEntidadePorIdentificador"      
+			<mx:method name="listarImagemPorEntidadePorIdentificador"      
 					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
 					   result="onListarPorEntidadePorIdentificadorResult(event)"
 					   />
@@ -12,7 +12,11 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import entities.ArquivoUpload;
+			
 			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
 			import mx.managers.CursorManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -26,46 +30,84 @@
 			[Bindable]
 			public var tipoEntidade:String;
 			
+			[Bindable]
+			public var widthComponente:Number = 500;
+			
+			[Bindable]
+			private var _strDomain:String = "";
+			
+			[Bindable]
+			private var _strUploadScript:String = "";
+			
+			public var imagemSelecionada:ArquivoUpload = null;
 			
 			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
 			{
 				CursorManager.removeAllCursors(); 
 				listaImagem.removeAll();
 				listaImagem = event.result as ArrayCollection;
+				
+				
+				for each(var imgAux:ArquivoUpload in listaImagem){
+					imgAux.caminho = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+					
+					if(imagemSelecionada != null && imgAux.id == imagemSelecionada.id){
+						horizontalList.selectedItem = imgAux;
+						img.source = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + imgAux.montarURLRelativa();
+					}
+				}
+				
+				imagemSelecionada = null;
 			}
 			
 			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
 			{
 				CursorManager.removeAllCursors();
-				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+				trace("[ListarAtividadesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");	
+				imagemSelecionada = null;
 			}
 			
 			public function recarregarImagens():void
 			{
-				arquivoUploadService.listarPorEntidadePorIdentificador(tipoEntidade,idEntidade);
+				arquivoUploadService.listarImagemPorEntidadePorIdentificador(tipoEntidade,idEntidade);
 			}
+			
+			private function configurarStringDomain():void
+			{
+				_strDomain = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+			}
+			
+			protected function horizontalList_itemClickHandler(event:ListEvent):void
+			{
+				trace("Achou item");
+				var imgSelecionada:ArquivoUpload = horizontalList.selectedItem as ArquivoUpload;
+				img.source = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + imgSelecionada.montarURLRelativa();
+			}
+			
 		]]>
 	</fx:Script>
 	
 	<mx:Panel title="{horizontalList.selectedItem.nome}"
-			  height="500"
+			  height="100%" width="100%"
 			  horizontalAlign="center">
 		<mx:Image id="img"
-				  source="{'http://localhost:8080/SoseWeb/arquivo_servilogi/' + horizontalList.selectedItem.tipoEntidade + '/' + horizontalList.selectedItem.identificadorEntidade + '/' + horizontalList.selectedItem.tipoArquivo + '/' + horizontalList.selectedItem.nome}"
+				  
 				  maintainAspectRatio="true"
 				  horizontalAlign="center"
-				  width="{horizontalList.width}"
+				  width="100%"
 				  height="100%" />
 		<mx:ControlBar horizontalAlign="center">
 			<mx:HorizontalList id="horizontalList"
 							   labelField="nome"
-							   iconField="caminhoImagem"
+							   iconField="montarURLCompleta"
 							   dataProvider="{listaImagem}"
 							   itemRenderer="components.imageviewer.RendererDGImage"
 							   columnCount="4"
 							   columnWidth="125"
 							   rowCount="1"
 							   rowHeight="100"
+							   width="100%"
+							   itemClick="horizontalList_itemClickHandler(event)"
 							   horizontalScrollPolicy="on" />
 		</mx:ControlBar>
 	</mx:Panel>

@@ -98,7 +98,6 @@ package entities
 
 		public function get caminhoImagem():String
 		{
-			_caminhoImagem =  "http://localhost:8080/SoseWeb/arquivo_servilogi/" + _tipoEntidade + "/" + _identificadorEntidade + "/" + _nome;
 			return _caminhoImagem;
 		}
 
@@ -107,6 +106,22 @@ package entities
 			_caminhoImagem = value;
 		}
 
+		public function montarURLRelativa():String
+		{
+			return _tipoEntidade + "/" + _identificadorEntidade + "/" + _tipoArquivo + "/" + _nome;
+		}
+		
+		public function get montarURLCompleta():String
+		{
+			return _caminhoImagem + _tipoEntidade + "/" + _identificadorEntidade + "/" + _tipoArquivo + "/" + _nome;
+		}
+		
+		public function set montarURLCompleta(value:String):void
+		{
+			_caminhoImagem = value;
+		}
+		
+		
 
 	}
 	

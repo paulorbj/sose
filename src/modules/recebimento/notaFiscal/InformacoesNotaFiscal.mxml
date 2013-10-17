@@ -247,55 +247,55 @@
 							  dataProvider="{_notaFiscal.itensDaNotaFiscal}">
 				<grid:columns>
 					<!-- CHANGE HERE THE ENTITY COLUMNS -->
-					<mx:AdvancedDataGridColumn id="cCodigo"
+					<mx:DataGridColumn id="cCodigo"
 									   headerText = "{resourceManager.getString('ApplicationResource','CODIGO')}"
 									   textAlign="center"
 									   sortable="false"
 									   dataField="codigo"							   
 									   />
-					<mx:AdvancedDataGridColumn id="cDescricao" dataField="nome"
+					<mx:DataGridColumn id="cDescricao" dataField="nome"
 									   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 									   textAlign="center"
 									   sortable="false"					   
 									   />
-					<mx:AdvancedDataGridColumn id="cNcm" dataField="ncm.codigo"
+					<mx:DataGridColumn id="cNcm" dataField="ncm.codigo"
 									   headerText = "{resourceManager.getString('ApplicationResource','NCM')}"
 									   textAlign="center"
 									   sortable="false"							   
 									   />
-					<mx:AdvancedDataGridColumn id="cCst" 
+					<mx:DataGridColumn id="cCst" 
 									   headerText = "{resourceManager.getString('ApplicationResource','CST')}"
 									   dataField = "cst.codigo"
 									   width="80"
 									   />
-					<mx:AdvancedDataGridColumn id="cCfop" 
+					<mx:DataGridColumn id="cCfop" 
 									   headerText = "{resourceManager.getString('ApplicationResource','CFOP')}"
 									   dataField = "cfop.codigo"
 									   width="80"
 									   />
-					<mx:AdvancedDataGridColumn id="cQuantidade" 
+					<mx:DataGridColumn id="cQuantidade" 
 									   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE')}"
 									   dataField = "quantidade"
 									   width="80"
 									   />
-					<mx:AdvancedDataGridColumn id="cValorUnitario"  
+					<mx:DataGridColumn id="cValorUnitario"  
 									   headerText = "{resourceManager.getString('ApplicationResource','VALOR_UNITARIO')}"
 									   labelFunction="formatarColunaValorUnitario"
 									   width="80"
 									   />
-					<mx:AdvancedDataGridColumn id="cUnidadeServilogi" 
+					<mx:DataGridColumn id="cUnidadeServilogi" 
 									   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_SERVILOGI')}"
 									   dataField = "unidade.nome"
 									   width="80"
 									   />
-					<mx:AdvancedDataGridColumn id="cLpu" 
+					<mx:DataGridColumn id="cLpu" 
 									   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}"
 									   dataField = "lpu.nome"
 									   width="80"
 									   />
 					
 					<!-- EDIT/REMOVE COLUMNS -->
-					<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+					<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 									   draggable="false"							 
 									   editable="false"
 									   sortable="false">
@@ -319,7 +319,7 @@
 								</mx:HBox>
 							</fx:Component>
 						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
+					</mx:DataGridColumn>
 				</grid:columns>
 			</grid:MantisTable>
 		</mx:HBox>

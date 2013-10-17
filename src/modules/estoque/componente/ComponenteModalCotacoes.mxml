@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:texto="components.textInput.*" width="100%" height="100%"
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:componentes="components.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="cotacaoService" destination="cotacaoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarCotacaoPorComponente"      
+					   fault="onListarCotacaoPorComponenteFault(event)" 
+					   result="onListarCotacaoPorComponenteResult(event)"
+					   />
+			<mx:method name="salvarCotacao"      
+					   fault="onSalvarCotacaoFault(event)" 
+					   result="onSalvarCotacaoResult(event)"
+					   />
+			<mx:method name="excluirCotacao"      
+					   fault="onExcluirCotacaoFault(event)" 
+					   result="onExcluirCotacaoResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.PopupModalController;
+			import components.RemoveModalEvent;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Componente;
+			import entities.administrativo.Usuario;
+			import entities.compra.Cotacao;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var _cotacao:Cotacao;
+			
+			[Bindable]
+			private var _cotacaoExcluir:Cotacao;
+			
+			[Bindable]
+			private var _componente:Componente;
+			
+			[Bindable]
+			private var _listaCotacao:ArrayCollection;
+			
+			public function get componente():Componente
+			{
+				return _componente;
+			}
+			
+			public function set componente(value:Componente):void
+			{
+				_componente = value;
+				_cotacao = new Cotacao();
+				_listaCotacao = new ArrayCollection();
+				cotacaoService.listarCotacaoPorComponente(_componente);
+			}
+			
+			private function onListarCotacaoPorComponenteResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaCotacao = event.result as ArrayCollection;
+			}
+			
+			private function onListarCotacaoPorComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarCotacaoPorComponenteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+
+			public function adicionarCotacao(event:Event = null):void
+			{
+				if(validarCotacao()){
+					_cotacao.valor = valorCotacao.valor;
+					_cotacao.componente = _componente;
+					cotacaoService.salvarCotacao(_cotacao);	
+				}else{
+					dispatchEvent(new MensagemEvent("Campos obrigatórios não foram preenchidos", MessageType.WARNING, 10000));
+				}
+				
+			}
+			
+			public function validarCotacao():Boolean
+			{
+				var validatorArr:Array = new Array();
+				validatorArr.push(fornecedor.stringValidator);
+				validatorArr.push(dtCotacao.stringValidator);
+
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;		
+				
+				var valorDiferenteZero:Boolean = true;
+				if(valorCotacao.getValor() == 0){
+					valorDiferenteZero = false;
+				}
+				return isValidForm && valorDiferenteZero;
+			}
+			
+			public function editarCotacao(data:Object=null, event:Event=null):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaCotacao.getItemAt(event2.rowIndex);				
+				}
+				
+				_cotacao = data as Cotacao;
+				valorCotacao.setValor(_cotacao.valor);
+			}
+			
+			public function limparTela():void
+			{
+				_cotacao = new Cotacao();
+				valorCotacao.limpar();
+			}
+
+			public function deletarCotacao(data:Object=null, event:Event=null):void
+			{
+				_cotacaoExcluir = data as Cotacao;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				_cotacao = _cotacaoExcluir;
+				cotacaoService.excluirCotacao(_cotacao);
+			}
+			
+			private function onSalvarCotacaoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var i:int = _listaCotacao.getItemIndex(_cotacao);
+				if(i == -1){
+					_listaCotacao.addItem(event.result as Cotacao);
+				}else{
+					_listaCotacao.removeItemAt(i);
+					_listaCotacao.addItemAt(event.result as Cotacao,i);
+				}
+				limparTela();
+			}
+			
+			private function onSalvarCotacaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onSalvarCotacaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao salvar cotação", MessageType.ERROR, 10000));
+				limparTela();
+			}
+			
+			private function onExcluirCotacaoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _listaCotacao.getItemIndex(_cotacao);
+				_listaCotacao.removeItemAt(index);
+				_cotacaoExcluir = null;
+				dispatchEvent(new MensagemEvent("Cotação removida com sucesso", MessageType.SUCCESS, 10000));
+				limparTela();
+			}
+			
+			private function onExcluirCotacaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				_cotacaoExcluir = null;
+				trace("[onExcluirCotacaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao remover cotação", MessageType.ERROR, 10000));
+				limparTela();
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="_cotacao.fornecedor" destination="fornecedor.inputText" twoWay="true" />
+	<fx:Binding source="_cotacao.dataCotacao" destination="dtCotacao.inputDate" twoWay="true" />
+
+	
+	<mx:HBox verticalAlign="bottom" width="100%" >
+		<texto:TextInput id="fornecedor" required="true" labelText="Fornecedor" width="30%"  />
+		<componentes:DataInput id="dtCotacao" labelText="Data da cotação" width="20%" inputHeight="20" />
+		<texto:TextInputDinheiro2d id="valorCotacao" labelText="Valor da cotação" width="20%" />
+		<mx:Button id="btAdicionar" 
+				   label="Adicionar"
+				   labelPlacement="right" width="30%" height="20"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionarCotacao(event)"
+				   />
+	</mx:HBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_listaCotacao}" >
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="cFornecedor" width=".30"
+							   headerText = "Fornecedor"
+							   textAlign="center"
+							   sortable="true" draggable="false"
+							   dataField="fornecedor"							   
+							   />
+			
+			<mx:DataGridColumn id="cValor" textAlign="center" sortable="true" draggable="false" width=".15"
+							   headerText = "Valor"
+							   dataField = "valor"
+							   />
+			
+			<mx:DataGridColumn id="cDataCotacao" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "Data cotação"
+							   dataField = "dataCotacao"
+							   />
+						
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".15"							 
+							   editable="false" textAlign="center"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editarCotacao(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.deletarCotacao(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

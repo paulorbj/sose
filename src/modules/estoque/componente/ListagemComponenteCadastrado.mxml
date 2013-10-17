@@ -2,6 +2,7 @@
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:components="components.*" width="100%" height="100%"
 		 xmlns:grid="components.grid.*">
 	
@@ -26,6 +27,7 @@
 			import entities.GlobalMessage;
 			import entities.administrativo.Componente;
 			import entities.administrativo.Usuario;
+			import entities.compra.ItemCompra;
 			import entities.orcamentoreparo.RequisicaoComponente;
 			
 			import modules.administrativo.componente.eventos.ComponenteEvent;
@@ -46,45 +48,40 @@
 			[Bindable]
 			private var listaComponente:ArrayCollection = new ArrayCollection;
 			
-			[Bindable]
-			private var listaComponenteCompleta:ArrayCollection = new ArrayCollection;
-			
 			private var componente:Componente;
 			
 			[Bindable]
-			private var listaNome:ArrayCollection = new ArrayCollection;
-			private var nomeSelecionado:String;
+			private var _totalAguardandoValidacaoCadastro:Number;
 			
 			[Bindable]
-			private var listaTipo:ArrayCollection = new ArrayCollection;
-			private var tipoSelecionado:String;
-			
-			[Bindable]
-			private var listaEncapsulamento:ArrayCollection = new ArrayCollection;
-			private var encapsulamentoSelecionado:String;
-			
-			[Bindable]
-			private var listaFabricante:ArrayCollection = new ArrayCollection;
-			private var fabricanteSelecionado:String;
+			private var _totalAguardandoValidacaoQtdEstoque:Number;
 			
 			private function onMsgEstoque(event:MessageEvent):void{ 
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
-				var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
+					var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
 					adicionarComponente(req.componente);
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR){
-					adicionarComponente(req.componente);
+					var req1:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
+					adicionarComponente(req1.componente);
 				}
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_ITEM_COMPRA){
+					var itemcompra:ItemCompra = globalMessage.conteudo as ItemCompra;
+					adicionarComponente(itemcompra.componente);
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE){
+					var compAtualizar:Componente = globalMessage.conteudo as Componente;
+					adicionarComponente(compAtualizar);
+				}
+				
 			} 
-						
+			
 			public function setListaComponente(lista:ArrayCollection):void
 			{
 				listaComponente = lista;
-				listaComponenteCompleta = new ArrayCollection();
-				listaComponenteCompleta.addAll(listaComponente);
-				popularFiltros();
-				atualizaCombos();
+				totalAguardandoValidacaoCadastro();
+				totalAguardandoValidacaoQtdEstoque();
 			}
 			
 			public function adicionarComponente(componente:Componente):void
@@ -104,21 +101,8 @@
 					listaComponente.addItem(componente);
 				}
 				
-				for(var i:int=0; i<listaComponenteCompleta.length; i++){
-					componenteAux = listaComponenteCompleta.getItemAt(i) as Componente; 
-					if(componenteAux.id == componente.id){	
-						var componenteSub:Object = listaComponenteCompleta.removeItemAt(i);
-						listaComponenteCompleta.addItemAt(componente,i);
-						encontrou = true;
-						break;
-					}
-				}
-				if(!encontrou){
-					listaComponenteCompleta.addItem(componente);
-				}
-				
-				popularFiltros();
-				atualizaCombos();
+				totalAguardandoValidacaoCadastro();
+				totalAguardandoValidacaoQtdEstoque();
 			}
 			
 			public function editItem(data:Object=null, event:Event=null):void
@@ -185,182 +169,87 @@
 				componente = null;
 			}
 			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaComponente.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolNome:Boolean;
-					if(cbNome.selectedItem == null || cbNome.selectedItem == "" || cbNome.selectedItem == 'Todos'){
-						bolNome = true;
-					}else{
-						bolNome = item.nome.toLowerCase() == cbNome.selectedItem.toLowerCase();
-					}
-					
-					var bolTipo:Boolean;
-					if(cbTipo.selectedItem == null || cbTipo.selectedItem == "" || cbTipo.selectedItem == 'Todos'){
-						bolTipo = true;
-					}else{
-						if(item != null && item.nomeTipoComponente != null){
-							bolTipo = item.nomeTipoComponente.toLowerCase() == cbTipo.selectedItem.toLowerCase();
-						}else{
-							bolTipo = false;
-						}
-					}
-					
-					var bolEncpsulamento:Boolean;
-					if(cbEncapsulamento.selectedItem == null || cbEncapsulamento.selectedItem == "" || cbEncapsulamento.selectedItem == 'Todos'){
-						bolEncpsulamento = true;
-					}else{
-						if(item != null && item.nomeEncapsulamento != null){
-							bolEncpsulamento = item.nomeEncapsulamento.toLowerCase() == cbEncapsulamento.selectedItem.toLowerCase();
-						}else{
-							bolEncpsulamento = false;
-						}
-					}
-					
-					var bolFabricante:Boolean;
-					if(cbFabricante.selectedItem == null || cbFabricante.selectedItem == "" || cbFabricante.selectedItem == 'Todos'){
-						bolFabricante = true;
-					}else{
-						if(item != null && item.nomeFabricante != null){
-							bolFabricante = item.nomeFabricante.toLowerCase() == cbFabricante.selectedItem.toLowerCase();
-						}else{
-							bolFabricante = false;
-						}
-					}
-					
-					return bolNome && bolTipo && bolEncpsulamento && bolFabricante;
-					
-				};		
-				listaComponente.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				nomeSelecionado = cbNome.selectedItem as String;
-				listaNome = new ArrayCollection();
-				tipoSelecionado = cbTipo.selectedItem as String;
-				listaTipo = new ArrayCollection();
-				encapsulamentoSelecionado = cbEncapsulamento.selectedItem as String;
-				listaEncapsulamento = new ArrayCollection();
-				fabricanteSelecionado = cbFabricante.selectedItem as String;
-				listaFabricante = new ArrayCollection();
-				
-				for each (var componente:Componente in listaComponenteCompleta){
-					if(componente.nome != null && componente.nome.length > 0 && !listaNome.contains(componente.nome)){
-						listaNome.addItem(componente.nome);
-					}
-					if(componente.nomeTipoComponente != null && componente.nomeTipoComponente.length > 0 && !listaTipo.contains(componente.nomeTipoComponente)){
-						listaTipo.addItem(componente.nomeTipoComponente);
-					}
-					if(componente.nomeEncapsulamento != null && componente.nomeEncapsulamento.length > 0 && !listaEncapsulamento.contains(componente.nomeEncapsulamento)){
-						listaEncapsulamento.addItem(componente.nomeEncapsulamento);
-					}
-					if(componente.nomeFabricante != null && componente.nomeFabricante.length > 0 && !listaFabricante.contains(componente.nomeFabricante)){
-						listaFabricante.addItem(componente.nomeFabricante);
-					}
-				}
-				
-				
-				//Filtro nome
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNome.sort=sortA;
-				listaNome.refresh();
-				listaNome.sort = null;
-				listaNome.addItemAt("Todos",0);
-				
-				cbNome.enabled = true;
-				cbNome.dataProvider = listaNome;
-				
-				if(listaNome.length > 0){
-					if(nomeSelecionado){
-						cbNome.selectedItem = nomeSelecionado;
-					}
-				}
-				
-				//Filtro tipo
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaTipo.sort=sortA;
-				listaTipo.refresh();
-				listaTipo.sort = null;
-				listaTipo.addItemAt("Todos",0);
-				
-				cbTipo.enabled = true;
-				cbTipo.dataProvider = listaTipo;
-				
-				if(listaTipo.length > 0){
-					if(tipoSelecionado){
-						cbTipo.selectedItem = tipoSelecionado;
-					}
-				}
-				
-				//Filtro encapsulamento
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaEncapsulamento.sort=sortA;
-				listaEncapsulamento.refresh();
-				listaEncapsulamento.sort = null;
-				listaEncapsulamento.addItemAt("Todos",0);
-				
-				cbEncapsulamento.enabled = true;
-				cbEncapsulamento.dataProvider = listaEncapsulamento;
-				
-				if(listaEncapsulamento.length > 0){
-					if(encapsulamentoSelecionado){
-						cbEncapsulamento.selectedItem = encapsulamentoSelecionado;
-					}
-				}
-				
-				//Filtro fabricante
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFabricante.sort=sortA;
-				listaFabricante.refresh();
-				listaFabricante.sort = null;
-				listaFabricante.addItemAt("Todos",0);
-				
-				cbFabricante.enabled = true;
-				cbFabricante.dataProvider = listaFabricante;
-				
-				if(listaFabricante.length > 0){
-					if(fabricanteSelecionado){
-						cbFabricante.selectedItem = fabricanteSelecionado;
-					}
-				}
-			}
-			
 			private function getRowColor(item:Object,
 										 rowIndex:int,
 										 dataIndex:int,
 										 color:uint):uint
 			{
-				var colorReturn:uint = 0xF0F8FF;
-				if(item.qtdEstoque > 0){
-					colorReturn = 0xF0F8FF;
+				//branco
+				var colorReturn:uint = 0xFDFFFF;
+				if(item.qtdComprada > 0){
+					//azul claro
+					return colorReturn = 0x81E2FF;
 				}
+				
+				if(!item.valido){
+					//laranja
+					return colorReturn = 0xFCD67F;
+				}
+				
+				if(item.qtdEstoqueMinimo > 0 &&item.qtdEstoque < item.qtdEstoqueMinimo ){
+					//vermelho claro
+					return colorReturn = 0xFF8181;
+				}
+				
 				if(item.qtdEstoque == 0){
-					colorReturn = 0xFF9900;
+					//amarelo claro
+					return colorReturn = 0xFFFF81;
 				}
-				if(item.qtdEstoque < item.qtdEstoqueMinimo ){
-					colorReturn = 0xFFFF33;
+				
+				if(item.qtdEstoque > 0){
+					//verde claro
+					return colorReturn = 0x81FF8E;
 				}
+	
 				return colorReturn;
+			}
+			
+			private function validoLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.valido == true){
+					return "Sim";
+				}else{
+					return "Não";
+				}
+			}
+			
+			private function totalAguardandoValidacaoCadastro():void
+			{
+				var total:Number = 0;
+				for each(var c:Componente in listaComponente){
+					if(!c.valido){
+						total = total + 1;
+					}
+				}
+				_totalAguardandoValidacaoCadastro = total;
+			}
+			
+			private function totalAguardandoValidacaoQtdEstoque():void
+			{
+				var total:Number = 0;
+				for each(var c:Componente in listaComponente){
+					if(c.qtdComprada != 0){
+						total = total + 1;
+					}
+				}
+				_totalAguardandoValidacaoQtdEstoque = total;
 			}
 			
 		]]>
 	</fx:Script>	
 	
 	<mx:HBox verticalAlign="bottom" width="100%">
-		<components:DropBoxInput id="cbNome" labelText="Nome" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
-		<components:DropBoxInput id="cbTipo" labelText="Tipo" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
-		<components:DropBoxInput id="cbEncapsulamento" labelText="Encapsulamento" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
-		<components:DropBoxInput id="cbFabricante" labelText="Fabricante" change="atualizaCombos" width="25%"  requireSelectionFlag="true" />
+		<mx:HBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			<s:Label text="Total Cadastrado: {listaComponente.length}" />
+		</mx:HBox>
+		
+		<mx:HBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" color="0xFCD67F">
+			<s:Label text="Total Aguardando validação cadastro: {_totalAguardandoValidacaoCadastro}" />
+		</mx:HBox>
+		
+		<mx:HBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" color="0x81E2FF">
+			<s:Label text="Total aguardando validação qtd estoque: {_totalAguardandoValidacaoQtdEstoque}" />
+		</mx:HBox>		
 	</mx:HBox>
 	
 	<grid:MantisTable id="viewTable"
@@ -372,57 +261,72 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:AdvancedDataGridColumn id="nome" width=".30"
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.ComponenteValidoFilterRenderer" id="cValido" width=".10"
+							   headerText = "Valido"
+							   textAlign="center"
+							   sortable="true" draggable="false"
+							   labelFunction="validoLabel"						   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome" width=".30"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}"
 							   textAlign="center"
 							   sortable="true" draggable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="descricao" textAlign="center" sortable="true" draggable="false" width=".15"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.AguardandoEstoqueFilterRenderer" id="cQtdComprada" width=".10"
+									 headerText = "Qtd comprada"
+									 textAlign="center"
+									 sortable="true" draggable="false"
+									 dataField="qtdComprada"	
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.QtdEstoqueInferiorQtdMinimoFilterRenderer" id="estoqueMinimo" textAlign="center" sortable="true" draggable="false" width=".05"
+									 headerText = "{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO_ABREVIADO')}"
+									 dataField = "qtdEstoqueMinimo"
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="qtdEstoque" textAlign="center" sortable="true" draggable="false" width=".05"
+									 headerText = "{resourceManager.getString('ApplicationResource','QTD_ESTOQUE_ABREVIADO')}"
+									 dataField = "qtdEstoque"
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" textAlign="center" sortable="true" draggable="false" width=".15"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="tipoComponente" textAlign="center" sortable="true" draggable="false" width=".10"
+			<dc:DataGridColumnFilter id="tipoComponente" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}"
 							   dataField = "nomeTipoComponente"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="encapsulamento" textAlign="center" sortable="true" draggable="false" width=".10"
+			<dc:DataGridColumnFilter id="encapsulamento" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
 							   dataField = "nomeEncapsulamento"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="fabricante" textAlign="center" sortable="true" draggable="false" width=".10"
+			<dc:DataGridColumnFilter id="fabricante" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
 							   dataField = "nomeFabricante"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cPinos" width=".10" draggable="false"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cPinos" width=".10" draggable="false"
 							   headerText = "{resourceManager.getString('ApplicationResource','PINOS')}"
 							   textAlign="center" sortable="false" dataField="pinos"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="posicao" textAlign="center" sortable="true" draggable="false" width=".10"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="posicao" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE_POSICAO')}"
 							   dataField = "posicaoEstoque"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="estoqueMinimo" textAlign="center" sortable="true" draggable="false" width=".05"
-							   headerText = "{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO_ABREVIADO')}"
-							   dataField = "qtdEstoqueMinimo"
-							   />
-			
-			<mx:AdvancedDataGridColumn id="qtdEstoque" textAlign="center" sortable="true" draggable="false" width=".05"
-							   headerText = "{resourceManager.getString('ApplicationResource','QTD_ESTOQUE_ABREVIADO')}"
-							   dataField = "qtdEstoque"
-							   />
-			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-							   draggable="false" width=".15"							 
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".10"							 
 							   editable="false" textAlign="center"
 							   sortable="false">
 				<mx:itemRenderer>
@@ -448,7 +352,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:AdvancedDataGridColumn>
+			</mx:DataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

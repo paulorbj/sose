@@ -225,26 +225,26 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:AdvancedDataGridColumn id="nome"
+			<mx:DataGridColumn id="nome"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_LABORATORIO')}"
 							   textAlign="center" width=".20"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cLider"  width=".20"
+			<mx:DataGridColumn id="cLider"  width=".20"
 							   headerText = "Líder"
 							   dataField = "nomeLider"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="descricao"  width=".50"
+			<mx:DataGridColumn id="descricao"  width=".50"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   />
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".10"							 
 							   editable="false"
 							   sortable="false">
@@ -271,7 +271,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:AdvancedDataGridColumn>
+			</mx:DataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

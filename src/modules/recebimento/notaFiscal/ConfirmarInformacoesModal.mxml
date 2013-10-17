@@ -134,40 +134,40 @@
 						  >
 			<grid:columns>
 				
-				<mx:AdvancedDataGridColumn id="unidade" editable="false"
+				<mx:DataGridColumn id="unidade" editable="false"
 								   headerText = "Unidade"
 								   textAlign="center" width=".20"
 								   resizable="false" draggable="false" sortable="false"
 								   dataField="unidade.nome"							   
 								   />
 				
-				<mx:AdvancedDataGridColumn id="numeroOs" editable="false"
+				<mx:DataGridColumn id="numeroOs" editable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center" width=".10"
 								   resizable="false" draggable="false" sortable="false"
 								   dataField="numeroOrdemServico"							   
 								   />
 				
-				<mx:AdvancedDataGridColumn id="numeroOsPai" editable="false"
+				<mx:DataGridColumn id="numeroOsPai" editable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 								   textAlign="center" width=".10"
 								   resizable="false" draggable="false" sortable="false"
 								   dataField="unidadePai.numeroOrdemServico"							   
 								   />
 				
-				<mx:AdvancedDataGridColumn id="nSerieFabricante"  showDataTips="true" sortable="false"
+				<mx:DataGridColumn id="nSerieFabricante"  showDataTips="true" sortable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 								   dataField = "serieFabricante"
 								   width=".20"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="nSerieCliente" showDataTips="true" sortable="false"
+				<mx:DataGridColumn id="nSerieCliente" showDataTips="true" sortable="false"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 								   dataField = "serieCliente"
 								   width=".20"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="nOSCliente" showDataTips="true" sortable="false"
+				<mx:DataGridColumn id="nOSCliente" showDataTips="true" sortable="false"
 								   headerText = "OS cliente"
 								   dataField = "ordemServicoCliente"
 								   width=".20"

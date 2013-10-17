@@ -184,7 +184,7 @@
 				excluirItem();
 			}
 			
-			public function labeTipoNF(item:Object, column:AdvancedDataGridColumn):String
+			public function labeTipoNF(item:Object, column:DataGridColumn):String
 			{
 				var tipoId:Number = (item as NotaFiscal).tipo;
 				switch (tipoId){
@@ -366,51 +366,51 @@
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
 			
 			
-			<mx:AdvancedDataGridColumn id="numero"
+			<mx:DataGridColumn id="numero"
 							   headerText = "Nº da nota"
 							   textAlign="center" width=".10"
 							   sortable="false"
 							   dataField="numero"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cliente" dataField="nomeCliente"
+			<mx:DataGridColumn id="cliente" dataField="nomeCliente"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 							   textAlign="center" width=".30"
 							   sortable="false"					   
 							   />
 			
 			
-			<mx:AdvancedDataGridColumn id="status" 
+			<mx:DataGridColumn id="status" 
 							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 							   dataField = "statusString"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="dataCriacao" 
+			<mx:DataGridColumn id="dataCriacao" 
 							   headerText = "Dt criação"
 							   dataField = "dataCriacaoString"
 							   width=".08"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="dataNotaFiscal" 
+			<mx:DataGridColumn id="dataNotaFiscal" 
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}"
 							   dataField = "dataNotaFiscalString"
 							   width=".08"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="dataChegada" 
+			<mx:DataGridColumn id="dataChegada" 
 							   headerText = "Dt chegada"
 							   dataField = "dataChegadaString"
 							   width=".08"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="caseAvaya" 
+			<mx:DataGridColumn id="caseAvaya" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CASE_AVAYA')}"
 							   dataField = "caseAvaya"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="clienteAvaya" 
+			<mx:DataGridColumn id="clienteAvaya" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE_AVAYA')}"
 							   dataField = "clienteAvaya"
 							   width=".10"
@@ -418,7 +418,7 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".10"							 
 							   editable="false"
 							   sortable="false">
@@ -439,7 +439,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:AdvancedDataGridColumn>
+			</mx:DataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

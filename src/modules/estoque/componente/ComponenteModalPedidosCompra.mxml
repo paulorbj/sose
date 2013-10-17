@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*" 
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%" >
+
+	<fx:Declarations>
+		
+		<mx:RemoteObject id="itemCompraService" destination="itemCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarItemCompraFault(event)" 
+					   result="onBuscarItemCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.compra.ItemCompra;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var _itemCompra:ItemCompra;
+			
+			public function excluirPedidoCompra(data:Object, event:Event):void
+			{
+
+			}
+
+			public function get itemCompra():ItemCompra
+			{
+				return _itemCompra;
+			}
+
+			public function set itemCompra(value:ItemCompra):void
+			{
+				_itemCompra = value;
+				itemCompraService.buscarPorId(_itemCompra.id);
+			}
+			
+			private function onBuscarItemCompraResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_itemCompra = event.result as ItemCompra;
+			}
+			
+			private function onBuscarItemCompraFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			
+			}
+
+			
+		]]>
+	</fx:Script>
+	
+	<grid:MantisTable id="requisicoesTable"
+					  width="100%"
+					  height="100%"
+					  draggableColumns="false"
+					  dataProvider="{_itemCompra.listaPedidoCompra}"
+					  doubleClickEnabled="false"
+					  >
+		
+		<grid:columns>
+
+			<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+									   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_PEDIDO_COMPRA')}"
+									   textAlign="center"
+									   sortable="false"
+									   dataField="id"							   
+									   />
+			
+			<mx:DataGridColumn id="cOrigem" width="100"
+							   headerText = "Origem" 
+							   textAlign="center"
+							   sortable="false"	
+							   dataField="origemPedido"
+							   />
+			
+			<mx:DataGridColumn id="cNumeroOrdemServico" width="70"
+											   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+											   textAlign="center" dataField="ordemServico.numeroOrdemServico"
+											   sortable="false"					   
+											   />
+			<mx:DataGridColumn  id="cComponente"
+												headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+												textAlign="center"
+												sortable="false"
+												dataField="requisicao.componente.nome"							   
+												/>
+			
+			<mx:DataGridColumn  id="cTipo"
+												headerText = "Tipo"
+												textAlign="center"
+												sortable="false"
+												dataField="requisicao.componente.tipo.nome"							   
+												/>
+			
+			<mx:DataGridColumn id="cEncapsulamento"
+											   headerText = "Encapsulamento"
+											   textAlign="center"
+											   sortable="false"
+											   dataField="requisicao.componente.encapsulamento.nome"							   
+											   />
+			
+			<mx:DataGridColumn id="cPosicao"
+											   headerText = "Posição"
+											   textAlign="center"
+											   sortable="false"
+											   dataField="requisicao.componente.posicaoEstoque"							   
+											   />
+			
+			<mx:DataGridColumn id="cQuantidade" width="40"
+									   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
+									   textAlign="center"
+									   sortable="false"
+									   dataField="quantidade"							   
+									   />
+			
+			<mx:DataGridColumn id="cPossuiAmostra" width="80"
+									   headerText = "Amostra"
+									   />
+			
+			<mx:DataGridColumn id="cRequisitante" width="80"
+											   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
+											   dataField = "tecnico.usuario"
+											   />
+			
+			<mx:DataGridColumn id="cLaboratorio" width="110"
+											   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+											   dataField="ordemServico.unidade.laboratorio.nome"
+											   />
+			
+			<mx:DataGridColumn id="cDataRequisicao"  width="130"
+									   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
+									   textAlign="center"
+									   sortable="false"
+									   dataField="dataCriacao"							   
+									   />
+			
+		</grid:columns>
+	</grid:MantisTable>
+</mx:VBox>

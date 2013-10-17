@@ -29,9 +29,6 @@
 					if(!Login.currentUser.perfil.subMenuCadastroAtividade){
 						subMenu.removeChild(atividade);
 					}
-					if(!Login.currentUser.perfil.subMenuCadastroComponente){
-						subMenu.removeChild(componente);
-					}
 					if(!Login.currentUser.perfil.subMenuCadastroDefeito){
 						subMenu.removeChild(defeito);
 					}
@@ -85,11 +82,7 @@
 		<mx:Canvas id="atividade" label = "{resourceManager.getString('ApplicationResource','ATIVIDADES')}" showEffect="fadeIn" hideEffect="fadeOut"  >
 			<atividade:CadastroAtividade visible="true" />
 		</mx:Canvas>
-		
-		<mx:Canvas id="componente" label = "{resourceManager.getString('ApplicationResource','COMPONENTES')}" showEffect="fadeIn" hideEffect="fadeOut"  >
-			<componente:CadastroComponente visible="true" />
-		</mx:Canvas>
-		
+				
 		<mx:Canvas id="defeito" label = "{resourceManager.getString('ApplicationResource','DEFEITOS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
 			<defeito:CadastroDefeito visible="true" />
 		</mx:Canvas>

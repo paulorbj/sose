@@ -100,6 +100,12 @@ You cannot run it independently. -->
 			{
 				if(validarCampos()){
 					pedidoCompra.quantidade = parseInt(quant.inputText);
+					if(pedidoCompra.requisicao.componente.valido){
+						pedidoCompra.origemPedido = "Estoque zerado";
+					}else{
+						pedidoCompra.origemPedido = "Componente novo";
+					}
+					
 					requisicaoComponenteService.efetivarRequisicaoCriarPedidoCompra(pedidoCompra);
 				}else{
 					myParentObject.dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 5000));

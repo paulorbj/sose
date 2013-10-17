@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" title="Criar novo pedido de compra" creationPolicy="all"
+				xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+				xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*"
+				close="close();" showCloseButton="true"
+				paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="300" height="100" xmlns:componente="modules.estoque.componente.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="pedidoCompraService" concurrency="single" showBusyCursor="true"  destination="pedidoCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="criarPedidoCompra"      
+					   fault="onCriarPedidoCompraFault(event)" 
+					   result="onCriarPedidoCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Componente;
+			import entities.administrativo.Usuario;
+			import entities.compra.PedidoCompra;
+			
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			private var _componente:Componente;
+			
+			private var _usuario:Usuario;
+			
+			private var _pedidoCompra:PedidoCompra;
+			
+			public var reposicao:Boolean;
+			
+			public var myParentObject:DisplayObject;
+			
+			override public function addEventListener(
+				type:String, listener:Function,
+				useCapture:Boolean = false,
+				priority:int = 0,
+				useWeakReference:Boolean = false):void {
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+						
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function criarPedidoCompra(event:MouseEvent=null):void
+			{
+				var qtdRequisitada:Number = parseInt(componenteQuantidade.inputText);
+				if(qtdRequisitada < 1){
+					myParentObject.dispatchEvent(new MensagemEvent("Quantidade requisitada menor que 1", MessageType.WARNING, 10000));
+					return;
+				}
+
+				_pedidoCompra.componente = _componente;
+				_pedidoCompra.quantidade = qtdRequisitada;
+				_pedidoCompra.tecnico = _usuario;
+				if(reposicao){
+					_pedidoCompra.origemPedido = "Reposição";
+				}else{
+					_pedidoCompra.origemPedido = "Compra avulsa";
+				}
+				
+				pedidoCompraService.criarPedidoCompra(_pedidoCompra);
+			}
+			
+			private function onCriarPedidoCompraResult(event:ResultEvent = null):void
+			{
+				_pedidoCompra = event.result as PedidoCompra;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.PEDIDO_COMPRA_CRIADO,_pedidoCompra);
+				PopUpManager.removePopUp(this);
+				myParentObject.dispatchEvent(new MensagemEvent("Pedido de compra criado com sucesso!", MessageType.SUCCESS, 10000));	
+			}
+			
+			private function onCriarPedidoCompraFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onCriarPedidoCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				myParentObject.dispatchEvent(new MensagemEvent("Erro ao criar pedido de compra", MessageType.ERROR, 10000));
+			}
+
+			[Bindable]
+			public function get usuario():Usuario
+			{
+				return _usuario;
+			}
+
+			public function set usuario(value:Usuario):void
+			{
+				_usuario = value;
+			}
+
+			[Bindable]
+			public function get componente():Componente
+			{
+				return _componente;
+			}
+
+			public function set componente(value:Componente):void
+			{
+				_componente = value;
+			}
+
+			public function get pedidoCompra():PedidoCompra
+			{
+				return _pedidoCompra;
+			}
+
+			public function set pedidoCompra(value:PedidoCompra):void
+			{
+				_pedidoCompra = value;
+				componenteQuantidade.input.setFocus();
+			}
+
+			
+		]]>
+	</fx:Script>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="componenteQuantidade" restrict="0-9" required="true"  labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE')}" width="40%" />
+		<mx:Button id="btCriarPedidoCompra"
+				   label="Criar pedido de compra"
+				   height="60%" 
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="criarPedidoCompra(event)"/>
+	</mx:HBox>
+</mx:TitleWindow>

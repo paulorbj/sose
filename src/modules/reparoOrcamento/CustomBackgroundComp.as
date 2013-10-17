@@ -7,7 +7,6 @@ package modules.reparoOrcamento
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.DataGrid;
 	import mx.controls.Label;
-	import mx.controls.advancedDataGridClasses.AdvancedDataGridListData;
 	import mx.controls.dataGridClasses.*;
 	
 	public class CustomBackgroundComp extends Label { 
@@ -18,17 +17,17 @@ package modules.reparoOrcamento
 			if(listData != null && data != null) {
 				var g:Graphics = graphics; 
 				g.clear(); 
-				var grid1:AdvancedDataGrid = AdvancedDataGrid(AdvancedDataGridListData(listData).owner); 
+				var grid1:DataGrid = DataGrid(DataGridListData(listData).owner); 
 				if (grid1.isItemSelected(data) || grid1.isItemHighlighted(data)) 
 					return; 
-				if (data[AdvancedDataGridListData(listData).dataField] < 0) 
+				if (data[DataGridListData(listData).dataField] < 0) 
 				{ 
 					g.beginFill(0xFF0000); 
 					g.drawRect(0, 0, unscaledWidth, unscaledHeight); 
 					g.endFill(); 
 				} 
 				
-				if (data[AdvancedDataGridListData(listData).dataField] >= 0 &&data[AdvancedDataGridListData(listData).dataField] < 6) 
+				if (data[DataGridListData(listData).dataField] >= 0 &&data[DataGridListData(listData).dataField] < 6) 
 				{ 
 					g.beginFill(0x00FF00); 
 					g.drawRect(0, 0, unscaledWidth, unscaledHeight); 

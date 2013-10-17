@@ -165,7 +165,7 @@
 				}
 			}
 			
-			private function labelCondicao(item:Object, column:AdvancedDataGridColumn):String
+			private function labelCondicao(item:Object, column:DataGridColumn):String
 			{	
 				if(item.condicaoReparo){
 					return item.condicaoReparo;
@@ -176,7 +176,7 @@
 				}
 			}
 			
-			public function labelFunction(item:Object, column:AdvancedDataGridColumn):String
+			public function labelFunction(item:Object, column:DataGridColumn):String
 			{
 				return (item as Endereco).logradouro + ", " + (item as Endereco).numero;
 			}
@@ -251,59 +251,59 @@
 								  >
 					<grid:columns>
 						
-						<mx:AdvancedDataGridColumn id="numeroNF"
+						<mx:DataGridColumn id="numeroNF"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="numeroNotaFiscal"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="numeroOs"
+						<mx:DataGridColumn id="numeroOs"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="numeroOrdemServico"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="numeroOsPai"
+						<mx:DataGridColumn id="numeroOsPai"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="numeroOrdemServicoPai"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="unidade"
+						<mx:DataGridColumn id="unidade"
 										   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="nomeUnidade"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="nSerieFabricante" 
+						<mx:DataGridColumn id="nSerieFabricante" 
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 										   dataField = "serieFabricante"
 										   width="80"
 										   />
 						
-						<mx:AdvancedDataGridColumn id="nSerieCliente" 
+						<mx:DataGridColumn id="nSerieCliente" 
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 										   dataField = "serieCliente"
 										   width="80"
 										   />
 						
-						<mx:AdvancedDataGridColumn id="nCaseAvaya1" 
+						<mx:DataGridColumn id="nCaseAvaya1" 
 										   headerText = "Case avaya"
 										   dataField = "caseAvaya"
 										   width="80"	
 										   />
 						
-						<mx:AdvancedDataGridColumn id="nClienteAvaya1" 
+						<mx:DataGridColumn id="nClienteAvaya1" 
 										   headerText = "Ciente avaya"
 										   dataField = "clienteAvaya"
 										   width="80"	
 										   />
 						
-						<mx:AdvancedDataGridColumn id="analiseTecnica" 
+						<mx:DataGridColumn id="analiseTecnica" 
 										   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
 										   labelFunction="labelCondicao"
 										   width="80"
@@ -347,39 +347,39 @@
 							
 							<!-- CHANGE HERE THE ENTITY COLUMNS -->
 							
-							<mx:AdvancedDataGridColumn headerText = ""	width=".20"					   
+							<mx:DataGridColumn headerText = ""	width=".20"					   
 											   itemRenderer="components.grid.CheckBoxItemRenderer"
 											   headerRenderer="components.grid.CheckBoxItemRenderer"
 											   resizable="false" draggable="false" sortable="false"
 											   dataField="isSelected"
 											   />
 							
-							<mx:AdvancedDataGridColumn id="logradouro" labelFunction="labelFunction"
+							<mx:DataGridColumn id="logradouro" labelFunction="labelFunction"
 											   headerText = "{resourceManager.getString('ApplicationResource','LOGRADOURO')}"
 											   textAlign="center" width=".30"
 											   sortable="false"
 											   dataField="logradouro"							   
 											   />
 							
-							<mx:AdvancedDataGridColumn id="cep" textAlign="center"
+							<mx:DataGridColumn id="cep" textAlign="center"
 											   headerText = "{resourceManager.getString('ApplicationResource','CEP')}"
 											   dataField = "cep"
 											   width=".10"
 											   />
 							
-							<mx:AdvancedDataGridColumn id="cidade" textAlign="center"
+							<mx:DataGridColumn id="cidade" textAlign="center"
 											   headerText = "{resourceManager.getString('ApplicationResource','CIDADE')}"
 											   dataField = "cidade"
 											   width=".20"
 											   />
 							
-							<mx:AdvancedDataGridColumn id="estado" textAlign="center"
+							<mx:DataGridColumn id="estado" textAlign="center"
 											   headerText = "{resourceManager.getString('ApplicationResource','ESTADO')}"
 											   dataField = "estado"
 											   width=".10"
 											   />
 							
-							<mx:AdvancedDataGridColumn id="telefone" textAlign="center"
+							<mx:DataGridColumn id="telefone" textAlign="center"
 											   headerText = "{resourceManager.getString('ApplicationResource','TELEFONE')}"
 											   dataField = "telefone"
 											   width=".10"
@@ -404,19 +404,19 @@
 						<!-- CHANGE HERE THE ENTITY COLUMNS -->
 						
 						
-						<mx:AdvancedDataGridColumn id="tipoVolume" textAlign="center"
+						<mx:DataGridColumn id="tipoVolume" textAlign="center"
 										   headerText = "{resourceManager.getString('ApplicationResource','TIPO_EMBALAGEM')}"
 										   dataField = "tipoEmbalagem"
 										   width=".30"
 										   />
 						
-						<mx:AdvancedDataGridColumn id="totalPecas" textAlign="center" editable="false"
+						<mx:DataGridColumn id="totalPecas" textAlign="center" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','TOTAL_DE_ITENS')}"
 										   dataField = "totalItens"
 										   width=".30"
 										   />
 						
-						<mx:AdvancedDataGridColumn id="pesoBruto" textAlign="center" editable="false"
+						<mx:DataGridColumn id="pesoBruto" textAlign="center" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','PESO_BRUTO')}"
 										   dataField = "pesoBruto"
 										   width=".30"

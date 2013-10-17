@@ -180,21 +180,21 @@
 			<grid:columns>
 				
 				<!-- CHANGE HERE THE ENTITY COLUMNS -->
-				<mx:AdvancedDataGridColumn id="nome" width=".40"
+				<mx:DataGridColumn id="nome" width=".40"
 								   headerText = "{resourceManager.getString('ApplicationResource','NOME_PERFIL')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="nome"							   
 								   />
 				
-				<mx:AdvancedDataGridColumn id="descricao" width=".50" textAlign="center"
+				<mx:DataGridColumn id="descricao" width=".50" textAlign="center"
 								   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 								   dataField = "descricao"
 								   />
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false" width=".10" textAlign="center"	 						 
 								   editable="false"
 								   sortable="false">
@@ -221,7 +221,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:AdvancedDataGridColumn>
+				</mx:DataGridColumn>
 			</grid:columns>
 		</grid:MantisTable>
 

@@ -302,33 +302,33 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn headerText = ""	width=".05"						   
+			<mx:DataGridColumn headerText = ""	width=".05"						   
 							   itemRenderer="components.grid.CheckBoxItemRenderer"
 							   headerRenderer="components.grid.CheckBoxItemRenderer"
 							    resizable="false" draggable="false" sortable="false"
 							   dataField="isSelected"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="numeroNF" width=".10"
+			<mx:DataGridColumn id="numeroNF" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="numeroNotaFiscal"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="nNomeLaboratorio" width=".15"
+			<mx:DataGridColumn id="nNomeLaboratorio" width=".15"
 							   headerText = "Laboratório"
 							   dataField = "nomeLaboratorio" textAlign="center"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="numeroOs" width=".10"
+			<mx:DataGridColumn id="numeroOs" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="numeroOrdemServico"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="numeroOsPai" width=".10"
+			<mx:DataGridColumn id="numeroOsPai" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 							   textAlign="center"
 							   sortable="false"
@@ -336,25 +336,25 @@
 							   />
 			
 			
-			<mx:AdvancedDataGridColumn id="unidade" width=".20"
+			<mx:DataGridColumn id="unidade" width=".20"
 							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nomeUnidade"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="nSerieFabricante" 
+			<mx:DataGridColumn id="nSerieFabricante" 
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 							   dataField = "serieFabricante"
 							   width=".15" textAlign="center"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="nSerieCliente" width=".15"
+			<mx:DataGridColumn id="nSerieCliente" width=".15"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 							   dataField = "serieCliente" textAlign="center"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="clienteAvaya" width=".10" textAlign="center"
+			<mx:DataGridColumn id="clienteAvaya" width=".10" textAlign="center"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE_AVAYA')}"
 							   dataField = "clienteAvaya"
 							   />

@@ -116,19 +116,19 @@
 									 width="275"
 									 />
 			
-			<mx:AdvancedDataGridColumn headerText = ""	dataField="ativa"
+			<mx:DataGridColumn headerText = ""	dataField="ativa"
 							   draggable="false" width="25"							 
 							   editable="false" itemRenderer="modules.administrativo.lpu.ImageItemRenderer"
 							   sortable="false" />
 			
-			<mx:AdvancedDataGridColumn id="uploadEm" width="100"
+			<mx:DataGridColumn id="uploadEm" width="100"
 							   headerText = "Carregada em"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="uploadEmString"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="validoAte" width="100"
+			<mx:DataGridColumn id="validoAte" width="100"
 							   headerText = "Válida até"
 							   textAlign="center"
 							   sortable="false"
@@ -137,7 +137,7 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width="100"							 
 							   editable="false"
 							   sortable="false">
@@ -171,7 +171,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:AdvancedDataGridColumn>
+			</mx:DataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

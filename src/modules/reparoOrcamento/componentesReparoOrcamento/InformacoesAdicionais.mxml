@@ -46,7 +46,7 @@
 				_listaOrdemServico = value;
 			}
 
-			public function labelColunaFinalidade(item:Object, column:AdvancedDataGridColumn):String
+			public function labelColunaFinalidade(item:Object, column:DataGridColumn):String
 			{
 				if(item is Reparo){
 					return "Reparo";
@@ -55,7 +55,7 @@
 				}
 			}
 						
-			private function labelCondicao(item:Object, column:AdvancedDataGridColumn):String
+			private function labelCondicao(item:Object, column:DataGridColumn):String
 			{	
 				if(item.reparo){
 					var str:String = item.reparo.condicao;
@@ -83,7 +83,7 @@
 				return "";
 			}
 			
-			private function labelTecnico(item:Object, column:AdvancedDataGridColumn):String
+			private function labelTecnico(item:Object, column:DataGridColumn):String
 			{	
 				if(item.reparo){
 					var usr:Usuario = item.reparo.tecnicoResponsavel;
@@ -154,7 +154,7 @@
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
 			
 			<!-- EDIT/REMOVE COLUMNS -->
-			<mx:AdvancedDataGridColumn headerText = ""	
+			<mx:DataGridColumn headerText = ""	
 							   draggable="false"	width=".05"					 
 							   editable="false"
 							   sortable="false">
@@ -173,53 +173,53 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:AdvancedDataGridColumn>
+			</mx:DataGridColumn>
 			
-			<mx:AdvancedDataGridColumn id="analiseTecnica" width=".10"
+			<mx:DataGridColumn id="analiseTecnica" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
 							   labelFunction="labelCondicao"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cUsuario" showDataTips="true"
+			<mx:DataGridColumn id="cUsuario" showDataTips="true"
 							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
 							   labelFunction="labelTecnico"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="numeroOs"
+			<mx:DataGridColumn id="numeroOs"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 							   textAlign="center"
 							   sortable="false" width=".10"
 							   dataField="numeroOrdemServico"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="numeroOsPai"
+			<mx:DataGridColumn id="numeroOsPai"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 							   textAlign="center"
 							   sortable="false" width=".10"
 							   dataField="unidadePai.numeroOrdemServico"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cliente" dataField="cliente.nomeSistema"
+			<mx:DataGridColumn id="cliente" dataField="cliente.nomeSistema"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 							   textAlign="center" width=".10"
 							   sortable="false"					   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="unidade"
+			<mx:DataGridColumn id="unidade"
 							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 							   textAlign="center"
 							   sortable="false" width=".10"
 							   dataField="unidade.nome"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="nSerieFabricante" 
+			<mx:DataGridColumn id="nSerieFabricante" 
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 							   dataField = "serieFabricante"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="nSerieCliente" 
+			<mx:DataGridColumn id="nSerieCliente" 
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 							   dataField = "serieCliente"
 							   width=".10"

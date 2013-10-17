@@ -13,6 +13,10 @@
 					   fault="onListarComponentesFault(event)" 
 					   result="onListarComponentesResult(event)"
 					   />
+			<mx:method name="validarComponente"      
+					   fault="onValidarComponenteFault(event)" 
+					   result="onValidarComponenteResult(event)"
+					   />
 			<mx:method name="salvarComponente"      
 					   fault="onSalvarComponenteFault(event)" 
 					   result="onSalvarComponenteResult(event)"
@@ -38,18 +42,22 @@
 			import entities.GlobalMessage;
 			import entities.administrativo.Componente;
 			import entities.administrativo.Usuario;
+			import entities.compra.PedidoCompra;
 			
 			import modules.administrativo.componente.eventos.ComponenteEvent;
 			import modules.view.Login;
 			
 			import mx.collections.ArrayCollection;
+			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
 			import mx.messaging.events.MessageEvent;
 			import mx.messaging.messages.AsyncMessage;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
 			import utils.MensagensAplicacao;
+			import utils.Publicador;
 			
 			[Bindable]			
 			private var _componente:Componente;
@@ -98,7 +106,16 @@
 			private function onEditar(event:ComponenteEvent):void
 			{
 				this.currentState = "edicao";
-				dados.componente = event.componente;
+				_componente = event.componente;
+				dados.componente = _componente;
+			}
+			
+			public function setarComponente(comp:Componente):void
+			{
+				_componente = comp;
+				dados.componente = comp;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE, comp);
+
 			}
 			
 			private function onExcluir(event:ComponenteEvent):void
@@ -152,6 +169,21 @@
 				}else{
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_SALVAR_ERRO'), MessageType.ERROR, 10000));	
 				}			
+			}
+			
+			private function onValidarComponenteResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_componente = event.result as Componente;
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				listagem.adicionarComponente(_componente);
+			}
+			
+			private function onValidarComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_SALVAR_ERRO'), MessageType.ERROR, 10000));	
 			}
 			
 			private function onExcluirComponenteResult(event:ResultEvent = null):void
@@ -220,6 +252,96 @@
 				limpar();
 			}
 			
+			private function requisitarCompra(event:MouseEvent = null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					var modal:ModalRequisitarQtdEstoque=ModalRequisitarQtdEstoque(PopUpManager.createPopUp( this, ModalRequisitarQtdEstoque , true));
+					modal.myParentObject = this;
+					modal.usuario = usr;
+					modal.componente = dados.componente;
+					modal.pedidoCompra = new PedidoCompra();
+					modal.reposicao = true;
+					PopUpManager.centerPopUp(modal);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(requisitarCompraAutenticar);
+				}	
+			}
+			
+			public function requisitarCompraAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				requisitarCompra();
+			}
+			
+			private function requisitarCompraEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					requisitarCompra();
+				}
+			}
+			
+			private function realizarCompraAvulsa(event:MouseEvent = null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					var modal:ModalRequisitarQtdEstoque=ModalRequisitarQtdEstoque(PopUpManager.createPopUp( this, ModalRequisitarQtdEstoque , true));
+					modal.myParentObject = this;
+					modal.usuario = usr;
+					modal.componente = dados.componente;
+					modal.pedidoCompra = new PedidoCompra();
+					modal.reposicao = false;
+					PopUpManager.centerPopUp(modal);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(realizarCompraAvulsaAutenticar);
+				}	
+			}
+			
+			public function realizarCompraAvulsaAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				realizarCompraAvulsa();
+			}
+			
+			private function realizarCompraAvulsaEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					realizarCompraAvulsa();
+				}
+			}
+			
+			private function validarComponente(event:MouseEvent = null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					componenteService.validarComponente(dados.componente);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(validarComponenteAutenticar);
+				}		
+			}
+			
+			public function validarComponenteAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				validarComponente();
+			}
+			
+			private function validarComponenteEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					validarComponente();
+				}
+			}
+			
+			private function validarQtdEstoque(event:MouseEvent = null):void
+			{
+				var modal:ModalValidarQuantidadeEstoque=ModalValidarQuantidadeEstoque(PopUpManager.createPopUp( this, ModalValidarQuantidadeEstoque , true));
+				modal.myParentObject = this;
+				modal.componente = _componente;
+				PopUpManager.centerPopUp(modal);
+			}
+			
+			private function validarQtdEstoqueEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					validarQtdEstoque();
+				}
+			}
+			
 			private function salvarEnter(event:KeyboardEvent):void
 			{		
 				if (event.charCode == 13) {
@@ -240,6 +362,7 @@
 					voltar();
 				}
 			}
+			
 			
 		]]>
 	</fx:Script>
@@ -282,6 +405,34 @@
 				   icon="@Embed(source='/assets/icons/clean.png')"
 				   keyDown="limparEnter(event)"
 				   click="limpar(event)"
+				   />
+		<mx:Button id="validarButton" excludeFrom="listagem"
+				   label="Validar cadastro componente"
+				   height="25" enabled="{_componente.valido == false}"
+				   icon="@Embed(source='/assets/icons/flag_green.png')"
+				   keyDown="validarComponenteEnter(event)"
+				   click="validarComponente(event)"
+				   />
+		<mx:Button id="validarQtdEstoqueButton" excludeFrom="listagem"
+				   label="Validar qtd em estoque"
+				   height="25" enabled="{_componente.qtdComprada != 0}"
+				   icon="@Embed(source='/assets/icons/flag_green.png')"
+				   keyDown="validarQtdEstoqueEnter(event)"
+				   click="validarQtdEstoque(event)"
+				   />
+		<mx:Button id="requisitarButton" excludeFrom="listagem"
+				   label="Repor estoque"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/lightbulb_add.png')"
+				   keyDown="requisitarCompraEnter(event)"
+				   click="requisitarCompra(event)"
+				   />
+		<mx:Button id="compraAvulsaButton" excludeFrom="listagem"
+				   label="Realizar compra avulsa"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/lightbulb_add.png')"
+				   keyDown="realizarCompraAvulsaEnter(event)"
+				   click="realizarCompraAvulsa(event)"
 				   />
 		<mx:Button id="voltarButton" excludeFrom="listagem"
 				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"

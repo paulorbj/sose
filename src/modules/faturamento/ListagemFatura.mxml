@@ -601,7 +601,7 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false"							 
 							   editable="false"
 							   sortable="false">
@@ -620,50 +620,50 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:AdvancedDataGridColumn>
+			</mx:DataGridColumn>
 			
-			<mx:AdvancedDataGridColumn id="nome"
+			<mx:DataGridColumn id="nome"
 							   headerText = "Apelido da fatura"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cliente"
+			<mx:DataGridColumn id="cliente"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="cliente.nomeSistema"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="dataCriacao"
+			<mx:DataGridColumn id="dataCriacao"
 							   headerText = "Nº Fatura"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="numeroFatura"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="status" 
+			<mx:DataGridColumn id="status" 
 							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 							   dataField = "statusString"
 							   width="80"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="dataEmissaoFatura"
+			<mx:DataGridColumn id="dataEmissaoFatura"
 							   headerText = "Data emissão"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="dataEmissaoFaturaString"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="dataVencimentoFatura"
+			<mx:DataGridColumn id="dataVencimentoFatura"
 							   headerText = "Data vencimento"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="dataVencimentoFaturaString"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="dataPagamentoFatura"
+			<mx:DataGridColumn id="dataPagamentoFatura"
 							   headerText = "Data pagamento"
 							   textAlign="center"
 							   sortable="false"

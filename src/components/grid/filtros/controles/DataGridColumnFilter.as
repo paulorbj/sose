@@ -33,7 +33,6 @@ import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.ui.Keyboard;
 
-import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 import mx.controls.dataGridClasses.DataGridColumn;
 import mx.core.Application;
 import mx.core.ClassFactory;
@@ -59,7 +58,7 @@ use namespace mx_internal;
  * 
  */
 [Bindable]
-public class DataGridColumnFilter extends AdvancedDataGridColumn 
+public class DataGridColumnFilter extends DataGridColumn 
 {
 
 	/**
@@ -202,7 +201,11 @@ public class DataGridColumnFilter extends AdvancedDataGridColumn
 			for each(var str:String in splits){
 				item = item[str];
 			}
-			return item as String;
+			if(item != null){
+				return item.toString();
+			}else{
+				return null;
+			}
 		}
 		
 		return item[dataField];

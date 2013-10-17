@@ -723,63 +723,63 @@
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn id="cAcoes" headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:DataGridColumn id="cAcoes" headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".05"							 
 							   editable="false"
 							   sortable="false" />
 			
-			<mx:AdvancedDataGridColumn id="status" 
+			<mx:DataGridColumn id="status" 
 							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 							   dataField = "statusString" textAlign="center"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="numeroOs"
+			<mx:DataGridColumn id="numeroOs"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 							   textAlign="center"
 							   sortable="false" width=".10"
 							   dataField="ordemServico.numeroOrdemServico"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="numeroOsPai"
+			<mx:DataGridColumn id="numeroOsPai"
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 							   textAlign="center"
 							   sortable="false" width=".10"
 							   dataField="ordemServico.unidadePai.numeroOrdemServico"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cliente" dataField="ordemServico.cliente.nomeSistema"
+			<mx:DataGridColumn id="cliente" dataField="ordemServico.cliente.nomeSistema"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 							   textAlign="center" width=".10"
 							   sortable="false"					   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="unidade"
+			<mx:DataGridColumn id="unidade"
 							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 							   textAlign="center"
 							   sortable="false" width=".10"
 							   dataField="ordemServico.unidade.nome"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="nSerieFabricante" 
+			<mx:DataGridColumn id="nSerieFabricante" 
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 							   dataField = "ordemServico.serieFabricante"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="nSerieCliente" 
+			<mx:DataGridColumn id="nSerieCliente" 
 							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 							   dataField = "ordemServico.serieCliente"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cLaboratorio" 
+			<mx:DataGridColumn id="cLaboratorio" 
 							   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
 							   dataField = "ordemServico.unidade.laboratorio.nome"
 							   width=".10"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="cUsuario" 
+			<mx:DataGridColumn id="cUsuario" 
 							   headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
 							   dataField = "criadoPor.usuario"
 							   width=".10"
