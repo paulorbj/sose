@@ -1,14 +1,17 @@
 package br.com.sose.daoImpl.areaTecnica;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 import br.com.sose.daoImpl.HibernateDaoGenerico;
+import br.com.sose.entity.admistrativo.Componente;
 import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.orcrepGenerico.RequisicaoComponente;
 import br.com.sose.entity.reparo.Reparo;
+import br.com.sose.utils.DateUtils;
 
 @Repository("requisicaoComponenteDao")
 public class RequisicaoComponenteDao extends HibernateDaoGenerico<RequisicaoComponente, Long> {
@@ -43,6 +46,14 @@ public class RequisicaoComponenteDao extends HibernateDaoGenerico<RequisicaoComp
 		return q.list();
 	}
 
+	@SuppressWarnings("unchecked")
+	public Long listarTotalRequisicoesUltimos6Meses(Componente componente) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT SUM(h.quantidade) FROM "+ entityClass.getName() + " h WHERE h.dataRequisicao > :dataBase AND h.componente = :componente ");
+		q.setParameter("componente", componente);
+		q.setDate("dataBase", new Date(DateUtils.addDays(new Date().getTime(), -180)));
+		return (Long)q.uniqueResult();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<RequisicaoComponente> listarRequisicaoPorReparo(final Reparo reparo) {
 		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.reparo=:reparo");

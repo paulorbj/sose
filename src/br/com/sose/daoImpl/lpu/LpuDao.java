@@ -1,4 +1,4 @@
-package br.com.sose.daoImpl.administrativo;
+package br.com.sose.daoImpl.lpu;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Repository;
 import br.com.sose.daoImpl.HibernateDaoGenerico;
 import br.com.sose.daoImpl.JpaDao;
 import br.com.sose.entity.admistrativo.Atividade;
-import br.com.sose.entity.admistrativo.Lpu;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
+import br.com.sose.entity.lpu.Lpu;
 
 @Repository("lpuDao")
 public class LpuDao extends HibernateDaoGenerico<Lpu, Long> {
@@ -35,10 +35,19 @@ public class LpuDao extends HibernateDaoGenerico<Lpu, Long> {
 	
 	@SuppressWarnings("unchecked")
 	public Lpu buscarCompletoId(final Long id) {
-		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h  INNER JOIN FETCH h.listaItemLpu WHERE h.id = :id");
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.id = :id");
+		q.setParameter("id", id);
+		Lpu lpuRetorno =  (Lpu)q.uniqueResult();
+		return lpuRetorno;
+	}
+	
+	public Lpu buscarLpuMatriz(Long id) throws Exception {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h  " +
+				"LEFT JOIN FETCH h.listaUnidadeItemLpu uil WHERE h.id = :id");
 		q.setParameter("id", id);
 		return (Lpu)q.uniqueResult();
 	}
+
 	
 	public List<Lpu> findAll() {
 		Query q = this.sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h ");
