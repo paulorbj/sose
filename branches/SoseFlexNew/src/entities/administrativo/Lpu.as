@@ -7,7 +7,7 @@ package entities.administrativo
 	import utils.ScreenUtils;
 	
 	[Bindable]	
-	[RemoteClass(alias="br.com.sose.entity.admistrativo.Lpu")]	
+	[RemoteClass(alias="br.com.sose.entity.lpu.Lpu")]	
 	public class Lpu
 	{
 		
@@ -32,7 +32,7 @@ package entities.administrativo
 		
 		private var _rodouAutoAssociar:Boolean;
 				
-		private var _listaItemLpu:ArrayCollection;
+		private var _listaUnidadeItemLpu:ArrayCollection;
 		
 		public function Lpu(){
 		}
@@ -214,14 +214,14 @@ package entities.administrativo
 			_rodouAutoAssociar = value;
 		}
 
-		public function get listaItemLpu():ArrayCollection
+		public function get listaUnidadeItemLpu():ArrayCollection
 		{
-			return _listaItemLpu;
+			return _listaUnidadeItemLpu;
 		}
 
-		public function set listaItemLpu(value:ArrayCollection):void
+		public function set listaUnidadeItemLpu(value:ArrayCollection):void
 		{
-			_listaItemLpu = value;
+			_listaUnidadeItemLpu = value;
 		}
 
 

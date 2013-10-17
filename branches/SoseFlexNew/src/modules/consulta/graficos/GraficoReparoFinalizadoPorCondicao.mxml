@@ -27,12 +27,12 @@
 			
 			private function init():void
 			{
-				graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(null,null,null,null,null);
+				graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(null,null,null,null,null,null);
 			}
 			
 			protected function aplicar(event:MouseEvent):void
 			{
-				graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(dataDe.inputDate,dataAte.inputDate,cliente.clienteSelecionado,laboratorio.laboratorioSelecionado,tecnico.usuarioSelecionado);
+				graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(dataDe.inputDate,dataAte.inputDate,cliente.clienteSelecionado,laboratorio.laboratorioSelecionado,tecnico.usuarioSelecionado, unidade.unidadeSelecionado);
 			}
 			
 			protected function cancelar(event:MouseEvent):void
@@ -46,6 +46,7 @@
 				laboratorio.limpar();
 				tecnico.limpar();
 				cliente.limpar();
+				unidade.limpar();
 				dataDe.inputDate = null;
 				dataAte.inputDate = null;
 			}
@@ -91,6 +92,7 @@
 			<combos:ComboCliente id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="100%"  />
 			<combos:ComboLaboratorio id="laboratorio" labelText="Laboratório" width="100%" />
 			<combos:ComboUsuario id="tecnico" labelText="Técnico" width="100%" />
+			<combos:ComboUnidade id="unidade" labelText="Unidade" width="100%" />
 			
 			<mx:HBox bottom="5" width="100%">
 				<s:Button label="Aplicar" click="aplicar(event)" />

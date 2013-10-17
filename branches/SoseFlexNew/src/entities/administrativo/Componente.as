@@ -33,6 +33,8 @@ package entities.administrativo
 		private var _nomeFabricante:String;
 		private var _nomeEncapsulamento:String;
 		private var _nomeTipoComponente:String;
+		private var _valido:Boolean;
+		private var _qtdComprada:Number;
 		
 		public function Componente(){
 			_id = 0;
@@ -281,6 +283,26 @@ package entities.administrativo
 		public function set nomeTipoComponente(value:String):void
 		{
 			_nomeTipoComponente = value;
+		}
+
+		public function get valido():Boolean
+		{
+			return _valido;
+		}
+
+		public function set valido(value:Boolean):void
+		{
+			_valido = value;
+		}
+
+		public function get qtdComprada():Number
+		{
+			return _qtdComprada;
+		}
+
+		public function set qtdComprada(value:Number):void
+		{
+			_qtdComprada = value;
 		}
 		
 		

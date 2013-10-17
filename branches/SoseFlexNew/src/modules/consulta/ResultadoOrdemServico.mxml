@@ -151,7 +151,7 @@
 				currentState = "listagem";
 			}
 			
-			public function tempoNaServilogi(item:Object, column:AdvancedDataGridColumn):String
+			public function tempoNaServilogi(item:Object, column:DataGridColumn):String
 			{
 				var dataFinal:Date = new Date();
 				// Calcula a diferença entre hoje e da data de inicio
@@ -212,7 +212,7 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:AdvancedDataGridColumn headerText = ""	
+				<mx:DataGridColumn headerText = ""	
 								   draggable="false"	width="30"					 
 								   editable="false"
 								   sortable="false">
@@ -231,7 +231,7 @@
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>
-				</mx:AdvancedDataGridColumn>
+				</mx:DataGridColumn>
 				
 				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumOrdemServico" width="80"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
@@ -302,13 +302,13 @@
 								   dataField = "nNf"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="dtNFChegada" 
+				<mx:DataGridColumn id="dtNFChegada" 
 								   headerText = "DT da NF"
 								   dataField = "dataEntradaNFString"
 								   width="80"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="dtNFEntrada" 
+				<mx:DataGridColumn id="dtNFEntrada" 
 								   headerText = "DT da NF de entrada"
 								   dataField = "dataChegadaNFString"
 								   width="80"
@@ -356,7 +356,7 @@
 								   width="80"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="dtEmissaoNFSaida" 
+				<mx:DataGridColumn id="dtEmissaoNFSaida" 
 								   headerText = "DT da emissão NF de saída"
 								   dataField = "dataEmissaoNFSaidaString"
 								   width="80"

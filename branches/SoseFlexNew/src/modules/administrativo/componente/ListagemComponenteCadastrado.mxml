@@ -331,41 +331,41 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:AdvancedDataGridColumn id="nome" width=".30"
+			<mx:DataGridColumn id="nome" width=".30"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}"
 							   textAlign="center"
 							   sortable="true" draggable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:AdvancedDataGridColumn id="descricao" textAlign="center" sortable="true" draggable="false" width=".15"
+			<mx:DataGridColumn id="descricao" textAlign="center" sortable="true" draggable="false" width=".15"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="tipoComponente" textAlign="center" sortable="true" draggable="false" width=".10"
+			<mx:DataGridColumn id="tipoComponente" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}"
 							   dataField = "nomeTipoComponente"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="encapsulamento" textAlign="center" sortable="true" draggable="false" width=".10"
+			<mx:DataGridColumn id="encapsulamento" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
 							   dataField = "nomeEncapsulamento"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="fabricante" textAlign="center" sortable="true" draggable="false" width=".10"
+			<mx:DataGridColumn id="fabricante" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
 							   dataField = "nomeFabricante"
 							   />
 			
-			<mx:AdvancedDataGridColumn id="estoqueMinimo" textAlign="center" sortable="true" draggable="false" width=".10"
+			<mx:DataGridColumn id="estoqueMinimo" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}"
 							   dataField = "qtdEstoqueMinimo"
 							   />
 			
 			<!-- EDIT/REMOVE COLUMNS -->
 			
-			<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".15"							 
 							   editable="false" textAlign="center"
 							   sortable="false">
@@ -392,7 +392,7 @@
 						</mx:HBox>
 					</fx:Component>
 				</mx:itemRenderer>
-			</mx:AdvancedDataGridColumn>
+			</mx:DataGridColumn>
 		</grid:columns>
 	</grid:MantisTable>
 	

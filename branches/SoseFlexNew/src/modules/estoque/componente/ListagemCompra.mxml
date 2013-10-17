@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:components="components.*" width="100%" height="100%" horizontalAlign="center"
+		 paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
+		 initialize="init()" xmlns:compra="modules.estoque.componente.*">
+	
+	<fx:Declarations>
+		
+		<mx:RemoteObject id="compraService" destination="compraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listaCompras"      
+					   fault="onListarComprasFault(event)" 
+					   result="onListarComprasResult(event)"
+					   />
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarCompraFault(event)" 
+					   result="onBuscarCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
+		
+		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Usuario;
+			import entities.compra.Compra;
+			import entities.compra.ItemCompra;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			
+			[Bindable]
+			private var _listaCompra:ArrayCollection;
+			
+			[Bindable]
+			public var _compra:Compra;
+			
+			private function init():void
+			{
+				compraService.listaCompras();
+				consumidorEstoqueService.subscribe();
+			}
+			
+			
+			private function voltar(event:Event):void
+			{
+				this.currentState = "listagem";
+			}
+			
+			
+			private function onMsgEstoque(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.COMPRA_CRIADA){
+					var compraCriada:Compra = globalMessage.conteudo as Compra;
+					_listaCompra.addItemAt(compraCriada, 0);
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.DELETAR_ITEM_COMPRA){
+					compraService.listaCompras();
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_ITEM_COMPRA){
+					var itemCompra:ItemCompra = globalMessage.conteudo as ItemCompra;
+					if(itemCompra.compra.statusString == "Finalizada"){
+						compraService.listaCompras();
+					}
+				}
+			} 
+			
+			private function onBuscarCompraResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_compra = event.result as Compra;
+				
+				this.currentState = "edicao";
+				detalhamentoCompra.addEventListener("voltarListagemCompra",voltar);
+				detalhamentoCompra.addEventListener("compraDeletada",compraDeletadaListener);
+				detalhamentoCompra.compra = _compra;
+			}
+			
+			private function onBuscarCompraFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");	
+			}
+			
+			private function compraDeletadaListener(event:Event):void
+			{
+				this.currentState = "listagem";
+				compraService.listaCompras();	
+				dispatchEvent(new MensagemEvent("Compra deletada com sucesso", MessageType.SUCCESS, 3000));
+			}
+			
+			private function onListarComprasResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaCompra = event.result as ArrayCollection;
+			}
+			
+			private function onListarComprasFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarComprasFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			public function visualizarCompra(data:Object=null, event:Event=null):void
+			{	
+				
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaCompra.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data)
+					_compra = data as Compra;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					//this.currentState = "edicao"; //teste
+
+					compraService.buscarPorId(_compra.id);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(visualizarCompraAutenticar);	
+				}
+			}
+			
+			public function visualizarCompraAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				visualizarCompra();
+			}
+			
+			private function getRowColor(item:Object,
+										 rowIndex:int,
+										 dataIndex:int,
+										 color:uint):uint
+			{
+				if(item.statusString == "Aberta"){
+					return 0xFFD786;
+				}
+				if(item.statusString == "Finalizada"){
+					return 0x87FF9B;
+				}	
+				return 0x5FA6BF;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="100%"
+					  includeIn="listagem"
+					  draggableColumns="true"
+					  dataProvider="{_listaCompra}"
+					  doubleClickEnabled="false"
+					  rowColorFunction="getRowColor"
+					  >
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+									   draggable="false"	width="30"						 
+									   editable="false"
+									   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.visualizarCompra(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />						
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+			<mx:DataGridColumn 	headerText = "Apelido da compra" textAlign="center" sortable="false" dataField="nome" />
+			
+			<mx:DataGridColumn headerText = "Status" textAlign="center" sortable="false" dataField="statusString" />
+		</grid:columns>
+	</grid:MantisTable>
+	
+	<compra:DetalhamentoCompra id="detalhamentoCompra" excludeFrom="listagem" />
+		
+</mx:VBox>

@@ -137,6 +137,18 @@
 				}
 			}
 			
+			private function solicitarCompra(event:MouseEvent = null):void
+			{
+				
+			}
+			
+			private function solicitarCompraEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					solicitarCompra();
+				}
+			}
+			
 			private function limpar(event:MouseEvent = null):void
 			{
 				_componente = new Componente();
@@ -211,6 +223,14 @@
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   keyDown="salvarEnter(event)"
 				   click="salvar(event)"
+				   />
+		
+		<mx:Button id="compraButton" excludeFrom="listagem"
+				   label="Solicitar compra"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   keyDown="solicitarCompraEnter(event)"
+				   click="solicitarCompra(event)"
 				   />
 		<mx:Button id="cleanButton" excludeFrom="listagem"
 				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"

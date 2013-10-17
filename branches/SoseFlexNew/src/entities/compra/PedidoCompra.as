@@ -1,5 +1,6 @@
 package entities.compra
 {
+	import entities.administrativo.Componente;
 	import entities.administrativo.Usuario;
 	import entities.orcamentoreparo.RequisicaoComponente;
 	import entities.recebimento.OrdemServico;
@@ -14,8 +15,13 @@ package entities.compra
 		private var _quantidade:Number;
 		private var _requisicao:RequisicaoComponente;
 		private var _possuiAmostra:Boolean;
+		private var _componente:Componente;
 		private var _dataCriacao:Date;
-		private var _statusString;
+		private var _statusString:String;
+		private var _itemCompra:ItemCompra;
+		private var _isSelected:Boolean;
+		private var _isEnabled:Boolean = true;
+		private var _origemPedido:String;
 			
 		public function PedidoCompra(){
 			_id = 0;
@@ -92,14 +98,64 @@ package entities.compra
 			_id = value;
 		}
 
-		public function get statusString()
+		public function get statusString():String
 		{
 			return _statusString;
 		}
 
-		public function set statusString(value):void
+		public function set statusString(value:String):void
 		{
 			_statusString = value;
+		}
+		
+		public function get isSelected():Boolean
+		{
+			return _isSelected;
+		}
+		
+		public function set isSelected(value:Boolean):void
+		{
+			_isSelected = value;
+		}
+
+		public function get isEnabled():Boolean
+		{
+			return _isEnabled;
+		}
+
+		public function set isEnabled(value:Boolean):void
+		{
+			_isEnabled = value;
+		}
+
+		public function get itemCompra():ItemCompra
+		{
+			return _itemCompra;
+		}
+
+		public function set itemCompra(value:ItemCompra):void
+		{
+			_itemCompra = value;
+		}
+
+		public function get componente():Componente
+		{
+			return _componente;
+		}
+
+		public function set componente(value:Componente):void
+		{
+			_componente = value;
+		}
+
+		public function get origemPedido():String
+		{
+			return _origemPedido;
+		}
+
+		public function set origemPedido(value:String):void
+		{
+			_origemPedido = value;
 		}
 
 

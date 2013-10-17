@@ -54,6 +54,7 @@
 				lpuService.listarLpu();	
 				this.addEventListener(LpuEvent.EDITAR_LPU,onEditar);
 				this.addEventListener(LpuEvent.EXCLUIR_LPU,onExcluir);
+				this.addEventListener("voltarListagemLPU",voltar);
 			}
 			
 			private function onEditar(event:LpuEvent):void

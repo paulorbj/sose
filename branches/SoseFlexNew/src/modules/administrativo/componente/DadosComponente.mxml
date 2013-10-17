@@ -21,21 +21,26 @@
 			
 			public function get componente():Componente
 			{
-				_componente.precoUnitario = vUnitario.getValor();
-				_componente.qtdEstoqueMinimo = parseInt(estoqueMinimo.inputText);
+				if(this.currentState == "normal"){
+					_componente.precoUnitario = vUnitario.getValor();
+					_componente.qtdEstoqueMinimo = parseInt(estoqueMinimo.inputText);
+				}
 				_componente.tipo = cbTipoComponente.tipoComponenteSelecionado;
 				_componente.encapsulamento = cbEncapsulamento.encapsulamentoSelecionado;
 				_componente.fabricante = cbFabricante.fabricanteSelecionado;
 				return _componente;
 			}
-
+			
 			public function set componente(value:Componente):void
 			{
-				estoqueMinimo.inputText = value.qtdEstoqueMinimo.toString();
+				if(this.currentState == "normal"){
+					estoqueMinimo.inputText = value.qtdEstoqueMinimo.toString();
+					vUnitario.setValor(value.precoUnitario);
+				}
 				cbTipoComponente.tipoComponenteSelecionado = value.tipo;
 				cbEncapsulamento.encapsulamentoSelecionado = value.encapsulamento;
 				cbFabricante.fabricanteSelecionado = value.fabricante;
-				vUnitario.setValor(value.precoUnitario);
+				
 				_componente = value;
 			}
 			
@@ -45,8 +50,11 @@
 				cbTipoComponente.limpar();
 				cbEncapsulamento.limpar();
 				cbFabricante.limpar();
-				estoqueMinimo.inputText = "";
-				vUnitario.setValor(0);
+				
+				if(this.currentState == "normal"){
+					estoqueMinimo.inputText = "";
+					vUnitario.setValor(0);
+				}
 			}
 			
 			public function validarCampos():Boolean {	
@@ -60,7 +68,7 @@
 				var isValidForm:Boolean = validatorErrorArray.length == 0;			
 				return isValidForm;
 			}
-
+			
 		]]>
 	</fx:Script>
 	
@@ -71,7 +79,12 @@
 	<fx:Binding destination="descricao.inputText" source="_componente.descricao" twoWay="true"/>
 	<fx:Binding destination="ativo.selected" source="_componente.cadastroSistemaAtivo" twoWay="true"/>
 	<fx:Binding source="_componente.dtUltimaCompra" destination="dtUltimaCompra.inputDate" twoWay="true" />
-
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="modal"/>
+	</mx:states>
+	
 	<mx:HBox verticalAlign="bottom" width="100%">
 		<texto:TextInput id="nome" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}" width="30%"  />
 		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="60%" />
@@ -82,11 +95,11 @@
 		<combos:ComboTipoComponente id="cbTipoComponente" required="true" labelText="{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}" width="25%" />
 		<combos:ComboEncapsulamento id="cbEncapsulamento" required="true" labelText="{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}" width="25%" />
 		<combos:ComboFabricante id="cbFabricante" required="true" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="25%" />
-		<texto:TextInput id="estoqueMinimo" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}" width="25%"  />
+		<texto:TextInput id="pinos" labelText="Pinos" width="10%"  />
 	</mx:HBox>
 	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<texto:TextInput id="pinos" labelText="Pinos" width="10%"  />
+	<mx:HBox verticalAlign="bottom" width="100%" excludeFrom="modal" >
+		<texto:TextInput id="estoqueMinimo" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}" width="10%"  />
 		<texto:TextInput id="datasheet" labelText="Datasheet" width="30%"  />
 		<texto:TextInput id="fornecedor" labelText="Fornecedor" width="30%" />
 		<componentes:DataInput id="dtUltimaCompra"  labelText="Dt. Ultima compra" width="10%" inputHeight="20" />

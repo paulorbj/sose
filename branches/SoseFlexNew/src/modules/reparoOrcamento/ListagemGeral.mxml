@@ -624,7 +624,7 @@
 					")");
 			}
 			
-			private function labelFunction2(item:Object, column:AdvancedDataGridColumn):String
+			private function labelFunction2(item:Object):String
 			{
 				var myString:String = "";
 				if(item != null)
@@ -633,17 +633,7 @@
 					myString = myString + "Unidade : " + item.unidade + "\n"
 				}
 				return myString;
-			}
-			
-			private function tipFunc(value:Object):String
-			{
-				if (value is AdvancedDataGridColumn)
-					return "Column Name";
-				else
-					// Use the 'name' property of the data provider element.
-					return "Name: ";
-			}
-			
+			}			
 		]]>
 	</fx:Script>
 	
@@ -675,7 +665,6 @@
 						  width="100%"
 						  height="100%"
 						  rowColorFunction="getRowColor"
-						  dataTipFunction="tipFunc"
 						  draggableColumns="true"
 						  dataProvider="{listaOrcamentoReparo}"
 						  itemDoubleClick="editItem(data, event,false)"	>
@@ -685,16 +674,32 @@
 				
 				<!-- EDIT/REMOVE COLUMNS -->
 				
-				<mx:AdvancedDataGridColumn headerText = ""	id="cAcoes"
+				<mx:DataGridColumn headerText = ""	
 								   draggable="false" width="25"							 
 								   editable="false"
 								   sortable="false">
-					
-				</mx:AdvancedDataGridColumn>
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.editItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
 				
-				<mx:AdvancedDataGridColumn id="cCheckBox" headerText = ""							   
+				<mx:DataGridColumn headerText = ""							   
+								   itemRenderer="components.grid.CheckBoxItemRenderer"
+								   headerRenderer="components.grid.CheckBoxItemRenderer"
 								   width="25" resizable="false" draggable="false" sortable="false"
-								   dataField="isSelected" headerRenderer="components.grid.CheckBoxItemRenderer"
+								   dataField="isSelected"
 								   />
 				
 				<dc:DataGridColumnFilter id="origem" showDataTips="true" 
@@ -722,10 +727,11 @@
 										 width="80"
 										 />
 				
-				<mx:AdvancedDataGridColumn id="cComponentePendente" headerText = ""	dataField="componentePendente"
+				<mx:DataGridColumn headerText = ""	dataField="componentePendente"
 								   draggable="false" width="25"							 
-								   editable="false"
+								   editable="false" itemRenderer="modules.reparoOrcamento.ImageItemRenderer"
 								   sortable="false" />
+
 
 				
 				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOs"
@@ -776,51 +782,26 @@
 										 sortable="false" width="80"
 										 dataField="clienteAvaya"						   
 										 />				
-				<mx:AdvancedDataGridColumn id="diasServilogi" showDataTips="true"
-								   headerText = "Serv." dataTipFunction="tipFunc"
+				<mx:DataGridColumn id="diasServilogi" 
+								   headerText = "Serv."
 								   width="35" sortable="false" dataField = "tempoNaServilogi"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="diasLaboratorio" showDataTips="true" 
-								   headerText = "Lab." 
+				<mx:DataGridColumn id="diasLaboratorio" showDataTips="true" 
+								   headerText = "Lab." dataTipFunction="labelFunction2"
 								   width="35" sortable="false" dataField = "tempoNoLaboratorio"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="prazo" 
+				<mx:DataGridColumn id="prazo" itemRenderer="modules.reparoOrcamento.CustomBackgroundComp"
 								   headerText = "{resourceManager.getString('ApplicationResource','PRAZO')}"
 								   width="35" sortable="false" dataField = "prazoReparo"
 								   />
 				
-				<mx:AdvancedDataGridColumn id="clDataPrioridade" 
+				<mx:DataGridColumn id="clDataPrioridade" 
 								   headerText = "{resourceManager.getString('ApplicationResource','PRIORIDADE')}"
 								   width="60" dataField = "prioridadeString"
 								   />
 			</grid:columns>
-			
-			<grid:rendererProviders>
-				<mx:AdvancedDataGridRendererProvider column="{cAcoes}">
-					<mx:renderer>
-						<fx:Component>
-							<mx:HBox horizontalAlign="center"
-									 verticalAlign="middle"
-									 >
-								
-								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
-										  click="parentDocument.editItem(data, event, true)"
-										  buttonMode="true"
-										  useHandCursor="true"
-										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
-										  />
-							</mx:HBox>
-						</fx:Component>
-					</mx:renderer>
-				</mx:AdvancedDataGridRendererProvider>	
-				
-				<mx:AdvancedDataGridRendererProvider column="{cCheckBox}" renderer="components.grid.CheckBoxItemRenderer" />
-				<mx:AdvancedDataGridRendererProvider column="{prazo}" renderer="modules.reparoOrcamento.CustomBackgroundComp" />
-				<mx:AdvancedDataGridRendererProvider column="{cComponentePendente}" renderer="modules.reparoOrcamento.ImageItemRenderer" />
-			</grid:rendererProviders>
-			
 		</grid:MantisTable>
 		<reparoOrcamento:LegendaReparo id="legenda" />
 	</mx:VBox>

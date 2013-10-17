@@ -104,7 +104,7 @@
 			}
 			
 			private function voltar():void {
-				
+				dispatchEvent(new Event("voltarListagemLPU"));
 			}
 			
 			private function onSalvarLpuResult(event:ResultEvent = null):void

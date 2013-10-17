@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" title="Detalhamento do item de compra" creationPolicy="all"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*"
+		 close="close();" showCloseButton="true"
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="1200" height="450" xmlns:componente="modules.estoque.componente.*">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.compra.ItemCompra;
+			
+			import modules.estoque.componente.eventos.ModalItemCompraEvent;
+			
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			private var _itemCompra:ItemCompra;
+			
+			public var myParentObject:DisplayObject;
+			
+			override public function addEventListener(
+				type:String, listener:Function,
+				useCapture:Boolean = false,
+				priority:int = 0,
+				useWeakReference:Boolean = false):void {
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			
+			private function confirm():void	
+			{				
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			
+			public function get itemCompra():ItemCompra
+			{
+				return _itemCompra;
+			}
+
+			public function set itemCompra(value:ItemCompra):void
+			{
+				_itemCompra = value;
+				cmDetalhamentoItemCompra.itemCompra = _itemCompra;
+				cmDetalhamentoItemCompra.myParentObject = myParentObject;
+				cmPedidosCompra.itemCompra = _itemCompra;
+				cmHistoricoCompra.componente = _itemCompra.componente;
+				cmHistoricoUso.componente = _itemCompra.componente;
+				cmCotacoes.componente = _itemCompra.componente;
+				cmArquivos.componente = _itemCompra.componente;
+				cmArquivos.myParentObject = myParentObject;
+				cmArquivos.modal = this;
+				cmArquivos.urlVisualizarArquivo = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+			}
+			
+		
+		]]>
+	</fx:Script>
+	
+	<mx:TabNavigator borderStyle="solid" width="100%" height="100%" >
+		
+		<mx:VBox label="Detalhameto item de compra" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalDetalhamentoItemCompra id="cmDetalhamentoItemCompra" />
+		</mx:VBox>
+		
+		<mx:VBox label="Pedidos de compra" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalPedidosCompra id="cmPedidosCompra" />
+		</mx:VBox>
+		
+		<mx:VBox label="Histórico de uso" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalHistoricoUso id="cmHistoricoUso" />
+		</mx:VBox>
+		
+		<mx:VBox label="Histórico de compra" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalHistoricoCompra id="cmHistoricoCompra" />
+		</mx:VBox>  
+		
+		<mx:VBox label="Cotações" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalCotacoes id="cmCotacoes" />
+		</mx:VBox>
+		
+		<mx:VBox label="Arquivos" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalArquivos id="cmArquivos" />
+		</mx:VBox>
+		
+	</mx:TabNavigator>
+</mx:TitleWindow>

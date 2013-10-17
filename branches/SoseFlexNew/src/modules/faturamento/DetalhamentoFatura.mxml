@@ -142,7 +142,7 @@
 				this.currentState = "normal";
 			}
 			
-			private function labelCondicao(item:Object, column:AdvancedDataGridColumn):String
+			private function labelCondicao(item:Object, column:DataGridColumn):String
 			{	
 				if(item.reparo){
 					var str:String = item.reparo.condicao;
@@ -195,12 +195,12 @@
 				habilitaCampos();
 			}
 			
-			private function labelFunctionSistema(item:Object, column:AdvancedDataGridColumn):String {
+			private function labelFunctionSistema(item:Object, column:DataGridColumn):String {
 				var os:OrdemServico = item as OrdemServico;
 				return Formatador.formatarValorNumber(os.valorSistema);
 			}
 			
-			private function labelFunctionFaturado(item:Object, column:AdvancedDataGridColumn):String {
+			private function labelFunctionFaturado(item:Object, column:DataGridColumn):String {
 				var os:OrdemServico = item as OrdemServico;
 				return Formatador.formatarValorNumber(os.valorFaturado);
 			}
@@ -311,55 +311,55 @@
 						
 						<!-- EDIT/REMOVE COLUMNS -->
 						
-						<mx:AdvancedDataGridColumn id="numeroNF" width=".10"
+						<mx:DataGridColumn id="numeroNF" width=".10"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="notaFiscal.numero"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="numeroOs" width=".10"
+						<mx:DataGridColumn id="numeroOs" width=".10"
 										   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="numeroOrdemServico"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="numeroNFSaida" width=".10"
+						<mx:DataGridColumn id="numeroNFSaida" width=".10"
 										   headerText = "Nº NF Saída"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="notaFiscalSaida.numero"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="unidade" width=".20"
+						<mx:DataGridColumn id="unidade" width=".20"
 										   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 										   textAlign="center"
 										   sortable="false"
 										   dataField="unidade.nome"							   
 										   />
 						
-						<mx:AdvancedDataGridColumn id="analiseTecnica"  width=".10"
+						<mx:DataGridColumn id="analiseTecnica"  width=".10"
 										   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
 										   labelFunction="labelCondicao"
 										   />
 						
-						<mx:AdvancedDataGridColumn id="origemFaturamento" width=".10" textAlign="center"
+						<mx:DataGridColumn id="origemFaturamento" width=".10" textAlign="center"
 										   headerText = "Origem"
 										   dataField = "origemFaturamento"
 										   />
 						
-						<mx:AdvancedDataGridColumn id="valorSistema" width=".10" textAlign="center"
+						<mx:DataGridColumn id="valorSistema" width=".10" textAlign="center"
 										   headerText = "Valor Sistema"
 										   labelFunction="labelFunctionSistema"
 										   />
 						
-						<mx:AdvancedDataGridColumn id="valorFaturado" width=".10" textAlign="center"
+						<mx:DataGridColumn id="valorFaturado" width=".10" textAlign="center"
 										   headerText = "Valor Faturado"
 										   labelFunction="labelFunctionFaturado"
 										   />
 						
-						<mx:AdvancedDataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 										   draggable="false"	excludeFrom="editarOrdemServico"						 
 										   editable="false" width=".05"
 										   sortable="false">
@@ -378,7 +378,7 @@
 									</mx:HBox>
 								</fx:Component>
 							</mx:itemRenderer>
-						</mx:AdvancedDataGridColumn>
+						</mx:DataGridColumn>
 					</grid:columns>
 				</grid:MantisTable>
 				

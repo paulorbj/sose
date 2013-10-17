@@ -1,21 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:grid="components.grid.*"
 		 xmlns:texto="components.textInput.*" width="100%"
-		 xmlns:combos="components.combos.*" xmlns:componentes="components.*"
+		 xmlns:combos="components.combos.*" xmlns:componentes="components.*" xmlns:fileupload="components.fileupload.*" xmlns:imageviewer="components.imageviewer.*"
 		 >
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorEntidadePorIdentificador"      
+					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
+					   result="onListarPorEntidadePorIdentificadorResult(event)"
+					   />
+			
+		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
+			import components.fileupload.UploadEvent;
+			
 			import entities.administrativo.Componente;
 			
-			[Bindable]
-			private var _componente:Componente = new Componente();
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			
+			[Bindable]
+			public var _componente:Componente = new Componente();
+			
+			[Bindable]
+			private var _listaArquivoUpload:ArrayCollection = new ArrayCollection();
+			
+			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaArquivoUpload.removeAll();
+				_listaArquivoUpload = event.result as ArrayCollection;
+			}
+			
+			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
 			
 			public function get componente():Componente
 			{
@@ -27,7 +56,7 @@
 				_componente.fabricante = cbFabricante.fabricanteSelecionado;
 				return _componente;
 			}
-
+			
 			public function set componente(value:Componente):void
 			{
 				estoqueMinimo.inputText = value.qtdEstoqueMinimo.toString();
@@ -38,6 +67,8 @@
 				cbFabricante.fabricanteSelecionado = value.fabricante;
 				vUnitario.setValor(value.precoUnitario);
 				_componente = value;
+				this.addEventListener(UploadEvent.UPLOAD_COMPLETO,uploadConcluidoCallback);
+				uploadConcluidoCallback();
 			}
 			
 			public function limpar():void
@@ -51,7 +82,14 @@
 				posicaoEstoque.inputText = "";
 				vUnitario.setValor(0);
 			}
-
+			
+			private function uploadConcluidoCallback(event:Event=null):void
+			{
+				//componenteUpload.limpar();
+				arquivoUploadService.listarPorEntidadePorIdentificador("COMPONENTE",_componente.id);
+				visualizadoImagem.recarregarImagens();
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -64,26 +102,77 @@
 	<fx:Binding destination="posicaoEstoque.inputText" source="_componente.posicaoEstoque" twoWay="true"/>
 	<fx:Binding destination="ativo.selected" source="_componente.cadastroSistemaAtivo" twoWay="true"/>
 	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<texto:TextInput id="nome" labelText="{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}" width="40%"  />
-		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="50%" />
-		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
-	</mx:HBox>
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<combos:ComboTipoComponente id="cbTipoComponente" labelText="{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}" width="20%" />
-		<combos:ComboEncapsulamento id="cbEncapsulamento" labelText="{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}" width="20%" />
-		<combos:ComboFabricante id="cbFabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="20%" />
-		<texto:TextInput id="estoqueMinimo" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}" width="12%" restrict="0-9" />
-		<texto:TextInput id="qtdEstoque" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_QUANTIDADE')}" width="12%" restrict="0-9" />
-		<texto:TextInput id="posicaoEstoque" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE_POSICAO')}" width="12%"  />
-	</mx:HBox>
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<texto:TextInput id="pinos" labelText="Pinos" width="10%"  />
-		<texto:TextInput id="datasheet" labelText="Datasheet" width="30%"  />
-		<texto:TextInput id="fornecedor" labelText="Fornecedor" width="30%" />
-		<componentes:DataInput id="dtUltimaCompra"  labelText="Dt. Ultima compra" width="10%" inputHeight="20" />
-		<texto:TextInputDinheiro2d id="vUnitario" labelText="Valor Unitário" width="20%" />
-	</mx:HBox>
+	<mx:TabNavigator id="accordion" borderStyle="solid"  width="100%" height="400" >
+		
+		<mx:VBox label="Informações do componente" width="100%" height="100%">
+			<mx:HBox verticalAlign="bottom" width="100%">
+				<texto:TextInput id="nome" labelText="{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}" width="40%"  />
+				<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="50%" />
+				<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
+			</mx:HBox>
+			
+			<mx:HBox verticalAlign="bottom" width="100%">
+				<combos:ComboTipoComponente id="cbTipoComponente" labelText="{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}" width="20%" />
+				<combos:ComboEncapsulamento id="cbEncapsulamento" labelText="{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}" width="20%" />
+				<combos:ComboFabricante id="cbFabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="20%" />
+				<texto:TextInput id="estoqueMinimo" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}" width="12%" restrict="0-9" />
+				<texto:TextInput id="qtdEstoque" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_QUANTIDADE')}" width="12%" restrict="0-9" />
+				<texto:TextInput id="posicaoEstoque" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE_POSICAO')}" width="12%"  />
+			</mx:HBox>
+			
+			<mx:HBox verticalAlign="bottom" width="100%">
+				<texto:TextInput id="pinos" labelText="Pinos" width="10%"  />
+				<texto:TextInput id="datasheet" labelText="Datasheet" width="30%"  />
+				<texto:TextInput id="fornecedor" labelText="Fornecedor" width="30%" />
+				<componentes:DataInput id="dtUltimaCompra"  labelText="Dt. Ultima compra" width="10%" inputHeight="20" />
+				<texto:TextInputDinheiro2d id="vUnitario" labelText="Valor Unitário" width="20%" />
+			</mx:HBox>
+		</mx:VBox>
+		
+		<mx:VBox label="Arquivos dos componentes" width="100%" height="100%" enabled="{_componente.id != 0}" >
+			
+			<mx:HBox width="100%" height="100%" horizontalGap="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<mx:VBox height="100%">
+					<fileupload:ComponenteUpload id="componenteUpload" width="500" idObjeto="{_componente.id}" tipoEntidade="{ComponenteUpload.T_ENTIDADE_COMPONENTE}" />
+					<grid:MantisTable id="viewTable"
+									  width="500" height="100%"
+									  draggableColumns="true"
+									  dataProvider="{_listaArquivoUpload}" >
+						
+						<grid:columns>
+							
+							<mx:DataGridColumn headerText="Nome Sistema" dataField="nome" width="175" />
+							<mx:DataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
+							<mx:DataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="175" />
+							<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+											   draggable="false"  textAlign="center" width="50"							 
+											   editable="false"
+											   sortable="false">
+								<mx:itemRenderer>
+									<fx:Component>
+										<mx:HBox horizontalAlign="center"
+												 verticalAlign="middle"
+												 >
+											<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+													  click="parentDocument.excluirItem(data, event)"
+													  enabled="false"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+													  />
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+						</grid:columns>
+					</grid:MantisTable>
+				</mx:VBox>
+				
+				<imageviewer:ImageCarousel width="400" widthComponente="400" id="visualizadoImagem" idEntidade="{_componente.id}" tipoEntidade="COMPONENTE"/>
+			</mx:HBox>
+			
+			
+		</mx:VBox>
+		
+	</mx:TabNavigator>
 </mx:VBox>

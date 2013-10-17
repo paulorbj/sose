@@ -5,7 +5,7 @@ package entities.administrativo
 	import mx.collections.ArrayCollection;
 	
 	[Bindable]	
-	[RemoteClass(alias="br.com.sose.entity.admistrativo.ItemLpu")]	
+	[RemoteClass(alias="br.com.sose.entity.lpu.ItemLpu")]	
 	public class ItemLpu
 	{
 		
@@ -20,11 +20,14 @@ package entities.administrativo
 		private var _codigo2:String;	
 		private var _valor:Number;
 		
-		private var _unidadeServilogi:Unidade;
+		private var _unidadeItemLpu:UnidadeItemLpu;
 		
 		private var _associacaoRealizada:Boolean;
 
 		private var _referenciaExcel:String;
+		
+		private var _isSelected:Boolean;
+		private var _isEnabled:Boolean = true;
 		
 		public function ItemLpu(){
 		}
@@ -109,14 +112,14 @@ package entities.administrativo
 			_valor = value;
 		}
 
-		public function get unidadeServilogi():Unidade
+		public function get unidadeItemLpu():UnidadeItemLpu
 		{
-			return _unidadeServilogi;
+			return _unidadeItemLpu;
 		}
 
-		public function set unidadeServilogi(value:Unidade):void
+		public function set unidadeItemLpu(value:UnidadeItemLpu):void
 		{
-			_unidadeServilogi = value;
+			_unidadeItemLpu = value;
 		}
 
 		public function get associacaoRealizada():Boolean
@@ -137,6 +140,26 @@ package entities.administrativo
 		public function set referenciaExcel(value:String):void
 		{
 			_referenciaExcel = value;
+		}
+
+		public function get isSelected():Boolean
+		{
+			return _isSelected;
+		}
+
+		public function set isSelected(value:Boolean):void
+		{
+			_isSelected = value;
+		}
+
+		public function get isEnabled():Boolean
+		{
+			return _isEnabled;
+		}
+
+		public function set isEnabled(value:Boolean):void
+		{
+			_isEnabled = value;
 		}
 
 

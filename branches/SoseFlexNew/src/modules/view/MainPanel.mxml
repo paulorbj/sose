@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Christophe Coenraets, http://coenraets.org 20130053972033 -->
 <mx:Canvas 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:v="modules.view.*"
@@ -13,6 +12,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import components.imageviewer.ImagemViewerEvent;
+			import components.imageviewer.ImagemViewer;
 			import components.messages.MensagemEvent;
 			import components.messages.MessageType;
 			import components.messages.NotificationEvent;
@@ -24,6 +25,7 @@
 			import modules.administrativo.TelaAdministrativo;
 			import modules.consulta.TelaConsulta;
 			import modules.estoque.avaya.TelaEstoqueAvaya;
+			import modules.estoque.componente.DetalhamentoCompra;
 			import modules.estoque.componente.TelaEstoque;
 			import modules.expedicao.TelaExpedicao;
 			import modules.faturamento.TelaFaturamento;
@@ -32,7 +34,9 @@
 			import modules.recebimento.TelaRecebimento;
 			import modules.reparoOrcamento.TelaAreaTecnica;
 			
+			import mx.containers.TitleWindow;
 			import mx.events.ItemClickEvent;
+			import mx.managers.PopUpManager;
 			
 			import spark.components.ButtonBarButton;
 			import spark.events.IndexChangeEvent;
@@ -44,7 +48,11 @@
 			
 			public var moduloCorrente:VBox = null;
 			
+			public var modalCorrente:TitleWindow = null
+			
 			public var visualizadoPDF:PDFViewer = new PDFViewer();
+			
+			public var visualizadorImagem:ImagemViewer = new ImagemViewer();
 			
 			public function creationCompleteHandler():void
 			{
@@ -52,6 +60,8 @@
 				this.addEventListener(NotificationEvent.LIMPAR_NOTIFICACOES,onLimpar);
 				this.addEventListener(PDFViewerEvent.ABRIR_VIEWER,onAbrirPDF);
 				this.addEventListener(PDFViewerEvent.FECHAR_VIEWER,onFecharPDF);
+				this.addEventListener(ImagemViewerEvent.ABRIR_IMAGEM_VIEWER, onAbrirImagem);
+				this.addEventListener(ImagemViewerEvent.FECHAR_IMAGEM_VIEWER, onFecharImagem);
 
 				var msg:String = "Bem vindo ao SOSE";
 				notificationBar.addMessage(msg.toString(), MessageType.INFO);
@@ -142,6 +152,10 @@
 			{
 				containerPrincipal.removeAllChildren();
 				visualizadoPDF.urlSource = event.urlString;
+				if(event.modalCorrente != null){
+					modalCorrente = event.modalCorrente;
+					PopUpManager.removePopUp(modalCorrente);
+				}
 				containerPrincipal.addChild(visualizadoPDF);
 			}
 			
@@ -149,22 +163,41 @@
 			{
 				containerPrincipal.removeAllChildren();
 				containerPrincipal.addChild(moduloCorrente);
+				if(modalCorrente != null){
+					//PopUpManager.centerPopUp(modalCorrente);
+					PopUpManager.addPopUp(modalCorrente,moduloCorrente, true);
+					//modalCorrente = null;
+				}
 			}
 			
-			/**
-			 * Synchronize the local SQLite database with the "central" database. In this
-			 * version of Salesbuilder we simulate the sever database using an xml file
-			 * (serverdata.xml) to allow you to run the sample app with local data and without
-			 * having to install a specific back-end. 
-			 */
-			//		private function synchronize():void
-			//		{
-			//			var syncManager:SyncManager = new SyncManager();
-			//			syncManager.synchronize();
-			//		}
+			private function onAbrirImagem(event:ImagemViewerEvent):void
+			{
+				containerPrincipal.removeAllChildren();
+				visualizadorImagem.idEntidade = event.idEntidade;
+				visualizadorImagem.tipoEntidade = event.tipoEntidade;
+				visualizadorImagem.imagemSelecionada = event.imagemSelecionada;
+				
+				if(event.modalCorrente != null){
+					modalCorrente = event.modalCorrente;
+					PopUpManager.removePopUp(modalCorrente);
+				}
+				containerPrincipal.addChild(visualizadorImagem);
+				visualizadorImagem.carregarImagens();
+			}
 			
-			
-			
+			private function onFecharImagem(event:ImagemViewerEvent):void
+			{
+				containerPrincipal.removeAllChildren();
+				containerPrincipal.addChild(moduloCorrente);
+				if(modalCorrente != null){
+					//PopUpManager.centerPopUp(modalCorrente);
+					PopUpManager.addPopUp(modalCorrente,moduloCorrente, true);
+					//modalCorrente = null;
+				}
+				visualizadorImagem.idEntidade = null;
+				visualizadorImagem.tipoEntidade = null;
+			}
+
 			private function buttonBarClick(event:IndexChangeEvent):void
 			{
 				switch (event.newIndex) 
@@ -213,6 +246,7 @@
 				}
 				dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
 				Login.usuarioAutenticado = null;
+				modalCorrente = null;
 			}
 			
 			
@@ -268,7 +302,7 @@
 	<mx:Canvas id="header" top="0" left="0" right="0">
 		
 		<mx:VBox right="730" verticalCenter="0" verticalGap="0">
-			<s:Label text="Versão: teste new" fontSize="12" color="red" />
+			<s:Label text="Versão: teste new- 16/10/2013" fontSize="12" color="red" />
 			<mx:HBox>
 				<s:Label text="USUÁRIO LOGADO:" styleName="welcome" fontSize="12"  />
 				<s:Spacer width="100%" />

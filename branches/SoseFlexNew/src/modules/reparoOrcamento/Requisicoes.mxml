@@ -107,6 +107,9 @@
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR){
 					adicionarRequisicao(globalMessage.conteudo as RequisicaoComponente);
 				}
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE){
+					requisicaoComponenteService.listarRequisicaoEstoque();
+				}
 			} 
 			
 //			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
@@ -401,7 +404,7 @@
 				atualizaTotalComponentes(_listaRequisicoes);
 			}
 			
-			private function labelFunction(item:Object, column:AdvancedDataGridColumn):String
+			private function labelFunction(item:Object, column:DataGridColumn):String
 			{
 				if((item as RequisicaoComponente).reparo  && (item as RequisicaoComponente).reparo.ordemServico && (item as RequisicaoComponente).reparo.ordemServico.unidade && (item as RequisicaoComponente).reparo.ordemServico.unidade.laboratorio){
 					return (item as RequisicaoComponente).reparo.ordemServico.unidade.laboratorio.nome;
@@ -412,7 +415,7 @@
 				}
 			}
 			
-			private function labelFunction2(item:Object, column:AdvancedDataGridColumn):String
+			private function labelFunction2(item:Object, column:DataGridColumn):String
 			{
 				if((item as RequisicaoComponente).reparo && (item as RequisicaoComponente).reparo.ordemServico){
 					return (item as RequisicaoComponente).reparo.ordemServico.numeroOrdemServico;
@@ -443,86 +446,11 @@
 						  >
 			<grid:columns>
 				
-				<mx:AdvancedDataGridColumn id="cAcoes" 
-								headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 								   draggable="false"	width="125"					 
 								   editable="false"
-								   sortable="false" />
-				
-				<mx:AdvancedDataGridColumn id="cCheckBox" headerText = ""							   
-								   width="40" resizable="false" draggable="false" sortable="false"
-								   dataField="isSelected"
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cStatusRequisicao" 
-								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
-								   dataField = "statusString"
-								   width="170"
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cNumeroRequisicao" width="70"
-								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
-								   textAlign="center"
-								   sortable="false"
-								   dataField="id"							   
-								   />
-				<mx:AdvancedDataGridColumn id="cNumeroOrdemServico" width="70"
-								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
-								   textAlign="center"
-								   sortable="false"
-								   labelFunction="labelFunction2"						   
-								   />
-				<mx:AdvancedDataGridColumn id="cComponente"
-								   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
-								   textAlign="center"
-								   sortable="false"
-								   dataField="componente.nome"							   
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cTipo"
-								   headerText = "Tipo"
-								   textAlign="center"
-								   sortable="false"
-								   dataField="componente.tipo.nome"							   
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cEncapsulamento"
-								   headerText = "Encapsulamento"
-								   textAlign="center"
-								   sortable="false"
-								   dataField="componente.encapsulamento.nome"							   
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cQuantidade" width="40"
-								   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
-								   textAlign="center"
-								   sortable="false"
-								   dataField="quantidade"							   
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cRequisitante" width="80"
-								   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
-								   dataField = "requisitante.usuario"
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cLaboratorio" width="110"
-								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
-								   labelFunction="labelFunction"
-								   />
-				
-				<mx:AdvancedDataGridColumn id="cDataRequisicao"  width="130"
-								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
-								   textAlign="center"
-								   sortable="false"
-								   dataField="dataRequisicaoString"							   
-								   />
-				
-			</grid:columns>
-			
-			<!--
-			<grid:rendererProviders>
-				<mx:AdvancedDataGridRendererProvider column="{cAcoes}">
-					<mx:renderer>
+								   sortable="false">
+					<mx:itemRenderer>
 						<fx:Component>
 							<mx:HBox horizontalAlign="center"
 									 verticalAlign="middle"
@@ -542,11 +470,80 @@
 								
 							</mx:HBox>
 						</fx:Component>
-					</mx:renderer>
-				</mx:AdvancedDataGridRendererProvider>	
-
-			</grid:rendererProviders>
-			-->
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn headerText = ""							   
+								   itemRenderer="components.grid.CheckBoxItemRenderer"
+								   headerRenderer="components.grid.CheckBoxItemRenderer"
+								   width="40" resizable="false" draggable="false" sortable="false"
+								   dataField="isSelected"
+								   />
+				
+				<mx:DataGridColumn id="cStatusRequisicao" 
+								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
+								   dataField = "statusString"
+								   width="170"
+								   />
+				
+				<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="id"							   
+								   />
+				<mx:DataGridColumn id="cNumeroOrdemServico" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+								   textAlign="center"
+								   sortable="false"
+								   labelFunction="labelFunction2"						   
+								   />
+				<mx:DataGridColumn id="cComponente"
+								   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="componente.nome"							   
+								   />
+				
+				<mx:DataGridColumn id="cTipo"
+								   headerText = "Tipo"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="componente.tipo.nome"							   
+								   />
+				
+				<mx:DataGridColumn id="cEncapsulamento"
+								   headerText = "Encapsulamento"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="componente.encapsulamento.nome"							   
+								   />
+				
+				<mx:DataGridColumn id="cQuantidade" width="40"
+								   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="quantidade"							   
+								   />
+				
+				<mx:DataGridColumn id="cRequisitante" width="80"
+								   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
+								   dataField = "requisitante.usuario"
+								   />
+				
+				<mx:DataGridColumn id="cLaboratorio" width="110"
+								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+								   labelFunction="labelFunction"
+								   />
+				
+				<mx:DataGridColumn id="cDataRequisicao"  width="130"
+								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="dataRequisicaoString"							   
+								   />
+				
+			</grid:columns>
 		</grid:MantisTable>
 		<mx:HBox paddingTop="10">
 			<s:Label text="Total de componentes: {totalComponentes}" fontWeight="bold" fontSize="12"  />

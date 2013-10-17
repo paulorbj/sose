@@ -81,6 +81,16 @@ package utils {
 		public static const FATURA_CRIADA:String = "FATURA_CRIADA";
 		public static const FATURA_OS_AGUARDANDO_BAIXA:String = "FATURA_OS_AGUARDANDO_BAIXA";
 		public static const ATUALIZAR_FATURA:String = "ATUALIZAR_FATURA";
+		
+		//Compra
+		public static const COMPRA_CRIADA:String = "COMPRA_CRIADA";
+		public static const PEDIDO_COMPRA_CRIADO:String = "PEDIDO_COMPRA_CRIADO";
+		public static const ATUALIZAR_COMPRA:String = "ATUALIZAR_COMPRA";
+		public static const ATUALIZAR_ITEM_COMPRA:String = "ATUALIZAR_ITEM_COMPRA";
+		public static const DELETAR_ITEM_COMPRA:String = "DELETAR_ITEM_COMPRA";
+		public static const ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE:String = "ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE";
+		
+		
 
 	}
 		
