@@ -12,14 +12,14 @@ package components.grid
 	import mx.controls.DataGrid;
 	import mx.controls.Label;
 	import mx.core.ClassFactory;
-	
+		
 	import utils.CopyCell;
 	
 	/**
 	 * This is an extension of the DataGrid component used for change row
 	 * colors.
 	 */
-	public class MantisTable extends AdvancedDataGrid
+	public class MantisTable extends DataGrid
 	{
 		/**
 		 * Exposed function that defines the row color. It must have the follow

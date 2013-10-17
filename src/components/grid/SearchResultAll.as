@@ -2,18 +2,12 @@ package components.grid
 {
 	import components.SearchInput;
 	
-	import flash.display.DisplayObjectContainer;
 	import flash.text.TextFormat;
 	
-	import modules.administration.ImportBOM;
-	
 	import mx.controls.AdvancedDataGrid;
-	import mx.controls.Label;
-	import mx.controls.Text;
+	import mx.controls.DataGrid;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridGroupItemRenderer;
-	import mx.controls.advancedDataGridClasses.AdvancedDataGridListData;
-	import mx.controls.textClasses.TextRange;
-	import mx.core.UIComponent;
+	import mx.controls.dataGridClasses.DataGridListData;
 	
 	/**
 	 * This class extends a Label and is used for render MantisTable cell search
@@ -52,8 +46,8 @@ package components.grid
 			if (null == listData) {
 				return;
 			}
-			var listData1:AdvancedDataGridListData = listData as AdvancedDataGridListData;
-			var advancedDataGrid:AdvancedDataGrid = listData1.owner as AdvancedDataGrid;
+			var listData1:DataGridListData = listData as DataGridListData;
+			var dataGrid:DataGrid = listData1.owner as DataGrid;
 
 			
 			var component:Object = this.parentDocument as Object;
