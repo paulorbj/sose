@@ -33,6 +33,14 @@ public class PedidoCompraDao extends HibernateDaoGenerico<PedidoCompra, Long> {
 		return r;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public PedidoCompra buscarPorRequisicao(final Long id) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.requisicao.id=:id");
+		q.setParameter("id", id);
+		PedidoCompra r = (PedidoCompra)q.uniqueResult();
+		return r;
+	}
+	
 	public List<PedidoCompra> listaPedidosCompraEmFaltaPorComponente(Componente componente) throws Exception {
 		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h LEFT JOIN h.requisicao req WHERE req.statusString = :status AND req.componente.id = :idComponente ORDER BY h.dataCriacao DESC");
 		Query query = sessionFactory.getCurrentSession().createQuery(sb.toString());

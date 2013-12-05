@@ -118,6 +118,8 @@ public class Perfil implements Serializable {
 	
 	private Boolean subMenuEstoquePedidoCompra;
 	
+	private Boolean subMenuEstoqueListagemCompra;
+	
 	//Permissoes de sub menu externo
 
 	//Permissoes de sub menu faturamento
@@ -632,6 +634,14 @@ public class Perfil implements Serializable {
 	public void setAcaoPrioridadeGerencialAprovacoes(
 			Boolean acaoPrioridadeGerencialAprovacoes) {
 		this.acaoPrioridadeGerencialAprovacoes = acaoPrioridadeGerencialAprovacoes;
+	}
+
+	public Boolean getSubMenuEstoqueListagemCompra() {
+		return subMenuEstoqueListagemCompra;
+	}
+
+	public void setSubMenuEstoqueListagemCompra(Boolean subMenuEstoqueListagemCompra) {
+		this.subMenuEstoqueListagemCompra = subMenuEstoqueListagemCompra;
 	}
 
 	

@@ -17,11 +17,14 @@ import br.com.sose.entity.admistrativo.Componente;
 import br.com.sose.entity.compra.Compra;
 import br.com.sose.entity.compra.ItemCompra;
 import br.com.sose.entity.compra.PedidoCompra;
+import br.com.sose.entity.orcamento.Orcamento;
+import br.com.sose.entity.orcrepGenerico.RequisicaoComponente;
+import br.com.sose.entity.reparo.Reparo;
 import br.com.sose.service.administrativo.ComponenteService;
 import br.com.sose.service.areatecnica.RequisicaoComponenteService;
+import br.com.sose.service.orcamento.OrcamentoService;
+import br.com.sose.service.reparo.ReparoService;
 import br.com.sose.status.compra.AguardandoCompra;
-import br.com.sose.status.compra.Comprado;
-import br.com.sose.status.estoque.AguardandoAtendimento;
 
 @Service(value="itemCompraService")
 @RemotingDestination(value="itemCompraService")
@@ -31,21 +34,25 @@ public class ItemCompraService {
 
 	@Autowired
 	public ItemCompraDao itemCompraDao;
-	
+
 	@Autowired
 	public CompraService compraService;
-	
+
 	@Autowired
 	public PedidoCompraService pedidoCompraService;
-	
+
 	@Autowired
 	public ComponenteService componenteService;
-	
+
 	@Autowired
 	public RequisicaoComponenteService requisicaoComponenteService;
+
+	@Autowired
+	public ReparoService reparoService;
 	
-	
-	
+	@Autowired
+	public OrcamentoService orcamentoService;
+
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public List<ItemCompra> listarUltimas10Compras(Componente componente) throws Exception {
@@ -58,7 +65,7 @@ public class ItemCompraService {
 		}
 		return listaRetorno;
 	}
-	
+
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public List<ItemCompra> listarItemCompraPendenteNotificacao(Componente componente) throws Exception {
@@ -71,7 +78,7 @@ public class ItemCompraService {
 		}
 		return listaRetorno;
 	}
-	
+
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public List<ItemCompra> listarItemCompraPorCompra(Compra compra) throws Exception {
@@ -84,7 +91,7 @@ public class ItemCompraService {
 		}
 		return listaRetorno;
 	}
-	
+
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public List<ItemCompra> buscarPorCompra(Compra compra) throws Exception {
@@ -103,14 +110,18 @@ public class ItemCompraService {
 			if(itemComprasAux != null && !itemComprasAux.isEmpty()){
 				itemCompras.addAll(itemComprasAux);
 			}
+			itemComprasAux = itemCompraDao.listarItemCompraPorCompraPorStatus(compra, "Componente não encontrado");
+			if(itemComprasAux != null && !itemComprasAux.isEmpty()){
+				itemCompras.addAll(itemComprasAux);
+			}
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
 		}
 		return itemCompras;
 	}
-	
-	
+
+
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public ItemCompra buscarPorId(Long id) throws Exception {
@@ -123,7 +134,7 @@ public class ItemCompraService {
 		}
 		return itemCompraEncontrado;
 	}
-		
+
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public ItemCompra salvarItemCompra(ItemCompra itemCompra) throws Exception {
@@ -143,31 +154,31 @@ public class ItemCompraService {
 		}
 		return itemCompraSalvo;
 	}
-	
+
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public ItemCompra removerItemCompra(ItemCompra itemCompra) throws Exception {
 		try {
 			Compra compra = null;
 			itemCompra = buscarPorId(itemCompra.getId());
-			
+
 			for(PedidoCompra pc : itemCompra.getListaPedidoCompra()){
 				pc.setItemCompra(null);
 				pc.setStatusString(AguardandoCompra.nome);
 				pedidoCompraService.salvarPedidoCompra(pc);
 			}
-			
+
 			compra = itemCompra.getCompra();
 			itemCompra.setCompra(null);
 			itemCompra.setListaPedidoCompra(null);
 			salvarItemCompra(itemCompra);
-			
+
 			itemCompraDao.flush();
-			
+
 			itemCompraDao.remover(itemCompra);
-			
+
 			compra = compraService.buscarPorId(compra.getId());
-			
+
 			//caso todo objeto item compra tenha sido removido: Deleta a compra
 			if(compra.getListaItemCompra() == null || compra.getListaItemCompra().isEmpty()){
 				compraService.deletarCompra(compra);
@@ -184,7 +195,7 @@ public class ItemCompraService {
 				compra.setStatusString("Finalizada");
 				compraService.salvarCompra(compra);
 			}
-			
+
 			return itemCompra;
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
@@ -198,42 +209,106 @@ public class ItemCompraService {
 		Componente componenteComprado;
 		try {
 			componenteComprado = itemCompra.getComponente();
-			
+
 			itemCompra.setStatus("Notificado");
 			itemCompra.setDataEntrada(new Date());
 			itemCompra.setComponenteNotificacao(componenteComprado);
 			itemCompra =  salvarItemCompra(itemCompra);
-			
+
 			if(componenteComprado.getQtdComprada() != null){
 				componenteComprado.setQtdComprada(componenteComprado.getQtdComprada() + itemCompra.getQtdComprada());
 			}else{
 				componenteComprado.setQtdComprada(itemCompra.getQtdComprada());
 			}
 			componenteComprado = componenteService.salvarComponente(componenteComprado);
-			
+
 			Compra compra = itemCompra.getCompra();
 			compra = compraService.buscarPorId(compra.getId());
 			Boolean alterarStatusCompra = true;
 			for(ItemCompra ic :compra.getListaItemCompra()){
-				if(!ic.getStatus().equals("Notificado")){
+				if(!ic.getStatus().equals("Notificado") && !ic.getStatus().equals("Componente não encontrado")){
 					alterarStatusCompra = false;
 					break;
 				}
 			}
-			
+
 			if(alterarStatusCompra){
 				compra.setStatusString("Finalizada");
 				compra = compraService.salvarCompra(compra);
 				itemCompra.setCompra(compra);
 			}
-			
+
 			itemCompra.setComponente(componenteComprado);
-			
+
 			return itemCompra;
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
 		}
 	}
-	
+
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public ItemCompra componenteNaoEncontrado(ItemCompra itemCompra) throws Exception {
+		try {
+			
+			RequisicaoComponente requisicao = null;
+			for(PedidoCompra pc :itemCompra.getListaPedidoCompra()){
+				pc.setDataFinalizacao(new Date());
+				pc.setStatusString("Componente não encontrado");
+				pedidoCompraService.salvarPedidoCompra(pc);
+
+				requisicao = pc.getRequisicao();
+				
+				if(requisicao != null){
+					requisicao.setDataCancelamento(new Date());
+					requisicao.setStatusString("Componente não encontrado");
+					requisicaoComponenteService.salvarRequisicao(requisicao);
+					
+					if(requisicaoComponenteService.alterarStatusAguardandoComponente(requisicao)){
+						if(requisicao.getReparo() != null){
+							Reparo rep = requisicao.getReparo();
+							rep.setComponentePendente(false);
+							rep = reparoService.salvarReparo(rep);
+							requisicao.setReparo(rep);
+						}else{
+							Orcamento orc = requisicao.getOrcamento();
+							orc.setComponentePendente(false);
+							orc = orcamentoService.salvarOrcamento(orc);
+							requisicao.setOrcamento(orc);
+						}
+					}
+					pc.setRequisicao(requisicao);
+				}
+			}
+
+			itemCompra.setStatus("Componente não encontrado");
+			itemCompra.setDataEntrada(new Date());
+			itemCompra = salvarItemCompra(itemCompra);
+
+			itemCompraDao.flush();
+
+			Compra compra = itemCompra.getCompra();
+			compra = compraService.buscarPorId(compra.getId());
+			Boolean alterarStatusCompra = true;
+			for(ItemCompra ic :compra.getListaItemCompra()){
+				if(!ic.getStatus().equals("Notificado") && !ic.getStatus().equals("Componente não encontrado")){
+					alterarStatusCompra = false;
+					break;
+				}
+			}
+
+			if(alterarStatusCompra){
+				compra.setStatusString("Finalizada");
+				compra = compraService.salvarCompra(compra);
+				itemCompra.setCompra(compra);
+			}
+
+			return itemCompra;
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+	}
+
 }

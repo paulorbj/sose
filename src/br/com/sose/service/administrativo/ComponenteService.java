@@ -126,8 +126,8 @@ public class ComponenteService {
 				ic = itemCompraService.buscarPorId(ic.getId());
 
 				for(PedidoCompra pc : ic.getListaPedidoCompra()){
-					qtdAtendida = qtdAtendida + pc.getQuantidade();
 					if(pc.getRequisicao() != null){
+						qtdAtendida = qtdAtendida + pc.getRequisicao().getQuantidade();
 						pc.getRequisicao().setStatusString(AguardandoAtendimento.nome); 
 						requisicaoComponenteService.salvarRequisicao(pc.getRequisicao());
 					}
@@ -135,12 +135,14 @@ public class ComponenteService {
 					pc.setDataFinalizacao(new Date());
 					pedidoCompraService.salvarPedidoCompra(pc);
 				}
+				ic.setStatus("Finalizado");
+				itemCompraService.salvarItemCompra(ic);
 			}
 
 			saldoEstoque = qtdEstoque + qtdEstocadaInformada - qtdAtendida;
 			componente.setQtdEstoque(saldoEstoque);
 			componente.setQtdComprada(0);
-			salvarComponente(componente);
+			componente = salvarComponente(componente);
 
 
 			if(observacao != null && !observacao.equals("")){

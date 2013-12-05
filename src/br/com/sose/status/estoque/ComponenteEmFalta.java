@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.entity.admistrativo.Componente;
 import br.com.sose.entity.admistrativo.Usuario;
+import br.com.sose.entity.compra.PedidoCompra;
 import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.orcrepGenerico.RequisicaoComponente;
 import br.com.sose.entity.reparo.Reparo;
@@ -16,6 +17,7 @@ import br.com.sose.service.administrativo.ComponenteService;
 import br.com.sose.service.administrativo.ObservacaoService;
 import br.com.sose.service.areatecnica.RequisicaoComponenteService;
 import br.com.sose.service.areatecnica.exceptions.SaldoInsuficienteException;
+import br.com.sose.service.compra.PedidoCompraService;
 import br.com.sose.service.orcamento.OrcamentoService;
 import br.com.sose.service.reparo.ReparoService;
 
@@ -38,6 +40,9 @@ public class ComponenteEmFalta extends StatusEstoque {
 
 	@Autowired
 	private ObservacaoService observacaoService;
+	
+	@Autowired
+	private PedidoCompraService pedidoCompraService;
 	
 	public ComponenteEmFalta(RequisicaoComponente rc) {
 		super.requisicaoComponente = rc;
@@ -87,6 +92,13 @@ public class ComponenteEmFalta extends StatusEstoque {
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public RequisicaoComponente cancelarRequisicao(Usuario usuario) throws Exception {
+		
+		PedidoCompra pedidoCompra = pedidoCompraService.buscarPorRequisicao(requisicaoComponente.getId());
+		
+		if(pedidoCompra != null && pedidoCompra.getItemCompra() != null){
+			throw new Exception("A requisição já faz parte de uma compra e não pode ser cancelada!");
+		}
+		
 		requisicaoComponente.setDataCancelamento(new Date());
 		requisicaoComponente.setStatusString(Cancelado.nome);
 		requisicaoComponente = requisicaoComponenteService.salvarRequisicao(requisicaoComponente);

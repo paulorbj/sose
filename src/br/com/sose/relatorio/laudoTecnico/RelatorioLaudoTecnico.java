@@ -38,7 +38,7 @@ public class RelatorioLaudoTecnico {
 	
 	@RemotingInclude
 	@Transactional(readOnly = true)
-	public byte[] gerarRelatorio(LaudoTecnico laudoTecnico) throws Exception {
+	public String gerarRelatorio(LaudoTecnico laudoTecnico) throws Exception {
 		try{
 		System.out.println("Entrou no gerar relatorio");
 		LaudoTecnico arquivoEncontrado = business.buscarPorId(laudoTecnico.getId());
@@ -63,9 +63,9 @@ public class RelatorioLaudoTecnico {
 		byte[] report = JasperExportManager.exportReportToPdf(jasperPrint);
 		System.out.println("Relatorio laudo tecnico gerado");
 
-		File dir = new File("C:\\arquivos");;
+		File dir = new File("C:\\arquivo_servilogi\\temporario");
 		if(!dir.exists()){
-			dir.mkdir();
+			dir.mkdirs();
 		}
 		
 		String nomeArquivo = "laudo_tecnico_" + laudoTecnico.getControle() + ".pdf";
@@ -76,7 +76,7 @@ public class RelatorioLaudoTecnico {
 		output.flush();
 		output.close();    
 		System.out.println("Saiu no gerar relatorio");
-		return report;
+		return nomeArquivo;
 		}catch(Exception e){
 			e.printStackTrace();
 			return null;
