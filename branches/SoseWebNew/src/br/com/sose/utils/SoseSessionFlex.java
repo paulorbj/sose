@@ -59,6 +59,15 @@ public class SoseSessionFlex implements FlexSessionListener {
 			}catch(Exception e){
 				e.printStackTrace();
 			}
+			
+			File dirTemp = new File("C:\\arquivos\\temporario");
+			try{
+				for (File f : dirTemp.listFiles()){
+						f.delete();
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 	}
 }
