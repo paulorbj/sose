@@ -35,6 +35,7 @@ package entities.administrativo
 		private var _nomeTipoComponente:String;
 		private var _valido:Boolean;
 		private var _qtdComprada:Number;
+		private var _dtUltimoInventario:Date;
 		
 		public function Componente(){
 			_id = 0;
@@ -303,6 +304,16 @@ package entities.administrativo
 		public function set qtdComprada(value:Number):void
 		{
 			_qtdComprada = value;
+		}
+
+		public function get dtUltimoInventario():Date
+		{
+			return _dtUltimoInventario;
+		}
+
+		public function set dtUltimoInventario(value:Date):void
+		{
+			_dtUltimoInventario = value;
 		}
 		
 		

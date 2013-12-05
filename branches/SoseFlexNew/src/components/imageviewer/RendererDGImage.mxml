@@ -2,11 +2,23 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 horizontalAlign="center"
 		 verticalAlign="middle">
-	
-	<mx:Image
+		
+	<mx:Script>
+		<![CDATA[
+						
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				var urlMiniatura:String = value.caminho + value.tipoEntidade + "/" + value.identificadorEntidade + "/" + value.tipoArquivo + "/" + value.nome;
+				imgMiniatura.source = urlMiniatura;
+				imgLabel.text = value.nomeOriginal;
+			}
+		]]>
+	</mx:Script>
+	<mx:Image id="imgMiniatura"
 		width="50" height="50"
-		source="{'http://localhost:8080/SoseWeb/arquivo_servilogi/' + data.tipoEntidade + '/' + data.identificadorEntidade + '/' + data.tipoArquivo + '/' + data.nome}" />
+		/>
 	
-	<mx:Label text="{data.nome}" />
+	<mx:Label id="imgLabel" width="50" />
 	
 </mx:VBox>

@@ -15,6 +15,8 @@ package entities
 		private var _dataUpload:Date;
 		private var _tipoArquivo:String;
 		private var _caminhoImagem:String;
+		private var _raizURL:String;
+		private var _caminhoMiniatura:String;
 		
 		public function get id():Number
 		{
@@ -113,12 +115,33 @@ package entities
 		
 		public function get montarURLCompleta():String
 		{
-			return _caminhoImagem + _tipoEntidade + "/" + _identificadorEntidade + "/" + _tipoArquivo + "/" + _nome;
+			return _caminho + _tipoEntidade + "/" + _identificadorEntidade + "/" + _tipoArquivo + "/" + _nome;
 		}
 		
 		public function set montarURLCompleta(value:String):void
 		{
 			_caminhoImagem = value;
+		}
+
+		public function get raizURL():String
+		{
+			return _raizURL;
+		}
+
+		public function set raizURL(value:String):void
+		{
+			_raizURL = value;
+		}
+
+		public function get caminhoMiniatura():String
+		{
+			_caminhoMiniatura = _caminho + montarURLRelativa();
+			return _caminhoMiniatura;
+		}
+
+		public function set caminhoMiniatura(value:String):void
+		{
+			_caminhoMiniatura = value;
 		}
 		
 		

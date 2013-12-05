@@ -63,7 +63,7 @@
 		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
 		
 		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
-
+		
 	</fx:Declarations>
 	
 	<fx:Script>
@@ -77,6 +77,8 @@
 			import entities.GlobalMessage;
 			import entities.administrativo.Componente;
 			import entities.administrativo.Usuario;
+			import entities.compra.ItemCompra;
+			import entities.compra.PedidoCompra;
 			import entities.orcamentoreparo.ComponenteOrcRep;
 			import entities.orcamentoreparo.Orcamento;
 			import entities.orcamentoreparo.Reparo;
@@ -84,6 +86,7 @@
 			import entities.recebimento.OrdemServico;
 			
 			import modules.administrativo.componente.ModalCadastroComponente;
+			import modules.estoque.componente.ModalListagemArquivoUpload;
 			import modules.reparoOrcamento.eventos.ComponenteEvent;
 			import modules.reparoOrcamento.eventos.OrcamentoEvent;
 			import modules.reparoOrcamento.eventos.ReparoEvent;
@@ -138,47 +141,47 @@
 			
 			private var app:SoseFlex = FlexGlobals.topLevelApplication as SoseFlex;
 			
-//			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = req;				
-//				message.body=messageGlobal;
-//				produtorEstoqueService.send(message);	
-//			}
-//			
-//			private function publicarReparo(rep:Reparo, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = rep;				
-//				message.body=messageGlobal;
-//				produtorReparoService.send(message);	
-//			}
-//			
-//			private function publicarOrcamento(orc:Orcamento, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = orc;				
-//				message.body=messageGlobal;
-//				produtorOrcamentoService.send(message);	
-//			}
-//			
-//			private function publicarComponente(orc:Componente, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = orc;				
-//				message.body=messageGlobal;
-//				produtorEstoqueService.send(message);	
-//			}
+			//			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = req;				
+			//				message.body=messageGlobal;
+			//				produtorEstoqueService.send(message);	
+			//			}
+			//			
+			//			private function publicarReparo(rep:Reparo, msg:String):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = rep;				
+			//				message.body=messageGlobal;
+			//				produtorReparoService.send(message);	
+			//			}
+			//			
+			//			private function publicarOrcamento(orc:Orcamento, msg:String):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = orc;				
+			//				message.body=messageGlobal;
+			//				produtorOrcamentoService.send(message);	
+			//			}
+			//			
+			//			private function publicarComponente(orc:Componente, msg:String):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = orc;				
+			//				message.body=messageGlobal;
+			//				produtorEstoqueService.send(message);	
+			//			}
 			
 			private function onMsgEstoque(event:MessageEvent):void{ 
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
 					var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
-
+					
 					if(_reparo != null && req.reparo != null){
 						if(req.reparo.id == _reparo.id){
 							addRequisicao(req);
@@ -203,7 +206,22 @@
 						}
 					}
 				}
-				
+				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_NAO_ENCONTRADO){
+					var ic:ItemCompra = globalMessage.conteudo as ItemCompra;
+					for each (var pc:PedidoCompra in ic.listaPedidoCompra){
+						if(_reparo != null && pc.requisicao != null && pc.requisicao.reparo != null){
+							if(pc.requisicao.reparo.id == _reparo.id){
+								addRequisicao(pc.requisicao);
+							}
+						}
+						if(_orcamento != null && pc.requisicao != null && pc.requisicao.orcamento != null){
+							if(pc.requisicao.orcamento.id == _orcamento.id){
+								addRequisicao(pc.requisicao);
+							}
+						}
+					}
+					
+				}
 				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR){
 					var comp:Componente = globalMessage.conteudo as Componente;
 					atualizarComponente(comp);
@@ -230,7 +248,7 @@
 				_componente = null;
 				componenteQuantidade.inputText = "";
 			}
-
+			
 			
 			public function setReparo(value:Reparo):void
 			{
@@ -248,7 +266,7 @@
 			
 			public function setOrcamento(value:Orcamento):void
 			{
-	
+				
 				_orcamento = value;
 				_reparo = null;
 				if(_orcamento.listaRequisicao){
@@ -337,21 +355,6 @@
 				
 			}
 			
-			public function visualizarComponente(data:Object, event:Event=null):void
-			{					
-				//for double click
-				if(data==null && event is ListEvent){
-					var event2:ListEvent = event as ListEvent						
-					data = listaComponentes.getItemAt(event2.rowIndex);				
-				}
-				
-				var componenteVisualizar:Componente = data as Componente;
-				
-				var modal:VisualizarImagemModal=VisualizarImagemModal(PopUpManager.createPopUp( this, VisualizarImagemModal , true));
-				modal.idObjeto = componenteVisualizar.id;
-				
-				PopUpManager.centerPopUp(modal);
-			}
 			
 			private function adicionarRequisicao(event:MouseEvent):void
 			{
@@ -918,6 +921,27 @@
 				tn.selectedIndex = 0;
 			}
 			
+			public function visualizarDocumentos(data:Object, event:Event):void
+			{			
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					//data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+
+				var modal:ModalListagemArquivoUpload=ModalListagemArquivoUpload(PopUpManager.createPopUp( this, ModalListagemArquivoUpload , true));
+				modal.myParentObject = this;
+				modal.modal = modal;
+				if(data is RequisicaoComponente){
+					modal.componente = (data as RequisicaoComponente).componente;	
+				}else if(data is Componente){
+					modal.componente = (data as Componente);
+				}
+				
+				
+				PopUpManager.centerPopUp(modal);
+			}
+						
 		]]>
 	</fx:Script>
 	
@@ -1050,6 +1074,26 @@
 										   sortable="false"
 										   dataField="statusString"							   
 										   />
+						
+						<mx:DataGridColumn draggable="false" width="50"						 
+										   editable="false"
+										   sortable="false">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center"
+											 verticalAlign="middle">
+										
+										<mx:Image source="@Embed(source='/assets/icons/page_white_acrobat.png')"
+												  click="parentDocument.visualizarDocumentos(data, event)"
+												  buttonMode="true"
+												  useHandCursor="true"
+												  toolTip="Visualizar imagens e pdfs"
+												  />
+										
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
 					</grid:columns>
 				</grid:MantisTable>
 			</mx:VBox>
@@ -1243,10 +1287,10 @@
 									 >
 								
 								<mx:Image source="@Embed(source='/assets/icons/image.png')"
-										  click="parentDocument.visualizarComponente(data, event)"
+										  click="parentDocument.visualizarDocumentos(data, event)"
 										  buttonMode="true"
 										  useHandCursor="true"
-										  toolTip="Visualizar componente"
+										  toolTip="Visualizar imagens e pdfs"
 										  />
 								
 							</mx:HBox>

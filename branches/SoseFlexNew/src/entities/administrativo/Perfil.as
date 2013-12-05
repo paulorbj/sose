@@ -98,6 +98,8 @@ package entities.administrativo
 		
 		private var _subMenuEstoquePedidoCompra:Boolean;
 		
+		private var _subMenuEstoqueListagemCompra:Boolean;
+		
 		//Permissoes de sub menu externo
 		
 		//Permissoes de sub menu faturamento
@@ -732,6 +734,16 @@ package entities.administrativo
 		public function set acaoPrioridadeGerencialAprovacoes(value:Boolean):void
 		{
 			_acaoPrioridadeGerencialAprovacoes = value;
+		}
+
+		public function get subMenuEstoqueListagemCompra():Boolean
+		{
+			return _subMenuEstoqueListagemCompra;
+		}
+
+		public function set subMenuEstoqueListagemCompra(value:Boolean):void
+		{
+			_subMenuEstoqueListagemCompra = value;
 		}
 
 

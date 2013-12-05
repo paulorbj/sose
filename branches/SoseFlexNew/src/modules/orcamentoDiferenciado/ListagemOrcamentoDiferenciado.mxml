@@ -726,7 +726,23 @@
 			<mx:DataGridColumn id="cAcoes" headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
 							   draggable="false" width=".05"							 
 							   editable="false"
-							   sortable="false" />
+							   sortable="false" >
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle">
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.visualizarDetalhe(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>	
 			
 			<mx:DataGridColumn id="status" 
 							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
@@ -785,28 +801,6 @@
 							   width=".10"
 							   />
 		</grid:columns>
-		
-		<!--
-		<grid:rendererProviders>
-			<mx:AdvancedDataGridRendererProvider column="{cAcoes}">
-				<mx:renderer>
-					<fx:Component>
-						<mx:HBox horizontalAlign="center"
-								 verticalAlign="middle"
-								 >
-							
-							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
-									  click="parentDocument.visualizarDetalhe(data, event)"
-									  buttonMode="true"
-									  useHandCursor="true"
-									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
-									  />						
-						</mx:HBox>
-					</fx:Component>
-				</mx:renderer>
-			</mx:AdvancedDataGridRendererProvider>
-		</grid:rendererProviders>
-		-->
 	</grid:MantisTable>
 	
 	<orcamentoDiferenciado:OrcamentoDiferenciadoDetalhamento id="detalhamentoOrcamentoDiferenciado" excludeFrom="listagem" />

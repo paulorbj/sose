@@ -724,7 +724,7 @@
 	<property key="DEVOLUCAO_COMPONENTE_RECEBIDO_ERRO" value="Erro ao receber componente" />
 	
 	
-	<property key="URL_SERVIDOR_SOSE" value="http://192.168.0.110:8080/SoseWeb/" />
-	<property key="URL_VISUALIZAR_ARQUIVO" value="http://192.168.0.110:8080/SoseWeb/arquivo_servilogi/" />
+	<property key="URL_SERVIDOR_SOSE" value="http://192.168.0.103:8080/SoseWeb/" />
+	<property key="URL_VISUALIZAR_ARQUIVO" value="http://192.168.0.103:8080/SoseWeb/arquivo_servilogi/" />
 	
 </locale>

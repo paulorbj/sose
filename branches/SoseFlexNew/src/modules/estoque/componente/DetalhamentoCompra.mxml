@@ -20,6 +20,20 @@
 					   />
 		</mx:RemoteObject>
 		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="relatorioCompra" destination="relatorioCompra" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="gerarRelatorio"      
+					   fault="onGerarRelatorioFault(event)" 
+					   result="onGerarRelatorioResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="relatorioListagemComponenteCompra" destination="relatorioListagemComponenteCompra" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="gerarRelatorio"      
+					   fault="onGerarListagemRelatorioFault(event)" 
+					   result="onGerarListagemRelatorioResult(event)"
+					   />
+		</mx:RemoteObject>
+		
 		
 		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
 		
@@ -32,6 +46,7 @@
 			import components.RemoveModalEvent;
 			import components.messages.MensagemEvent;
 			import components.messages.MessageType;
+			import components.pdfViewer.PDFViewerEvent;
 			
 			import entities.GlobalMessage;
 			import entities.compra.Compra;
@@ -242,6 +257,9 @@
 				if(item.status == "Notificado"){
 					return 0x87FF9B;
 				}
+				if(item.status == "Componente não encontrado"){
+					return 0xFD6464;
+				}
 				return 0x5FA6BF;
 			}
 			
@@ -252,6 +270,47 @@
 				}else{
 					return "Não";
 				}
+			}
+			
+			private function gerarPDF(event:MouseEvent):void
+			{
+				var urlString:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+				relatorioCompra.gerarRelatorio(_compra,urlString);
+			}
+			
+			private function onGerarRelatorioResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent("Relatório de compra criado com sucesso", MessageType.SUCCESS, 5000));
+				var urlPDF:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + "temporario/" + event.result as String;
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlPDF, null));
+			}
+						
+			private function onGerarRelatorioFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onGerarRelatorioFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar relatório de compra", MessageType.ERROR, 3000));
+			}
+			
+			private function gerarListagemPDF(event:MouseEvent):void
+			{
+				relatorioListagemComponenteCompra.gerarRelatorio(_compra);
+			}
+			
+			private function onGerarListagemRelatorioResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent("Relatório de compra criado com sucesso", MessageType.SUCCESS, 5000));
+				var urlPDF:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + "temporario/" + event.result as String;
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlPDF, null));
+			}
+			
+			private function onGerarListagemRelatorioFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onGerarListagemRelatorioFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar relatório de listagem de componente", MessageType.ERROR, 3000));
 			}
 			
 		]]>
@@ -371,7 +430,20 @@
 				   height="25" 
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   click="deletarCompra(event)"/>
-		
+		<s:Spacer width="50" />
+		<mx:Button id="btGerarPdf" 
+				   label="Gerar relatório de compra"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="gerarPDF(event)"
+				   />
+		<mx:Button id="btGerarListagemPdf" 
+				   label="Gerar listagem"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="gerarListagemPDF(event)"
+				   />
+		<s:Spacer width="50" />
 		<mx:Button id="btVoltar"
 				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
 				   height="25"

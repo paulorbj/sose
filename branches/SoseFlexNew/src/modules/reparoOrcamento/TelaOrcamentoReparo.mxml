@@ -1586,7 +1586,7 @@
 				}
 				if(infoComponentes.listaRequisicoes != null && infoComponentes.listaRequisicoes.length > 0){
 					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
-						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
+						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido" || rec.statusString == "Componente não encontrado"){
 							
 						}else{
 							//Alguma requisicao ainda não foi devidamente atendida

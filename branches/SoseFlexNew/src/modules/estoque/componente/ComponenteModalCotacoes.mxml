@@ -46,6 +46,8 @@
 			import mx.rpc.events.ResultEvent;
 			import mx.validators.Validator;
 			
+			import utils.Formatador;
+			
 			[Bindable]
 			private var _cotacao:Cotacao;
 			
@@ -182,6 +184,11 @@
 				dispatchEvent(new MensagemEvent("Erro ao remover cotação", MessageType.ERROR, 10000));
 				limparTela();
 			}
+			
+			private function labelFunctionValorCotacao(item:Object, column:DataGridColumn):String {
+				var cot:Cotacao = item as Cotacao;
+				return Formatador.formatarValorNumber(cot.valor);
+			}
 
 		]]>
 	</fx:Script>
@@ -219,6 +226,7 @@
 			<mx:DataGridColumn id="cValor" textAlign="center" sortable="true" draggable="false" width=".15"
 							   headerText = "Valor"
 							   dataField = "valor"
+							   labelFunction="labelFunctionValorCotacao"
 							   />
 			
 			<mx:DataGridColumn id="cDataCotacao" textAlign="center" sortable="true" draggable="false" width=".10"

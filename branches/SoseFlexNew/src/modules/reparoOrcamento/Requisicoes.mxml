@@ -29,11 +29,11 @@
 		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
 		
 		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
-
+		
 		<mx:Producer id="produtorReparoService" destination="ReparoMessageServicePush" /> 
 		
 		<mx:Producer id="produtorOrcamentoService" destination="OrcamentoMessageServicePush" /> 
-
+		
 	</fx:Declarations>
 	
 	<fx:Script>
@@ -112,52 +112,54 @@
 				}
 			} 
 			
-//			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = req;				
-//				message.body=messageGlobal;
-//				produtorEstoqueService.send(message);	
-//			}
-//			
-//			private function publicarReparo(rep:Reparo, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = rep;				
-//				message.body=messageGlobal;
-//				produtorReparoService.send(message);	
-//			}
-//
-//			
-//			private function publicarOrcamento(orc:Orcamento, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = orc;				
-//				message.body=messageGlobal;
-//				produtorOrcamentoService.send(message);	
-//			}
+			//			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = req;				
+			//				message.body=messageGlobal;
+			//				produtorEstoqueService.send(message);	
+			//			}
+			//			
+			//			private function publicarReparo(rep:Reparo, msg:String):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = rep;				
+			//				message.body=messageGlobal;
+			//				produtorReparoService.send(message);	
+			//			}
+			//
+			//			
+			//			private function publicarOrcamento(orc:Orcamento, msg:String):void   { 								
+			//				var message:AsyncMessage = new AsyncMessage();
+			//				var messageGlobal:GlobalMessage=new GlobalMessage();
+			//				messageGlobal.mensagem=msg;
+			//				messageGlobal.conteudo = orc;				
+			//				message.body=messageGlobal;
+			//				produtorOrcamentoService.send(message);	
+			//			}
 			
 			public function adicionarRequisicao(req:RequisicaoComponente):void
 			{
 				var reqAux:RequisicaoComponente = null;
 				var encontrou:Boolean = false;
-				for(var i:int=0; i<_listaRequisicoes.length; i++){
-					reqAux = _listaRequisicoes.getItemAt(i) as RequisicaoComponente; 
-					if(reqAux.id == req.id){	
-						var orcRepSub:Object = _listaRequisicoes.removeItemAt(i);
-						_listaRequisicoes.addItemAt(req,i);
-						encontrou = true;
-						break;
+				if(_listaRequisicoes != null){
+					for(var i:int=0; i<_listaRequisicoes.length; i++){
+						reqAux = _listaRequisicoes.getItemAt(i) as RequisicaoComponente; 
+						if(reqAux.id == req.id){	
+							var orcRepSub:Object = _listaRequisicoes.removeItemAt(i);
+							_listaRequisicoes.addItemAt(req,i);
+							encontrou = true;
+							break;
+						}
 					}
+					if(!encontrou){
+						_listaRequisicoes.addItem(req);
+					}
+					popularFiltros();
+					atualizaCombos();
 				}
-				if(!encontrou){
-					_listaRequisicoes.addItem(req);
-				}
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			private function onListarRequisicaoResult(event:ResultEvent = null):void
@@ -268,7 +270,7 @@
 				_listaRequisicoes.removeItemAt(i);
 				_requisicao = event.result as RequisicaoComponente;
 				_listaRequisicoes.addItemAt(_requisicao,i);
-
+				
 				//publicar requisicao
 				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR,_requisicao);
 				//publicarRequisicao(_requisicao,MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR);
@@ -283,7 +285,7 @@
 					Publicador.enviarMensagemOrcamento(MensagensAplicacao.ORCAMENTO_EDITADO,_requisicao.orcamento);
 					//publicarOrcamento(_requisicao.orcamento, MensagensAplicacao.ORCAMENTO_EDITADO);
 				}
-
+				
 				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_CANCELADA_SUCESSO'), MessageType.SUCCESS, 10000));	
 			}
 			

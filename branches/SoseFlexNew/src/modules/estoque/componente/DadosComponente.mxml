@@ -4,6 +4,7 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:grid="components.grid.*"
 		 xmlns:texto="components.textInput.*" width="100%"
+		 xmlns:componente="modules.estoque.componente.*"
 		 xmlns:combos="components.combos.*" xmlns:componentes="components.*" xmlns:fileupload="components.fileupload.*" xmlns:imageviewer="components.imageviewer.*"
 		 >
 	<fx:Declarations>
@@ -48,7 +49,6 @@
 			
 			public function get componente():Componente
 			{
-				_componente.precoUnitario = vUnitario.getValor();
 				_componente.qtdEstoqueMinimo = parseInt(estoqueMinimo.inputText);
 				_componente.qtdEstoque = parseInt(qtdEstoque.inputText);
 				_componente.tipo = cbTipoComponente.tipoComponenteSelecionado;
@@ -65,10 +65,13 @@
 				cbTipoComponente.tipoComponenteSelecionado = value.tipo;
 				cbEncapsulamento.encapsulamentoSelecionado = value.encapsulamento;
 				cbFabricante.fabricanteSelecionado = value.fabricante;
-				vUnitario.setValor(value.precoUnitario);
 				_componente = value;
+				cmHistoricoCompra.componente = _componente;
+				cmHistoricoUso.componente = _componente;
+				cmCotacoes.componente = _componente;
 				this.addEventListener(UploadEvent.UPLOAD_COMPLETO,uploadConcluidoCallback);
 				uploadConcluidoCallback();
+				accordion.selectedIndex = 0;
 			}
 			
 			public function limpar():void
@@ -80,7 +83,6 @@
 				estoqueMinimo.inputText = "";
 				qtdEstoque.inputText = "";
 				posicaoEstoque.inputText = "";
-				vUnitario.setValor(0);
 			}
 			
 			private function uploadConcluidoCallback(event:Event=null):void
@@ -93,10 +95,9 @@
 		]]>
 	</fx:Script>
 	
-	<fx:Binding source="_componente.dtUltimaCompra" destination="dtUltimaCompra.inputDate" twoWay="true" />
+	<fx:Binding source="_componente.dtUltimoInventario" destination="dtUltimoInventario.inputDate" twoWay="true" />
 	<fx:Binding destination="datasheet.inputText" source="_componente.dataSheet" twoWay="true"/>
 	<fx:Binding destination="pinos.inputText" source="_componente.pinos" twoWay="true"/>
-	<fx:Binding destination="fornecedor.inputText" source="_componente.fornecedor" twoWay="true"/>
 	<fx:Binding destination="nome.inputText" source="_componente.nome" twoWay="true"/>
 	<fx:Binding destination="descricao.inputText" source="_componente.descricao" twoWay="true"/>
 	<fx:Binding destination="posicaoEstoque.inputText" source="_componente.posicaoEstoque" twoWay="true"/>
@@ -123,9 +124,7 @@
 			<mx:HBox verticalAlign="bottom" width="100%">
 				<texto:TextInput id="pinos" labelText="Pinos" width="10%"  />
 				<texto:TextInput id="datasheet" labelText="Datasheet" width="30%"  />
-				<texto:TextInput id="fornecedor" labelText="Fornecedor" width="30%" />
-				<componentes:DataInput id="dtUltimaCompra"  labelText="Dt. Ultima compra" width="10%" inputHeight="20" />
-				<texto:TextInputDinheiro2d id="vUnitario" labelText="Valor Unitário" width="20%" />
+				<componentes:DataInput id="dtUltimoInventario"  labelText="Dt. último inventário" width="10%" inputHeight="20" />
 			</mx:HBox>
 		</mx:VBox>
 		
@@ -170,8 +169,24 @@
 				
 				<imageviewer:ImageCarousel width="400" widthComponente="400" id="visualizadoImagem" idEntidade="{_componente.id}" tipoEntidade="COMPONENTE"/>
 			</mx:HBox>
-			
-			
+		</mx:VBox>
+		
+		<mx:VBox label="Histórico de uso" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalHistoricoUso id="cmHistoricoUso" />
+		</mx:VBox>
+		
+		<mx:VBox label="Histórico de compra" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalHistoricoCompra id="cmHistoricoCompra" />
+		</mx:VBox>  
+		
+		<mx:VBox label="Cotações" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalCotacoes id="cmCotacoes" />
 		</mx:VBox>
 		
 	</mx:TabNavigator>

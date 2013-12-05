@@ -93,7 +93,8 @@
 	<fx:Binding destination="subMenuEstoqueComponente.selected" source="_perfil.subMenuEstoqueComponente" twoWay="true"/>
 	<fx:Binding destination="subMenuEstoqueDevolucaoComponente.selected" source="_perfil.subMenuEstoqueDevolucaoComponente" twoWay="true"/>
 	<fx:Binding destination="subMenuEstoquePedidoCompra.selected" source="_perfil.subMenuEstoquePedidoCompra" twoWay="true"/>
-	
+	<fx:Binding destination="subMenuEstoqueListagemCompra.selected" source="_perfil.subMenuEstoqueListagemCompra" twoWay="true"/>
+
 	<fx:Binding destination="subMenuConsultaConsultaGeral.selected" source="_perfil.subMenuConsultaConsultaGeral" twoWay="true"/>
 	
 	<fx:Binding destination="subMenuAvayaGerenciamentoEstoque.selected" source="_perfil.subMenuAvayaGerenciamentoEstoque" twoWay="true"/>
@@ -170,6 +171,7 @@
 	<mx:CheckBox id="subMenuEstoqueComponente" label="{resourceManager.getString('ApplicationResource','SUB_MENU_ESTOQUE_COMPONENTE')}" />
 	<mx:CheckBox id="subMenuEstoqueDevolucaoComponente" label="Menu estoque devolução componentes" />
 	<mx:CheckBox id="subMenuEstoquePedidoCompra" label="Menu estoque pedido de compra" />
+	<mx:CheckBox id="subMenuEstoqueListagemCompra" label="Menu estoque lista de compras" />
 	
 	<mx:CheckBox id="subMenuBaixaFaturamento" label="Sub menu faturamento realizar baixa" />
 	<mx:CheckBox id="subMenuListagemFaturamento" label="Sub menu faturamento listagem de faturas" />

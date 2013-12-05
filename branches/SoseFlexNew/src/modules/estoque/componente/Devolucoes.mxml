@@ -54,19 +54,7 @@
 			
 			[Bindable]
 			private var _devolucaoComponente:DevolucaoComponente;
-			
-			[Bindable]
-			private var listaComponente:ArrayCollection = new ArrayCollection;
-			
-			[Bindable]
-			private var listaStatus:ArrayCollection = new ArrayCollection;
-			
-			[Bindable]
-			private var listaUsuario:ArrayCollection = new ArrayCollection;
-			
-			[Bindable]
-			private var listaLaboratorio:ArrayCollection = new ArrayCollection;
-			
+						
 			[Bindable]
 			private var totalComponentes:Number = 0;
 			
@@ -124,9 +112,7 @@
 			private function onListarRequisicaoResult(event:ResultEvent = null):void
 			{
 				_listaDevolucoes = event.result as ArrayCollection;
-				atualizaTotalComponentes(_listaDevolucoes);
-				popularFiltros();
-				
+				atualizaTotalComponentes(_listaDevolucoes);				
 			}
 			
 			private function atualizaTotalComponentes(lista:ArrayCollection):void{
@@ -141,112 +127,7 @@
 				CursorManager.removeAllCursors();
 				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
-			
-			private function popularFiltros():void
-			{
-				listaComponente.removeAll();
-				listaStatus.removeAll();
-				listaUsuario.removeAll();
-				listaLaboratorio.removeAll();
-				for each (var req:DevolucaoComponente in _listaDevolucoes){
-					if(!listaComponente.contains(req.componente.nome)){
-						listaComponente.addItem(req.componente.nome);
-					}
-					if(!listaStatus.contains(req.condicao)){
-						listaStatus.addItem(req.condicao);
-					}
-					if(req.devolvidoPor != null && !listaUsuario.contains(req.devolvidoPor.usuario)){
-						listaUsuario.addItem(req.devolvidoPor.usuario);
-					}
-					if(req.reparo && !listaLaboratorio.contains(req.reparo.ordemServico.unidade.laboratorio.nome)){
-						listaLaboratorio.addItem(req.reparo.ordemServico.unidade.laboratorio.nome);
-					}else if(req.orcamento && !listaLaboratorio.contains(req.orcamento.ordemServico.unidade.laboratorio.nome)){
-						listaLaboratorio.addItem(req.orcamento.ordemServico.unidade.laboratorio.nome);
-					}
-				}
-				
-				if(listaComponente.length > 0){
-					listaComponente.addItemAt("Todos",0);
-					cbComponente.enabled = true;
-				}else{
-					cbComponente.enabled = false;
-				}
-				cbComponente.dataProvider = listaComponente;
-				
-				if(listaStatus.length > 0){
-					listaStatus.addItemAt("Todos",0);
-					cbStatus.enabled = true;
-				}else{
-					cbStatus.enabled = false;
-				}
-				cbStatus.dataProvider = listaStatus;
-				
-				if(listaUsuario.length > 0){
-					listaUsuario.addItemAt("Todos",0);
-					cbUsuario.enabled = true;
-				}else{
-					cbUsuario.enabled = false;
-				}
-				cbUsuario.dataProvider = listaUsuario;
-				
-				if(listaLaboratorio.length > 0){
-					listaLaboratorio.addItemAt("Todos",0);
-					cbLaboratorio.enabled = true;
-				}else{
-					cbLaboratorio.enabled = false;
-				}
-				cbLaboratorio.dataProvider = listaLaboratorio;
-			}
-			
-			
-			
-			public function atualizaCombos(event:Event):void{
-				_listaDevolucoes.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					
-					
-					var bolComponente:Boolean;
-					if(cbComponente.selectedItem == null || cbComponente.selectedItem == "" || cbComponente.selectedItem == 'Todos'){
-						bolComponente = true;
-					}else{
-						bolComponente = item.componente.nome.toLowerCase().indexOf(cbComponente.selectedItem.toLowerCase())==0;
-					}
-					
-					var bolStatus:Boolean;
-					if(cbStatus.selectedItem == null || cbStatus.selectedItem == "" || cbStatus.selectedItem == 'Todos'){
-						bolStatus = true;
-					}else{
-						bolStatus = item.statusString.toLowerCase().indexOf(cbStatus.selectedItem.toLowerCase())==0;
-					}
-					
-					var bolUsuario:Boolean;
-					if(cbUsuario.selectedItem == null || cbUsuario.selectedItem == "" || cbUsuario.selectedItem == 'Todos'){
-						bolUsuario = true;
-					}else{
-						bolUsuario = item.requisitante != null ? item.requisitante.usuario.toLowerCase().indexOf(cbUsuario.selectedItem.toLowerCase())==0 : false;
-					}
-					
-					var bolLaboratorio:Boolean;
-					if(cbLaboratorio.selectedItem == null || cbLaboratorio.selectedItem == "" || cbLaboratorio.selectedItem == 'Todos'){
-						bolLaboratorio = true;
-					}else{
-						if(item.reparo){
-							bolLaboratorio = item.reparo.ordemServico.unidade.laboratorio.nome.toLowerCase().indexOf(cbLaboratorio.selectedItem.toLowerCase())==0;
-						}else if(item.orcamento){
-							bolLaboratorio = item.orcamento.ordemServico.unidade.laboratorio.nome.toLowerCase().indexOf(cbLaboratorio.selectedItem.toLowerCase())==0;
-						}else{
-							bolLaboratorio = false;
-						}
-					}
-					
-					return bolComponente && bolStatus && bolUsuario && bolLaboratorio;
-					
-				};
-				
-				_listaDevolucoes.refresh();
-				atualizaTotalComponentes(_listaDevolucoes);
-			}
-			
+						
 			private function labelFunction(item:Object, column:DataGridColumn):String
 			{
 				if((item as DevolucaoComponente).reparo){
@@ -327,14 +208,6 @@
 		]]>
 	</fx:Script>
 	
-	
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
-		<components:ComboBoxInput id="cbStatus" labelText="Status" change="atualizaCombos" />
-		<components:ComboBoxInput id="cbComponente" labelText="Componente" change="atualizaCombos" />
-		<components:ComboBoxInput id="cbUsuario" labelText="Usuário" change="atualizaCombos" />
-		<components:ComboBoxInput id="cbLaboratorio" labelText="Laboratório" change="atualizaCombos" />
-	</mx:HBox>
-	
 	<mx:VBox width="100%" height="100%" verticalGap="0">
 		<grid:MantisTable id="requisicoesTable"
 						  width="100%"
@@ -357,7 +230,7 @@
 								<mx:Image source="assets/icons/clock.png"
 										  click="parentDocument.receberComponente(data, event)"
 										  buttonMode="true" enabled="{data.recebidoEm == null}"
-										  useHandCursor="true" visible="{data.condicao == 'Devolvido' || data.condicao == 'Defeituoso'}"
+										  useHandCursor="true" visible="{data.condicao == 'Devolvido'}"
 										  toolTip="{resourceManager.getString('ApplicationResource','RECEBER_MATERIAL')}"
 										  />								
 							</mx:HBox>

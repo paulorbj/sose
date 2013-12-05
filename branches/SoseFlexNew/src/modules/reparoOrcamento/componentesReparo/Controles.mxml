@@ -261,11 +261,12 @@
 				   labelPlacement="bottom" width="70"
 				   icon="@Embed(source='/assets/icons/flag_finish.png')"
 				   click="finalizar(event)"
-				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.componentePendente == false &amp;&amp; 
+				  enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.componentePendente == false &amp;&amp; 
 				   (_reparo.ordemServico.bloqueado == 0 || _reparo.ordemServico.bloqueado == 8 || _reparo.ordemServico.bloqueado == 9 || _reparo.ordemServico.bloqueado == 2) &amp;&amp; 
 				   (_reparo.ordemServico.unidadePai != null || 
-				   _reparo.ordemServico.lpu == null || 
-				   ((_reparo.condicao == 'Sem condição de reparo' || _reparo.condicao == 'Devolução sem reparo') ))}" 
+				   _reparo.ordemServico.itemLpu == null || 
+				   (_reparo.ordemServico.unidadePai == null &amp;&amp; _reparo.ordemServico.itemLpu != null &amp;&amp; _reparo.ordemServico.itemLpu.valor != 0) ||
+				   ((_reparo.condicao == 'Sem condição de reparo' || _reparo.condicao == 'Devolução sem reparo') &amp;&amp; _reparo.ordemServico.unidadePai == null &amp;&amp; _reparo.ordemServico.itemLpu != null &amp;&amp; _reparo.ordemServico.itemLpu.valor == 0))}" 
 				   
 				   enabled.visualizar="false"
 				   />
