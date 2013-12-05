@@ -67,6 +67,8 @@ public class ItemCompra implements Serializable {
 	
 	private BigDecimal valorUnitario;
 	
+	private BigDecimal valorUnitarioDolar;
+	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "fornecedor_id", referencedColumnName = "id")
 	private Pessoa fornecedor;
@@ -228,6 +230,14 @@ public class ItemCompra implements Serializable {
 
 	public void setComponenteNotificacao(Componente componenteNotificacao) {
 		this.componenteNotificacao = componenteNotificacao;
+	}
+
+	public BigDecimal getValorUnitarioDolar() {
+		return valorUnitarioDolar;
+	}
+
+	public void setValorUnitarioDolar(BigDecimal valorUnitarioDolar) {
+		this.valorUnitarioDolar = valorUnitarioDolar;
 	}
 	
 	

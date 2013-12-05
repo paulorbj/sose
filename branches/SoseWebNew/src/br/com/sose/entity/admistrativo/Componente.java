@@ -24,7 +24,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import br.com.sose.entity.compra.ItemCompra;
-import br.com.sose.entity.compra.PedidoCompra;
 
 @Entity
 @Configurable
@@ -92,12 +91,11 @@ public class Componente implements Serializable {
 	@OneToMany(mappedBy = "componenteNotificacao", fetch=FetchType.LAZY)
 	@OrderBy(value="id")
 	private Set<ItemCompra> itensCompraPendentes;
+	
+	private Date dtUltimoInventario;
 
 	public Componente() {
-		// TODO Auto-generated constructor stub
 	}
-
-
 
 	public Componente(Long id, String descricao, String nome,
 			Integer qtdEstoqueMinimo, String nomeFabricante,
@@ -367,6 +365,18 @@ public class Componente implements Serializable {
 
 	public void setItensCompraPendentes(Set<ItemCompra> itensCompraPendentes) {
 		this.itensCompraPendentes = itensCompraPendentes;
+	}
+
+
+
+	public Date getDtUltimoInventario() {
+		return dtUltimoInventario;
+	}
+
+
+
+	public void setDtUltimoInventario(Date dtUltimoInventario) {
+		this.dtUltimoInventario = dtUltimoInventario;
 	}
 
 

@@ -38,7 +38,7 @@ public class ItemCompraDao extends HibernateDaoGenerico<ItemCompra, Long> {
 	
 	@SuppressWarnings("unchecked")
 	public List<ItemCompra> listarItemCompraPorCompra(final Compra compra) {
-		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h " +
+		StringBuilder sb = new StringBuilder("SELECT DISTINCT h FROM "+ entityClass.getName() + " h " +
 				"LEFT JOIN FETCH h.listaPedidoCompra WHERE h.compra = :compra");
 		Query query = sessionFactory.getCurrentSession().createQuery(sb.toString());
 		query.setParameter("compra", compra);

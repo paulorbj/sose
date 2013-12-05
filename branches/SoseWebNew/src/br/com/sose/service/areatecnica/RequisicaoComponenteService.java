@@ -32,6 +32,7 @@ import br.com.sose.status.estoque.Cancelado;
 import br.com.sose.status.estoque.Coletado;
 import br.com.sose.status.estoque.ColetandoMaterial;
 import br.com.sose.status.estoque.ComponenteEmFalta;
+import br.com.sose.status.estoque.ComponenteNaoEncontrado;
 import br.com.sose.status.estoque.Recebido;
 import br.com.sose.status.estoque.Retirado;
 import br.com.sose.status.estoque.SendoEntregue;
@@ -81,6 +82,8 @@ public class RequisicaoComponenteService {
 			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(Cancelado.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
 			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(Retirado.nome);
+			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(ComponenteNaoEncontrado.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
@@ -202,10 +205,12 @@ public class RequisicaoComponenteService {
 	public RequisicaoComponente salvarRequisicao(RequisicaoComponente requisicaoComponente) throws Exception {
 		RequisicaoComponente requisicaoComponenteSalva;
 		try {
-			if(requisicaoComponente.getId() == null || requisicaoComponente.getId().equals(new Long(0)))
+			if(requisicaoComponente.getId() == null || requisicaoComponente.getId().equals(new Long(0))){
 				requisicaoComponenteSalva =(RequisicaoComponente) requisicaoComponenteDao.save(requisicaoComponente);
-			else
+			}else{
 				requisicaoComponenteSalva =(RequisicaoComponente) requisicaoComponenteDao.update(requisicaoComponente);
+			}
+			requisicaoComponenteDao.flush();
 		}catch (Exception e) {
 			throw e;
 		}
@@ -224,7 +229,7 @@ public class RequisicaoComponenteService {
 			}
 
 			for(RequisicaoComponente rc : requisicoes){
-				if(rc.getStatusString().equals(Retirado.nome) || rc.getStatusString().equals(Recebido.nome) || rc.getStatusString().equals(Cancelado.nome)){
+				if(rc.getStatusString().equals(Retirado.nome) || rc.getStatusString().equals(Recebido.nome) || rc.getStatusString().equals(Cancelado.nome) || rc.getStatusString().equals(ComponenteNaoEncontrado.nome)){
 
 				}else{
 					return false;
@@ -441,6 +446,13 @@ public class RequisicaoComponenteService {
 	public RequisicaoComponente cancelarRequisicaoRestituirComponentes(RequisicaoComponente requisicaoComponente,Usuario realizadoPor) throws Exception {
 		RequisicaoComponente requisicaoComponenteSalva;
 		try {
+			
+			PedidoCompra pedidoCompra = pedidoCompraService.buscarPorRequisicao(requisicaoComponente.getId());
+			
+			if(pedidoCompra != null && pedidoCompra.getItemCompra() != null){
+				throw new Exception("A requisição já faz parte de uma compra e não pode ser cancelada!");
+			}
+			
 			requisicaoComponente.setDataCancelamento(new Date());
 			requisicaoComponente.setStatusString(Cancelado.nome);
 			requisicaoComponenteSalva =(RequisicaoComponente) salvarRequisicao(requisicaoComponente);	

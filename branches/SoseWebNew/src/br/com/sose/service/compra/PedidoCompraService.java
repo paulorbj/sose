@@ -43,6 +43,19 @@ public class PedidoCompraService {
 		}
 		return pedidoCompraEncontrado;
 	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public PedidoCompra buscarPorRequisicao(Long id) throws Exception {
+		PedidoCompra pedidoCompraEncontrado;
+		try {
+			pedidoCompraEncontrado =(PedidoCompra) pedidoCompraDao.buscarPorRequisicao(id);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			return null;
+		}
+		return pedidoCompraEncontrado;
+	}
 
 	@RemotingInclude
 	@Transactional(readOnly = true)
