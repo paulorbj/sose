@@ -13,6 +13,7 @@
 	<fx:Script>
 		<![CDATA[
 			import entities.ArquivoUpload;
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
@@ -44,10 +45,9 @@
 			{
 				CursorManager.removeAllCursors(); 
 				listaImagem.removeAll();
-				listaImagem = event.result as ArrayCollection;
+				var listaImagemAux:ArrayCollection = event.result as ArrayCollection;
 				
-				
-				for each(var imgAux:ArquivoUpload in listaImagem){
+				for each(var imgAux:ArquivoUpload in listaImagemAux){
 					imgAux.caminho = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
 					
 					if(imagemSelecionada != null && imgAux.id == imagemSelecionada.id){
@@ -55,6 +55,8 @@
 						img.source = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + imgAux.montarURLRelativa();
 					}
 				}
+				
+				listaImagem = listaImagemAux;			
 				
 				imagemSelecionada = null;
 			}
@@ -98,7 +100,6 @@
 		<mx:ControlBar horizontalAlign="center">
 			<mx:HorizontalList id="horizontalList"
 							   labelField="nome"
-							   iconField="montarURLCompleta"
 							   dataProvider="{listaImagem}"
 							   itemRenderer="components.imageviewer.RendererDGImage"
 							   columnCount="4"

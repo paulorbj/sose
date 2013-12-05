@@ -23,6 +23,7 @@ package entities.compra
 		private var _possuiAmostra:Boolean;
 		private var _nNotaFiscal:String;
 		private var _valorUnitario:Number;
+		private var _valorUnitarioDolar:Number;
 		private var _fornecedor:Pessoa;
 		private var _componenteEquivalente:Componente;
 		private var _componente:Componente;
@@ -244,6 +245,16 @@ package entities.compra
 		public function set status(value:String):void
 		{
 			_status = value;
+		}
+
+		public function get valorUnitarioDolar():Number
+		{
+			return _valorUnitarioDolar;
+		}
+
+		public function set valorUnitarioDolar(value:Number):void
+		{
+			_valorUnitarioDolar = value;
 		}
 
 	

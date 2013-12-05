@@ -3,7 +3,6 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" title="Detalhamento do item de compra" creationPolicy="all"
 		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
 		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*"
-		 close="close();" showCloseButton="true"
 		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="1200" height="450" xmlns:componente="modules.estoque.componente.*">
 	
 	<fx:Declarations>
@@ -36,7 +35,7 @@
 				PopUpManager.removePopUp(this);
 			}
 			
-			private function close():void
+			public function close():void
 			{
 				PopUpManager.removePopUp(this);
 			}
@@ -52,6 +51,7 @@
 				_itemCompra = value;
 				cmDetalhamentoItemCompra.itemCompra = _itemCompra;
 				cmDetalhamentoItemCompra.myParentObject = myParentObject;
+				cmDetalhamentoItemCompra.modal = this;
 				cmPedidosCompra.itemCompra = _itemCompra;
 				cmHistoricoCompra.componente = _itemCompra.componente;
 				cmHistoricoUso.componente = _itemCompra.componente;

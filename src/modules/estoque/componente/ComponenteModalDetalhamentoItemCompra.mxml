@@ -15,6 +15,11 @@
 					   fault="onNotificarEstoqueFault(event)" 
 					   result="onNotificarEstoqueResult(event)"
 					   />
+			<mx:method name="componenteNaoEncontrado"      
+					   fault="onComponenteNaoEncontradoFault(event)" 
+					   result="onComponenteNaoEncontradoResult(event)"
+					   />
+			
 		</mx:RemoteObject>
 		
 		<mx:RemoteObject id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
@@ -44,6 +49,7 @@
 			import modules.administrativo.parceiros.pessoa.CadastroPessoaModal;
 			import modules.estoque.componente.eventos.ModalItemCompraEvent;
 			
+			import mx.containers.TitleWindow;
 			import mx.managers.CursorManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -62,6 +68,9 @@
 			private var _pessoa:Pessoa;
 			
 			public var myParentObject:DisplayObject;
+			
+			[Bindable]
+			public var modal:TitleWindow;
 			
 			private function adicionarFornecedor(event:MouseEvent):void
 			{
@@ -111,9 +120,33 @@
 				}
 			}
 			
+			private function fecharModal(event:MouseEvent):void
+			{
+				(modal as ModalItemCompra).close();
+			}
+			
+			private function componenteNaoEncontrado(event:MouseEvent):void
+			{
+				itemCompraService.componenteNaoEncontrado(this.itemCompra);
+			}
+			
+			
 			public function validarNotificarEstoque():Boolean {	
 				var validatorArr:Array = new Array();
-				validatorArr.push(valorUnitario.stringValidator);
+				
+				valorUnitario.input.errorString = '';
+				valorUnitarioDolar.input.errorString = '';
+				
+				if((isNaN(valorUnitario.valor) || valorUnitario.valor == 0) && (isNaN(valorUnitarioDolar.valor) || valorUnitarioDolar.valor == 0)){
+					valorUnitario.required = true;
+					valorUnitarioDolar.required = true;
+					validatorArr.push(valorUnitario.stringValidator);
+					validatorArr.push(valorUnitarioDolar.stringValidator);
+					var validatorErrorArray1:Array = Validator.validateAll(validatorArr);;
+					var isValidForm1:Boolean = validatorErrorArray1.length == 0;			
+					return isValidForm1;
+				}
+				
 				validatorArr.push(qtdComprada.stringValidator);
 				
 				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
@@ -137,6 +170,25 @@
 				trace("[onNotificarEstoqueFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
 				myParentObject.dispatchEvent(new MensagemEvent("Erro ao notificar estoque", MessageType.ERROR, 10000));
 			}
+			
+			
+			private function onComponenteNaoEncontradoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_itemCompra = event.result as ItemCompra;
+				myParentObject.dispatchEvent(new MensagemEvent("Componente não encontrado!", MessageType.SUCCESS, 3000));
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_ITEM_COMPRA, _itemCompra);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_NAO_ENCONTRADO, _itemCompra);
+			}
+			
+			private function onComponenteNaoEncontradoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onComponenteNaoEncontradoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				myParentObject.dispatchEvent(new MensagemEvent("Erro sinalizar componente não encontrado", MessageType.ERROR, 10000));
+			}
+			
+			
 			
 			private function salvarItemCompra(event:MouseEvent):void
 			{				
@@ -168,6 +220,8 @@
 				_itemCompra.qtdEsperada = parseFloat(qtdEsperada.inputText);
 				_itemCompra.fornecedor = cbFornecedor.fornecedorSelecionado;
 				_itemCompra.valorUnitario = valorUnitario.valor;
+				_itemCompra.valorUnitarioDolar = valorUnitarioDolar.valor;
+				
 				return _itemCompra;
 			}
 			
@@ -181,6 +235,7 @@
 				txtEstoqueMinimo.inputText = _itemCompra.componente.qtdEstoqueMinimo.toString();
 				cbFornecedor.fornecedorSelecionado = _itemCompra.fornecedor;
 				valorUnitario.setValor(_itemCompra.valorUnitario);
+				valorUnitarioDolar.setValor(_itemCompra.valorUnitarioDolar);
 				requisicaoComponenteService.listarTotalRequisicoesUltimos6Meses(_itemCompra.componente);
 			}
 			
@@ -306,8 +361,9 @@
 	</mx:HBox>
 	
 	<mx:HBox width="100%" verticalAlign="middle">
-		<texto:TextInput id="qtdComprada" habilitado="{_itemCompra.status != 'Notificado'}" required="true" labelText="Qtd comprada" width="15%"  />
-		<texto:TextInputDinheiro2d id="valorUnitario" habilitado="{_itemCompra.status != 'Notificado'}" required="true" labelText="Valor unitário" width="15%"  />
+		<texto:TextInput id="qtdComprada" habilitado="{_itemCompra.status != 'Notificado'}" required="true" labelText="Qtd comprada" width="10%"  />
+		<texto:TextInputDinheiro2d id="valorUnitario" habilitado="{_itemCompra.status != 'Notificado'}"  labelText="Valor unitário (R$)" width="10%"  />
+		<texto:TextInputDinheiro2d id="valorUnitarioDolar" habilitado="{_itemCompra.status != 'Notificado'}"  labelText="Valor unitário (US$)" width="10%"  />
 		<texto:TextInput id="nNotaFiscal" habilitado="{_itemCompra.status != 'Notificado'}" labelText="Nº NF" width="15%"  />
 		
 		<combos:ComboFornecedor id="cbFornecedor" labelText="Fornecedor" width="25%" enabled="{_itemCompra.status != 'Notificado'}" changeFunction="atualizarComboFornecedor"  />
@@ -340,20 +396,34 @@
 	
 	<mx:HBox width="100%" verticalAlign="bottom">
 		<texto:TextInput id="dtEntrada" habilitado="false" labelText="Dt entrada" width="30%"  />
-		<combos:ComboComponente id="cbComponenteEquivalente" enabled="{_itemCompra.status != 'Notificado'}" labelText="Componente equivalente" width="50%" />
+		<combos:ComboComponente id="cbComponenteEquivalente" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}" labelText="Componente equivalente" width="50%" />
 	</mx:HBox>
 	
 	<mx:HBox width="100%" verticalAlign="bottom">
 		<mx:Button id="btSalvarItemCompra"
 				   label="Salvar item compra"
-				   height="25"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}"
 				   click="salvarItemCompra(event)"/>
 		
 		<mx:Button id="btNotificarEstoque"
 				   label="Notificar Estoque"
-				   height="25" enabled="{_itemCompra.status != 'Notificado'}"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}"
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   click="notificarEstoque(event)"/>
+		
+		<mx:Button id="btFechar"
+				   label="Fechar"
+				   height="25" 
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="fecharModal(event)"/>
+		
+		<s:Spacer width="100" />
+		
+		<mx:Button id="btNaoEncontrado"
+				   label="Componente não encontrado"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="componenteNaoEncontrado(event)"/>
 	</mx:HBox>
 	
 </mx:VBox>

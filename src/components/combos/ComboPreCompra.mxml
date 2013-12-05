@@ -101,5 +101,5 @@
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" />
+	<combo:ComboBoxInput id="comboBox" editable="false" required="{required}" change="{changeFunction}" />
 </mx:VBox>

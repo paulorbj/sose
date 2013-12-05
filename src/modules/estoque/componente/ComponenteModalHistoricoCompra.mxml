@@ -20,11 +20,14 @@
 			import components.messages.MessageType;
 			
 			import entities.administrativo.Componente;
+			import entities.compra.ItemCompra;
 			
 			import mx.collections.ArrayCollection;
 			import mx.managers.CursorManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			import utils.Formatador;
 			
 			[Bindable]
 			private var _listaItemCompra:ArrayCollection;
@@ -53,6 +56,11 @@
 				CursorManager.removeAllCursors();
 				trace("[onListarUltimas10ComprasFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
 			}	
+			
+			private function labelFunctionValorUnitario(item:Object, column:DataGridColumn):String {
+				var ic:ItemCompra = item as ItemCompra;
+				return Formatador.formatarValorNumber(ic.valorUnitario);
+			}
 			
 		]]>
 	</fx:Script>
@@ -85,7 +93,8 @@
 							   headerText = "Valor unitário"
 							   textAlign="center"
 							   sortable="false"
-							   dataField="valorUnitario"							   
+							   dataField="valorUnitario"	
+							   labelFunction="labelFunctionValorUnitario"							   
 							   />
 			
 			

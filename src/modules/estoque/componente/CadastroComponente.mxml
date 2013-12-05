@@ -34,7 +34,10 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import components.ConfirmarVoltarSemSalvarModal;
 			import components.PopupModalController;
+			import components.RemoveModalEvent;
+			import components.VoltarSemSalvarModalEvent;
 			import components.events.UserRegisterNumberModalEvent;
 			import components.messages.MensagemEvent;
 			import components.messages.MessageType;
@@ -89,6 +92,12 @@
 					var comp:Componente = globalMessage.conteudo as Componente;
 					atualizarComponente(comp);
 				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_ATUALIZAR){
+					var comp1:Componente = globalMessage.conteudo as Componente;
+					atualizarComponente(comp1);
+					setarComponente(comp1);
+				}
 			} 
 			
 			private function atualizarComponente(componente:Componente):void
@@ -99,6 +108,7 @@
 					if(componenteAux.id == componente.id){
 						_listaComponente.removeItemAt(i);
 						_listaComponente.addItemAt(componente,i);
+						break;
 					}
 				}				
 			}
@@ -113,8 +123,10 @@
 			public function setarComponente(comp:Componente):void
 			{
 				_componente = comp;
-				dados.componente = comp;
-				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE, comp);
+				if(dados){
+					dados.componente = comp;	
+				}
+				//Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE, comp);
 
 			}
 			
@@ -144,15 +156,12 @@
 				_componente = event.result as Componente;
 				publicarComponente(_componente,MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR);
 				if(dados.componente.id == 0){
-					//_listaComponente.addItem(_componente);
+					publicarComponente(_componente,MensagensAplicacao.NOVO_COMPONENTE);
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
 				}else{
-					//var index:int = _listaComponente.getItemIndex(dados.componente);
-					//_listaComponente.removeItemAt(index);
-					//_listaComponente.addItemAt(_componente, index);
+
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
 				}
-				//listagem.setListaComponente(_listaComponente);
 				componenteService.listarComponentes();
 				dados.limpar();
 			}
@@ -246,7 +255,14 @@
 				novo();
 			}
 			
-			private function voltar(event:MouseEvent = null):void
+			private function confirmarVoltar(event:MouseEvent = null):void
+			{
+				var modal:ConfirmarVoltarSemSalvarModal=ConfirmarVoltarSemSalvarModal(PopUpManager.createPopUp( this, ConfirmarVoltarSemSalvarModal , true));
+				modal.addEventListener(VoltarSemSalvarModalEvent.VOLTAR_SEM_SALVAR_MODAL, voltar);
+				PopUpManager.centerPopUp(modal);
+			}
+			
+			private function voltar(event:VoltarSemSalvarModalEvent = null):void
 			{
 				this.currentState = "listagem";
 				limpar();
@@ -356,10 +372,10 @@
 				}
 			}
 			
-			private function voltarEnter(event:KeyboardEvent):void
+			private function confirmarVoltarEnter(event:KeyboardEvent):void
 			{		
 				if (event.charCode == 13) {
-					voltar();
+					confirmarVoltar();
 				}
 			}
 			
@@ -438,8 +454,8 @@
 				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
 				   height="25"
 				   icon="@Embed(source='/assets/icons/back.png')"
-				   keyDown="voltarEnter(event)"
-				   click="voltar(event)"
+				   keyDown="confirmarVoltarEnter(event)"
+				   click="confirmarVoltar(event)"
 				   />
 	</mx:HBox>
 </mx:VBox>

@@ -33,6 +33,9 @@
 			import mx.rpc.events.ResultEvent;
 			import mx.validators.Validator;
 			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
 			[Bindable]
 			private var _componente:Componente;
 			
@@ -62,8 +65,8 @@
 					myParentObject.dispatchEvent(new MensagemEvent("Estoque atualizado!", MessageType.SUCCESS, 3000));
 				}
 				qtdDiferente = false;
-				_componente = event as Componente;
-				(myParentObject as CadastroComponente).setarComponente(_componente);
+				_componente = event.result as Componente;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_ATUALIZAR, _componente);
 			}
 			
 			private function onAtualizarQtdComponenteEstoqueFault(event:FaultEvent = null):void

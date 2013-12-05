@@ -80,6 +80,9 @@
 			[Bindable]
 			public var requireSelectionFlag:Boolean=false;
 			
+			[Bindable]
+			public var editable:Boolean=true;
+			
 			
 			private function init():void{
 				combobox.textInput.addEventListener(KeyboardEvent.KEY_UP,onEnter);
@@ -130,7 +133,8 @@
 			 */
 			public function set dataProvider(value:ListCollectionView):void
 			{
-				_dataProvider = value;			
+				_dataProvider = value;	
+				combobox.textInput.editable = editable;
 				if(_selectedItem != null && !(_selectedItem is String)){
 					for each(var s:* in dataProvider){
 						if(ObjectUtil.compare(s.id,_selectedItem.id)==0){
@@ -173,32 +177,7 @@
 			
 			public function clean():void
 			{
-				//				combobox.textInput.text = "";
-				//				combobox.selectedItem = null;
 				combobox.selectedIndex = -1;
-				
-				//				combobox.selectedItem = null;
-			}
-			
-			//			protected function firstOnlyFilter ( item:Object):Boolean{
-			//				
-			//				var label : String = item.codigoUnidade;
-			//				
-			//				if(label.toLowerCase().search(cbUnidadeServilogi.typeAheadText.toLowerCase()) != -1){
-			//					return true;
-			//				}
-			//				return false;
-			//			}
-			
-			[Bindable]
-			public function get editable():Boolean
-			{
-				return combobox.textInput.editable;
-			}
-			
-			public function set editable(value:Boolean):void
-			{				
-				combobox.textInput.editable = value;
 			}
 			
 		]]>

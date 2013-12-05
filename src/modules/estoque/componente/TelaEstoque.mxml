@@ -23,8 +23,11 @@
 					}
 					if(!Login.currentUser.perfil.subMenuEstoquePedidoCompra){
 						subMenu.removeChild(pedidoCompra);
+					}	
+					if(!Login.currentUser.perfil.subMenuEstoqueListagemCompra){
 						subMenu.removeChild(listagemCompra);
 					}	
+					
 				}
 			}
 			

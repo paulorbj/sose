@@ -23,7 +23,7 @@
 					   fault="onGerarRelatorioFault(event)" 
 					   result="onGerarRelatorioResult(event)"
 					   />
-
+			
 		</mx:RemoteObject>
 		
 		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="laudoTecnicoController" destination="laudoTecnicoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
@@ -74,6 +74,7 @@
 			import components.messages.MensagemEvent;
 			import components.messages.MessageType;
 			import components.messages.NotificationEvent;
+			import components.pdfViewer.PDFViewerEvent;
 			
 			import entities.GlobalMessage;
 			import entities.administrativo.Usuario;
@@ -161,7 +162,7 @@
 			private var byteArray:ByteArray;
 			
 			private var fileRef:FileReference;
-
+			
 			private function init():void
 			{
 				laudoTecnicoService.channelSet = parentApplication.channelSet;
@@ -431,18 +432,9 @@
 			private function onGerarRelatorioResult(event:ResultEvent = null):void
 			{
 				CursorManager.removeAllCursors();
-				byteArray = event.result as ByteArray;
 				dispatchEvent(new MensagemEvent("Relatório laudo técnico criado com sucesso", MessageType.SUCCESS, 5000));
-				Alert.noLabel = "Não";
-				Alert.yesLabel = "Sim"
-				var alert:Alert = new Alert();
-				alert = Alert.show("Deseja salvar o arquivo?","Relatório concluído",
-					3, 
-					this, 
-					alertPDFClickHandler);
-				PopUpManager.centerPopUp(alert);
-				var newY:Number = 180;
-				alert.move(alert.x, newY);
+				var urlPDF:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + "temporario/" + event.result as String;
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlPDF, null));
 			}
 			
 			private function alertPDFClickHandler(event:CloseEvent):void
@@ -456,7 +448,7 @@
 					
 				}
 			}
-
+			
 			private function saveFile():void
 			{
 				fileRef.save(byteArray, "Laudo_tecnico_"+_laudoTecnico.controle+".pdf");	
@@ -653,7 +645,7 @@
 									 sortable="false" width=".10"
 									 dataField="serieCliente" dataTipField="serieCliente"							   
 									 />
-						
+			
 			<dc:DataGridColumnFilter id="cLaboratorio" showDataTips="true"
 									 headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
 									 dataField = "laboratorio"
