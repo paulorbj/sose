@@ -42,6 +42,19 @@ public class CotacaoService {
 	}
 	
 	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<Cotacao> listarCotacaoPorComponente(Componente componente,int qtdResultado) throws Exception {
+		List<Cotacao> listaRetorno;
+		try {
+			listaRetorno =(List<Cotacao>) cotacaoDao.listarCotacaoPorComponente(componente, qtdResultado);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return listaRetorno;
+	}
+	
+	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public Cotacao salvarCotacao(Cotacao cotacao) throws Exception {
 		Cotacao cotacaoSalvo;

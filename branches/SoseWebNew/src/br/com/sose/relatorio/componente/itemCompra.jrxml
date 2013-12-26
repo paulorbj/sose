@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorioItemCompra" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="04115ee2-df51-4b33-be68-63237e7d4ad4">
-	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.zoom" value="1.1269722013523664"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<field name="qtdTotalRequisitada" class="java.lang.String"/>
@@ -15,6 +15,8 @@
 	<field name="data" class="java.lang.String"/>
 	<field name="origem" class="java.lang.String"/>
 	<field name="imagem" class="java.lang.String"/>
+	<field name="dataString" class="java.lang.String"/>
+	<field name="componente.encapsulamento.nome" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -152,7 +154,7 @@
 				<textFieldExpression><![CDATA[$F{componente.pinos}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="955e5bc8-1d7a-4360-b1e2-944ea58717fa" x="456" y="23" width="42" height="20" backcolor="#CCCCCC"/>
+				<reportElement uuid="955e5bc8-1d7a-4360-b1e2-944ea58717fa" x="144" y="63" width="42" height="20" backcolor="#CCCCCC"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -164,7 +166,7 @@
 				<text><![CDATA[Qtd Req.]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="39c5c9a9-20ac-4683-bdce-33e920c17bd6" x="456" y="43" width="42" height="20"/>
+				<reportElement uuid="39c5c9a9-20ac-4683-bdce-33e920c17bd6" x="186" y="63" width="57" height="20"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -176,7 +178,7 @@
 				<textFieldExpression><![CDATA[$F{qtdTotalRequisitada}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="751d15d8-3cce-4058-8900-46f42051129e" x="498" y="23" width="57" height="20" backcolor="#CCCCCC"/>
+				<reportElement uuid="751d15d8-3cce-4058-8900-46f42051129e" x="243" y="63" width="42" height="20" backcolor="#CCCCCC"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -188,7 +190,7 @@
 				<text><![CDATA[Qtd Esp.]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="edfee614-48d4-4ff3-be0e-c532771f3200" x="498" y="43" width="57" height="20"/>
+				<reportElement uuid="edfee614-48d4-4ff3-be0e-c532771f3200" x="285" y="63" width="57" height="20"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -200,7 +202,7 @@
 				<textFieldExpression><![CDATA[$F{qtdEsperada}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="1432f5d1-bebe-41a6-b394-70423fb843f6" x="381" y="63" width="48" height="20" backcolor="#CCCCCC"/>
+				<reportElement uuid="1432f5d1-bebe-41a6-b394-70423fb843f6" x="342" y="83" width="42" height="20" backcolor="#CCCCCC"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -212,7 +214,7 @@
 				<text><![CDATA[Técnicos]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="62010233-54e6-452d-84a7-f36cf1bac3dc" x="429" y="63" width="126" height="20"/>
+				<reportElement uuid="62010233-54e6-452d-84a7-f36cf1bac3dc" x="384" y="83" width="171" height="20"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -224,7 +226,7 @@
 				<textFieldExpression><![CDATA[$F{tecnicos}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="3079a859-24f3-46ef-8f0e-8a6126b00f89" x="144" y="63" width="43" height="20" backcolor="#CCCCCC"/>
+				<reportElement uuid="3079a859-24f3-46ef-8f0e-8a6126b00f89" x="243" y="83" width="42" height="20" backcolor="#CCCCCC"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -236,7 +238,7 @@
 				<text><![CDATA[Amostra]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="b3537ae7-5b51-4995-9be9-0d8327fabae1" x="187" y="63" width="26" height="20"/>
+				<reportElement uuid="b3537ae7-5b51-4995-9be9-0d8327fabae1" x="285" y="83" width="57" height="20"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -248,7 +250,7 @@
 				<textFieldExpression><![CDATA[$F{possuiAmostra} ? "S" : "N"]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="06fba86c-432c-4b0c-a595-92a033b019b7" x="213" y="63" width="24" height="20" backcolor="#CCCCCC"/>
+				<reportElement uuid="06fba86c-432c-4b0c-a595-92a033b019b7" x="144" y="83" width="42" height="20" backcolor="#CCCCCC"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -260,7 +262,7 @@
 				<text><![CDATA[Data]]></text>
 			</staticText>
 			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
-				<reportElement uuid="0e523f42-2cd0-46df-8a7d-6278e7366416" x="237" y="63" width="45" height="20"/>
+				<reportElement uuid="0e523f42-2cd0-46df-8a7d-6278e7366416" x="186" y="83" width="57" height="20"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -268,11 +270,13 @@
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{data}]]></textFieldExpression>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dataString}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="5d33fd5f-06dc-4606-ab33-9d36974c2f99" x="282" y="63" width="42" height="20" backcolor="#CCCCCC"/>
+				<reportElement uuid="5d33fd5f-06dc-4606-ab33-9d36974c2f99" x="342" y="63" width="42" height="20" backcolor="#CCCCCC"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -284,7 +288,7 @@
 				<text><![CDATA[Origem]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="270253e4-79bc-4c73-bcd7-fe71f7cd532e" x="324" y="63" width="57" height="20"/>
+				<reportElement uuid="270253e4-79bc-4c73-bcd7-fe71f7cd532e" x="384" y="63" width="171" height="20"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -296,7 +300,7 @@
 				<textFieldExpression><![CDATA[$F{origem}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="0402d284-86e0-4583-8e2b-73d678a6c325" x="144" y="83" width="411" height="113"/>
+				<reportElement uuid="0402d284-86e0-4583-8e2b-73d678a6c325" x="144" y="103" width="411" height="93"/>
 				<box>
 					<pen lineWidth="0.25"/>
 					<topPen lineWidth="0.25"/>
@@ -314,6 +318,30 @@
 				</textElement>
 				<text><![CDATA[Relatório - Falta de componente]]></text>
 			</staticText>
+			<staticText>
+				<reportElement uuid="482fcda3-861b-4e87-8cb5-b6aeb9973fa8" x="456" y="23" width="99" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Encapsulamento]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="d2736e8d-b1e2-44ce-85c7-2e5f9d3ebd56" x="456" y="43" width="99" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{componente.encapsulamento.nome}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 </jasperReport>

@@ -2,10 +2,9 @@ package br.com.sose.relatorio.componente;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 import br.com.sose.entity.admistrativo.Componente;
-import br.com.sose.entity.compra.Cotacao;
+import br.com.sose.utils.DateUtils;
 
 public class RelatorioCompraVO implements Serializable {
 	
@@ -29,7 +28,13 @@ public class RelatorioCompraVO implements Serializable {
 	
 	private String imagem;
 	
-	private List<Cotacao> cotacoes;
+	private String cotacoes;
+	
+	private String historicoCompra;
+	
+	public String getDataString(){
+		return DateUtils.formatarDataDDMMYYYY(data);
+	}
 	
 	public Componente getComponente() {
 		return componente;
@@ -103,11 +108,19 @@ public class RelatorioCompraVO implements Serializable {
 		this.imagem = imagem;
 	}
 
-	public List<Cotacao> getCotacoes() {
+	public String getHistoricoCompra() {
+		return historicoCompra;
+	}
+
+	public void setHistoricoCompra(String historicoCompra) {
+		this.historicoCompra = historicoCompra;
+	}
+
+	public String getCotacoes() {
 		return cotacoes;
 	}
 
-	public void setCotacoes(List<Cotacao> cotacoes) {
+	public void setCotacoes(String cotacoes) {
 		this.cotacoes = cotacoes;
 	}
 

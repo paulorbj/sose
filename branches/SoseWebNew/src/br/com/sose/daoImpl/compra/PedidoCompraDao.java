@@ -6,6 +6,7 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 import br.com.sose.daoImpl.HibernateDaoGenerico;
+import br.com.sose.entity.admistrativo.Atividade;
 import br.com.sose.entity.admistrativo.Componente;
 import br.com.sose.entity.compra.PedidoCompra;
 import br.com.sose.status.estoque.ComponenteEmFalta;
@@ -49,5 +50,15 @@ public class PedidoCompraDao extends HibernateDaoGenerico<PedidoCompra, Long> {
 		return query.list();
 	}
 
+	public Boolean remover(final PedidoCompra pedidoCompra){
+		Query q = sessionFactory.getCurrentSession().createSQLQuery("DELETE FROM PedidoCompra WHERE id = :id");
+		q.setParameter("id", pedidoCompra.getId());
+		int i = q.executeUpdate();
+		if(i>0){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 }

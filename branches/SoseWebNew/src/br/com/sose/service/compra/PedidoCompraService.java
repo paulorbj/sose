@@ -160,7 +160,7 @@ public class PedidoCompraService {
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public void excluirPedidoCompra(PedidoCompra pedidoCompra) throws Exception {
 		try {
-			pedidoCompraDao.delete(pedidoCompra);	
+			pedidoCompraDao.remover(pedidoCompra);	
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
