@@ -41,6 +41,9 @@ You cannot run it independently. -->
 			import mx.rpc.events.ResultEvent;
 			import mx.validators.Validator;
 			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
 			[Bindable]
 			private var pedidoCompra:PedidoCompra = new PedidoCompra();
 			
@@ -123,6 +126,7 @@ You cannot run it independently. -->
 				}else{
 					myParentObject.dispatchEvent(new OrcamentoEvent(OrcamentoEvent.ATUALIZAR_ORCAMENTO,pedidoCompra.requisicao.orcamento));
 				}
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.PEDIDO_COMPRA_CRIADO,pedidoCompra);
 				idRequisicao = pedidoCompra.requisicao.id;
 				idPedido = pedidoCompra.id;
 				myParentObject.dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REQUISICAO_COMPONENTE_PEDIDO_COMPRA_EFETUADA_SUCESSO'), MessageType.SUCCESS, 5000));

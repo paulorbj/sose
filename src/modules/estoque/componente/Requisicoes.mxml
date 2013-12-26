@@ -144,6 +144,9 @@
 				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_NAO_ENCONTRADO){
 					requisicaoComponenteService.listarRequisicaoEstoque();
 				}
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_LISTA_REQUISICAO){
+					requisicaoComponenteService.listarRequisicaoEstoque();
+				}
 			} 
 			
 			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								

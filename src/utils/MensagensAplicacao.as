@@ -86,14 +86,15 @@ package utils {
 		//Compra
 		public static const COMPRA_CRIADA:String = "COMPRA_CRIADA";
 		public static const PEDIDO_COMPRA_CRIADO:String = "PEDIDO_COMPRA_CRIADO";
+		public static const CANCELAR_PEDIDO_COMPRA:String = "CANCELAR_PEDIDO_COMPRA";
 		public static const ATUALIZAR_COMPRA:String = "ATUALIZAR_COMPRA";
 		public static const ATUALIZAR_ITEM_COMPRA:String = "ATUALIZAR_ITEM_COMPRA";
 		public static const DELETAR_ITEM_COMPRA:String = "DELETAR_ITEM_COMPRA";
 		public static const ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE:String = "ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE";
 		public static const COMPONENTE_NAO_ENCONTRADO:String = "COMPONENTE_NAO_ENCONTRADO";
-		public static const NOVO_COMPONENTE = "NOVO_COMPONENTE";
-		
-
+		public static const NOVO_COMPONENTE:String = "NOVO_COMPONENTE";
+		public static const COMPRA_DELETADA:String = "COMPRA_DELETADA";
+		public static const ATUALIZAR_LISTA_REQUISICAO:String = "ATUALIZAR_LISTA_REQUISICAO";	
 	}
 		
 }

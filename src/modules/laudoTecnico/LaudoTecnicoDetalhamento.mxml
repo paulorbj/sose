@@ -2,13 +2,23 @@
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+		 xmlns:fileupload="components.fileupload.*" xmlns:imageviewer="components.imageviewer.*"
 		 xmlns:texto="components.textInput.*" xmlns:componentes="components.*" xmlns:grid="components.grid.*">
+	
 	<fx:Declarations>
-		
+		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorEntidadePorIdentificador"      
+					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
+					   result="onListarPorEntidadePorIdentificadorResult(event)"
+					   />
+			
+		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
+			import components.fileupload.UploadEvent;
+			
 			import entities.laudoTecnico.LaudoTecnico;
 			import entities.orcamentoreparo.DefeitoOrcRep;
 			import entities.orcamentoreparo.Orcamento;
@@ -26,6 +36,22 @@
 			
 			[Bindable]
 			private var _listaOrdemServico:ArrayCollection;
+			
+			[Bindable]
+			private var _listaArquivoUpload:ArrayCollection = new ArrayCollection();
+			
+			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaArquivoUpload.removeAll();
+				_listaArquivoUpload = event.result as ArrayCollection;
+			}
+			
+			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
 			
 			public function get laudoTecnico():LaudoTecnico
 			{
@@ -62,7 +88,17 @@
 						_listaOrdemServico.addItem(os.orcamento);
 					}
 				}
-
+				tn.selectedIndex = 0;
+				this.addEventListener(UploadEvent.UPLOAD_COMPLETO,uploadConcluidoCallback);
+				uploadConcluidoCallback();
+			}
+			
+			
+			private function uploadConcluidoCallback(event:Event=null):void
+			{
+				//componenteUpload.limpar();
+				arquivoUploadService.listarPorEntidadePorIdentificador("LAUDO_TECNICO",_laudoTecnico.id);
+				visualizadoImagem.recarregarImagens();
 			}
 			
 			
@@ -101,6 +137,18 @@
 				var isValidForm:Boolean = validatorErrorArray.length == 0;			
 				return isValidForm;
 			}
+
+			[Bindable]
+			public function get listaArquivoUpload():ArrayCollection
+			{
+				return _listaArquivoUpload;
+			}
+
+			public function set listaArquivoUpload(value:ArrayCollection):void
+			{
+				_listaArquivoUpload = value;
+			}
+
 			
 		]]>
 	</fx:Script>
@@ -127,35 +175,44 @@
 		<s:State name="visualizar"/>
 	</mx:states>
 	
-	<mx:HBox verticalAlign="middle" width="100%">
-		<texto:TextInput id="nControle" labelText="{resourceManager.getString('ApplicationResource','CONTROLE')}" width="20%" habilitado="false" />
-		<texto:TextInput id="nOrdemServico" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="20%" habilitado="false" />
-		<s:Spacer width="100%" />
-		<s:Label text="Status:" />
-		<s:Label id="statusOrcRep" fontSize="20" color="red" text="{_laudoTecnico.statusString}" />
-	</mx:HBox>
-	<mx:HBox verticalAlign="middle" width="100%">
-		<texto:TextInput id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="50%" habilitado="false" />
-		<texto:TextInput id="tecnico" labelText="{resourceManager.getString('ApplicationResource','TECNICO')}" width="20%" habilitado="false" />
-		<componentes:DataInput id="dataEntrada" enabled="false" labelText="Dt criação" width="10%" inputHeight="20" />
-		<componentes:DataInput id="dataInicio" enabled="false" labelText="Dt início" width="10%" inputHeight="20" />
-		<componentes:DataInput id="dataFim" enabled="false" labelText="Dt fim" width="10%" inputHeight="20" />
-	</mx:HBox>
-	<mx:HBox verticalAlign="middle" width="100%">
-		<texto:TextInput id="nNotaFiscal" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="25%" habilitado="false" />
-		<texto:TextInput id="nSerie" labelText="{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}" width="25%" habilitado="false" />
-		<texto:TextInput id="nCliente" labelText="{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}" width="25%" habilitado="false" />
-		<texto:TextInput id="nOSCliente" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_CLIENTE')}" width="25%" habilitado="false" />
-	</mx:HBox>
-	<mx:HBox verticalAlign="middle" width="100%">
-		<texto:TextInput id="laboratorio" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="25%" habilitado="false" />
-		<texto:TextInput id="unidade" labelText="{resourceManager.getString('ApplicationResource','UNIDADE')}" width="25%" habilitado="false" />
-		<texto:TextInput id="fabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="25%" habilitado="false" />
-		<texto:TextInput id="equipamento" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="25%" habilitado="false" />
-	</mx:HBox>
-	
-	<mx:TabNavigator id="tn"  width="100%" height="100%"
+	<mx:TabNavigator id="tn"  width="100%" height="400"
 					 tabWidth="{tn.width/tn.numChildren}" color="0x323232" >
+		<fx:Script>
+			<![CDATA[
+				import components.fileupload.ComponenteUpload;
+			]]>
+		</fx:Script>
+		
+		<s:NavigatorContent label="Informações do laudo técnico" width="100%" height="100%" >
+			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				<mx:HBox verticalAlign="middle" width="100%">
+					<texto:TextInput id="nControle" labelText="{resourceManager.getString('ApplicationResource','CONTROLE')}" width="20%" habilitado="false" />
+					<texto:TextInput id="nOrdemServico" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="20%" habilitado="false" />
+					<s:Spacer width="100%" />
+					<s:Label text="Status:" />
+					<s:Label id="statusOrcRep" fontSize="20" color="red" text="{_laudoTecnico.statusString}" />
+				</mx:HBox>
+				<mx:HBox verticalAlign="middle" width="100%">
+					<texto:TextInput id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="50%" habilitado="false" />
+					<texto:TextInput id="tecnico" labelText="{resourceManager.getString('ApplicationResource','TECNICO')}" width="20%" habilitado="false" />
+					<componentes:DataInput id="dataEntrada" enabled="false" labelText="Dt criação" width="10%" inputHeight="20" />
+					<componentes:DataInput id="dataInicio" enabled="false" labelText="Dt início" width="10%" inputHeight="20" />
+					<componentes:DataInput id="dataFim" enabled="false" labelText="Dt fim" width="10%" inputHeight="20" />
+				</mx:HBox>
+				<mx:HBox verticalAlign="middle" width="100%">
+					<texto:TextInput id="nNotaFiscal" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="25%" habilitado="false" />
+					<texto:TextInput id="nSerie" labelText="{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}" width="25%" habilitado="false" />
+					<texto:TextInput id="nCliente" labelText="{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}" width="25%" habilitado="false" />
+					<texto:TextInput id="nOSCliente" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_CLIENTE')}" width="25%" habilitado="false" />
+				</mx:HBox>
+				<mx:HBox verticalAlign="middle" width="100%">
+					<texto:TextInput id="laboratorio" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="25%" habilitado="false" />
+					<texto:TextInput id="unidade" labelText="{resourceManager.getString('ApplicationResource','UNIDADE')}" width="25%" habilitado="false" />
+					<texto:TextInput id="fabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="25%" habilitado="false" />
+					<texto:TextInput id="equipamento" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="25%" habilitado="false" />
+				</mx:HBox>
+			</mx:VBox>
+		</s:NavigatorContent>
 		
 		<s:NavigatorContent label="Ordens de serviço" width="100%" height="100%" >
 			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
@@ -174,14 +231,14 @@
 				<grid:MantisTable id="tabelaItens"
 								  width="100%" 
 								  height="100%" rowHeight="20"
-								  draggableColumns="true"
+								  draggableColumns="false"
 								  dataProvider="{_listaOrdemServico}"
 								  doubleClickEnabled="false" editable="false"
 								  >
 					<grid:columns>
 						
 						
-						<mx:DataGridColumn id="status" width=".15" editable="false"
+						<mx:DataGridColumn id="status" width=".10" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 										   textAlign="center"
 										   resizable="false" draggable="false" sortable="false"
@@ -211,19 +268,68 @@
 						
 						<mx:DataGridColumn id="cUnidade" editable="false"
 										   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
-										   textAlign="center" width=".25"
+										   textAlign="center" width=".20"
 										   resizable="false" draggable="false" sortable="false"
 										   dataField="ordemServico.unidade.nome"							   
 										   />	
 						
 						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','DEFEITO')}"	showDataTips="true"
-										   draggable="false" width=".15" labelFunction="labelFunction" 				 
-										   editable="false"
-										   sortable="false" />
+										   draggable="false" width=".40" labelFunction="labelFunction" 				 
+										   resizable="false" editable="false" sortable="false" 
+										   />
 						
 						
 					</grid:columns>
 				</grid:MantisTable>
+			</mx:VBox>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Arquivos" width="100%" height="100%" >
+			<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				<mx:HBox width="100%" height="100%" horizontalGap="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+					<mx:VBox height="100%">
+						<fileupload:ComponenteUpload id="componenteUpload" width="500" idObjeto="{_laudoTecnico.id}" tipoEntidade="{ComponenteUpload.T_ENTIDADE_LAUDO_TECNICO}" />
+						<grid:MantisTable id="viewTable"
+										  width="500" height="100%"
+										  draggableColumns="true"
+										  dataProvider="{_listaArquivoUpload}" >
+							
+							<grid:columns>
+								
+								<mx:DataGridColumn headerText = ""							   
+												   itemRenderer="components.grid.CheckBoxItemRenderer"
+												   width="25" resizable="false" draggable="false" sortable="false"
+												   dataField="isSelected"
+												   />
+								<mx:DataGridColumn headerText="Nome Sistema" dataField="nome" width="150" />
+								<mx:DataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
+								<mx:DataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="175" />
+								<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+												   draggable="false"  textAlign="center" width="50"							 
+												   editable="false"
+												   sortable="false">
+									<mx:itemRenderer>
+										<fx:Component>
+											<mx:HBox horizontalAlign="center"
+													 verticalAlign="middle"
+													 >
+												<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+														  click="parentDocument.excluirItem(data, event)"
+														  enabled="false"
+														  buttonMode="true"
+														  useHandCursor="true"
+														  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+														  />
+											</mx:HBox>
+										</fx:Component>
+									</mx:itemRenderer>
+								</mx:DataGridColumn>
+							</grid:columns>
+						</grid:MantisTable>
+					</mx:VBox>
+					
+					<imageviewer:ImageCarousel width="400" widthComponente="400" id="visualizadoImagem" idEntidade="{_laudoTecnico.id}" tipoEntidade="LAUDO_TECNICO"/>
+				</mx:HBox>
 			</mx:VBox>
 		</s:NavigatorContent>
 		
