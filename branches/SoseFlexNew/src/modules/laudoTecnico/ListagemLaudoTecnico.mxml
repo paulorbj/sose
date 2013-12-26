@@ -76,6 +76,7 @@
 			import components.messages.NotificationEvent;
 			import components.pdfViewer.PDFViewerEvent;
 			
+			import entities.ArquivoUpload;
 			import entities.GlobalMessage;
 			import entities.administrativo.Usuario;
 			import entities.laudoTecnico.LaudoTecnico;
@@ -426,7 +427,15 @@
 			
 			private function gerarPDF(event:MouseEvent):void
 			{
-				relatorioLaudoTecnico.gerarRelatorio(_laudoTecnico);
+				var imagensRelatorio:ArrayCollection = new ArrayCollection();
+				for each(var au:ArquivoUpload in detalhamentoLaudoTecnico.listaArquivoUpload){
+					if(au.isSelected && imagensRelatorio.length < 3){
+						imagensRelatorio.addItem(au);
+					}
+				}
+				var urlString:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+				
+				relatorioLaudoTecnico.gerarRelatorio(_laudoTecnico,imagensRelatorio,urlString);
 			}
 			
 			private function onGerarRelatorioResult(event:ResultEvent = null):void

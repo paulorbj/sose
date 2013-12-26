@@ -67,6 +67,7 @@
 				qtdDiferente = false;
 				_componente = event.result as Componente;
 				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_ATUALIZAR, _componente);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_LISTA_REQUISICAO, null);				
 			}
 			
 			private function onAtualizarQtdComponenteEstoqueFault(event:FaultEvent = null):void

@@ -17,6 +17,8 @@ package entities
 		private var _caminhoImagem:String;
 		private var _raizURL:String;
 		private var _caminhoMiniatura:String;
+		private var _isSelected:Boolean;
+		private var _isEnabled:Boolean = true;
 		
 		public function get id():Number
 		{
@@ -142,6 +144,26 @@ package entities
 		public function set caminhoMiniatura(value:String):void
 		{
 			_caminhoMiniatura = value;
+		}
+
+		public function get isSelected():Boolean
+		{
+			return _isSelected;
+		}
+
+		public function set isSelected(value:Boolean):void
+		{
+			_isSelected = value;
+		}
+
+		public function get isEnabled():Boolean
+		{
+			return _isEnabled;
+		}
+
+		public function set isEnabled(value:Boolean):void
+		{
+			_isEnabled = value;
 		}
 		
 		

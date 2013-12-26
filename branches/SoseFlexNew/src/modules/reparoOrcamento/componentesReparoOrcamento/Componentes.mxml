@@ -605,6 +605,8 @@
 				atualizarComponente(_requisicao.componente);
 				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR,_requisicao.componente);
 				//publicarComponente(_requisicao.componente,MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.CANCELAR_PEDIDO_COMPRA, _requisicao);
+				
 				if(_orcamento){
 					_orcamento = _requisicao.orcamento;
 					dispatchEvent(new OrcamentoEvent(OrcamentoEvent.ATUALIZAR_ORCAMENTO, _orcamento));

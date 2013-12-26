@@ -48,6 +48,7 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import utils.MensagensAplicacao;
+			import utils.Publicador;
 			
 			[Bindable]
 			private var _listaCompra:ArrayCollection;
@@ -109,6 +110,7 @@
 			{
 				this.currentState = "listagem";
 				compraService.listaCompras();	
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPRA_DELETADA, null);
 				dispatchEvent(new MensagemEvent("Compra deletada com sucesso", MessageType.SUCCESS, 3000));
 			}
 			

@@ -114,7 +114,23 @@
 					_listaPedidoCompra.addItem(pedidoCompraCriado);
 				}
 				
+				if (globalMessage.mensagem==MensagensAplicacao.CANCELAR_PEDIDO_COMPRA){
+					var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
+					var req1:RequisicaoComponente;
+					for (var index:int=0;index<_listaPedidoCompra.length;index++){
+						req1 = (_listaPedidoCompra.getItemAt(index) as PedidoCompra).requisicao;
+						if(req1 != null && req1.id == req.id){
+							_listaPedidoCompra.removeItemAt(index);
+							break;
+						}
+					}
+				}
+				
 				if (globalMessage.mensagem==MensagensAplicacao.DELETAR_ITEM_COMPRA){
+					pedidoCompraService.listaPedidosCompraAguardandoCompra();
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.COMPRA_DELETADA){
 					pedidoCompraService.listaPedidosCompraAguardandoCompra();
 				}
 			} 
