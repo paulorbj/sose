@@ -142,7 +142,7 @@ public class RelatorioCompra {
 				dir.mkdirs();
 			}
 
-			String nomeArquivo = "compra_" + compra.getId() + ".pdf";
+			String nomeArquivo = "compra_" + compra.getId() + "_" +new Date().getTime()+  ".pdf";
 			File file = new File(dir,nomeArquivo);
 
 			FileOutputStream output = new FileOutputStream(file);

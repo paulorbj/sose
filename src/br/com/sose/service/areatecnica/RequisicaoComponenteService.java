@@ -453,6 +453,10 @@ public class RequisicaoComponenteService {
 				throw new Exception("A requisição já faz parte de uma compra e não pode ser cancelada!");
 			}
 			
+			if(pedidoCompra != null){
+				pedidoCompraService.excluirPedidoCompra(pedidoCompra);
+			}
+			
 			requisicaoComponente.setDataCancelamento(new Date());
 			requisicaoComponente.setStatusString(Cancelado.nome);
 			requisicaoComponenteSalva =(RequisicaoComponente) salvarRequisicao(requisicaoComponente);	

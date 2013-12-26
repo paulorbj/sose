@@ -25,6 +25,15 @@ public class CotacaoDao extends HibernateDaoGenerico<Cotacao, Long> {
 		return query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<Cotacao> listarCotacaoPorComponente(final Componente componente, final int qtdResultado) {
+		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h WHERE h.componente = :componente");
+		Query query = sessionFactory.getCurrentSession().createQuery(sb.toString());
+		query.setParameter("componente", componente);
+		query.setMaxResults(qtdResultado);
+		return query.list();
+	}
+	
 	public Boolean remover(final Cotacao cotacao){
 		Query q = sessionFactory.getCurrentSession().createSQLQuery("DELETE FROM Cotacao WHERE id = :id");
 		q.setParameter("id", cotacao.getId());

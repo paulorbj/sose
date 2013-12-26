@@ -68,6 +68,19 @@ public class ItemCompraService {
 
 	@RemotingInclude
 	@Transactional(readOnly = true)
+	public List<ItemCompra> listarUltimasCompras(Componente componente, int qtdResultado) throws Exception {
+		List<ItemCompra> listaRetorno;
+		try {
+			listaRetorno =(List<ItemCompra>) itemCompraDao.listarUltimasCompras(componente, qtdResultado);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return listaRetorno;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
 	public List<ItemCompra> listarItemCompraPendenteNotificacao(Componente componente) throws Exception {
 		List<ItemCompra> listaRetorno;
 		try {

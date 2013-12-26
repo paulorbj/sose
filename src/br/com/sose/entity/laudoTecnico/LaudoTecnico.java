@@ -33,6 +33,7 @@ import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.recebimento.OrdemServico;
 import br.com.sose.entity.reparo.Reparo;
 import br.com.sose.status.laudotecnico.StatusLaudoTecnico;
+import br.com.sose.utils.DateUtils;
 
 @Entity
 @Configurable
@@ -105,6 +106,15 @@ public class LaudoTecnico implements Serializable {
 	private String laboratorio;
 	
 	private String tecnico;
+	
+	@Transient
+	private String imagem1;
+	
+	@Transient
+	private String imagem2;
+	
+	@Transient
+	private String imagem3;
 
 	public Long getId() {
 		return id;
@@ -317,6 +327,38 @@ public class LaudoTecnico implements Serializable {
 
 	public LaudoTecnico() {
 	
+	}
+
+	public String getImagem1() {
+		return imagem1;
+	}
+
+	public void setImagem1(String imagem1) {
+		this.imagem1 = imagem1;
+	}
+
+	public String getImagem2() {
+		return imagem2;
+	}
+
+	public void setImagem2(String imagem2) {
+		this.imagem2 = imagem2;
+	}
+
+	public String getImagem3() {
+		return imagem3;
+	}
+
+	public void setImagem3(String imagem3) {
+		this.imagem3 = imagem3;
+	}
+	
+	public String getDataCriacaoString(){
+		return DateUtils.formatarDataDDMMYYYY(dataCriacao);
+	}
+	
+	public String getDataFimString(){
+		return DateUtils.formatarDataDDMMYYYY(dataFim);
 	}
 
 }
