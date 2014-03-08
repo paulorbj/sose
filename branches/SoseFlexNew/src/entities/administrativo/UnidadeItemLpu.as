@@ -10,7 +10,10 @@ package entities.administrativo
 		private var _id:Number;
 		private var _lpu:Lpu;
 		private var _unidadeServilogi:Unidade;
-		private var _valor:Number;
+		private var _valorReparo:Number;
+		private var _valorMinimo:Number;
+		private var _valorMaximo:Number;
+		private var _valorTeste:Number;
 		private var _listaItemLpu:ArrayCollection;
 		
 		public function UnidadeItemLpu()
@@ -47,16 +50,6 @@ package entities.administrativo
 			_unidadeServilogi = value;
 		}
 
-		public function get valor():Number
-		{
-			return _valor;
-		}
-
-		public function set valor(value:Number):void
-		{
-			_valor = value;
-		}
-
 		public function get listaItemLpu():ArrayCollection
 		{
 			return _listaItemLpu;
@@ -65,6 +58,46 @@ package entities.administrativo
 		public function set listaItemLpu(value:ArrayCollection):void
 		{
 			_listaItemLpu = value;
+		}
+
+		public function get valorReparo():Number
+		{
+			return _valorReparo;
+		}
+
+		public function set valorReparo(value:Number):void
+		{
+			_valorReparo = value;
+		}
+
+		public function get valorMinimo():Number
+		{
+			return _valorMinimo;
+		}
+
+		public function set valorMinimo(value:Number):void
+		{
+			_valorMinimo = value;
+		}
+
+		public function get valorMaximo():Number
+		{
+			return _valorMaximo;
+		}
+
+		public function set valorMaximo(value:Number):void
+		{
+			_valorMaximo = value;
+		}
+
+		public function get valorTeste():Number
+		{
+			return _valorTeste;
+		}
+
+		public function set valorTeste(value:Number):void
+		{
+			_valorTeste = value;
 		}
 
 

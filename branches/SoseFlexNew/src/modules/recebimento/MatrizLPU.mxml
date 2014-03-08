@@ -22,6 +22,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import entities.administrativo.ItemLpu;
 			import entities.administrativo.Lpu;
 			import entities.administrativo.Unidade;
 			import entities.administrativo.UnidadeItemLpu;
@@ -110,7 +111,7 @@
 			
 			private function adicionarLpu(event:MouseEvent):void
 			{
-				var idLpu:Number = (comboLpu.lpuSelecionada as Lpu).id;
+				var idLpu:Number = (comboLpu.itemLpuSelecionada as ItemLpu).id;
 				lpuService.buscarLpuMatriz(idLpu);
 			}
 			
@@ -137,7 +138,7 @@
 				var unidadeItemLpu:UnidadeItemLpu;
 				for(var i:int=0; i<lpu.listaUnidadeItemLpu.length; i++){
 					unidadeItemLpu = lpu.listaUnidadeItemLpu.getItemAt(i) as UnidadeItemLpu;
-					obj["_"+unidadeItemLpu.unidadeServilogi.id] = unidadeItemLpu.valor;
+					obj["_"+unidadeItemLpu.unidadeServilogi.id] = unidadeItemLpu.valorReparo;
 				}
 				return obj;
 			}

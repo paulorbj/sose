@@ -201,6 +201,7 @@
 	<property key="LAUDO_TECNICO_REJEITADO_ERRO" value="Erro ao rejeitar laudo técnico" />
 	<property key="LAUDO_TECNICO_SOLICITADO_SUCESSO" value="Laudo técnico requisitado com sucesso" />
 	<property key="LAUDO_TECNICO_SOLICITADO_ERRO" value="Erro ao requisitar laudo técnico" />
+
 	<property key="ORCAMENTO_DIFERENCIADO_INICIADA_SUCESSO" value="Orçamento diferenciado iniciado com sucesso" />
 	<property key="ORCAMENTO_DIFERENCIADO_INICIADA_ERRO" value="Erro ao iniciar o orçamento diferenciado" />
 	<property key="ORCAMENTO_DIFERENCIADO_SALVA_SUCESSO" value="Orçamento diferenciado salvo com sucesso" />
@@ -724,7 +725,9 @@
 	<property key="DEVOLUCAO_COMPONENTE_RECEBIDO_ERRO" value="Erro ao receber componente" />
 	
 	
-	<property key="URL_SERVIDOR_SOSE" value="http://192.168.1.220:8080/SoseWeb/" />
-	<property key="URL_VISUALIZAR_ARQUIVO" value="http://192.168.1.220:8080/SoseWeb/arquivo_servilogi/" />
+	<property key="URL_SERVIDOR_SOSE" value="http://192.168.0.104:8080/SoseWeb/" />
+	<property key="URL_VISUALIZAR_ARQUIVO" value="http://192.168.0.104:8080/SoseWeb/arquivo_servilogi/" />
+		
+	<property key="LAUDO_TECNICO_MSG_PADRAO_INFORMACAO_TECNICA" value="Informamos que esta unidade está sem condições de reparo, devido a uma provável descarga elétrica, pois alguns componentes dedicados do circuito impresso estão danificados." />
 	
 </locale>

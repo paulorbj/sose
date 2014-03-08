@@ -31,6 +31,9 @@ package entities.laudoTecnico
 		private var _serieCliente:String;
 		private var _laboratorio:String;
 		private var _tecnico:String;
+		private var _idImagem1:Number;
+		private var _idImagem2:Number;
+		private var _idImagem3:Number;
 
 		public function get id():Number
 		{
@@ -240,6 +243,36 @@ package entities.laudoTecnico
 		public function set tecnico(value:String):void
 		{
 			_tecnico = value;
+		}
+
+		public function get idImagem1():Number
+		{
+			return _idImagem1;
+		}
+
+		public function set idImagem1(value:Number):void
+		{
+			_idImagem1 = value;
+		}
+
+		public function get idImagem2():Number
+		{
+			return _idImagem2;
+		}
+
+		public function set idImagem2(value:Number):void
+		{
+			_idImagem2 = value;
+		}
+
+		public function get idImagem3():Number
+		{
+			return _idImagem3;
+		}
+
+		public function set idImagem3(value:Number):void
+		{
+			_idImagem3 = value;
 		}
 
 

@@ -96,6 +96,7 @@
 	<fx:Binding destination="subMenuEstoqueListagemCompra.selected" source="_perfil.subMenuEstoqueListagemCompra" twoWay="true"/>
 
 	<fx:Binding destination="subMenuConsultaConsultaGeral.selected" source="_perfil.subMenuConsultaConsultaGeral" twoWay="true"/>
+	<fx:Binding destination="subMenuConsultaGraficos.selected" source="_perfil.subMenuConsultaGraficos" twoWay="true"/>
 	
 	<fx:Binding destination="subMenuAvayaGerenciamentoEstoque.selected" source="_perfil.subMenuAvayaGerenciamentoEstoque" twoWay="true"/>
 
@@ -177,6 +178,7 @@
 	<mx:CheckBox id="subMenuListagemFaturamento" label="Sub menu faturamento listagem de faturas" />
 	
 	<mx:CheckBox id="subMenuConsultaConsultaGeral" label="{resourceManager.getString('ApplicationResource','SUB_MENU_CONSULTA_CONSULTA_GERAL')}" />
+	<mx:CheckBox id="subMenuConsultaGraficos" label="Gráficos" />
 	
 	<mx:CheckBox id="subMenuAvayaGerenciamentoEstoque" label="Sub menu avaya gerenciamento de estoque" />
 	

@@ -13,7 +13,10 @@
 					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
 					   result="onListarPorEntidadePorIdentificadorResult(event)"
 					   />
-			
+			<mx:method name="atualizarImagemPrincipal"      
+					   fault="onAtualizarImagemPrincipalFault(event)" 
+					   result="onAtualizarImagemPrincipalResult(event)"
+					   />
 		</mx:RemoteObject>
 	</fx:Declarations>
 	
@@ -21,9 +24,11 @@
 		<![CDATA[
 			import components.fileupload.UploadEvent;
 			
+			import entities.ArquivoUpload;
 			import entities.administrativo.Componente;
 			
 			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
 			import mx.managers.CursorManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -83,6 +88,7 @@
 				estoqueMinimo.inputText = "";
 				qtdEstoque.inputText = "";
 				posicaoEstoque.inputText = "";
+				visualizadoImagem.limpar();
 			}
 			
 			private function uploadConcluidoCallback(event:Event=null):void
@@ -90,6 +96,34 @@
 				//componenteUpload.limpar();
 				arquivoUploadService.listarPorEntidadePorIdentificador("COMPONENTE",_componente.id);
 				visualizadoImagem.recarregarImagens();
+			}
+			
+			public function setarImagemPrincipal(data:Object=null, event:Event=null):void
+			{
+				var imagemPrincipal:ArquivoUpload;
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data != null){
+					imagemPrincipal = data as ArquivoUpload;
+				}
+				
+				arquivoUploadService.atualizarImagemPrincipal(imagemPrincipal);
+			}
+			
+			private function onAtualizarImagemPrincipalResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaArquivoUpload.removeAll();
+				_listaArquivoUpload = event.result as ArrayCollection;
+			}
+			
+			private function onAtualizarImagemPrincipalFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
 			
 		]]>
@@ -103,9 +137,9 @@
 	<fx:Binding destination="posicaoEstoque.inputText" source="_componente.posicaoEstoque" twoWay="true"/>
 	<fx:Binding destination="ativo.selected" source="_componente.cadastroSistemaAtivo" twoWay="true"/>
 	
-	<mx:TabNavigator id="accordion" borderStyle="solid"  width="100%" height="400" >
+	<mx:TabNavigator id="accordion" borderStyle="solid"  width="100%" height="350" paddingTop="0" paddingBottom="0" >
 		
-		<mx:VBox label="Informações do componente" width="100%" height="100%">
+		<mx:VBox label="Informações do componente" width="100%" height="100%" paddingTop="0" paddingBottom="0">
 			<mx:HBox verticalAlign="bottom" width="100%">
 				<texto:TextInput id="nome" labelText="{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}" width="40%"  />
 				<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="50%" />
@@ -128,10 +162,10 @@
 			</mx:HBox>
 		</mx:VBox>
 		
-		<mx:VBox label="Arquivos dos componentes" width="100%" height="100%" enabled="{_componente.id != 0}" >
+		<mx:VBox label="Arquivos dos componentes" width="100%" height="100%" enabled="{_componente.id != 0}" paddingTop="0" paddingBottom="0">
 			
-			<mx:HBox width="100%" height="100%" horizontalGap="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
-				<mx:VBox height="100%">
+			<mx:HBox width="100%" height="100%" horizontalGap="1" paddingBottom="0" paddingLeft="2" paddingRight="2" paddingTop="0">
+				<mx:VBox height="300">
 					<fileupload:ComponenteUpload id="componenteUpload" width="500" idObjeto="{_componente.id}" tipoEntidade="{ComponenteUpload.T_ENTIDADE_COMPONENTE}" />
 					<grid:MantisTable id="viewTable"
 									  width="500" height="100%"
@@ -139,7 +173,7 @@
 									  dataProvider="{_listaArquivoUpload}" >
 						
 						<grid:columns>
-							
+							<mx:DataGridColumn dataField="isImagemPrincipal" width="25" itemRenderer="modules.estoque.componente.ImagemPrincipalItemRenderer" />
 							<mx:DataGridColumn headerText="Nome Sistema" dataField="nome" width="175" />
 							<mx:DataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
 							<mx:DataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="175" />
@@ -152,6 +186,13 @@
 										<mx:HBox horizontalAlign="center"
 												 verticalAlign="middle"
 												 >
+											<mx:Image source="@Embed(source='/assets/icons/image_link.png')"
+													  click="parentDocument.setarImagemPrincipal(data, event)"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  toolTip="Imagem principal"
+													  />
+											
 											<mx:Image source="@Embed(source='/assets/icons/delete.png')"
 													  click="parentDocument.excluirItem(data, event)"
 													  enabled="false"
@@ -167,7 +208,7 @@
 					</grid:MantisTable>
 				</mx:VBox>
 				
-				<imageviewer:ImageCarousel width="400" widthComponente="400" id="visualizadoImagem" idEntidade="{_componente.id}" tipoEntidade="COMPONENTE"/>
+				<imageviewer:ImageCarousel width="400" height="300" widthComponente="400" id="visualizadoImagem" idEntidade="{_componente.id}" tipoEntidade="COMPONENTE"/>
 			</mx:HBox>
 		</mx:VBox>
 		

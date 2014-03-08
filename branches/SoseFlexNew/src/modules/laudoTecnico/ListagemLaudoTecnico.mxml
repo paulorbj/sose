@@ -252,6 +252,9 @@
 			{
 				this.currentState = "edicao";
 				_laudoTecnico = event.result as LaudoTecnico;
+				if(_laudoTecnico.dataInicio == null){
+					_laudoTecnico.informacaoTecnica = resourceManager.getString('ApplicationResource','LAUDO_TECNICO_MSG_PADRAO_INFORMACAO_TECNICA');
+				}
 				detalhamentoLaudoTecnico.laudoTecnico =_laudoTecnico;
 				detalhamentoLaudoTecnico.observacoes.listarObservacoes();
 				atualizarFiltros();
@@ -288,6 +291,7 @@
 				var usr:Usuario = Login.usuarioAutenticado;
 				if(usr){
 					_laudoTecnico = detalhamentoLaudoTecnico.laudoTecnico;
+					
 					laudoTecnicoController.iniciarLaudoTecnico(_laudoTecnico,usr);
 				}else{
 					PopupModalController.getInstance().showModalAutenticacaoUsuario(iniciarLaudoTecnicoAutenticar);

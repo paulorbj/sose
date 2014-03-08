@@ -123,17 +123,25 @@
 			[Bindable]
 			private var totalComponentes:Number = 0;
 			
+			[Embed(source='/assets/icon_synchronize.png')]
+			public static var synchronized:Class;
+			[Embed(source='/assets/icon_synchronize_green.png')]
+			public static var synchronized_verde:Class;
+			
 			private function init():void
 			{
 				requisicaoComponenteService.listarRequisicaoEstoque();
+				btAtualizar.setStyle("icon", synchronized);
 				consumidorEstoqueService.subscribe();
 			}
+			
 			
 			private function onMsgEstoque(event:MessageEvent):void{ 
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
 				
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
 					adicionarRequisicao(globalMessage.conteudo as RequisicaoComponente);
+					btAtualizar.setStyle("icon", synchronized_verde);
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR){
 					adicionarRequisicao(globalMessage.conteudo as RequisicaoComponente);
@@ -148,6 +156,12 @@
 					requisicaoComponenteService.listarRequisicaoEstoque();
 				}
 			} 
+			
+			private function atualizar(event:MouseEvent):void
+			{
+				btAtualizar.setStyle("icon", synchronized);
+				requisicaoComponenteService.listarRequisicaoEstoque();
+			}
 			
 			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
 				var message:AsyncMessage = new AsyncMessage();
@@ -612,6 +626,10 @@
 	</fx:Script>
 	
 	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:Button id="btAtualizar"
+				   height="25"
+				   icon="@Embed(source='/assets/icon_synchronize.png')"
+				   click="atualizar(event)"/>
 		<grid:MantisTable id="requisicoesTable"
 						  width="100%"
 						  height="100%"

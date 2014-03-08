@@ -85,6 +85,13 @@
 				img.source = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + imgSelecionada.montarURLRelativa();
 			}
 			
+			public function limpar():void
+			{
+				imagemSelecionada = null;
+				img.source = "";
+				listaImagem = new ArrayCollection();
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -96,7 +103,7 @@
 				  maintainAspectRatio="true"
 				  horizontalAlign="center"
 				  width="100%"
-				  height="100%" />
+				  height="160" />
 		<mx:ControlBar horizontalAlign="center">
 			<mx:HorizontalList id="horizontalList"
 							   labelField="nome"

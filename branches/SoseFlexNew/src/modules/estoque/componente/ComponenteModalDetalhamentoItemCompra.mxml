@@ -80,8 +80,29 @@
 			
 			private function salvarFornecedor(event:MouseEvent):void
 			{
-				_pessoa.tipo = ScreenUtils.TIPO_FORNECEDOR.id;
-				pessoaService.salvarPessoa(_pessoa);
+				if(validarCampos()){
+					_pessoa.tipo = ScreenUtils.TIPO_FORNECEDOR.id;
+					_pessoa.tipoPessoa = tipoPessoa.tipoPessoaSelecionado.id;
+					pessoaService.salvarPessoa(_pessoa);
+				}
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				nomeRazaoSocial.required = true;
+				validatorArr.push(nomeRazaoSocial.stringValidator);
+				nomeSistema.required = true;
+				validatorArr.push(nomeSistema.stringValidator);
+				cpfCnpj.required = true;
+				validatorArr.push(cpfCnpj.stringValidator);
+				rgIe.required = true;
+				validatorArr.push(rgIe.stringValidator);
+				tipoPessoa.required = true;
+				validatorArr.push(tipoPessoa.comboBox.comboValidator);
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				
+				return isValidForm;
 			}
 			
 			public function onSalvarFornecedorResult(event:ResultEvent):void
@@ -234,6 +255,7 @@
 				qtdRequisitada.inputText = _itemCompra.qtdTotalRequisitada.toString();
 				txtEstoqueMinimo.inputText = _itemCompra.componente.qtdEstoqueMinimo.toString();
 				cbFornecedor.fornecedorSelecionado = _itemCompra.fornecedor;
+				pessoa = _itemCompra.fornecedor;
 				valorUnitario.setValor(_itemCompra.valorUnitario);
 				valorUnitarioDolar.setValor(_itemCompra.valorUnitarioDolar);
 				requisicaoComponenteService.listarTotalRequisicoesUltimos6Meses(_itemCompra.componente);
@@ -294,11 +316,11 @@
 				var qtComprada:Number = this.itemCompra.qtdComprada;
 				if(isNaN(qtComprada))
 					qtComprada = 0;
-	
+				
 				var qtTotalReq:Number = this.itemCompra.qtdTotalRequisitada;
 				if(isNaN(qtTotalReq))
 					qtTotalReq = 0;
-	
+				
 				var qtEstoque:Number = this.itemCompra.componente.qtdEstoque;
 				if(isNaN(qtEstoque))
 					qtEstoque = 0;
@@ -386,7 +408,7 @@
 	</mx:HBox>
 	
 	<mx:HBox verticalAlign="bottom" width="100%">
-		<combos:ComboTipoPessoa  enabled="false" enabled.adicionarFornecedor="true" required="true" id="tipoPessoa" labelText="{resourceManager.getString('ApplicationResource','TIPO_PESSOA')}" changeFunction="atualiza" />
+		<combos:ComboTipoPessoa enabled="false" enabled.adicionarFornecedor="true" required="true" id="tipoPessoa" labelText="{resourceManager.getString('ApplicationResource','TIPO_PESSOA')}" changeFunction="atualiza" />
 		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true" required="true" id="nomeRazaoSocial" labelText="{resourceManager.getString('ApplicationResource','NOME')}" width="25%"  />
 		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true"  required="true" id="nomeSistema" labelText="{resourceManager.getString('ApplicationResource','NOME_SISTEMA')}" width="25%" />
 		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true" required="true" id="cpfCnpj" labelText="{resourceManager.getString('ApplicationResource','CPF')}" width="10%"  />

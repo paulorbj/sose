@@ -814,7 +814,7 @@
 					txtValorUnitario.setValor(_item.valorUnitario);
 					txtValorTotal.setValor(_item.quantidade * _item.valorUnitario);
 					cbUnidadeServilogi.unidadeSelecionado = _item.unidade;
-					cbUnidadeLpu.lpuSelecionada = _item.lpu;
+					cbUnidadeLpu.itemLpuSelecionada = _item.itemLpu;
 				}else{
 					PopupModalController.getInstance().showModalAutenticacaoUsuario(editItemAutenticar);
 				}
@@ -847,10 +847,10 @@
 						_item.valorUnitario = txtValorUnitario.getValor();
 						_item.quantidade = parseFloat(txtQuantidade.inputText);
 						_item.unidade = cbUnidadeServilogi.unidadeSelecionado;
-						if(cbUnidadeLpu.lpuSelecionada == null || (cbUnidadeLpu.lpuSelecionada != null && (cbUnidadeLpu.lpuSelecionada.id == 0 || cbUnidadeLpu.lpuSelecionada.id == Number.NaN))){
-							_item.lpu = null;
+						if(cbUnidadeLpu.itemLpuSelecionada == null || (cbUnidadeLpu.itemLpuSelecionada != null && (cbUnidadeLpu.itemLpuSelecionada.id == 0 || cbUnidadeLpu.itemLpuSelecionada.id == Number.NaN))){
+							_item.itemLpu = null;
 						}else{
-							_item.lpu = cbUnidadeLpu.lpuSelecionada;
+							_item.itemLpu = cbUnidadeLpu.itemLpuSelecionada;
 						}
 						
 						itemNotaFiscalService.adicionarItemNotaFiscal(_item,_notaFiscal);
@@ -1079,7 +1079,7 @@
 				if(usr){
 					pfUnidadeServilogi.unidadeSelecionado = _placaFilha.unidade;
 					if(_placaFilha.cliente.possuiContrato){
-						pfUnidadeLpu.lpuSelecionada = _placaFilha.lpu;
+						pfUnidadeLpu.itemLpuSelecionada = _placaFilha.itemLpu;
 					}
 					_indexEdicaoPlacaFilha = _ordemServico.placasFilhas.getItemIndex(_placaFilha);
 				}else{
@@ -1138,7 +1138,7 @@
 						_placaFilha.unidadePai = _ordemServico;
 						_placaFilha.usuario = Login.currentUser;
 						if(_ordemServico.cliente.possuiContrato){
-							_placaFilha.lpu = pfUnidadeLpu.lpuSelecionada;
+							_placaFilha.itemLpu = pfUnidadeLpu.itemLpuSelecionada;
 						}
 						if(_placaFilha != null && _placaFilha.id == 0 && _indexEdicaoPlacaFilha == -1){
 							_ordemServico.placasFilhas.addItem(_placaFilha);
@@ -1225,7 +1225,7 @@
 	
 	<fx:Binding source="itemNota.inputText" destination="_ordemServico.itemNotaFiscal.nome" twoWay="true" />
 	<fx:Binding source="unidadeServilogi.inputText" destination="_ordemServico.itemNotaFiscal.unidade.nome" twoWay="true" />
-	<!--<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.itemNotaFiscal.lpu.unidade" twoWay="true" />-->
+	<!--<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.itemNotaFiscal.itemLpu.unidade" twoWay="true" />-->
 	<fx:Binding source="fabricante.inputText" destination="_ordemServico.itemNotaFiscal.unidade.fabricante.nome" twoWay="true" />
 	<fx:Binding source="equipamento.inputText" destination="_ordemServico.itemNotaFiscal.unidade.equipamento.nome" twoWay="true" />
 	<fx:Binding source="laboratorio.inputText" destination="_ordemServico.itemNotaFiscal.unidade.laboratorio.nome" twoWay="true" />
@@ -1380,7 +1380,7 @@
 												   />
 								<mx:DataGridColumn id="cLpu" 
 												   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}"
-												   dataField = "lpu.unidade" textAlign="center"
+												   dataField = "itemLpu.unidade" textAlign="center"
 												   width=".10"
 												   />
 								
@@ -1576,7 +1576,7 @@
 										
 										<mx:DataGridColumn id="cLpuPlacaFilha" 
 														   headerText = "{resourceManager.getString('ApplicationResource','LPU')}"
-														   dataField = "lpu.unidade"
+														   dataField = "itemLpu.unidade"
 														   width=".10"
 														   />
 										

@@ -45,6 +45,14 @@
 					   fault="onListarUnidadeItemLpuPorUnidadePorLpuFault(event)" 
 					   result="onListarUnidadeItemLpuPorUnidadePorLpuResult(event)"
 					   />
+			<mx:method name="buscarUnidadeItemLpu"      
+					   fault="onBuscarUnidadeItemLpuFault(event)" 
+					   result="onBuscarUnidadeItemLpuResult(event)"
+					   />
+			<mx:method name="salvarUnidadeItemLpu"      
+					   fault="onSalvarUnidadeItemLpuFault(event)" 
+					   result="onSalvarUnidadeItemLpuResult(event)"
+					   />			
 		</mx:RemoteObject>
 		
 	</fx:Declarations>
@@ -57,6 +65,7 @@
 			import entities.administrativo.ItemLpu;
 			import entities.administrativo.Lpu;
 			import entities.administrativo.Unidade;
+			import entities.administrativo.UnidadeItemLpu;
 			
 			import mx.collections.ArrayCollection;
 			import mx.events.ListEvent;
@@ -73,6 +82,9 @@
 			
 			[Bindable]
 			private var _unidadeSelecionada:Unidade;
+			
+			[Bindable]
+			private var _unidadeItemLpuSelecionada:UnidadeItemLpu;
 			
 			[Bindable]
 			private var _listaItemLpu:ArrayCollection;
@@ -121,8 +133,15 @@
 			{
 				_unidadeSelecionada = null;
 				_itemLpu = new ItemLpu();
-				//txtValor.limpar();
-				//unidadeServilogi.limpar();
+				_unidadeItemLpuSelecionada = new UnidadeItemLpu();
+				cbCliente.limpar();
+				cbUnidade.limpar();
+				_listaItemLpu = new ArrayCollection();
+				_listaUnidadeItemLpu = new ArrayCollection();
+				valorMaximo.limpar();
+				valorMinimo.limpar();
+				valorReparo.limpar();
+				valorTeste.limpar();
 			}
 			
 			private function onSalvarItemLpuResult(event:ResultEvent = null):void
@@ -187,6 +206,25 @@
 				trace("[onSalvarItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
 			
+			private function onBuscarUnidadeItemLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_unidadeItemLpuSelecionada = event.result as UnidadeItemLpu;
+				if(_unidadeItemLpuSelecionada == null){
+					_unidadeItemLpuSelecionada = new UnidadeItemLpu();
+				}
+				valorMaximo.setValor(_unidadeItemLpuSelecionada.valorMaximo);
+				valorMinimo.setValor(_unidadeItemLpuSelecionada.valorMinimo);
+				valorReparo.setValor(_unidadeItemLpuSelecionada.valorReparo);
+				valorTeste.setValor(_unidadeItemLpuSelecionada.valorTeste);
+			}
+			
+			private function onBuscarUnidadeItemLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarUnidadeItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
 			public function editItem(data:Object, event:Event):void
 			{					
 				//for double click
@@ -201,6 +239,7 @@
 			
 			public function atualizaUnidadeItemLpu(event:Event = null):void{
 				_unidadeSelecionada = cbUnidade.unidadeSelecionado;
+				unidadeItemLpuService.buscarUnidadeItemLpu(_unidadeSelecionada,_lpu);
 				itemLpuService.listarItemLpuPorLpuPorUnidade(_lpu,_unidadeSelecionada);
 			}
 			
@@ -223,7 +262,7 @@
 					if(_itensLpuSelecionadas.length == 0){
 						dispatchEvent(new MensagemEvent("Nenhum item lpu foi selecionado!", MessageType.WARNING, 3000));
 					}else{						
-						itemLpuService.associarItensLpu(_itensLpuSelecionadas, cbUnidade.unidadeSelecionado);
+						itemLpuService.associarItensLpu(_itensLpuSelecionadas, cbUnidade.unidadeSelecionado,valorReparo.getValor(),valorMinimo.getValor(),valorMaximo.getValor(),valorTeste.getValor());
 					}
 				}else{
 					dispatchEvent(new MensagemEvent("Campos obrigatórios não foram preenchidos", MessageType.WARNING, 3000));
@@ -267,6 +306,35 @@
 				CursorManager.removeAllCursors();
 				trace("[onSalvarLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
 				dispatchEvent(new MensagemEvent("Erro ao salvar lpu!", MessageType.ERROR, 3000));
+			}
+			
+			private function salvarUnidadeItemLpu(event:MouseEvent):void
+			{				
+				if(validarAssociarItemLpu()){
+					_unidadeItemLpuSelecionada.unidadeServilogi = cbUnidade.unidadeSelecionado;
+					_unidadeItemLpuSelecionada.lpu = _lpu;
+					_unidadeItemLpuSelecionada.valorMaximo = valorMaximo.getValor()
+					_unidadeItemLpuSelecionada.valorMinimo = valorMinimo.getValor();
+					_unidadeItemLpuSelecionada.valorReparo = valorReparo.getValor();
+					_unidadeItemLpuSelecionada.valorTeste = valorTeste.getValor();
+					unidadeItemLpuService.salvarUnidadeItemLpu(_unidadeItemLpuSelecionada);
+				}else{
+					dispatchEvent(new MensagemEvent("Campos obrigatórios não foram preenchidos", MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function onSalvarUnidadeItemLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_unidadeItemLpuSelecionada = event.result as UnidadeItemLpu;	
+				dispatchEvent(new MensagemEvent("Unidade item lpu salva com sucesso!", MessageType.SUCCESS, 3000));
+			}
+			
+			private function onSalvarUnidadeItemLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onSalvarUnidadeItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao salvar unidade item lpu!", MessageType.ERROR, 3000));
 			}
 			
 			private function importarItemLpu(event:MouseEvent):void
@@ -338,6 +406,7 @@
 						break;
 					}
 				}
+				_itemLpu = new ItemLpu();
 				dispatchEvent(new MensagemEvent("Item lpu excluído com sucesso!", MessageType.SUCCESS, 3000));
 			}
 			
@@ -351,6 +420,7 @@
 			private function onAssociarItensLpuResult(event:ResultEvent = null):void
 			{
 				CursorManager.removeAllCursors(); 
+				itemLpuService.listarItemLpuPorLpu(_lpu);
 				atualizaUnidadeItemLpu();
 				dispatchEvent(new MensagemEvent("Itens lpu associados com sucesso!", MessageType.SUCCESS, 3000));
 			}
@@ -524,7 +594,7 @@
 	</mx:TitleWindow>
 	
 	<mx:HBox width="100%" verticalAlign="bottom" enabled="{!isNaN(_lpu.id)}" >
-		<combos:ComboUnidade id="cbUnidade" width="20%" labelText="Unidade servilogi" changeFunction="atualizaUnidadeItemLpu" />
+		<combos:ComboUnidade id="cbUnidade" width="20%" required="true" labelText="Unidade servilogi" changeFunction="atualizaUnidadeItemLpu" />
 		<texto:TextInput id="txtCodigoUnidade" labelText="Código" habilitado="false" width="20%" />
 		<texto:TextInput id="txtEquipamentoUnidade" labelText="Equipamento" habilitado="false" width="20%" />
 		<texto:TextInput id="txtFabricanteUnidade" labelText="Fabricante" habilitado="false" width="20%" />
@@ -542,6 +612,7 @@
 				   labelPlacement="left" width="30%"
 				   label="Associar itens lpu" />
 		<mx:Button id="btSalvarUnidadeItemLpu" 
+				   click="salvarUnidadeItemLpu(event)"
 				   icon="@Embed(source='/assets/icons/add.png')" 
 				   labelPlacement="left" width="30%"
 				   label="Salvar unidade item lpu" />
