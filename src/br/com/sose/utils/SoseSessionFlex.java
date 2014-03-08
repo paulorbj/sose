@@ -60,7 +60,7 @@ public class SoseSessionFlex implements FlexSessionListener {
 				e.printStackTrace();
 			}
 			
-			File dirTemp = new File("C:\\arquivos\\temporario");
+			File dirTemp = new File(PropertiesUtil.getProperty("upload.temporario.location"));
 			try{
 				for (File f : dirTemp.listFiles()){
 						f.delete();

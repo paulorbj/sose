@@ -27,6 +27,7 @@ import br.com.sose.entity.compra.ItemCompra;
 import br.com.sose.service.compra.CotacaoService;
 import br.com.sose.service.compra.ItemCompraService;
 import br.com.sose.utils.DateUtils;
+import br.com.sose.utils.PropertiesUtil;
 
 @Service(value="relatorioListagemComponenteCompra")
 @RemotingDestination(value="relatorioListagemComponenteCompra")
@@ -83,7 +84,7 @@ public class RelatorioListagemComponenteCompra {
 			byte[] report = JasperExportManager.exportReportToPdf(jasperPrint);
 			System.out.println("Relatorio de listagem componente gerado");
 
-			File dir = new File("C:\\arquivo_servilogi\\temporario");
+			File dir = new File(PropertiesUtil.getProperty("upload.temporario.location"));
 			if(!dir.exists()){
 				dir.mkdirs();
 			}
@@ -156,7 +157,7 @@ public class RelatorioListagemComponenteCompra {
 				if(itemCompra.getFornecedor() == null){
 					sb.append("--- ");
 				}else{
-					sb.append(itemCompra.getFornecedor());
+					sb.append(itemCompra.getFornecedor().getNomeSistema());
 				}
 
 				sb.append(" Dt: ");

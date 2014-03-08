@@ -39,6 +39,13 @@ public class ItemLpuDao extends HibernateDaoGenerico<ItemLpu, Long> {
 		q.setParameter("unidade", unidade);
 		return q.list();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ItemLpu> listarPorCliente(final Pessoa pessoa) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.lpu.cliente = :cliente");
+		q.setParameter("cliente", pessoa);
+		return q.list();
+	}
 
 
 	public Boolean removerPorLpu(final Lpu lpu){

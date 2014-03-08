@@ -1,5 +1,6 @@
 package br.com.sose.service.lpu;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -14,6 +15,7 @@ import br.com.sose.daoImpl.ArquivoUploadDao;
 import br.com.sose.daoImpl.administrativo.UnidadeDao;
 import br.com.sose.daoImpl.lpu.ItemLpuDao;
 import br.com.sose.entity.admistrativo.Unidade;
+import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.lpu.ItemLpu;
 import br.com.sose.entity.lpu.Lpu;
 import br.com.sose.entity.lpu.UnidadeItemLpu;
@@ -77,6 +79,18 @@ public class ItemLpuService {
 		return itensLpu;
 	}
 
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<ItemLpu> listarPorCliente(Pessoa pessoa) throws Exception {
+		List<ItemLpu> itenslpu;
+		try {
+			itenslpu = itemLpuDao.listarPorCliente(pessoa);
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return itenslpu;
+	}
 
 	/********************** Metodos de listagem *********************/
 
@@ -143,7 +157,7 @@ public class ItemLpuService {
 	
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
-	public List<ItemLpu> associarItensLpu(List<ItemLpu> itensLpu, Unidade unidade) throws Exception {
+	public List<ItemLpu> associarItensLpu(List<ItemLpu> itensLpu, Unidade unidade, BigDecimal valorReparo, BigDecimal valorMinimo, BigDecimal valorMaximo, BigDecimal valorTeste) throws Exception {
 		try {
 			Lpu lpu = itensLpu.get(0).getLpu();
 			UnidadeItemLpu unidadeItemLpu = unidadeItemLpuService.buscarUnidadeItemLpu(unidade, lpu);
@@ -151,8 +165,12 @@ public class ItemLpuService {
 				unidadeItemLpu = new UnidadeItemLpu();
 				unidadeItemLpu.setLpu(lpu);
 				unidadeItemLpu.setUnidadeServilogi(unidade);
-				unidadeItemLpu = unidadeItemLpuService.salvarUnidadeItemLpu(unidadeItemLpu);
 			}
+			unidadeItemLpu.setValorReparo(valorReparo);
+			unidadeItemLpu.setValorMinimo(valorMinimo);
+			unidadeItemLpu.setValorMaximo(valorMaximo);
+			unidadeItemLpu.setValorTeste(valorTeste);
+			unidadeItemLpu = unidadeItemLpuService.salvarUnidadeItemLpu(unidadeItemLpu);
 			
 			for(ItemLpu il : itensLpu){
 				il = associarItemLpu(il, unidadeItemLpu);

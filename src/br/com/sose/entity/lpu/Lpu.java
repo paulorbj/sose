@@ -73,8 +73,6 @@ public class Lpu implements Serializable {
 	@OneToMany(mappedBy = "lpu", fetch=FetchType.LAZY)
 	private Set<UnidadeItemLpu> listaUnidadeItemLpu;
 	
-	private String unidade;
-
 	public Long getId() {
 		return id;
 	}
@@ -205,14 +203,5 @@ public class Lpu implements Serializable {
 	public void setListaUnidadeItemLpu(Set<UnidadeItemLpu> listaUnidadeItemLpu) {
 		this.listaUnidadeItemLpu = listaUnidadeItemLpu;
 	}
-
-	public String getUnidade() {
-		return unidade;
-	}
-
-	public void setUnidade(String unidade) {
-		this.unidade = unidade;
-	}
-	
 
 }

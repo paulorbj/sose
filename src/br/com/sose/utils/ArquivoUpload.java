@@ -46,6 +46,8 @@ public class ArquivoUpload implements Serializable {
 	
 	@Transient
 	private String caminhoImagem;
+	
+	private Boolean isImagemPrincipal;
 
 	public Long getId() {
 		return id;
@@ -109,6 +111,14 @@ public class ArquivoUpload implements Serializable {
 
 	public void setCaminhoImagem(String caminhoImagem) {
 		this.caminhoImagem = caminhoImagem;
+	}
+
+	public Boolean getIsImagemPrincipal() {
+		return isImagemPrincipal;
+	}
+
+	public void setIsImagemPrincipal(Boolean isImagemPrincipal) {
+		this.isImagemPrincipal = isImagemPrincipal;
 	}
 	
 	

@@ -28,6 +28,7 @@ import br.com.sose.entity.compra.PedidoCompra;
 import br.com.sose.service.ArquivoUploadService;
 import br.com.sose.service.compra.ItemCompraService;
 import br.com.sose.utils.ArquivoUpload;
+import br.com.sose.utils.PropertiesUtil;
 
 @Service(value="relatorioCompra")
 @RemotingDestination(value="relatorioCompra")
@@ -137,7 +138,7 @@ public class RelatorioCompra {
 			byte[] report = JasperExportManager.exportReportToPdf(jasperPrint);
 			System.out.println("Relatorio de compra gerado");
 
-			File dir = new File("C:\\arquivo_servilogi\\temporario");
+			File dir = new File(PropertiesUtil.getProperty("upload.temporario.location"));
 			if(!dir.exists()){
 				dir.mkdirs();
 			}
