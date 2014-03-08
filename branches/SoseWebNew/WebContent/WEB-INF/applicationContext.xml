@@ -101,6 +101,11 @@
 			value="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" />
 	</bean>
 
+	<bean id="applicationProperties" class="br.com.sose.utils.PropertiesUtil">
+    	<property name="location">
+        	<value>classpath:configurador.properties</value>
+    	</property>
+	</bean>
 
 </beans>
 
