@@ -262,7 +262,8 @@ public class NotaFiscalService {
 						OrdemServico os = new OrdemServico();
 						os.setItemNotaFiscal(inf);
 						os.setUnidade(inf.getUnidade());
-						os.setLpu(inf.getLpu());
+						//os.setLpu(inf.getLpu());
+						os.setItemLpu(inf.getItemLpu());
 						os.setNotaFiscal(notaFiscal);
 						os.setCliente(notaFiscal.getCliente());
 						os.setStatusString(NaoProcessada.nome);

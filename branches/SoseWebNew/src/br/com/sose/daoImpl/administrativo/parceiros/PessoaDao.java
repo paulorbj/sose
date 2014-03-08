@@ -28,7 +28,8 @@ public class PessoaDao extends HibernateDaoGenerico<Pessoa, Long> {
 				"h.rgIe," +
 				"h.tipo," +
 				"h.tipoPessoa," +
-				"h.possuiContrato" +
+				"h.possuiContrato, " +
+				"h.inscricaoMunicipal" +
 				") FROM "+ entityClass.getName() + " h WHERE h.tipo = :tipo");
 		q.setParameter("tipo", tipo);
 		returnList = q.list();
@@ -46,7 +47,8 @@ public class PessoaDao extends HibernateDaoGenerico<Pessoa, Long> {
 				"h.rgIe," +
 				"h.tipo," +
 				"h.tipoPessoa," +
-				"h.possuiContrato" +
+				"h.possuiContrato, " +
+				"h.inscricaoMunicipal" +
 				") FROM "+ entityClass.getName() + " h ");
 		System.out.println("listarPessoas - INICIO");
 		return q.list();

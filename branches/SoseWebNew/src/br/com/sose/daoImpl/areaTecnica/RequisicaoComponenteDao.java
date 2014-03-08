@@ -34,10 +34,31 @@ public class RequisicaoComponenteDao extends HibernateDaoGenerico<RequisicaoComp
 
 	@SuppressWarnings("unchecked")
 	public List<RequisicaoComponente> listarRequisicaoPorStatus(final String status) {
-		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h " +
-				"WHERE h.statusString=:status ORDER BY h.dataRequisicao DESC");
-		q.setParameter("status", status);
-		return q.list();
+		try{
+			Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h " +
+					"WHERE h.statusString=:status ORDER BY h.dataRequisicao DESC");
+			q.setParameter("status", status);
+			return q.list();
+		}catch(Exception e){
+			e.printStackTrace(); 
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<RequisicaoComponente> listarRequisicaoPorStatusNoReparo(final String status) {
+		try{
+			Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h " +
+					"WHERE h.statusString=:status " +
+					"AND ((h.reparo IS NOT NULL AND h.reparo IN (SELECT os.reparo FROM OrdemServico os WHERE os.notaFiscalSaida IS NULL)) " +
+					"OR (h.reparo IS NULL AND h.orcamento IN (SELECT os.orcamento FROM OrdemServico os WHERE os.notaFiscalSaida IS NULL))) " +
+					"ORDER BY h.dataRequisicao DESC");
+			q.setParameter("status", status);
+			return q.list();
+		}catch(Exception e){
+			e.printStackTrace(); 
+			return null;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -53,7 +74,7 @@ public class RequisicaoComponenteDao extends HibernateDaoGenerico<RequisicaoComp
 		q.setDate("dataBase", new Date(DateUtils.addDays(new Date().getTime(), -180)));
 		return (Long)q.uniqueResult();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<RequisicaoComponente> listarRequisicaoPorReparo(final Reparo reparo) {
 		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.reparo=:reparo");

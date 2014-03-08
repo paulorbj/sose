@@ -107,6 +107,12 @@ public class LaudoTecnico implements Serializable {
 	
 	private String tecnico;
 	
+	private Long idImagem1;
+	
+	private Long idImagem2;
+	
+	private Long idImagem3;
+	
 	@Transient
 	private String imagem1;
 	
@@ -359,6 +365,30 @@ public class LaudoTecnico implements Serializable {
 	
 	public String getDataFimString(){
 		return DateUtils.formatarDataDDMMYYYY(dataFim);
+	}
+
+	public Long getIdImagem1() {
+		return idImagem1;
+	}
+
+	public void setIdImagem1(Long idImagem1) {
+		this.idImagem1 = idImagem1;
+	}
+
+	public Long getIdImagem2() {
+		return idImagem2;
+	}
+
+	public void setIdImagem2(Long idImagem2) {
+		this.idImagem2 = idImagem2;
+	}
+
+	public Long getIdImagem3() {
+		return idImagem3;
+	}
+
+	public void setIdImagem3(Long idImagem3) {
+		this.idImagem3 = idImagem3;
 	}
 
 }

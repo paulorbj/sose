@@ -67,23 +67,23 @@ public class RequisicaoComponenteService {
 		List<RequisicaoComponente> requisicoes = new ArrayList<RequisicaoComponente>();
 		List<RequisicaoComponente> requisicoesAux = null;
 		try {
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(ComponenteEmFalta.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(ComponenteEmFalta.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(AguardandoAtendimento.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(AguardandoAtendimento.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(ColetandoMaterial.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(ColetandoMaterial.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(Coletado.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(Coletado.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(SendoEntregue.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(SendoEntregue.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(Recebido.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(Recebido.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(Cancelado.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(Cancelado.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(Retirado.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(Retirado.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
-			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatus(ComponenteNaoEncontrado.nome);
+			requisicoesAux = requisicaoComponenteDao.listarRequisicaoPorStatusNoReparo(ComponenteNaoEncontrado.nome);
 			if(requisicoesAux != null && !requisicoesAux.isEmpty()) requisicoes.addAll(requisicoesAux);
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);

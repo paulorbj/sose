@@ -131,6 +131,8 @@ public class Perfil implements Serializable {
 	//Permissoes de sub menu consulta
 	private Boolean subMenuConsultaConsultaGeral;
 	
+	private Boolean subMenuConsultaGraficos;
+	
 	//Permissoes de sub menu avaya
 	
 	private Boolean subMenuAvayaGerenciamentoEstoque;
@@ -642,6 +644,14 @@ public class Perfil implements Serializable {
 
 	public void setSubMenuEstoqueListagemCompra(Boolean subMenuEstoqueListagemCompra) {
 		this.subMenuEstoqueListagemCompra = subMenuEstoqueListagemCompra;
+	}
+
+	public Boolean getSubMenuConsultaGraficos() {
+		return subMenuConsultaGraficos;
+	}
+
+	public void setSubMenuConsultaGraficos(Boolean subMenuConsultaGraficos) {
+		this.subMenuConsultaGraficos = subMenuConsultaGraficos;
 	}
 
 	

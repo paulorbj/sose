@@ -1,6 +1,7 @@
 package br.com.sose.service;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -43,6 +44,11 @@ public class ArquivoUploadService {
 		try {
 			List<ArquivoUpload> listaRetorno = arquivoUploadDao.listarImagemPorEntidadePorIdentificador("COMPONENTE", componente.getId());
 			if(listaRetorno != null){
+				for(ArquivoUpload au : listaRetorno){
+					if(au.getIsImagemPrincipal() != null && au.getIsImagemPrincipal()){
+						return au;
+					}
+				}
 				return listaRetorno.get(0);
 			}else{
 				return null;
@@ -105,6 +111,35 @@ public class ArquivoUploadService {
 			throw e;
 		}
 		return arquivoUpload;
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public List<ArquivoUpload> atualizarImagemPrincipal(ArquivoUpload arquivoUpload) throws Exception {
+		ArquivoUpload arquivoUploadSalvo;
+		List<ArquivoUpload> listaArquivoUpload;
+		List<ArquivoUpload> listaRetorno = new ArrayList<ArquivoUpload>();
+		try {
+			arquivoUpload.setIsImagemPrincipal(true);
+			arquivoUploadSalvo = salvarArquivoUpload(arquivoUpload);
+			
+			listaArquivoUpload = listarPorEntidadePorIdentificador("COMPONENTE",arquivoUpload.getIdentificadorEntidade());
+			
+			for(ArquivoUpload au : listaArquivoUpload){
+				if(!au.getId().equals(arquivoUploadSalvo.getId())){
+					au.setIsImagemPrincipal(false);
+					salvarArquivoUpload(au);
+					listaRetorno.add(au);
+				}else{
+					listaRetorno.add(arquivoUploadSalvo);
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.error("Erro ao salvar componente: " + arquivoUpload.getNome());;
+			throw e;
+		}
+		return listaRetorno;
 	}
 
 }

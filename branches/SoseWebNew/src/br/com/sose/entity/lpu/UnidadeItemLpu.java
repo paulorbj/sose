@@ -1,7 +1,7 @@
 package br.com.sose.entity.lpu;
 
 import java.io.Serializable;
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,7 +42,13 @@ public class UnidadeItemLpu implements Serializable {
 	@JoinColumn(name="unidade_id", referencedColumnName="id")
 	private Unidade unidadeServilogi;
 	
-	private BigInteger valor;
+	private BigDecimal valorReparo;
+	
+	private BigDecimal valorMinimo;
+	
+	private BigDecimal valorMaximo;
+	
+	private BigDecimal valorTeste;
 	
 	@OneToMany(mappedBy = "unidadeItemLpu", fetch=FetchType.LAZY)
 	private Set<ItemLpu> listaItemLpu;
@@ -66,14 +72,6 @@ public class UnidadeItemLpu implements Serializable {
 		this.listaItemLpu = listaItemLpu;
 	}
 
-	public BigInteger getValor() {
-		return valor;
-	}
-
-	public void setValor(BigInteger valor) {
-		this.valor = valor;
-	}
-
 	public Lpu getLpu() {
 		return lpu;
 	}
@@ -88,6 +86,38 @@ public class UnidadeItemLpu implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public BigDecimal getValorReparo() {
+		return valorReparo;
+	}
+
+	public void setValorReparo(BigDecimal valorReparo) {
+		this.valorReparo = valorReparo;
+	}
+
+	public BigDecimal getValorMinimo() {
+		return valorMinimo;
+	}
+
+	public void setValorMinimo(BigDecimal valorMinimo) {
+		this.valorMinimo = valorMinimo;
+	}
+
+	public BigDecimal getValorMaximo() {
+		return valorMaximo;
+	}
+
+	public void setValorMaximo(BigDecimal valorMaximo) {
+		this.valorMaximo = valorMaximo;
+	}
+
+	public BigDecimal getValorTeste() {
+		return valorTeste;
+	}
+
+	public void setValorTeste(BigDecimal valorTeste) {
+		this.valorTeste = valorTeste;
 	}
 	
 	

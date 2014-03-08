@@ -137,7 +137,7 @@ public class Pessoa implements Serializable {
 
 	public Pessoa(Long id, String nomeRazaoSocial, String nomeSistema,
 			String cpfCnpj, String rgIe, Integer tipo, Integer tipoPessoa,
-			Boolean possuiContrato) {
+			Boolean possuiContrato,String inscricaoMunicipal) {
 		super();
 		this.id = id;
 		this.nomeRazaoSocial = nomeRazaoSocial;
@@ -147,6 +147,7 @@ public class Pessoa implements Serializable {
 		this.tipo = tipo;
 		this.tipoPessoa = tipoPessoa;
 		this.possuiContrato = possuiContrato;
+		this.inscricaoMunicipal = inscricaoMunicipal;
 	}
 
 	public Long getId() {
