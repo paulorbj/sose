@@ -234,6 +234,8 @@
 				str = str.replace(myPattern,"");
 				str = str.replace(",",".");
 				_valor = parseFloat(str);
+				if(isNaN(_valor))
+					_valor = 0;
 				return _valor;
 			}
 			
@@ -272,7 +274,7 @@
 				var myPattern:RegExp = /\./g;
 				str = str.replace(myPattern,"");
 				str = str.replace(",",".");
-				_valor = parseFloat(str);
+				_valor = parseFloat(str);				
 				return _valor;
 			}
 			

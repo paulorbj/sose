@@ -163,7 +163,6 @@
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
 				}
 				componenteService.listarComponentes();
-				dados.limpar();
 			}
 			
 			private function onSalvarComponenteFault(event:FaultEvent = null):void

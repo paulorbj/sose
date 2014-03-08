@@ -15,6 +15,9 @@
 					if(!Login.currentUser.perfil.subMenuConsultaConsultaGeral){
 						subMenu.removeChild(consultaGeral);
 					}
+					if(!Login.currentUser.perfil.subMenuConsultaGraficos){
+						subMenu.removeChild(graficos);
+					}
 				}
 			}
 			

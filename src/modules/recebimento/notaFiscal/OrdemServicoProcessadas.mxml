@@ -356,7 +356,7 @@
 				
 				<mx:DataGridColumn id="cLpu" 
 								   headerText = "{resourceManager.getString('ApplicationResource','LPU')}"
-								   dataField = "lpu.unidade"
+								   dataField = "itemLpu.unidade"
 								   width=".10"
 								   />
 				

@@ -109,6 +109,7 @@ package entities.administrativo
 		
 		//Permissoes de sub menu consulta
 		private var _subMenuConsultaConsultaGeral:Boolean;
+		private var _subMenuConsultaGraficos:Boolean;
 		
 		//Permissoes de sub menu avaya
 		private var _subMenuAvayaGerenciamentoEstoque:Boolean;
@@ -744,6 +745,16 @@ package entities.administrativo
 		public function set subMenuEstoqueListagemCompra(value:Boolean):void
 		{
 			_subMenuEstoqueListagemCompra = value;
+		}
+
+		public function get subMenuConsultaGraficos():Boolean
+		{
+			return _subMenuConsultaGraficos;
+		}
+
+		public function set subMenuConsultaGraficos(value:Boolean):void
+		{
+			_subMenuConsultaGraficos = value;
 		}
 
 

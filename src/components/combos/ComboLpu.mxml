@@ -10,11 +10,7 @@
 		 creationComplete="onCreationComplete()">
 	
 	<fx:Declarations>
-		<mx:RemoteObject id="lpuService" destination="lpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="listarLpu"      
-					   fault="onListarLpusFault(event)" 
-					   result="onListarLpusResult(event)"
-					   />
+		<mx:RemoteObject id="itemLpuService" destination="itemLpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
 			<mx:method name="listarPorCliente"      
 					   fault="onListarLpuPorClienteFault(event)" 
 					   result="onListarLpuPorClienteResult(event)"
@@ -24,6 +20,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import entities.administrativo.ItemLpu;
 			import entities.administrativo.Lpu;
 			import entities.administrativo.parceiros.Pessoa;
 			
@@ -74,17 +71,17 @@
 				trace("[ListarLpuPorClienteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");	
 			}
 			
-			public function get lpuSelecionada():Lpu 
+			public function get itemLpuSelecionada():ItemLpu 
 			{
 				if(comboBox.selectedItem == null || comboBox.selectedItemIndex == -1)
 					return null;
 				else
-					return comboBox.selectedItem as Lpu; 
+					return comboBox.selectedItem as ItemLpu; 
 			}
 			
-			public function set lpuSelecionada(lpu:Lpu):void 
+			public function set itemLpuSelecionada(itemLpu:ItemLpu):void 
 			{
-				comboBox.selectedItem = lpu;
+				comboBox.selectedItem = itemLpu;
 			}
 			
 			public function get cliente():Pessoa
@@ -95,7 +92,7 @@
 			public function set cliente(value:Pessoa):void
 			{
 				if(value){
-					lpuService.listarPorCliente(value);
+					itemLpuService.listarPorCliente(value);
 				}
 				_cliente = value;
 			}
@@ -104,7 +101,7 @@
 			public function limpar():void
 			{
 				if((comboBox.dataProvider != null) && (comboBox.dataProvider.length > 0)){
-					comboBox.selectedItem = new Lpu();
+					comboBox.selectedItem = new ItemLpu();
 					comboBox.clean();
 				}else{
 					comboBox.clean();
