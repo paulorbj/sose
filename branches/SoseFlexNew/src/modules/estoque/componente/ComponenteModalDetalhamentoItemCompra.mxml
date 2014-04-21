@@ -378,21 +378,21 @@
 	<mx:HBox width="100%" verticalAlign="middle">
 		<texto:TextInput id="qtdEstoque" habilitado="false" labelText="Qtd em estoque" width="25%"  />
 		<texto:TextInput id="qtdRequisitada" habilitado="false" labelText="Qtd requisitada" width="25%"  />
-		<texto:TextInput id="qtdEsperada" habilitado="true" labelText="Qtd esperada" width="25%"  />
+		<texto:TextInput id="qtdEsperada"  labelText="Qtd esperada" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" width="25%"  />
 		<texto:TextInput id="mediaUltimo6Meses" habilitado="false" labelText="Qtd dos últimos 6 meses" width="25%"  />
 	</mx:HBox>
 	
 	<mx:HBox width="100%" verticalAlign="middle">
-		<texto:TextInput id="qtdComprada" habilitado="{_itemCompra.status != 'Notificado'}" required="true" labelText="Qtd comprada" width="10%"  />
-		<texto:TextInputDinheiro2d id="valorUnitario" habilitado="{_itemCompra.status != 'Notificado'}"  labelText="Valor unitário (R$)" width="10%"  />
-		<texto:TextInputDinheiro2d id="valorUnitarioDolar" habilitado="{_itemCompra.status != 'Notificado'}"  labelText="Valor unitário (US$)" width="10%"  />
-		<texto:TextInput id="nNotaFiscal" habilitado="{_itemCompra.status != 'Notificado'}" labelText="Nº NF" width="15%"  />
+		<texto:TextInput id="qtdComprada" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" required="true" labelText="Qtd comprada" width="10%"  />
+		<texto:TextInputDinheiro2d id="valorUnitario" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"  labelText="Valor unitário (R$)" width="10%"  />
+		<texto:TextInputDinheiro2d id="valorUnitarioDolar" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"  labelText="Valor unitário (US$)" width="10%"  />
+		<texto:TextInput id="nNotaFiscal" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" labelText="Nº NF" width="15%"  />
 		
-		<combos:ComboFornecedor id="cbFornecedor" labelText="Fornecedor" width="25%" enabled="{_itemCompra.status != 'Notificado'}" changeFunction="atualizarComboFornecedor"  />
+		<combos:ComboFornecedor id="cbFornecedor" labelText="Fornecedor" width="25%" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" changeFunction="atualizarComboFornecedor"  />
 		
 		<mx:Button id="btAdicionarFornecedor"  excludeFrom="adicionarFornecedor"
 				   label="Adicionar fornecedor"
-				   height="25" width="10%" enabled="{_itemCompra.status != 'Notificado'}"
+				   height="25" width="10%" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
 				   icon="@Embed(source='/assets/icons/add.png')"
 				   click="adicionarFornecedor(event)"/>
 		<mx:Button id="btSalvarFornecedor"  includeIn="adicionarFornecedor"
@@ -418,18 +418,18 @@
 	
 	<mx:HBox width="100%" verticalAlign="bottom">
 		<texto:TextInput id="dtEntrada" habilitado="false" labelText="Dt entrada" width="30%"  />
-		<combos:ComboComponente id="cbComponenteEquivalente" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}" labelText="Componente equivalente" width="50%" />
+		<combos:ComboComponente id="cbComponenteEquivalente" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}" labelText="Componente equivalente" width="50%" />
 	</mx:HBox>
 	
 	<mx:HBox width="100%" verticalAlign="bottom">
 		<mx:Button id="btSalvarItemCompra"
 				   label="Salvar item compra"
-				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
 				   click="salvarItemCompra(event)"/>
 		
 		<mx:Button id="btNotificarEstoque"
 				   label="Notificar Estoque"
-				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   click="notificarEstoque(event)"/>
 		
@@ -443,7 +443,7 @@
 		
 		<mx:Button id="btNaoEncontrado"
 				   label="Componente não encontrado"
-				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado'}"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   click="componenteNaoEncontrado(event)"/>
 	</mx:HBox>

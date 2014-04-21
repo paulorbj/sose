@@ -101,7 +101,9 @@ package utils
 		public static var TIPO_EMBALAGEM_TRO:TipoEmbalagem  = new TipoEmbalagem(29,"TRO");
 		public static var TIPO_EMBALAGEM_TROF:TipoEmbalagem  = new TipoEmbalagem(30,"TROF");
 		public static var TIPO_EMBALAGEM_UCP:TipoEmbalagem  = new TipoEmbalagem(31,"UCP");
-		public static var TIPO_EMBALAGEM_CAIXA_AVULSA:TipoEmbalagem  = new TipoEmbalagem(31,"Caixa avulsa");
+		public static var TIPO_EMBALAGEM_CAIXA_AVULSA:TipoEmbalagem  = new TipoEmbalagem(32,"Caixa Avulsa");
+		public static var TIPO_EMBALAGEM_VOIP_MASTER:TipoEmbalagem  = new TipoEmbalagem(33,"Voip Master");
+		
 
 		
 		public static var ANALISE_REPARO_COM_CONDICAO:CondicaoReparo  = new CondicaoReparo(1,"Com condição de reparo");
@@ -211,7 +213,7 @@ package utils
 			tipoEmbalagemList.addItem(TIPO_EMBALAGEM_TRO);
 			tipoEmbalagemList.addItem(TIPO_EMBALAGEM_TROF);
 			tipoEmbalagemList.addItem(TIPO_EMBALAGEM_UCP);
-			
+			tipoEmbalagemList.addItem(TIPO_EMBALAGEM_VOIP_MASTER);
 		}
 		
 		public static function getKeyAsString(key:String):String{

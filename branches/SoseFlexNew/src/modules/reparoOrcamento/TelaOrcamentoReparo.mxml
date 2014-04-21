@@ -523,7 +523,7 @@
 						infoTecnicaReparo.currentState = "editar";
 						controlesReparo.currentState = "editar";					
 					}
-				}else{
+				}else{					
 					infoOrdemServico.currentState = "visualizar";
 					infoComponentes.currentState = "visualizarRequisicao";
 					infoDefeitos.currentState = "visualizar";
@@ -566,7 +566,7 @@
 				this.currentState = "edicaoReparo";
 				
 				//Abre detalhamento do reparo com a aba defeito selecionada
-				accordion.selectedIndex = 0;
+				tabs.selectedIndex = 0;
 				
 				//Configura o reparo nos componentes do detalhamento
 				setReparo(_reparo);
@@ -599,7 +599,7 @@
 				this.currentState = "edicaoReparo";
 				
 				//Abre detalhamento do reparo com a aba defeito selecionada
-				accordion.selectedIndex = 0;
+				tabs.selectedIndex = 0;
 				
 				//Configura o reparo nos componentes do detalhamento
 				setReparo(_reparo);
@@ -625,7 +625,7 @@
 				this.currentState = "edicaoOrcamento";
 				
 				//Abre detalhamento do reparo com a aba defeito selecionada
-				accordion.selectedIndex = 0;
+				tabs.selectedIndex = 0;
 				
 				//Configura o orcamento nos componentes do detalhamento
 				setOrcamento(_orcamento);
@@ -651,7 +651,7 @@
 				this.currentState = "edicaoOrcamento";
 				
 				//Abre detalhamento do reparo com a aba defeito selecionada
-				accordion.selectedIndex = 0;
+				tabs.selectedIndex = 0;
 				
 				//Configura o orcamento nos componentes do detalhamento
 				setOrcamento(_orcamento);
@@ -1839,30 +1839,46 @@
 	
 	<reparoOrcamento:ListagemGeral id="listagemGeral" includeIn="listagem" />
 	
-	<mx:TabNavigator id="accordion" borderStyle="solid"  width="1000" height="100%" excludeFrom="listagem" >
-		<componentesReparoOrcamento:InformacaoOrdemServico label="Informações Ordem Serviço" id="infoOrdemServico" includeIn="edicaoOrcamento,edicaoReparo" />
-		
-		<mx:VBox label="Informações técnicas">
-			<componentesOrcamento:InformacoesTecnicas id="infoTecnicaOrcamento" includeIn="edicaoOrcamento" />
-			
-			<componentesReparo:InformacoesTecnicas id="infoTecnicaReparo" includeIn="edicaoReparo" />
-		</mx:VBox>
-		
-		<componentesReparoOrcamento:Defeitos id="infoDefeitos" label="Defeitos" width="100%" />
-		
-		<componentesReparoOrcamento:Atividades id="infoAtividades" label="Atividades" width="100%" />
+	<s:TabBar id="tabs" left="8" y="2" dataProvider="{vs}" includeIn="edicaoOrcamento, edicaoReparo"/>
 
-		<componentesReparoOrcamento:Componentes id="infoComponentes" label="Componentes" width="100%" />
+	<mx:ViewStack id="vs" width="1000" height="100%" left="8" y="23" includeIn="edicaoOrcamento, edicaoReparo">
+		<s:NavigatorContent label="Informações Ordem Serviço"  width="100%" height="100%">
+				<componentesReparoOrcamento:InformacaoOrdemServico  id="infoOrdemServico" includeIn="edicaoOrcamento,edicaoReparo" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Informações técnicas"  width="100%" height="100%">
+				<mx:VBox>
+					<componentesOrcamento:InformacoesTecnicas id="infoTecnicaOrcamento" includeIn="edicaoOrcamento" />
+					
+					<componentesReparo:InformacoesTecnicas id="infoTecnicaReparo" includeIn="edicaoReparo" />
+				</mx:VBox>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Defeitos"  width="100%" height="100%">
+				<componentesReparoOrcamento:Defeitos id="infoDefeitos"  width="100%" />
+				
+		</s:NavigatorContent>
 		
-		<componentesReparoOrcamento:InformacoesAdicionais id="infoAdicionais" label="Histórico da unidade" width="100%" />
+		<s:NavigatorContent label="Atividades"  width="100%" height="100%">
+				<componentesReparoOrcamento:Atividades id="infoAtividades" label="Atividades" width="100%" />
+		</s:NavigatorContent>
 		
-		<mx:VBox label="Observações" width="770" height="100%">
-			<componentes:Observacoes id="observacoes" origem="{_orcamento == null ? 'Reparo':'Orçamento'}" 
-									 entidade ="{_orcamento == null ? _reparo :_orcamento}" 
-									 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
-		</mx:VBox>
+		<s:NavigatorContent label="Componentes"  width="100%" height="100%">				
+				<componentesReparoOrcamento:Componentes id="infoComponentes"  width="100%" />
+		</s:NavigatorContent>
 		
-	</mx:TabNavigator>
+		<s:NavigatorContent label="Histórico da unidade"  width="100%" height="100%">
+				<componentesReparoOrcamento:InformacoesAdicionais id="infoAdicionais"  width="100%" />
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Observações" width="100%" height="100%">
+				<mx:VBox width="770" height="100%">
+					<componentes:Observacoes id="observacoes" origem="{_orcamento == null ? 'Reparo':'Orçamento'}" 
+											 entidade ="{_orcamento == null ? _reparo :_orcamento}" 
+											 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+				</mx:VBox>
+		</s:NavigatorContent>
+		
+
+	</mx:ViewStack>
 	
 	<componentesOrcamento:Controles id="controlesOrcamento" includeIn="edicaoOrcamento" />
 	

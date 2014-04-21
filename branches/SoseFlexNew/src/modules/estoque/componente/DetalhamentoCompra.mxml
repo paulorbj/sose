@@ -119,7 +119,7 @@
 			private function deletarCompra(event:MouseEvent):void
 			{
 				for each(var c:ItemCompra in _compra.listaItemCompra){
-					if(c.status == "Comprado" || c.status == "Notificado"){
+					if(c.status == "Comprado" || c.status == "Notificado" || c.status == "Finalizado"){
 						dispatchEvent(new MensagemEvent("A compra não pode ser deletada! Já existem itens comprados", MessageType.WARNING, 3000));
 						return;
 					}

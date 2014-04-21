@@ -110,6 +110,7 @@
 					var eventRegister:UserRegisterNumberModalEvent = new UserRegisterNumberModalEvent(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL,usuarioAutenticado,true, false);
 					dispatchEvent(eventRegister);
 				}
+				senha.text = "";
 				close();
 			}
 			
@@ -133,7 +134,7 @@
 				removeEventListener(UserRegisterNumberModalEvent.USER_REGISTER_NUMBER_MODAL, metodoRetorno,false);
 			}
 			
-			private function autenticarNovoUsuario():void
+			public function autenticarNovoUsuario():void
 			{
 				Login.usuarioAutenticado = null;
 				usuario.text = "";

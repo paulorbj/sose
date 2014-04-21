@@ -22,6 +22,17 @@ package entities.administrativo
 		private var _nomePerfil:String;
 		private var _telefone:String;
 		private var _celular:String;
+		private var _dataAdmissao:Date;
+		private var _dataSaida:Date;
+		private var _pis:String;
+		private var _tituloEleitor:String;
+		private var _nCarteiraProfissional:String;
+		private var _banco:String;
+		private var _agencia:String;
+		private var _contaCorrente:String;
+		private var _nomeContato:String;
+		private var _telefoneContato:String;
+		private var _observacao:String;
 		
 		public function Usuario(){
 			_id = 0;
@@ -188,6 +199,116 @@ package entities.administrativo
 		public function set celular(value:String):void
 		{
 			_celular = value;
+		}
+
+		public function get dataAdmissao():Date
+		{
+			return _dataAdmissao;
+		}
+
+		public function set dataAdmissao(value:Date):void
+		{
+			_dataAdmissao = value;
+		}
+
+		public function get dataSaida():Date
+		{
+			return _dataSaida;
+		}
+
+		public function set dataSaida(value:Date):void
+		{
+			_dataSaida = value;
+		}
+
+		public function get pis():String
+		{
+			return _pis;
+		}
+
+		public function set pis(value:String):void
+		{
+			_pis = value;
+		}
+
+		public function get tituloEleitor():String
+		{
+			return _tituloEleitor;
+		}
+
+		public function set tituloEleitor(value:String):void
+		{
+			_tituloEleitor = value;
+		}
+
+		public function get nCarteiraProfissional():String
+		{
+			return _nCarteiraProfissional;
+		}
+
+		public function set nCarteiraProfissional(value:String):void
+		{
+			_nCarteiraProfissional = value;
+		}
+
+		public function get banco():String
+		{
+			return _banco;
+		}
+
+		public function set banco(value:String):void
+		{
+			_banco = value;
+		}
+
+		public function get agencia():String
+		{
+			return _agencia;
+		}
+
+		public function set agencia(value:String):void
+		{
+			_agencia = value;
+		}
+
+		public function get contaCorrente():String
+		{
+			return _contaCorrente;
+		}
+
+		public function set contaCorrente(value:String):void
+		{
+			_contaCorrente = value;
+		}
+
+		public function get nomeContato():String
+		{
+			return _nomeContato;
+		}
+
+		public function set nomeContato(value:String):void
+		{
+			_nomeContato = value;
+		}
+
+		public function get telefoneContato():String
+		{
+			return _telefoneContato;
+		}
+
+		public function set telefoneContato(value:String):void
+		{
+			_telefoneContato = value;
+		}
+
+		public function get observacao():String
+		{
+			return _observacao;
+		}
+
+		public function set observacao(value:String):void
+		{
+			_observacao = value;
 		}
 
 

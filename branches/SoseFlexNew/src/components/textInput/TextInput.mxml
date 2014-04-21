@@ -2,13 +2,16 @@
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 horizontalAlign="left"  verticalGap="0">
+		 horizontalAlign="left"  verticalGap="0" preinitialize="vbox1_preinitializeHandler(event)">
 	
 	<!-- Action Scripts -->
 	<fx:Script>
 		<![CDATA[
 			import flash.desktop.Clipboard;
 			import flash.desktop.ClipboardFormats;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.FlexEvent;
 			/** Exposed text property */
 			[Bindable]
 			public var labelText:String;
@@ -66,6 +69,12 @@
 //				System.setClipboard(text);
 //				Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT,text);
 //			}
+			
+			protected function vbox1_preinitializeHandler(event:FlexEvent):void
+			{
+				BindingManager.debugBinding("input.text");
+			}
+			
 		]]>
 	</fx:Script>
 	
