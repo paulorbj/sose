@@ -1,6 +1,7 @@
 package br.com.sose.status.laudotecnico;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import br.com.sose.entity.laudoTecnico.LaudoTecnico;
 import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.recebimento.OrdemServico;
 import br.com.sose.entity.reparo.Reparo;
+import br.com.sose.service.ArquivoUploadService;
 import br.com.sose.service.administrativo.ObservacaoService;
 import br.com.sose.service.laudoTecnico.LaudoTecnicoService;
 import br.com.sose.service.orcamento.OrcamentoService;
@@ -24,6 +26,7 @@ import br.com.sose.status.orcamento.AguardandoConjuntoProposta;
 import br.com.sose.status.orcamentodiferenciado.Aprovado;
 import br.com.sose.status.reparo.AguardandoConjuntoExpedicao;
 import br.com.sose.status.reparo.AguardandoLaudoTecnico;
+import br.com.sose.utils.ArquivoUpload;
 import br.com.sose.utils.ConjuntoOrdemServico;
 import br.com.sose.utils.ConstantesAplicacao;
 import br.com.sose.utils.OrdemServicoUtils;
@@ -35,6 +38,9 @@ public class Iniciado extends StatusLaudoTecnico {
 
 	@Autowired
 	private LaudoTecnicoService laudoTecnicoService;
+
+	@Autowired
+	private ArquivoUploadService arquivoUploadService;
 
 	@Autowired
 	private OrdemServicoService ordemServicoService;
@@ -98,7 +104,7 @@ public class Iniciado extends StatusLaudoTecnico {
 					observacaoService.log("Laudo técnico", "Laudo técnico Nº "+laudoTecnico.getControle()+" aprovado", 2, new Date(), osFilha, usuario);
 
 				}
-			
+
 			}else{
 				//TODO - Ao finalizar laudo tecnico, encaminha-lo de volta para o reparo
 				reparo.setStatusString(Iniciado.nome);
@@ -177,7 +183,7 @@ public class Iniciado extends StatusLaudoTecnico {
 
 		}
 
-//		laudoTecnico = laudoTecnicoService.buscarPorId(laudoTecnico.getId());
+		//		laudoTecnico = laudoTecnicoService.buscarPorId(laudoTecnico.getId());
 		return laudoTecnico;
 	}
 
@@ -199,7 +205,7 @@ public class Iniciado extends StatusLaudoTecnico {
 				cos.getOsPai().getReparo().setLaudoTecnicoReprovado(new Date());
 				cos.getOsPai().getReparo().setDataRequisicaoLaudoTecnico(null);
 				cos.getOsPai().setBloqueado(0);//TODO notificar a rejeição de um laudo tecnico 
-//				cos.getOsPai().setLaudoTecnico(null);
+				//				cos.getOsPai().setLaudoTecnico(null);
 				if(cos.getOsPai().getReparo().getStatusString().equals(AguardandoLaudoTecnico.nome)){
 					cos.getOsPai().getReparo().setStatusString(Iniciado.nome);
 					cos.getOsPai().setStatusString(ReparoSendoRealizado.nome);
@@ -213,7 +219,7 @@ public class Iniciado extends StatusLaudoTecnico {
 					osFilha.getReparo().setLaudoTecnicoReprovado(new Date());
 					osFilha.getReparo().setDataRequisicaoLaudoTecnico(null);
 					osFilha.setBloqueado(0);
-//					osFilha.setLaudoTecnico(null);
+					//					osFilha.setLaudoTecnico(null);
 					if(osFilha.getReparo().getStatusString().equals(AguardandoLaudoTecnico.nome)){
 						osFilha.getReparo().setStatusString(Iniciado.nome);
 						osFilha.setStatusString(ReparoSendoRealizado.nome);
@@ -230,7 +236,7 @@ public class Iniciado extends StatusLaudoTecnico {
 				reparoService.salvarReparo(reparo);
 				os.setStatusString(ReparoSendoRealizado.nome);
 				ordemServicoService.salvarOrdemServico(os);
-				
+
 				observacaoService.log("Laudo técnico", "Laudo técnico Nº "+laudoTecnico.getControle()+" rejeitado", 2, new Date(), os, usuario);
 			}
 		}else{
@@ -240,7 +246,7 @@ public class Iniciado extends StatusLaudoTecnico {
 				cos.getOsPai().getOrcamento().setLaudoTecnicoReprovado(new Date());
 				cos.getOsPai().getOrcamento().setDataRequisicaoLaudoTecnico(null);
 				cos.getOsPai().setBloqueado(0);//TODO notificar a rejeição de um laudo tecnico 
-//				cos.getOsPai().setLaudoTecnico(null);
+				//				cos.getOsPai().setLaudoTecnico(null);
 				if(cos.getOsPai().getOrcamento().getStatusString().equals(AguardandoLaudoTecnico.nome)){
 					cos.getOsPai().getOrcamento().setStatusString(Iniciado.nome);
 				}
@@ -254,7 +260,7 @@ public class Iniciado extends StatusLaudoTecnico {
 					osFilha.getOrcamento().setDataRequisicaoLaudoTecnico(null);
 					osFilha.getOrcamento().setLaudoTecnicoReprovado(new Date());
 					osFilha.setBloqueado(0);
-//					osFilha.setLaudoTecnico(null);
+					//					osFilha.setLaudoTecnico(null);
 					if(osFilha.getOrcamento().getStatusString().equals(AguardandoLaudoTecnico.nome)){
 						osFilha.getOrcamento().setStatusString(Iniciado.nome);
 					}
@@ -279,15 +285,27 @@ public class Iniciado extends StatusLaudoTecnico {
 
 		laudoTecnico.setOrdemServico(os);
 		laudoTecnico = laudoTecnicoService.salvarLaudoTecnico(laudoTecnico); 
-//		laudoTecnico = laudoTecnicoService.buscarPorId(laudoTecnico.getId());
+		//		laudoTecnico = laudoTecnicoService.buscarPorId(laudoTecnico.getId());
 		return laudoTecnico;
 	}
 
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
-	public LaudoTecnico salvarLaudoTecnico(Usuario usuario) throws Exception {
+	public LaudoTecnico salvarLaudoTecnico( List<ArquivoUpload> imagens, Usuario usuario) throws Exception {
 		laudoTecnico = laudoTecnicoService.salvarLaudoTecnico(laudoTecnico);
-//		laudoTecnico = laudoTecnicoService.buscarPorId(laudoTecnico.getId());
+		if(imagens != null){
+			Integer total = 0;
+			for(ArquivoUpload au : imagens){
+				if(total < 3){
+					arquivoUploadService.salvarArquivoUpload(au);
+					if(au.getIsSelected()){
+						total++;		
+					}
+				}else{
+					break;
+				}
+			}
+		}
 		return laudoTecnico;
 	}
 

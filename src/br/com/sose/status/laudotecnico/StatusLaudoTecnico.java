@@ -1,7 +1,10 @@
 package br.com.sose.status.laudotecnico;
 
+import java.util.List;
+
 import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.laudoTecnico.LaudoTecnico;
+import br.com.sose.utils.ArquivoUpload;
 
 public abstract class StatusLaudoTecnico {
 	
@@ -19,7 +22,7 @@ public abstract class StatusLaudoTecnico {
 		throw new Exception("Essa não é uma operação válida nesse status");
 	}
 	
-	public LaudoTecnico salvarLaudoTecnico(Usuario usuario) throws Exception{
+	public LaudoTecnico salvarLaudoTecnico( List<ArquivoUpload> imagens, Usuario usuario) throws Exception{
 		throw new Exception("Essa não é uma operação válida nesse status");
 	}
 	

@@ -64,6 +64,28 @@ public class Usuario implements Serializable {
 	private String telefone;
 
 	private String celular;
+	
+	private Date dataAdmissao;
+	
+	private Date dataSaida;
+	
+	private String pis;
+	
+	private String tituloEleitor;
+	
+	private String nCarteiraProfissional;
+	
+	private String banco;
+	
+	private String agencia;
+	
+	private String contaCorrente;
+	
+	private String nomeContato;
+	
+	private String telefoneContato;
+	
+	private String observacao;
 
 	public Usuario() {
 		// TODO Auto-generated constructor stub
@@ -224,6 +246,138 @@ public class Usuario implements Serializable {
 
 	public void setCelular(String celular) {
 		this.celular = celular;
+	}
+
+
+
+	public Date getDataAdmissao() {
+		return dataAdmissao;
+	}
+
+
+
+	public void setDataAdmissao(Date dataAdmissao) {
+		this.dataAdmissao = dataAdmissao;
+	}
+
+
+
+	public Date getDataSaida() {
+		return dataSaida;
+	}
+
+
+
+	public void setDataSaida(Date dataSaida) {
+		this.dataSaida = dataSaida;
+	}
+
+
+
+	public String getPis() {
+		return pis;
+	}
+
+
+
+	public void setPis(String pis) {
+		this.pis = pis;
+	}
+
+
+
+	public String getTituloEleitor() {
+		return tituloEleitor;
+	}
+
+
+
+	public void setTituloEleitor(String tituloEleitor) {
+		this.tituloEleitor = tituloEleitor;
+	}
+
+
+
+	public String getnCarteiraProfissional() {
+		return nCarteiraProfissional;
+	}
+
+
+
+	public void setnCarteiraProfissional(String nCarteiraProfissional) {
+		this.nCarteiraProfissional = nCarteiraProfissional;
+	}
+
+
+
+	public String getBanco() {
+		return banco;
+	}
+
+
+
+	public void setBanco(String banco) {
+		this.banco = banco;
+	}
+
+
+
+	public String getAgencia() {
+		return agencia;
+	}
+
+
+
+	public void setAgencia(String agencia) {
+		this.agencia = agencia;
+	}
+
+
+
+	public String getContaCorrente() {
+		return contaCorrente;
+	}
+
+
+
+	public void setContaCorrente(String contaCorrente) {
+		this.contaCorrente = contaCorrente;
+	}
+
+
+
+	public String getNomeContato() {
+		return nomeContato;
+	}
+
+
+
+	public void setNomeContato(String nomeContato) {
+		this.nomeContato = nomeContato;
+	}
+
+
+
+	public String getTelefoneContato() {
+		return telefoneContato;
+	}
+
+
+
+	public void setTelefoneContato(String telefoneContato) {
+		this.telefoneContato = telefoneContato;
+	}
+
+
+
+	public String getObservacao() {
+		return observacao;
+	}
+
+
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
 	}
 
 	//	private Set<Telefone> telefones;
