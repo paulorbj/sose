@@ -1,5 +1,7 @@
 package br.com.sose.status.laudotecnico;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.laudoTecnico.LaudoTecnico;
+import br.com.sose.utils.ArquivoUpload;
 
 @Service(value="laudoTecnicoController")
 @RemotingDestination(value="laudoTecnicoController")
@@ -43,9 +46,9 @@ public class LaudoTecnicoController {
 	
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
-	public LaudoTecnico salvarLaudoTecnico(LaudoTecnico laudoTecnico,Usuario usuario) throws Exception{
+	public LaudoTecnico salvarLaudoTecnico(LaudoTecnico laudoTecnico, List<ArquivoUpload> imagens, Usuario usuario) throws Exception{
 		laudoTecnico = getStatus(laudoTecnico);
-		return laudoTecnico.getStatus().salvarLaudoTecnico(usuario);
+		return laudoTecnico.getStatus().salvarLaudoTecnico(imagens, usuario);
 	}
 	
 	@RemotingInclude

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="laudoTecnicoRevisado" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6b9c757c-1906-4c40-876d-6ce100bd221c">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="id" class="java.lang.String"/>
+	<field name="controle" class="java.lang.String"/>
+	<field name="informacaoTecnica" class="java.lang.String"/>
+	<field name="ordemServico.numeroOrdemServico" class="java.lang.String"/>
+	<field name="ordemServico.itemNotaFiscal.unidade" class="java.lang.String"/>
+	<field name="ordemServico.serieFabricante" class="java.lang.String"/>
+	<field name="ordemServico.serieCliente" class="java.lang.String"/>
+	<field name="ordemServico.ordemServicoCliente" class="java.lang.String"/>
+	<field name="ordemServico.cliente.nomeSistema" class="java.lang.String"/>
+	<field name="dataCriacao" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch"/>
+	</title>
+	<detail>
+		<band height="650" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="937992e4-fae0-4e37-be1d-5da83f90a79f" x="59" y="630" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[controle]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="4f427319-b321-4d85-b2a9-ae5a7f16e438" x="159" y="630" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{controle}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="98ef4e30-e9f9-4c60-ab2d-d80ebb57c39a" x="11" y="12" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[id]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="b41095bc-a791-4be1-b15f-3ca982990401" x="127" y="12" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50">
+			<staticText>
+				<reportElement uuid="d94fc726-6726-4a46-9c3a-01dded424c0b" x="122" y="11" width="316" height="39"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<text><![CDATA[SERVILOGI   Telecomunicações Ltda.
+Rua Abaúna, 66  -  CEP 04284-080  -  Moinho Velho -  Bairro Ipiranga - São Paulo - SP
+Fones/ Fax : 55  (11) 2068-4588 / 2068-6677
+http://www.servilogi.com.br   -  E-mail:  servilogi@servilogi.com.br
+]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+</jasperReport>

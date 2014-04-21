@@ -48,6 +48,8 @@ public class ArquivoUpload implements Serializable {
 	private String caminhoImagem;
 	
 	private Boolean isImagemPrincipal;
+	
+	private Boolean isSelected;
 
 	public Long getId() {
 		return id;
@@ -119,6 +121,14 @@ public class ArquivoUpload implements Serializable {
 
 	public void setIsImagemPrincipal(Boolean isImagemPrincipal) {
 		this.isImagemPrincipal = isImagemPrincipal;
+	}
+
+	public Boolean getIsSelected() {
+		return isSelected;
+	}
+
+	public void setIsSelected(Boolean isSelected) {
+		this.isSelected = isSelected;
 	}
 	
 	

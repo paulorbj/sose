@@ -31,7 +31,7 @@ public class SoseSessionFlex implements FlexSessionListener {
 	public void sessionCreated(FlexSession session) {
 		this.session = session;
 		session.addSessionDestroyedListener(this);
-		
+
 		System.out.println("################# Sessao criada #################  " + new Date() + "  numero de sessao: " + ++count);
 		logger.debug("################# Sessao criada #################  " + new Date() + "  numero de sesso: " + count);
 	}
@@ -53,17 +53,18 @@ public class SoseSessionFlex implements FlexSessionListener {
 		if(count == 0){
 			File dir = new File("C:\\arquivos");
 			try{
-				for (File f : dir.listFiles()){
+				if(dir != null)
+					for (File f : dir.listFiles()){
 						f.delete();
-				}
+					}
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			
+
 			File dirTemp = new File(PropertiesUtil.getProperty("upload.temporario.location"));
 			try{
 				for (File f : dirTemp.listFiles()){
-						f.delete();
+					f.delete();
 				}
 			}catch(Exception e){
 				e.printStackTrace();

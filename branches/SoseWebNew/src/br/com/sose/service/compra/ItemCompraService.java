@@ -127,6 +127,10 @@ public class ItemCompraService {
 			if(itemComprasAux != null && !itemComprasAux.isEmpty()){
 				itemCompras.addAll(itemComprasAux);
 			}
+			itemComprasAux = itemCompraDao.listarItemCompraPorCompraPorStatus(compra, "Finalizado");
+			if(itemComprasAux != null && !itemComprasAux.isEmpty()){
+				itemCompras.addAll(itemComprasAux);
+			}
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
