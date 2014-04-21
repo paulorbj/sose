@@ -832,7 +832,7 @@
 							<mx:HBox horizontalAlign="center"
 									 verticalAlign="middle"
 									 >
-								<mx:Image source="assets/icons/thumb-up.png"
+								<mx:Image source="@Embed(source='/assets/icons/thumb-up.png')"
 										  click="parentDocument.aprovarItem(data, event)"
 										  buttonMode="true" visible="{data.btsAprovacaoVisible}"
 										  enabled="{(data.dataAprovacao == null) &amp;&amp; (parentDocument._proposta.statusString == 'Aguardando aprovação do cliente')}"
@@ -840,7 +840,7 @@
 										  toolTip="{resourceManager.getString('ApplicationResource','APROVAR')}"
 										  />	
 								
-								<mx:Image source="assets/icons/thumb-down.png"
+								<mx:Image source="@Embed(source='/assets/icons/thumb-down.png')"
 										  click="parentDocument.reprovarItem(data, event)"
 										  buttonMode="true" visible="{data.btsAprovacaoVisible}"
 										  enabled="{(data.dataAprovacao == null) &amp;&amp; (parentDocument._proposta.statusString == 'Aguardando aprovação do cliente')}"
@@ -855,7 +855,7 @@
 										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
 										  />
 								
-								<mx:Image source="assets/icons/arrow_rotate_clockwise.png"
+								<mx:Image source="@Embed(source='/assets/icons/arrow_rotate_clockwise.png')"
 										  click="parentDocument.restaurarItem(data, event)"
 										  buttonMode="true" enabled="{data.dataAprovacao != null}"
 										  useHandCursor="true" visible="{data.btsAprovacaoVisible}"

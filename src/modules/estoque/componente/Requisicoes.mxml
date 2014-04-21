@@ -147,13 +147,16 @@
 					adicionarRequisicao(globalMessage.conteudo as RequisicaoComponente);
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE){
-					requisicaoComponenteService.listarRequisicaoEstoque();
+					//requisicaoComponenteService.listarRequisicaoEstoque();
+					btAtualizar.setStyle("icon", synchronized_verde);
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_NAO_ENCONTRADO){
-					requisicaoComponenteService.listarRequisicaoEstoque();
+					//requisicaoComponenteService.listarRequisicaoEstoque();
+					btAtualizar.setStyle("icon", synchronized_verde);
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_LISTA_REQUISICAO){
-					requisicaoComponenteService.listarRequisicaoEstoque();
+					//requisicaoComponenteService.listarRequisicaoEstoque();
+					btAtualizar.setStyle("icon", synchronized_verde);
 				}
 			} 
 			

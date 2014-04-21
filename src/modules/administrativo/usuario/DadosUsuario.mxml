@@ -115,6 +115,20 @@
 	<fx:Binding destination="telefone.inputText" source="_usuario.endereco.telefone" twoWay="true"/>
 	<fx:Binding destination="celular.inputText" source="_usuario.endereco.fax" twoWay="true"/>
 	
+	<fx:Binding destination="email.input.text" source="_usuario.email" twoWay="true"/>
+	<fx:Binding destination="pis.input.text" source="_usuario.pis" twoWay="true"/>
+	<fx:Binding destination="nCarteiraProfissional.input.text" source="_usuario.nCarteiraProfissional" twoWay="true"/>
+	<fx:Binding destination="tituloEleitor.input.text" source="_usuario.tituloEleitor" twoWay="true"/>
+	<fx:Binding destination="banco.input.text" source="_usuario.banco" twoWay="true"/>
+	<fx:Binding destination="agencia.input.text" source="_usuario.agencia" twoWay="true"/>
+	<fx:Binding destination="contaCorrente.input.text" source="_usuario.contaCorrente" twoWay="true"/>
+	<fx:Binding destination="nomeContato.input.text" source="_usuario.nomeContato" twoWay="true"/>
+	<fx:Binding destination="telefoneContato.input.text" source="_usuario.telefoneContato" twoWay="true"/>
+	<fx:Binding destination="observacao.input.text" source="_usuario.observacao" twoWay="true"/>
+	<fx:Binding source="dataAdmissao.inputDate" destination="_usuario.dataAdmissao" twoWay="true" />
+	<fx:Binding source="dataSaida.inputDate" destination="_usuario.dataSaida" twoWay="true" />
+
+	
 	<mx:HBox verticalAlign="bottom" width="100%">
 		<texto:TextInput id="login" required="true" labelText="{resourceManager.getString('ApplicationResource','USERNAME')}" width="196" />
 		<texto:TextInputPassword id="senha" required="true" labelText="{resourceManager.getString('ApplicationResource','PASSWORD')}" width="196" />
@@ -143,5 +157,29 @@
 		<texto:TextInput id="pais" labelText="{resourceManager.getString('ApplicationResource','PAIS')}" width="153"  />
 		<texto:TextInput id="telefone" labelText="{resourceManager.getString('ApplicationResource','TELEFONE')}" width="155"  />
 		<texto:TextInput id="celular" labelText="{resourceManager.getString('ApplicationResource','CELULAR')}" width="155"  />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="email" labelText="Email" width="380"  />
+		<texto:TextInput id="pis" labelText="PIS" width="100"  />
+		<texto:TextInput id="nCarteiraProfissional" labelText="Carteira profissional" width="150" />
+		<texto:TextInput id="tituloEleitor" labelText="Titulo eleitor" width="150" />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<componentes:DataInput id="dataAdmissao" required="true" labelText="Dt Admissão" width="120" inputHeight="20" />
+		<componentes:DataInput id="dataSaida" required="true" labelText="Dt Saída" width="120" inputHeight="20" />
+		<texto:TextInput id="banco" labelText="Banco" width="185"  />
+		<texto:TextInput id="agencia" labelText="Agência" width="185" />
+		<texto:TextInput id="contaCorrente" labelText="Conta corrente" width="185" />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextInput id="nomeContato" labelText="Em caso de emergência contatar" width="500"  />
+		<texto:TextInput id="telefoneContato" labelText="Telefone do contato" width="290"  />
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<texto:TextArea id="observacao" labelText="Observações" width="800"   />
 	</mx:HBox>
 </mx:VBox>

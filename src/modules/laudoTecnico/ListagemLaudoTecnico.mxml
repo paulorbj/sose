@@ -325,7 +325,7 @@
 				var usr:Usuario = Login.usuarioAutenticado;
 				if(usr){
 					_laudoTecnico = detalhamentoLaudoTecnico.laudoTecnico;
-					laudoTecnicoController.salvarLaudoTecnico(_laudoTecnico,usr);
+					laudoTecnicoController.salvarLaudoTecnico(_laudoTecnico,detalhamentoLaudoTecnico.listaArquivoUpload,usr);
 				}else{
 					PopupModalController.getInstance().showModalAutenticacaoUsuario(salvarLaudoTecnicoAutenticar);
 				}
@@ -437,6 +437,10 @@
 						imagensRelatorio.addItem(au);
 					}
 				}
+				if(imagensRelatorio.length == 0 && detalhamentoLaudoTecnico.listaArquivoUpload != null && detalhamentoLaudoTecnico.listaArquivoUpload.length > 0){
+					imagensRelatorio.addItem(detalhamentoLaudoTecnico.listaArquivoUpload.getItemAt(0) as ArquivoUpload);
+				}
+				
 				var urlString:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
 				
 				relatorioLaudoTecnico.gerarRelatorio(_laudoTecnico,imagensRelatorio,urlString);
@@ -713,7 +717,7 @@
 				   height="25"
 				   icon="@Embed(source='/assets/icons/page_gear.png')"
 				   click="gerarPDF(event)"
-				   enabled="{_laudoTecnico.statusString == 'Finalizado' || _laudoTecnico.statusString == 'Rejeitado'  || _laudoTecnico.statusString == 'Aprovado'}"
+				   enabled="{_laudoTecnico.statusString != 'Não iniciado'}"
 				   />
 		<s:Spacer width="50" />
 		<mx:Button id="btVoltar" 

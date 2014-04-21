@@ -47,11 +47,11 @@
 				_listaArquivoUpload.removeAll();
 				_listaArquivoUpload = event.result as ArrayCollection;
 				
-				for each (var img:ArquivoUpload in _listaArquivoUpload){
-					if(img.id == _laudoTecnico.idImagem1 || img.id == _laudoTecnico.idImagem2 || img.id == _laudoTecnico.idImagem3){
-						img.isSelected = true;
-					}
-				}
+//				for each (var img:ArquivoUpload in _listaArquivoUpload){
+//					if(img.id == _laudoTecnico.idImagem1 || img.id == _laudoTecnico.idImagem2 || img.id == _laudoTecnico.idImagem3){
+//						img.isSelected = true;
+//					}
+//				}
 			}
 			
 			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
