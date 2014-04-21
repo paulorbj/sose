@@ -12,8 +12,9 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import components.imageviewer.ImagemViewerEvent;
+			import components.UserRegisterNumberModal;
 			import components.imageviewer.ImagemViewer;
+			import components.imageviewer.ImagemViewerEvent;
 			import components.messages.MensagemEvent;
 			import components.messages.MessageType;
 			import components.messages.NotificationEvent;
@@ -302,7 +303,7 @@
 	<mx:Canvas id="header" top="0" left="0" right="0">
 		
 		<mx:VBox right="730" verticalCenter="0" verticalGap="0">
-			<s:Label text="Versão: teste new- 11/02/2014" fontSize="12" color="red" />
+			<s:Label text="Versão: teste new- 02/04/2014" fontSize="12" color="red" />
 			<mx:HBox>
 				<s:Label text="USUÁRIO LOGADO:" styleName="welcome" fontSize="12"  />
 				<s:Spacer width="100%" />
