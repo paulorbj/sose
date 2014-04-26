@@ -1,708 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="900"
-		 xmlns:texto="components.textInput.*" horizontalScrollPolicy="off"
-		 xmlns:combos="components.combos.*"
-		 xmlns:grid="components.grid.*" xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+		 xmlns:texto="components.textInput.*" xmlns:combos="components.combos.*"
 		 >
-	
 	<fx:Declarations>
-		<mx:RemoteObject id="lpuService" destination="lpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="salvarLpu"      
-					   fault="onSalvarLpuFault(event)" 
-					   result="onSalvarLpuResult(event)"
-					   />
-		</mx:RemoteObject>
-		
-		<mx:RemoteObject id="itemLpuService" destination="itemLpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="salvarItemLpu"      
-					   fault="onSalvarItemLpuFault(event)" 
-					   result="onSalvarItemLpuResult(event)"
-					   />
-			<mx:method name="listarItemLpuPorLpu"      
-					   fault="onListarItemLpuPorLpuFault(event)" 
-					   result="onListarItemLpuPorLpuResult(event)"
-					   />
-			<mx:method name="deletarItemLpu"      
-					   fault="onDeletarItemLpuFault(event)" 
-					   result="onDeletarItemLpuResult(event)"
-					   />
-			<mx:method name="associarItensLpu"      
-					   fault="onAssociarItensLpuFault(event)" 
-					   result="onAssociarItensLpuResult(event)"
-					   />
-			<mx:method name="listarItemLpuPorLpuPorUnidade"      
-					   fault="onListarUnidadeItemLpuPorUnidadePorLpuFault(event)" 
-					   result="onListarUnidadeItemLpuPorUnidadePorLpuResult(event)"
-					   />
-		</mx:RemoteObject>
-		
-		
-		
-		<mx:RemoteObject id="unidadeItemLpuService" destination="unidadeItemLpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="listarUnidadeItemLpuPorUnidadePorLpu"      
-					   fault="onListarUnidadeItemLpuPorUnidadePorLpuFault(event)" 
-					   result="onListarUnidadeItemLpuPorUnidadePorLpuResult(event)"
-					   />
-			<mx:method name="buscarUnidadeItemLpu"      
-					   fault="onBuscarUnidadeItemLpuFault(event)" 
-					   result="onBuscarUnidadeItemLpuResult(event)"
-					   />
-			<mx:method name="salvarUnidadeItemLpu"      
-					   fault="onSalvarUnidadeItemLpuFault(event)" 
-					   result="onSalvarUnidadeItemLpuResult(event)"
-					   />			
-		</mx:RemoteObject>
-		
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
-			import components.messages.MensagemEvent;
-			import components.messages.MessageType;
-			
-			import entities.administrativo.ItemLpu;
 			import entities.administrativo.Lpu;
-			import entities.administrativo.Unidade;
-			import entities.administrativo.UnidadeItemLpu;
 			
-			import mx.collections.ArrayCollection;
-			import mx.events.ListEvent;
-			import mx.managers.CursorManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
 			import mx.validators.Validator;
 			
 			[Bindable]
 			private var _lpu:Lpu = new Lpu();
 			
-			[Bindable]
-			private var _itemLpu:ItemLpu;
 			
-			[Bindable]
-			private var _unidadeSelecionada:Unidade;
-			
-			[Bindable]
-			private var _unidadeItemLpuSelecionada:UnidadeItemLpu;
-			
-			[Bindable]
-			private var _listaItemLpu:ArrayCollection;
-			
-			[Bindable]
-			private var _listaUnidadeItemLpu:ArrayCollection;
-			
-			
-			private var _itensLpuNaoSelecionadas:ArrayCollection;
-			
-			private var _itensLpuSelecionadas:ArrayCollection;
-			
-			public function visualizarDetalhe(data:Object, event:Event):void
-			{			
-				
-			}
-			
-			[Bindable]
 			public function get lpu():Lpu
 			{
+				_lpu.fabricante = cbFabricante.fabricanteSelecionado;
+				_lpu.equipamento = cbEquipamento.equipamentoSelecionado;
+				_lpu.cliente = cbCliente.clienteSelecionado;
+				_lpu.valorReparo = valorLpu.getValor();
 				return _lpu;
 			}
-			
+
 			public function set lpu(value:Lpu):void
 			{
 				_lpu = value;
-				if(_lpu.cliente){
-					cbCliente.clienteSelecionado = _lpu.cliente;	
-				}
-				 itemLpuService.listarItemLpuPorLpu(_lpu);
-			}
-			
-			
-			private function autoAssociar():void
-			{
-				//itemLpuService.autoAssociarItensLpu(_lpu.listaItemLpu);
+				cbFabricante.fabricanteSelecionado = value.fabricante;
+				cbEquipamento.equipamentoSelecionado = value.equipamento;
+				cbCliente.clienteSelecionado = value.cliente;
+				valorLpu.setValor(value.valorReparo);
+				
 			}
 			
 			public function limpar():void
 			{
 				_lpu = new Lpu();
-				limparTela();
-			}
-			
-			public function limparTela():void
-			{
-				_unidadeSelecionada = null;
-				_itemLpu = new ItemLpu();
-				_unidadeItemLpuSelecionada = new UnidadeItemLpu();
 				cbCliente.limpar();
-				cbUnidade.limpar();
-				_listaItemLpu = new ArrayCollection();
-				_listaUnidadeItemLpu = new ArrayCollection();
-				valorMaximo.limpar();
-				valorMinimo.limpar();
-				valorReparo.limpar();
-				valorTeste.limpar();
+				cbFabricante.limpar();
+				cbEquipamento.limpar();
+				valorLpu.setValor(0);
 			}
 			
-			private function onSalvarItemLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				_itemLpu = event.result as ItemLpu;
-				var achouItem:Boolean = false;
-				if(_listaItemLpu){
-					for(var i:int = 0;i<_listaItemLpu.length;i++){
-						if((_listaItemLpu.getItemAt(i) as ItemLpu).id == _itemLpu.id){
-							_listaItemLpu.setItemAt(_itemLpu, i);
-							achouItem = true;
-							dispatchEvent(new MensagemEvent("Item lpu editado com sucesso!", MessageType.SUCCESS, 3000));
-							break;
-						}
-					}
-					if(!achouItem){
-						_listaItemLpu.addItem(_itemLpu);
-						dispatchEvent(new MensagemEvent("Item lpu adicionado com sucesso!", MessageType.SUCCESS, 3000));
-					}
-				}else{
-					_listaItemLpu = new ArrayCollection();
-					_listaItemLpu.addItem(_itemLpu);
-					dispatchEvent(new MensagemEvent("Item lpu adicionado com sucesso!", MessageType.SUCCESS, 3000));
-				}
-				
-				_itemLpu = new ItemLpu();
-			}
-			
-			private function onSalvarItemLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onSalvarItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
-				dispatchEvent(new MensagemEvent("Erro ao adicionar/editar item lpu!", MessageType.ERROR, 3000));
-			}
-				
-			private function onListarItemLpuPorLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				_listaItemLpu = event.result as ArrayCollection;		
-				_itemLpu = new ItemLpu();
-			}
-			
-			private function onListarItemLpuPorLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onSalvarItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
-			}
-			
-			private function onListarUnidadeItemLpuPorUnidadePorLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				_listaUnidadeItemLpu = event.result as ArrayCollection;		
-				if(_listaUnidadeItemLpu == null){
-					_listaUnidadeItemLpu = new ArrayCollection();
-				}
-			}
-			
-			private function onListarUnidadeItemLpuPorUnidadePorLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onSalvarItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
-			}
-			
-			private function onBuscarUnidadeItemLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				_unidadeItemLpuSelecionada = event.result as UnidadeItemLpu;
-				if(_unidadeItemLpuSelecionada == null){
-					_unidadeItemLpuSelecionada = new UnidadeItemLpu();
-				}
-				valorMaximo.setValor(_unidadeItemLpuSelecionada.valorMaximo);
-				valorMinimo.setValor(_unidadeItemLpuSelecionada.valorMinimo);
-				valorReparo.setValor(_unidadeItemLpuSelecionada.valorReparo);
-				valorTeste.setValor(_unidadeItemLpuSelecionada.valorTeste);
-			}
-			
-			private function onBuscarUnidadeItemLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onBuscarUnidadeItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
-			}
-			
-			public function editItem(data:Object, event:Event):void
-			{					
-				//for double click
-				if(data==null && event is ListEvent){
-					var event2:ListEvent = event as ListEvent						
-					//data = _lpu.listaItemLpu.getItemAt(event2.rowIndex);				
-				}
-				
-				_itemLpu = data as ItemLpu;
-				_unidadeSelecionada = null;
-			}
-			
-			public function atualizaUnidadeItemLpu(event:Event = null):void{
-				_unidadeSelecionada = cbUnidade.unidadeSelecionado;
-				unidadeItemLpuService.buscarUnidadeItemLpu(_unidadeSelecionada,_lpu);
-				itemLpuService.listarItemLpuPorLpuPorUnidade(_lpu,_unidadeSelecionada);
-			}
-			
-			private function associar():void
-			{
-				if(validarAssociarItemLpu()){
-					_itensLpuNaoSelecionadas = new ArrayCollection();
-					_itensLpuSelecionadas = new ArrayCollection();
-					
-					var unidadeSelecioanda:Unidade = cbUnidade.unidadeSelecionado;
-					
-					for each (var il:ItemLpu in _listaItemLpu){
-						if(il.isSelected){
-							_itensLpuSelecionadas.addItem(il);
-						}else{
-							_itensLpuNaoSelecionadas.addItem(il);
-						}
-					}
-					
-					if(_itensLpuSelecionadas.length == 0){
-						dispatchEvent(new MensagemEvent("Nenhum item lpu foi selecionado!", MessageType.WARNING, 3000));
-					}else{						
-						itemLpuService.associarItensLpu(_itensLpuSelecionadas, cbUnidade.unidadeSelecionado,valorReparo.getValor(),valorMinimo.getValor(),valorMaximo.getValor(),valorTeste.getValor());
-					}
-				}else{
-					dispatchEvent(new MensagemEvent("Campos obrigatórios não foram preenchidos", MessageType.WARNING, 3000));
-				}
-				
-			}
-			
-			private function adicionarItemLpu(event:MouseEvent):void
-			{
-				if(validarAdicionarItemLpu()){
-					if(_itemLpu.lpu == null){
-						_itemLpu.lpu = _lpu;
-					}
-					itemLpuService.salvarItemLpu(_itemLpu);
-				}else{
-					dispatchEvent(new MensagemEvent("Campos obrigatórios não preenchidos", MessageType.WARNING, 3000));
-				}
-								
-			}
-			
-			private function salvarLpu(event:MouseEvent):void
-			{
-				if(validarSalvarLpu()){
-					_lpu.cliente = cbCliente.clienteSelecionado;
-					lpuService.salvarLpu(_lpu);
-				}else{
-					dispatchEvent(new MensagemEvent("Campos obrigatórios não preenchidos", MessageType.WARNING, 3000));
-				}
-				
-			}
-			
-			private function onSalvarLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				_lpu = event.result as Lpu;	
-				dispatchEvent(new MensagemEvent("Lpu salva com sucesso!", MessageType.SUCCESS, 3000));
-			}
-			
-			private function onSalvarLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onSalvarLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
-				dispatchEvent(new MensagemEvent("Erro ao salvar lpu!", MessageType.ERROR, 3000));
-			}
-			
-			private function salvarUnidadeItemLpu(event:MouseEvent):void
-			{				
-				if(validarAssociarItemLpu()){
-					_unidadeItemLpuSelecionada.unidadeServilogi = cbUnidade.unidadeSelecionado;
-					_unidadeItemLpuSelecionada.lpu = _lpu;
-					_unidadeItemLpuSelecionada.valorMaximo = valorMaximo.getValor()
-					_unidadeItemLpuSelecionada.valorMinimo = valorMinimo.getValor();
-					_unidadeItemLpuSelecionada.valorReparo = valorReparo.getValor();
-					_unidadeItemLpuSelecionada.valorTeste = valorTeste.getValor();
-					unidadeItemLpuService.salvarUnidadeItemLpu(_unidadeItemLpuSelecionada);
-				}else{
-					dispatchEvent(new MensagemEvent("Campos obrigatórios não foram preenchidos", MessageType.WARNING, 3000));
-				}
-			}
-			
-			private function onSalvarUnidadeItemLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				_unidadeItemLpuSelecionada = event.result as UnidadeItemLpu;	
-				dispatchEvent(new MensagemEvent("Unidade item lpu salva com sucesso!", MessageType.SUCCESS, 3000));
-			}
-			
-			private function onSalvarUnidadeItemLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onSalvarUnidadeItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
-				dispatchEvent(new MensagemEvent("Erro ao salvar unidade item lpu!", MessageType.ERROR, 3000));
-			}
-			
-			private function importarItemLpu(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				
-			}
-			
-			private function deletarItemLpu(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				
-			}
-			
-			public function validarAdicionarItemLpu():Boolean {	
+			public function validarCampos():Boolean {	
 				var validatorArr:Array = new Array();
-				validatorArr.push(txtUnidadeLpu.stringValidator);
+				validatorArr.push(txtUnidade.stringValidator);
+				validatorArr.push(txtCodigo1.stringValidator);
+				validatorArr.push(cbCliente.comboBox.comboValidator);
+				validatorArr.push(cbFabricante.comboBox.comboValidator);
+				validatorArr.push(cbEquipamento.comboBox.comboValidator);
 				
 				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
 				var isValidForm:Boolean = validatorErrorArray.length == 0;			
 				return isValidForm;
 			}
-			
-			private function validarSalvarLpu():Boolean {	
-				var validatorArr:Array = new Array();
-				validatorArr.push(cbCliente.comboBox.comboValidator);
-				
-				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
-				var isValidForm:Boolean = validatorErrorArray.length == 0;
-		
-				return isValidForm;
-			}
-			
-			private function validarAssociarItemLpu():Boolean {	
-				var validatorArr:Array = new Array();
-				validatorArr.push(cbUnidade.comboBox.comboValidator);
-				
-				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
-				var isValidForm:Boolean = validatorErrorArray.length == 0;
-				
-				return isValidForm;
-			}
-			
-			public function editarItemLpu(data:Object, event:Event):void
-			{					
-				//for double click
-				if(data==null && event is ListEvent){
-					var event2:ListEvent = event as ListEvent;						
-					data = _listaItemLpu.getItemAt(event2.rowIndex);				
-				}
-				
-				_itemLpu = data as ItemLpu;
-			}
-			
-			public function excluirItemLpu(data:Object, event:Event):void
-			{					
-				var itemLpuADeletar:ItemLpu = data as ItemLpu;
-				itemLpuService.deletarItemLpu(itemLpuADeletar);
-			}
-			
-			private function onDeletarItemLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				_itemLpu = event.result as ItemLpu;
-				
-				for(var i:int = 0;i<_listaItemLpu.length;i++){
-					if((_listaItemLpu.getItemAt(i) as ItemLpu).id == _itemLpu.id){
-						_listaItemLpu.removeItemAt(i);
-						break;
-					}
-				}
-				_itemLpu = new ItemLpu();
-				dispatchEvent(new MensagemEvent("Item lpu excluído com sucesso!", MessageType.SUCCESS, 3000));
-			}
-			
-			private function onDeletarItemLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onSalvarItemLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
-				dispatchEvent(new MensagemEvent("Erro ao adicionar/editar item lpu!", MessageType.ERROR, 3000));
-			}
-			
-			private function onAssociarItensLpuResult(event:ResultEvent = null):void
-			{
-				CursorManager.removeAllCursors(); 
-				itemLpuService.listarItemLpuPorLpu(_lpu);
-				atualizaUnidadeItemLpu();
-				dispatchEvent(new MensagemEvent("Itens lpu associados com sucesso!", MessageType.SUCCESS, 3000));
-			}
-			
-			private function onAssociarItensLpuFault(event:FaultEvent = null):void
-			{
-				CursorManager.removeAllCursors();
-				trace("[onAssociarItensLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
-				dispatchEvent(new MensagemEvent("Erro ao associar itens lpu!", MessageType.ERROR, 3000));
-			}
-			
-			
-			
+
 		]]>
 	</fx:Script>
 	
-	<fx:Binding destination="txtCarregadoEm.input.text" source="_lpu.uploadEmString" twoWay="true"/>
-	<fx:Binding destination="txtValidoAte.input.text" source="_lpu.validoAteString" twoWay="true"/>
-	<fx:Binding destination="ativo.selected" source="_lpu.ativa" twoWay="true"/>
-	
-	<fx:Binding destination="txtUnidadeLpu.input.text" source="_itemLpu.unidade" twoWay="true"/>
-	<fx:Binding destination="txtCodigo1.input.text" source="_itemLpu.codigo1" twoWay="true"/>
-	<fx:Binding destination="txtCodigo2.input.text" source="_itemLpu.codigo2" twoWay="true"/>
-	<fx:Binding destination="txtFabricante.input.text" source="_itemLpu.fabricante" twoWay="true"/>
-	<fx:Binding destination="txtEquipamento.input.text" source="_itemLpu.equipamento" twoWay="true"/>
-	
-	<fx:Binding destination="txtCodigoUnidade.input.text" source="_unidadeSelecionada.codigo" twoWay="true"/>
-	<fx:Binding destination="txtEquipamentoUnidade.input.text" source="_unidadeSelecionada.equipamento.nome" twoWay="true"/>
-	<fx:Binding destination="txtFabricanteUnidade.input.text" source="_unidadeSelecionada.fabricante.nome" twoWay="true"/>
-	<fx:Binding destination="txtLaboratorioUnidade.input.text" source="_unidadeSelecionada.laboratorio.nome" twoWay="true"/>
-	
+	<fx:Binding destination="txtUnidade.input.text" source="_lpu.unidade" twoWay="true"/>
+	<fx:Binding destination="txtDescricao.input.text" source="_lpu.descricao" twoWay="true"/>
+	<fx:Binding destination="txtCodigo1.input.text" source="_lpu.codigo1" twoWay="true"/>
+	<fx:Binding destination="txtCodigo2.input.text" source="_lpu.codigo2" twoWay="true"/>
+	<fx:Binding destination="txtMoeda.input.text" source="_lpu.moeda" twoWay="true"/>
+	<fx:Binding destination="ativo.selected" source="_lpu.cadastroSistemaAtivo" twoWay="true"/>
 	
 	<mx:HBox width="100%" verticalAlign="bottom">
-		<combos:ComboCliente id="cbCliente" required="true" labelText="Cliente" width="50%" />
-		<texto:TextInput id="txtCarregadoEm" labelText="Carregada em" habilitado="false" width="20%" />
-		<texto:TextInput id="txtValidoAte" labelText="Válido até" width="20%"  />
-		<mx:CheckBox id="ativo" label="Ativo" />
+		<texto:TextInput id="txtUnidade" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_LPU')}" width="30%"  />
+		<texto:TextInput id="txtDescricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="30%" />
+		<texto:TextInput id="txtCodigo1" required="true" labelText="{resourceManager.getString('ApplicationResource','CODIGO1_LPU')}" width="15%"  />
+		<texto:TextInput id="txtCodigo2" labelText="{resourceManager.getString('ApplicationResource','CODIGO2_LPU')}" width="15%" />
+		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
 	</mx:HBox>
-	
-	
 	<mx:HBox width="100%" verticalAlign="bottom">
-		
-		<mx:Button id="btSalvarLpu" 
-				   click="salvarLpu(event)"
-				   icon="@Embed(source='/assets/icons/save.png')" 
-				   labelPlacement="left" 
-				   width="200"
-				   label="Salvar lpu" />
-		<mx:Button id="btImportarLpu" 
-				   click="importarItemLpu(event)"
-				   icon="@Embed(source='/assets/icons/arrow_up.png')" 
-				   labelPlacement="left" 
-				   width="200"
-				   label="Importar itens" />
-		
-		<mx:Button id="btDeletarItemLpuImportados" 
-				   click="deletarItemLpu(event)"
-				   icon="@Embed(source='/assets/icons/delete.png')" 
-				   labelPlacement="left"
-				   width="200"
-				   label="Deletar itens importados" />
+		<combos:ComboCliente id="cbCliente" filtrarContrato="true" possuiContrato="true" required="true" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="25%" />
+		<combos:ComboFabricante id="cbFabricante" required="true" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="25%" />
+		<combos:ComboEquipamento id="cbEquipamento" required="true"  labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="25%" />
+		<texto:TextInput id="txtMoeda" labelText="{resourceManager.getString('ApplicationResource','MOEDA_LPU')}" width="10%" />
+		<texto:TextInputDinheiro2d id="valorLpu" labelText="{resourceManager.getString('ApplicationResource','VALOR_LPU')}" width="15%" />
 	</mx:HBox>
-	
-	<mx:HBox width="100%" verticalAlign="bottom" enabled="{!isNaN(_lpu.id)}" >
-		<texto:TextInput id="txtUnidadeLpu" labelText="Nome unidade lpu" width="20%" required="true" />
-		<texto:TextInput id="txtCodigo1" labelText="Código 1" width="20%"  />
-		<texto:TextInput id="txtCodigo2" labelText="Código 2" width="20%"  />
-		<texto:TextInput id="txtFabricante" labelText="Fabricante" width="20%"  />
-		<texto:TextInput id="txtEquipamento" labelText="Equipamento" width="20%"  />
-		<mx:Button id="btAdicionarItemLpu" 
-				   click="adicionarItemLpu(event)"
-				   icon="@Embed(source='/assets/icons/add.png')" 
-				   labelPlacement="left" 
-				   label="Adicionar" />
-	</mx:HBox>
-	
-	<mx:TitleWindow title="Lista de itens lpu" enabled="{!isNaN(_lpu.id)}"
-					paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"
-					width="100%" height="200">
-		<grid:MantisTable id="tableItemLpu" dataProvider="{_listaItemLpu}"
-						  width="100%" height="100%"
-						  draggableColumns="true" >
-			<grid:columns>
-				
-				<mx:DataGridColumn headerText = ""	width="30"						   
-								   itemRenderer="components.grid.CheckBoxItemRenderer"
-								   headerRenderer="components.grid.CheckBoxItemRenderer"
-								   resizable="false" draggable="false" sortable="false"
-								   dataField="isSelected"
-								   />
-				
-				<mx:DataGridColumn headerText = "Associação realizada"	dataField="componentePendente"
-								   draggable="false" width="25"							 
-								   editable="false" itemRenderer="modules.administrativo.lpu.AutoAssociadoItemRenderer"
-								   sortable="false" />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
-										 headerText = "Unidade Servilogi"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="unidadeItemLpu.unidadeServilogi.nome"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
-										 headerText = "Unidade LPU"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="unidade"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
-										 headerText = "Código 1"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="codigo1"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  
-										 headerText = "Código 2"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="codigo2"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  
-										 headerText = "Fabricante"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="fabricante"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  
-										 headerText = "Equipamento"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="equipamento"							   
-										 />
-				<!-- EDIT/REMOVE COLUMNS -->
-				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-								   draggable="false"							 
-								   editable="false"
-								   sortable="false">
-					<mx:itemRenderer>
-						<fx:Component>
-							<mx:HBox horizontalAlign="center"
-									 verticalAlign="middle"
-									 >
-								
-								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
-										  click="parentDocument.editarItemLpu(data, event)"
-										  buttonMode="true"
-										  useHandCursor="true"
-										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
-										  />
-								
-								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
-										  click="parentDocument.excluirItemLpu(data, event)"
-										  buttonMode="true"
-										  useHandCursor="true"
-										  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
-										  />
-								
-							</mx:HBox>
-						</fx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				
-			</grid:columns>
-		</grid:MantisTable>
-	</mx:TitleWindow>
-	
-	<mx:HBox width="100%" verticalAlign="bottom" enabled="{!isNaN(_lpu.id)}" >
-		<combos:ComboUnidade id="cbUnidade" width="20%" required="true" labelText="Unidade servilogi" changeFunction="atualizaUnidadeItemLpu" />
-		<texto:TextInput id="txtCodigoUnidade" labelText="Código" habilitado="false" width="20%" />
-		<texto:TextInput id="txtEquipamentoUnidade" labelText="Equipamento" habilitado="false" width="20%" />
-		<texto:TextInput id="txtFabricanteUnidade" labelText="Fabricante" habilitado="false" width="20%" />
-		<texto:TextInput id="txtLaboratorioUnidade" labelText="Laboratório" habilitado="false" width="20%" />
-	</mx:HBox>	
-	
-	<mx:HBox width="100%" verticalAlign="bottom" enabled="{!isNaN(_lpu.id)}" >
-		<texto:TextInputDinheiro2d id="valorReparo" labelText="Valor reparo" width="10%" />
-		<texto:TextInputDinheiro2d id="valorMinimo" labelText="Valor mínimo" width="10%" />
-		<texto:TextInputDinheiro2d id="valorMaximo" labelText="Valor máximo" width="10%" />
-		<texto:TextInputDinheiro2d id="valorTeste" labelText="Valor teste" width="10%" />
-		<mx:Button id="btAssociarItemLpu" 
-				   click="associar()"
-				   icon="@Embed(source='/assets/icons/add.png')" 
-				   labelPlacement="left" width="30%"
-				   label="Associar itens lpu" />
-		<mx:Button id="btSalvarUnidadeItemLpu" 
-				   click="salvarUnidadeItemLpu(event)"
-				   icon="@Embed(source='/assets/icons/add.png')" 
-				   labelPlacement="left" width="30%"
-				   label="Salvar unidade item lpu" />
-	</mx:HBox>
-	
-	<mx:TitleWindow title="Lista de itens lpu associados a unidade servilogi: {_unidadeSelecionada.nome}"
-					enabled="{!isNaN(_lpu.id)}"
-					paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"
-					width="100%" height="200">
-		<grid:MantisTable id="tableUnidadeItemLpu"
-						  width="100%" height="100%"
-						  draggableColumns="true"
-						  dataProvider="{_listaUnidadeItemLpu}"	>
-			<grid:columns>
-								
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
-										 headerText = "Unidade LPU"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="unidade"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
-										 headerText = "Código 1"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="codigo1"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  
-										 headerText = "Código 2"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="codigo2"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  
-										 headerText = "Fabricante"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="fabricante"							   
-										 />
-				
-				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  
-										 headerText = "Equipamento"
-										 textAlign="center"
-										 sortable="false"
-										 dataField="equipamento"							   
-										 />
-				
-				<!-- EDIT/REMOVE COLUMNS -->
-				
-				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-								   draggable="false"							 
-								   editable="false"
-								   sortable="false">
-					<mx:itemRenderer>
-						<fx:Component>
-							<mx:HBox horizontalAlign="center"
-									 verticalAlign="middle"
-									 >
-								
-								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
-										  click="parentDocument.editItem(data, event, true)"
-										  buttonMode="true"
-										  useHandCursor="true"
-										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
-										  />
-								
-								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
-										  click="parentDocument.excluirItem(data, event, true)"
-										  buttonMode="true"
-										  useHandCursor="true"
-										  toolTip="Desassociar"
-										  />
-								
-								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
-										  click="parentDocument.excluirItem(data, event, true)"
-										  buttonMode="true"
-										  useHandCursor="true"
-										  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
-										  />
-								
-							</mx:HBox>
-						</fx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				
-			</grid:columns>
-		</grid:MantisTable>
-	</mx:TitleWindow>
-	
 </mx:VBox>
