@@ -85,16 +85,12 @@
 							required="true" 
 							source="{nOrdemServico}" 
 							property="text"
-							triggerEvent = "{FocusEvent.FOCUS_OUT}"
-							requiredFieldError="Campo obrigatório"
 							/>
 		
 		<mx:StringValidator id="nSerieValidator"
 							required="true" 
 							source="{nSerie}" 
 							property="text"
-							triggerEvent = "{FocusEvent.FOCUS_OUT}"
-							requiredFieldError="Campo obrigatório"
 							/>
 		
 	</fx:Declarations>
@@ -128,6 +124,7 @@
 			import mx.messaging.messages.AsyncMessage;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
 			import mx.validators.Validator;
 			
 			import utils.MensagensAplicacao;
@@ -417,26 +414,33 @@
 					return isValidForm;
 				}
 				
+				if(dataEntradaNotaFiscal.inputDate.getTime() > parentApplication.dataAtual.getTime()){
+					isValidForm = false;
+					dispatchEvent(new MensagemEvent("A data de chegada não pode ser maior que a data atual", MessageType.WARNING, 5000));
+					return isValidForm;
+				}
+				
+				if(dataNotaFiscal.inputDate.getTime() > parentApplication.dataAtual.getTime()){
+					isValidForm = false;
+					dispatchEvent(new MensagemEvent("A data da nota fiscal não pode ser maior que a data atual", MessageType.WARNING, 5000));
+					return isValidForm;
+				}
+				
 				var totalItens:Number = 0;
 				for each (var item:ItemNotaFiscal in _notaFiscal.itensDaNotaFiscal){
 					totalItens = totalItens + (item.valorUnitario * item.quantidade)
 				}
-				var ti:Number = arredonda(totalItens,10000);
-				var vnf:Number = arredonda(valorNotaFiscal.getValor(),10000);
-				if(ti != vnf){
+				if(totalItens.toFixed(4) != valorNotaFiscal.getValor().toFixed(4)){
 					isValidForm = false;
-					dispatchEvent(new MensagemEvent("O valor total da nota fiscal: "+vnf + " não confere com o valor total dos itens da nota: " + ti, MessageType.WARNING, 5000));
+					dispatchEvent(new MensagemEvent("O valor total da nota fiscal: "+valorNotaFiscal.getValor() + " não confere com o valor total dos itens da nota: " + totalItens, MessageType.WARNING, 5000));
 					return isValidForm;
 				}
 				return isValidForm;
 			}
 			
-			private function arredonda(number:Number, factor:Number):Number {
-				return (Math.round(number * factor)/factor);
-			}
-			
 			private function validateFormItemNF():Boolean {	
 				validatorArr = new Array();
+				validatorArr.push(cbCliente.comboBox.comboValidator);
 				validatorArr.push(txtDescricao.stringValidator);
 				validatorArr.push(txtQuantidade.stringValidator);
 				validatorArr.push(txtCst.stringValidator);
@@ -536,9 +540,14 @@
 				var usr:Usuario = Login.usuarioAutenticado;
 				if(usr){
 					if(validateOrdemServico()){
+						_ordemServico.numeroOrdemServico = nOrdemServico.text;
+						_ordemServico.serieFabricante = nSerie.text;
+						_ordemServico.serieCliente = nCliente.text;
+						_ordemServico.ordemServicoCliente = nOSCliente.text;
 						//logger.info("Depois##INFORMAÇÕES OS: Nº OS: " + ordemServicoRetorno.getNumeroOrdemServico() + " - S/N Fabricante: " + ordemServicoRetorno.getSerieFabricante() + " - S/N Cliente: " + ordemServicoRetorno.getSerieCliente() + " - OS Cliente: " + ordemServicoRetorno.getOrdemServicoCliente());
 						SoseFlex.LOG.info("Tela##INFORMAÇÕES OS: Nº OS: " + _ordemServico.numeroOrdemServico + " - S/N Fabricante: " + _ordemServico.serieFabricante + " - S/N Cliente: " + _ordemServico.serieCliente + " - OS Cliente: " + _ordemServico.ordemServicoCliente);
-						PopupModalController.getInstance().showModalConfirmarInformacoes(atualizarConfirmacaoInformacao,_ordemServico);
+						//PopupModalController.getInstance().showModalConfirmarInformacoes(atualizarConfirmacaoInformacao,_ordemServico);
+						ordemServicoService.verificarGarantia(_ordemServico);
 
 					}else{
 						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
@@ -847,12 +856,13 @@
 						_item.valorUnitario = txtValorUnitario.getValor();
 						_item.quantidade = parseFloat(txtQuantidade.inputText);
 						_item.unidade = cbUnidadeServilogi.unidadeSelecionado;
-						if(cbUnidadeLpu.lpuSelecionada == null || (cbUnidadeLpu.lpuSelecionada != null && (cbUnidadeLpu.lpuSelecionada.id == 0 || cbUnidadeLpu.lpuSelecionada.id == Number.NaN))){
+						if(cbUnidadeLpu.lpuSelecionada == null || (cbUnidadeLpu.lpuSelecionada != null && (cbUnidadeLpu.lpuSelecionada.id == 0 || isNaN(cbUnidadeLpu.lpuSelecionada.id)))){
 							_item.lpu = null;
 						}else{
 							_item.lpu = cbUnidadeLpu.lpuSelecionada;
 						}
 						
+						_notaFiscal = getNotaFiscal();
 						itemNotaFiscalService.adicionarItemNotaFiscal(_item,_notaFiscal);
 						//addItemNotaFiscal(_item);
 						
@@ -872,9 +882,15 @@
 			{
 				if(_item.id == 0){
 					_item = event.result as ItemNotaFiscal;
+					if(isNaN(_notaFiscal.id)){
+						_notaFiscal = _item.notaFiscal; 
+					}
 					_notaFiscal.itensDaNotaFiscal.addItem(_item);
 				}else{
 					_item = event.result as ItemNotaFiscal;
+					if(isNaN(_notaFiscal.id)){
+						_notaFiscal = _item.notaFiscal; 
+					}
 					var i:int = 0;
 					var aux:ItemNotaFiscal = null;
 					for(i=0;i<_notaFiscal.itensDaNotaFiscal.length;i++){
@@ -885,6 +901,7 @@
 						}
 					}
 				}
+				
 				
 				dispatchEvent(new MensagemEvent('Item adicionado com sucesso', MessageType.SUCCESS, 10000));
 				limpar();
@@ -1225,15 +1242,11 @@
 	
 	<fx:Binding source="itemNota.inputText" destination="_ordemServico.itemNotaFiscal.nome" twoWay="true" />
 	<fx:Binding source="unidadeServilogi.inputText" destination="_ordemServico.itemNotaFiscal.unidade.nome" twoWay="true" />
-	<!--<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.itemNotaFiscal.lpu.unidade" twoWay="true" />-->
+	<fx:Binding source="unidadeLpu.inputText" destination="_ordemServico.itemNotaFiscal.lpu.unidade" twoWay="true" />
 	<fx:Binding source="fabricante.inputText" destination="_ordemServico.itemNotaFiscal.unidade.fabricante.nome" twoWay="true" />
 	<fx:Binding source="equipamento.inputText" destination="_ordemServico.itemNotaFiscal.unidade.equipamento.nome" twoWay="true" />
 	<fx:Binding source="laboratorio.inputText" destination="_ordemServico.itemNotaFiscal.unidade.laboratorio.nome" twoWay="true" />
 	
-	<fx:Binding source="nOrdemServico.text" destination="_ordemServico.numeroOrdemServico" twoWay="true" />
-	<fx:Binding source="nSerie.text" destination="_ordemServico.serieFabricante" twoWay="true" />
-	<fx:Binding source="nCliente.text" destination="_ordemServico.serieCliente" twoWay="true" />
-	<fx:Binding source="nOSCliente.text" destination="_ordemServico.ordemServicoCliente" twoWay="true" />
 	<fx:Binding source="txtObservacao.inputText" destination="_ordemServico.observacao" twoWay="true" />
 	
 	<fx:Binding source="pfTxtObservacao.inputText" destination="_placaFilha.observacao" twoWay="true" />
@@ -1319,8 +1332,8 @@
 						<combos:ComboLpu id="cbUnidadeLpu" required="true" labelText="{resourceManager.getString('ApplicationResource','UNIDADE_LPU')}" width="25%"  enabled.edicaoInfoNota="{(_notaFiscal.statusString == '' ||_notaFiscal.statusString == 'Nova')}" />
 						<mx:Button id="btAdicionar" 
 								   label="{resourceManager.getString('ApplicationResource','ADICIONAR')}"
-								   height="25" width="5%" enabled="{(_notaFiscal.statusString == 'Nova') || (_notaFiscal.statusString != 'Nova' &amp;&amp; _item != null &amp;&amp; _item.nome != '' &amp;&amp; !isNaN(_notaFiscal.id))}"
-								   icon="@Embed(source='/assets/icons/add.png')" toolTip="{_notaFiscal.id == 0 || isNaN(_notaFiscal.id) ? 'Salvar a nota antes de adicionar itens' : 'Adicionar item'}"
+								   height="25" width="5%" 
+								   icon="@Embed(source='/assets/icons/add.png')" 
 								   click="adicionar(event)"
 								   />
 					</mx:HBox>
@@ -1447,23 +1460,25 @@
 						<s:Label text="{_ordemServico.garantia ? 'Com garantia' : 'Sem garantia'}" color="{_ordemServico.garantia ? 0x00EE00 : 0xFF0000 }" fontSize="20" fontWeight="bold" />
 					</mx:HBox>
 					<mx:HBox width="100%" verticalAlign="bottom">
-						<texto:TextInput id="fabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="20%" habilitado="false" />
-						<texto:TextInput id="equipamento" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="20%" habilitado="false" />
-						<texto:TextInput id="laboratorio" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="20%" habilitado="false" />
-						
+						<texto:TextInput id="fabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="33%" habilitado="false" />
+						<texto:TextInput id="equipamento" labelText="{resourceManager.getString('ApplicationResource','EQUIPAMENTO')}" width="33%" habilitado="false" />
+						<texto:TextInput id="laboratorio" labelText="{resourceManager.getString('ApplicationResource','LABORATORIO')}" width="33%" habilitado="false" />
+					</mx:HBox>
+					
+					<mx:HBox width="100%" verticalAlign="bottom">
 						<mx:VBox width="10%">
 							<s:Label text="Nº OS" />
 							<s:TextInput id="nOrdemServico" restrict="0-9"  width="100%" enabled="{_ordemServicoPendentes != null &amp;&amp; _ordemServicoPendentes.length > 0}" />
 						</mx:VBox>
-						<mx:VBox width="10%">
+						<mx:VBox width="35%">
 							<s:Label text="N/S fabricante" />
 							<s:TextInput id="nSerie"  width="100%" enabled="{_ordemServicoPendentes != null &amp;&amp; _ordemServicoPendentes.length > 0}" />
 						</mx:VBox>
-						<mx:VBox width="10%">
+						<mx:VBox width="35%">
 							<s:Label text="N/S cliente" />
 							<s:TextInput id="nCliente" width="100%" enabled="{_ordemServicoPendentes != null &amp;&amp; _ordemServicoPendentes.length > 0}" /> 
 						</mx:VBox>
-						<mx:VBox width="10%">
+						<mx:VBox width="20%">
 							<s:Label text="OS cliente" />
 							<s:TextInput id="nOSCliente" width="100%" enabled="{_ordemServicoPendentes != null &amp;&amp; _ordemServicoPendentes.length > 0}" />
 						</mx:VBox>
