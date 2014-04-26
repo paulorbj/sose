@@ -718,7 +718,7 @@
 	</mx:TitleWindow>
 	
 	
-	<mx:TitleWindow title="Pré faturamento - Nº de OSs: {_faturamento.listaOrdemServico.length} Total frete: R${_faturamento.totalFrete.toFixed(2)}" width="100%" height="98%" >
+	<mx:TitleWindow title="Pré faturamento - Nº de OSs: {_faturamento.listaOrdemServico.length} Total frete: R${_faturamento.totalFrete.toFixed(2)} Total valor sistema: R${_faturamento.totalSistema.toFixed(2)} Total valor faturado: R$ {_faturamento.totalFatura.toFixed(2)}" width="100%" height="98%" >
 		<grid:MantisTable id="tabelaListaOsPreFatura"
 						  width="100%"
 						  height="98%" 

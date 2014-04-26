@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"  initialize="initializeListagem()"
 		 xmlns:components="components.*" width="100%" height="100%"
 		 xmlns:grid="components.grid.*">
@@ -61,8 +61,6 @@
 				listaEncapsulamento = lista;
 				listaEncapsulamentoCompleta = new ArrayCollection();
 				listaEncapsulamentoCompleta.addAll(listaEncapsulamento);
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function adicionarEncapsulamento(encapsulamento:Encapsulamento):void
@@ -97,9 +95,6 @@
 				
 				sortListaEncapsulamento(listaEncapsulamento);
 				sortListaEncapsulamento(listaEncapsulamentoCompleta);
-				
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function editItem(data:Object, event:Event, edit:Boolean):void
@@ -128,63 +123,10 @@
 				encapsulamento = null;
 			}
 			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
 			
-			private function configurarFiltroLista():void
-			{
-				listaEncapsulamento.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolEncapsulamento:Boolean;
-					if(cbEncapsulamento.selectedItem == null || cbEncapsulamento.selectedItem == "" || cbEncapsulamento.selectedItem == 'Todos'){
-						bolEncapsulamento = true;
-					}else{
-						bolEncapsulamento = item.nome.toLowerCase() == cbEncapsulamento.selectedItem.toLowerCase();
-					}
-					
-					return bolEncapsulamento;
-					
-				};		
-				listaEncapsulamento.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				encapsulamentoSelecionada = cbEncapsulamento.selectedItem as String;
-				listaFiltroEncapsulamento = new ArrayCollection();
-				
-				for each (var encapsulamento:Encapsulamento in listaEncapsulamento){
-					listaFiltroEncapsulamento.addItem(encapsulamento.nome);
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFiltroEncapsulamento.sort=sortA;
-				listaFiltroEncapsulamento.refresh();
-				listaFiltroEncapsulamento.sort = null;
-				listaFiltroEncapsulamento.addItemAt("Todos",0);
-				
-				cbEncapsulamento.enabled = true;
-				cbEncapsulamento.dataProvider = listaFiltroEncapsulamento;
-				
-				if(listaFiltroEncapsulamento.length > 0){
-					if(encapsulamentoSelecionada){
-						cbEncapsulamento.selectedItem = encapsulamentoSelecionada;
-					}
-				}
-				
-				
-			}
 			
 		]]>
 	</fx:Script>		
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<components:DropBoxInput id="cbEncapsulamento" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
-	</mx:HBox>
 	
 	<grid:MantisTable id="viewTable"
 					  width="100%" height="100%"
@@ -194,14 +136,14 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="nome" width=".40"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome" width=".40"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_ENCAPSULAMENTO')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="descricao" width=".50" textAlign="center"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" width=".50" textAlign="center"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   />

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="initializeListagem()"
 		 xmlns:components="components.*" width="100%" height="100%"
 		 xmlns:grid="components.grid.*">
@@ -66,8 +66,6 @@
 					}else{
 						listaTipoComponente = new ArrayCollection();
 					}
-					popularFiltros();
-					atualizaCombos();
 				}
 			}
 			
@@ -103,9 +101,6 @@
 				
 				sortListaTipoComponente(listaTipoComponente);
 				sortListaTipoComponente(listaTipoComponenteCompleta);
-				
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function editItem(data:Object, event:Event, edit:Boolean):void
@@ -134,64 +129,8 @@
 				tipoComponente = null;
 			}
 			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaTipoComponente.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolTipoComponente:Boolean;
-					if(cbTipoComponente.selectedItem == null || cbTipoComponente.selectedItem == "" || cbTipoComponente.selectedItem == 'Todos'){
-						bolTipoComponente = true;
-					}else{
-						bolTipoComponente = item.nome.toLowerCase() == cbTipoComponente.selectedItem.toLowerCase();
-					}
-					
-					return bolTipoComponente;
-					
-				};		
-				listaTipoComponente.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				tipoComponenteSelecionada = cbTipoComponente.selectedItem as String;
-				listaFiltroTipoComponente = new ArrayCollection();
-				
-				for each (var tipoComponente:TipoComponente in listaTipoComponente){
-					listaFiltroTipoComponente.addItem(tipoComponente.nome);
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFiltroTipoComponente.sort=sortA;
-				listaFiltroTipoComponente.refresh();
-				listaFiltroTipoComponente.sort = null;
-				listaFiltroTipoComponente.addItemAt("Todos",0);
-				
-				cbTipoComponente.enabled = true;
-				cbTipoComponente.dataProvider = listaFiltroTipoComponente;
-				
-				if(listaFiltroTipoComponente.length > 0){
-					if(tipoComponenteSelecionada){
-						cbTipoComponente.selectedItem = tipoComponenteSelecionada;
-					}
-				}
-				
-				
-			}
-			
-			
 		]]>
 	</fx:Script>		
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<components:DropBoxInput id="cbTipoComponente" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
-	</mx:HBox>
 	
 	<grid:MantisTable id="viewTable"
 					  width="100%" height="100%"
@@ -201,14 +140,14 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="nome"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_TIPOCOMPONENTE')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="descricao" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" 
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   />

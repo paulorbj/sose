@@ -194,7 +194,6 @@
 				arquivoUploadService.listarPorEntidadePorIdentificador("UNIDADE",_unidade.id);
 			}
 
-			
 		]]>
 	</fx:Script>
 	

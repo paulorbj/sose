@@ -33,9 +33,6 @@
 					if(!Login.currentUser.perfil.atualizarDadosOrdemServico){
 						subMenu.removeChild(correcao);
 					}
-					if(!Login.currentUser.perfil.atualizarDadosOrdemServico){
-						subMenu.removeChild(testelpu);
-					}
 				}
 			}
 
@@ -71,10 +68,6 @@
 			<correcao:CorrecaoOrdemServico />
 		</mx:Canvas>
 		
-		<mx:Canvas id="testelpu" width = "100%" height="100%" enabled="{Login.currentUser.perfil.atualizarDadosOrdemServico}"
-				   label = "Matriz LPU" showEffect="fadeIn" hideEffect="fadeOut"  >
-			<recebimento:MatrizLPU />
-		</mx:Canvas>
 	</mx:ViewStack>
 	
 </mx:VBox>
