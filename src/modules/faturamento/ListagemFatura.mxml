@@ -372,7 +372,7 @@
 			
 			public function editarFaturaAutenticar(event:UserRegisterNumberModalEvent=null):void{
 				editarFatura();
-			}
+			}		
 			
 			private function exportar(event:MouseEvent):void
 			{
