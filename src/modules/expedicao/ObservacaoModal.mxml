@@ -13,7 +13,6 @@
 	
 	<fx:Declarations>
 		
-		
 	</fx:Declarations>
 	
 	
@@ -47,19 +46,19 @@
 			{
 				observacoes.listarObservacoes();
 			}
-			
+
 			[Bindable]
 			public function get ordemServico():OrdemServico
 			{
 				return _ordemServico;
 			}
-			
+
 			public function set ordemServico(value:OrdemServico):void
 			{
 				_ordemServico = value;
 			}
-			
-			
+
+
 		]]>
 	</fx:Script>
 	
