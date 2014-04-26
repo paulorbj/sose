@@ -36,7 +36,7 @@
 				
 			}
 			
-			public function labeTipoNF(item:Object, column:AdvancedDataGridColumn):String
+			public function labeTipoNF(item:Object, column:DataGridColumn):String
 			{
 				var tipoId:Number = (item as NotaFiscal).tipo;
 				switch (tipoId){
