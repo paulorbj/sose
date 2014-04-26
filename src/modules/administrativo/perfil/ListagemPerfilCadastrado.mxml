@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"  height="100%"
 		 xmlns:components="components.*" width="100%"
 		 xmlns:grid="components.grid.*">
@@ -47,8 +47,6 @@
 				listaPerfil = lista;
 				listaPerfilCompleta = new ArrayCollection();
 				listaPerfilCompleta.addAll(listaPerfil);
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function adicionarPerfil(perfil:Perfil):void
@@ -80,9 +78,6 @@
 				if(!encontrou){
 					listaPerfilCompleta.addItem(perfil);
 				}
-				
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function editItem(data:Object, event:Event, edit:Boolean):void
@@ -112,65 +107,8 @@
 
 			}
 			
-			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaPerfil.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolPerfil:Boolean;
-					if(cbPerfil.selectedItem == null || cbPerfil.selectedItem == "" || cbPerfil.selectedItem == 'Todos'){
-						bolPerfil = true;
-					}else{
-						bolPerfil = item.nome.toLowerCase() == cbPerfil.selectedItem.toLowerCase();
-					}
-					
-					return bolPerfil;
-					
-				};		
-				listaPerfil.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				perfilSelecionada = cbPerfil.selectedItem as String;
-				listaFiltroPerfil = new ArrayCollection();
-				
-				for each (var perfil:Perfil in listaPerfil){
-					listaFiltroPerfil.addItem(perfil.nome);
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFiltroPerfil.sort=sortA;
-				listaFiltroPerfil.refresh();
-				listaFiltroPerfil.sort = null;
-				listaFiltroPerfil.addItemAt("Todos",0);
-				
-				cbPerfil.enabled = true;
-				cbPerfil.dataProvider = listaFiltroPerfil;
-				
-				if(listaFiltroPerfil.length > 0){
-					if(perfilSelecionada){
-						cbPerfil.selectedItem = perfilSelecionada;
-					}
-				}
-				
-				
-			}
-			
-			
 		]]>
 	</fx:Script>		
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<components:DropBoxInput id="cbPerfil" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
-	</mx:HBox>	
 
 		<grid:MantisTable id="viewTable"
 						  width="100%" height="100%"
@@ -180,14 +118,14 @@
 			<grid:columns>
 				
 				<!-- CHANGE HERE THE ENTITY COLUMNS -->
-				<mx:DataGridColumn id="nome" width=".40"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome" width=".40"
 								   headerText = "{resourceManager.getString('ApplicationResource','NOME_PERFIL')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="nome"							   
 								   />
 				
-				<mx:DataGridColumn id="descricao" width=".50" textAlign="center"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" width=".50" textAlign="center"
 								   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 								   dataField = "descricao"
 								   />

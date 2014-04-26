@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
 		 xmlns:components="components.*" initialize="initializeListagem()"
 		 xmlns:grid="components.grid.*">
@@ -71,8 +71,6 @@
 					listaUsuario = lista;
 					listaUsuarioCompleta = new ArrayCollection();
 					listaUsuarioCompleta.addAll(listaUsuario);
-					popularFiltros();
-					atualizaCombos();
 				}
 			}
 			
@@ -108,9 +106,6 @@
 				
 				sortListaUsuario(listaUsuario);
 				sortListaUsuario(listaUsuarioCompleta);
-				
-				popularFiltros();
-				atualizaCombos();
 			}
 					
 			public function editItem(data:Object, event:Event, edit:Boolean):void
@@ -154,98 +149,10 @@
 				dispatchEvent(new UsuarioEvent(UsuarioEvent.EXCLUIR_USUARIO,usuario));
 				usuario = null;
 			}
-			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaUsuario.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolUsuario:Boolean;
-					if(cbUsuario.selectedItem == null || cbUsuario.selectedItem == "" || cbUsuario.selectedItem == 'Todos'){
-						bolUsuario = true;
-					}else{
-						bolUsuario = item.usuario.toLowerCase() == cbUsuario.selectedItem.toLowerCase();
-					}
-					
-					var bolNome:Boolean;
-					if(cbNome.selectedItem == null || cbNome.selectedItem == "" || cbNome.selectedItem == 'Todos'){
-						bolNome = true;
-					}else{
-						bolNome = item.nome.toLowerCase() == cbNome.selectedItem.toLowerCase();
-					}
-					
-					
-					return bolNome && bolUsuario;	
-				};		
-				listaUsuario.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				usuarioSelecionado = cbUsuario.selectedItem as String;
-				listaFiltroUsuario = new ArrayCollection();
-				nomeSelecionado = cbNome.selectedItem as String;
-				listaNome = new ArrayCollection();
-				
-				for each (var usuario:Usuario in listaUsuario){
-					if(usuario.usuario != null && usuario.usuario.length > 0 && !listaFiltroUsuario.contains(usuario.usuario)){
-						listaFiltroUsuario.addItem(usuario.usuario);
-					}
-					if(usuario.nome != null && usuario.nome.length > 0 && !listaNome.contains(usuario.nome)){
-						listaNome.addItem(usuario.nome);
-					}
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFiltroUsuario.sort=sortA;
-				listaFiltroUsuario.refresh();
-				listaFiltroUsuario.sort = null;
-				listaFiltroUsuario.addItemAt("Todos",0);
-				
-				cbUsuario.enabled = true;
-				cbUsuario.dataProvider = listaFiltroUsuario;
-				
-				if(listaFiltroUsuario.length > 0){
-					if(usuarioSelecionado){
-						cbUsuario.selectedItem = usuarioSelecionado;
-					}
-				}
-				
-				
-				//Filtro numero da nota
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNome.sort=sortA;
-				listaNome.refresh();
-				listaNome.sort = null;
-				listaNome.addItemAt("Todos",0);
-				
-				cbNome.enabled = true;
-				cbNome.dataProvider = listaNome;
-				
-				if(listaNome.length > 0){
-					if(nomeSelecionado){
-						cbNome.selectedItem = nomeSelecionado;
-					}
-				}
-				
-				
-			}
+		
 		]]>
 	</fx:Script>	
-	
-	
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
-		<components:DropBoxInput id="cbNome" labelText="Nome" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbUsuario" labelText="Nome de usuário" change="atualizaCombos" requireSelectionFlag="true"  />
-	</mx:HBox>
-	
+		
 	<grid:MantisTable id="viewTable"
 					  width="100%" height="100%"
 					  draggableColumns="true"
@@ -254,50 +161,50 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="nome" width=".20"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome" width=".20"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_USUARIO')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="cLogin" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cLogin" 
 							   headerText = "{resourceManager.getString('ApplicationResource','USERNAME')}"
 							   dataField = "usuario"
 							   width=".20" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cPerfil" 
+			<dc:DataGridColumnFilter id="cPerfil" 
 							   headerText = "{resourceManager.getString('ApplicationResource','PERFIL')}"
 							   dataField = "nomePerfil"
 							   width=".20" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cDataNascimento" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="cDataNascimento" 
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA_NASCIMENTO')}"
-							   dataField = "dataNascimento"
+							   dataField = "dataNascimentoString"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cRg" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cRg" 
 							   headerText = "{resourceManager.getString('ApplicationResource','RG')}"
 							   dataField = "rg"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cCpf" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cCpf" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CPF')}"
 							   dataField = "cpf"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cTelefone" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cTelefone" 
 							   headerText = "{resourceManager.getString('ApplicationResource','TELEFONE')}"
 							   dataField = "telefone"
 							   width=".10" textAlign="center"
 							   />
 			
-			<mx:DataGridColumn id="cCelular" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cCelular" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CELULAR')}"
 							   dataField = "celular"
 							   width=".10" textAlign="center"

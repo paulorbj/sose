@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="initializeListagem()"
 		 xmlns:components="components.*" width="100%"
 		 xmlns:grid="components.grid.*">
@@ -90,8 +90,6 @@
 					listaPessoa = lista;
 					listaPessoaCompleta = new ArrayCollection();
 					listaPessoaCompleta.addAll(listaPessoa);
-					popularFiltros();
-					atualizaCombos();
 				}
 			}
 			
@@ -127,9 +125,6 @@
 				
 				sortListaPessoa(listaPessoa);
 				sortListaPessoa(listaPessoaCompleta);
-				
-				popularFiltros();
-				atualizaCombos();
 			}
 
 			private function onBuscarPorIdResult(event:ResultEvent = null):void
@@ -199,215 +194,9 @@
 						return "";
 				}
 			}
-			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaPessoa.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolNome:Boolean;
-					if(cbNome.selectedItem == null || cbNome.selectedItem == "" || cbNome.selectedItem == 'Todos'){
-						bolNome = true;
-					}else{
-						bolNome = item.nomeSistema.toLowerCase() == cbNome.selectedItem.toLowerCase();
-					}
-					
-					var bolCpfCnpj:Boolean;
-					if(cbCpfCnpj.selectedItem == null || cbCpfCnpj.selectedItem == "" || cbCpfCnpj.selectedItem == 'Todos'){
-						bolCpfCnpj = true;
-					}else{
-						bolCpfCnpj = item.cpfCnpj.toLowerCase() == cbCpfCnpj.selectedItem.toLowerCase();
-					}
-					
-					var bolRgIe:Boolean;
-					if(cbrRgIe.selectedItem == null || cbrRgIe.selectedItem == "" || cbrRgIe.selectedItem == 'Todos'){
-						bolRgIe = true;
-					}else{
-						bolRgIe = item.rgIe.toLowerCase() == cbrRgIe.selectedItem.toLowerCase();
-					}
-					
-					var bolTipo:Boolean;
-					if(cbTipo.selectedItem == null || cbTipo.selectedItem == "" || cbTipo.selectedItem == 'Todos'){
-						bolTipo = true;
-					}else{
-						if(cbTipo.selectedItem == ScreenUtils.TIPO_CLIENTE.nome){
-							bolTipo = item.tipo == 1;
-						}
-						if(cbTipo.selectedItem == ScreenUtils.TIPO_FORNECEDOR.nome){
-							bolTipo = item.tipo == 2;
-						}
-						if(cbTipo.selectedItem == ScreenUtils.TIPO_TRANSPORTADORA.nome){
-							bolTipo = item.tipo == 3;
-						}
-						if(cbTipo.selectedItem == ScreenUtils.TIPO_PRESTADOR_SERVICO.nome){
-							bolTipo = item.tipo == 4;
-						}
-					}
-					
-					var bolTipoPessoa:Boolean;
-					if(cbTipoPessoa.selectedItem == null || cbTipoPessoa.selectedItem == "" || cbTipoPessoa.selectedItem == 'Todos'){
-						bolTipoPessoa = true;
-					}else{
-						if(cbTipoPessoa.selectedItem == ScreenUtils.TIPO_PESSOA_FISICA.nome){
-							bolTipoPessoa = item.tipoPessoa == 1;
-						}
-						if(cbTipoPessoa.selectedItem == ScreenUtils.TIPO_PESSOA_JURIDICA.nome){
-							bolTipoPessoa = item.tipoPessoa == 2;
-						}
-					}
-					
-					return bolNome && bolCpfCnpj && bolRgIe && bolTipo && bolTipoPessoa;	
-				};		
-				listaPessoa.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				nomeSelecionado = cbNome.selectedItem as String;
-				listaNome = new ArrayCollection();
-				tipoSelecionado = cbTipo.selectedItem as String;
-				listaTipo = new ArrayCollection();
-				tipoPessoaSelecionado = cbTipoPessoa.selectedItem as String;
-				listaTipoPessoa = new ArrayCollection();
-				rgIeSelecionado = cbrRgIe.selectedItem as String;
-				listaRgIe = new ArrayCollection();
-				cpfCnpjSelecionado = cbCpfCnpj.selectedItem as String;
-				listaCpfCnpj = new ArrayCollection();
-				
-				for each (var pessoaAux:Pessoa in listaPessoa){
-					if(pessoaAux.nomeSistema != null && pessoaAux.nomeSistema.length > 0 && !listaNome.contains(pessoaAux.nomeSistema)){
-						listaNome.addItem(pessoaAux.nomeSistema);
-					}
-					if(pessoaAux.tipo == 1 && !listaTipo.contains(ScreenUtils.TIPO_CLIENTE.nome)){
-						listaTipo.addItem(ScreenUtils.TIPO_CLIENTE.nome);
-					}
-					if(pessoaAux.tipo == 2 && !listaTipo.contains(ScreenUtils.TIPO_FORNECEDOR.nome)){
-						listaTipo.addItem(ScreenUtils.TIPO_FORNECEDOR.nome);
-					}
-					if(pessoaAux.tipo == 3 && !listaTipo.contains(ScreenUtils.TIPO_TRANSPORTADORA.nome)){
-						listaTipo.addItem(ScreenUtils.TIPO_TRANSPORTADORA.nome);
-					}
-					if(pessoaAux.tipo == 4 && !listaTipo.contains(ScreenUtils.TIPO_PRESTADOR_SERVICO.nome)){
-						listaTipo.addItem(ScreenUtils.TIPO_PRESTADOR_SERVICO.nome);
-					}
-					if(pessoaAux.tipoPessoa == 1 && !listaTipoPessoa.contains(ScreenUtils.TIPO_PESSOA_FISICA.nome)){
-						listaTipoPessoa.addItem(ScreenUtils.TIPO_PESSOA_FISICA.nome);
-					}
-					if(pessoaAux.tipoPessoa == 2 && !listaTipoPessoa.contains(ScreenUtils.TIPO_PESSOA_JURIDICA.nome)){
-						listaTipoPessoa.addItem(ScreenUtils.TIPO_PESSOA_JURIDICA.nome);
-					}
-					if(pessoaAux.rgIe != null && pessoaAux.rgIe.length > 0 && !listaRgIe.contains(pessoaAux.rgIe)){
-						listaRgIe.addItem(pessoaAux.rgIe);
-					}
-					if(pessoaAux.cpfCnpj != null && pessoaAux.cpfCnpj.length > 0 && !listaCpfCnpj.contains(pessoaAux.cpfCnpj)){
-						listaCpfCnpj.addItem(pessoaAux.cpfCnpj);
-					}
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNome.sort=sortA;
-				listaNome.refresh();
-				listaNome.sort = null;
-				listaNome.addItemAt("Todos",0);
-				
-				cbNome.enabled = true;
-				cbNome.dataProvider = listaNome;
-				
-				if(listaNome.length > 0){
-					if(nomeSelecionado){
-						cbNome.selectedItem = nomeSelecionado;
-					}
-				}
-				
-				
-				//Filtro numero da nota
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaTipo.sort=sortA;
-				listaTipo.refresh();
-				listaTipo.sort = null;
-				listaTipo.addItemAt("Todos",0);
-				
-				cbTipo.enabled = true;
-				cbTipo.dataProvider = listaTipo;
-				
-				if(listaTipo.length > 0){
-					if(tipoSelecionado){
-						cbTipo.selectedItem = tipoSelecionado;
-					}
-				}
-				
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaTipoPessoa.sort=sortA;
-				listaTipoPessoa.refresh();
-				listaTipoPessoa.sort = null;
-				listaTipoPessoa.addItemAt("Todos",0);
-				
-				cbTipoPessoa.enabled = true;
-				cbTipoPessoa.dataProvider = listaTipoPessoa;
-				
-				if(listaTipoPessoa.length > 0){
-					if(tipoPessoaSelecionado){
-						cbTipoPessoa.selectedItem = tipoPessoaSelecionado;
-					}
-				}
-				
-				//Filtro numero da nota
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaRgIe.sort=sortA;
-				listaRgIe.refresh();
-				listaRgIe.sort = null;
-				listaRgIe.addItemAt("Todos",0);
-				
-				cbrRgIe.enabled = true;
-				cbrRgIe.dataProvider = listaRgIe;
-				
-				if(listaRgIe.length > 0){
-					if(rgIeSelecionado){
-						cbrRgIe.selectedItem = rgIeSelecionado;
-					}
-				}
-				
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaCpfCnpj.sort=sortA;
-				listaCpfCnpj.refresh();
-				listaCpfCnpj.sort = null;
-				listaCpfCnpj.addItemAt("Todos",0);
-				
-				cbCpfCnpj.enabled = true;
-				cbCpfCnpj.dataProvider = listaCpfCnpj;
-				
-				if(listaCpfCnpj.length > 0){
-					if(cpfCnpjSelecionado){
-						cbCpfCnpj.selectedItem = cpfCnpjSelecionado;
-					}
-				}
-				
-			}
-			
+						
 		]]>
 	</fx:Script>		
-	
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
-		<components:DropBoxInput id="cbNome" labelText="Nome" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbTipo" labelText="Tipo" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbTipoPessoa" labelText="Tipo pessoa" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbrRgIe" labelText="RG/IE" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbCpfCnpj" labelText="CPF/CNPJ" change="atualizaCombos" requireSelectionFlag="true"  />
-	</mx:HBox>
 	
 	<grid:MantisTable id="viewTable"
 					  width="100%" height="100%"
@@ -419,31 +208,31 @@
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
 			
 			
-			<mx:DataGridColumn id="nome"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME')}"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="nomeSistema"							   
 							   />
 			
-			<mx:DataGridColumn id="tipo" labelFunction="labelFunctionTipo"
+			<dc:DataGridColumnFilter id="tipo" labelFunction="labelFunctionTipo"
 							   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
 							   textAlign="center"
 							   sortable="false"					   
 							   />
 			
-			<mx:DataGridColumn id="tipoPessoa" labelFunction="labelFunctionTipoPessoa"
+			<dc:DataGridColumnFilter id="tipoPessoa" labelFunction="labelFunctionTipoPessoa"
 							   headerText = "{resourceManager.getString('ApplicationResource','TIPO_PESSOA')}"
 							   textAlign="center"
 							   sortable="false"							   
 							   />
 			
-			<mx:DataGridColumn id="rgIe" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="rgIe" 
 							   headerText = "{resourceManager.getString('ApplicationResource','RGIE')}"
 							   dataField = "rgIe"
 							   />
 			
-			<mx:DataGridColumn id="cpfCnpj" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cpfCnpj" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CPFCNPJ')}"
 							   dataField = "cpfCnpj"
 							   />

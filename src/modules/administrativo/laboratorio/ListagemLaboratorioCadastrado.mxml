@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="initializeListagem()"
 		 xmlns:components="components.*" width="100%"
 		 xmlns:grid="components.grid.*">
@@ -73,8 +73,6 @@
 					}else{
 						listaLaboratorio = new ArrayCollection();
 					}
-					popularFiltros();
-					atualizaCombos();
 				}
 			}
 			
@@ -111,9 +109,6 @@
 				sortListaLaboratorio(listaLaboratorio);
 				sortListaLaboratorio(listaLaboratorioCompleta);
 
-				
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			private function onBuscarPorIdResult(event:ResultEvent = null):void
@@ -155,68 +150,11 @@
 			{
 				dispatchEvent(new LaboratorioEvent(LaboratorioEvent.EXCLUIR_LABORATORIO,laboratorio));
 				laboratorio = null;
-			}
-			
-			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaLaboratorio.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolLaboratorio:Boolean;
-					if(cbLaboratorio.selectedItem == null || cbLaboratorio.selectedItem == "" || cbLaboratorio.selectedItem == 'Todos'){
-						bolLaboratorio = true;
-					}else{
-						bolLaboratorio = item.nome.toLowerCase() == cbLaboratorio.selectedItem.toLowerCase();
-					}
-					
-					return bolLaboratorio;
-					
-				};		
-				listaLaboratorio.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				laboratorioSelecionada = cbLaboratorio.selectedItem as String;
-				listaFiltroLaboratorio = new ArrayCollection();
-				
-				for each (var laboratorio:Laboratorio in listaLaboratorio){
-					listaFiltroLaboratorio.addItem(laboratorio.nome);
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaFiltroLaboratorio.sort=sortA;
-				listaFiltroLaboratorio.refresh();
-				listaFiltroLaboratorio.sort = null;
-				listaFiltroLaboratorio.addItemAt("Todos",0);
-				
-				cbLaboratorio.enabled = true;
-				cbLaboratorio.dataProvider = listaFiltroLaboratorio;
-				
-				if(listaFiltroLaboratorio.length > 0){
-					if(laboratorioSelecionada){
-						cbLaboratorio.selectedItem = laboratorioSelecionada;
-					}
-				}
-				
-				
-			}
-			
+			}	
 			
 		]]>
 	</fx:Script>		
-	
-	<mx:HBox verticalAlign="bottom" width="100%">
-		<components:DropBoxInput id="cbLaboratorio" labelText="Nome" change="atualizaCombos" width="13%" requireSelectionFlag="true" />
-	</mx:HBox>	
-	
+
 	<grid:MantisTable id="viewTable"
 					  width="100%" height="100%"
 					  draggableColumns="true"
@@ -225,19 +163,19 @@
 		<grid:columns>
 			
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
-			<mx:DataGridColumn id="nome"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome"
 							   headerText = "{resourceManager.getString('ApplicationResource','NOME_LABORATORIO')}"
 							   textAlign="center" width=".20"
 							   sortable="false"
 							   dataField="nome"							   
 							   />
 			
-			<mx:DataGridColumn id="cLider"  width=".20"
+			<dc:DataGridColumnFilter id="cLider"  width=".20"
 							   headerText = "Líder"
 							   dataField = "nomeLider"
 							   />
 			
-			<mx:DataGridColumn id="descricao"  width=".50"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao"  width=".50"
 							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
 							   dataField = "descricao"
 							   />
