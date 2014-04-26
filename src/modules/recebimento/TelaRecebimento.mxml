@@ -67,7 +67,6 @@
 				   label = "Correção de informações" showEffect="fadeIn" hideEffect="fadeOut"  >
 			<correcao:CorrecaoOrdemServico />
 		</mx:Canvas>
-		
 	</mx:ViewStack>
 	
 </mx:VBox>

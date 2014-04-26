@@ -68,7 +68,6 @@
 			public function setListaNotaFiscal(lista:ArrayCollection):void
 			{
 				listaNotaFiscal = lista;
-				popularFiltros();
 			}
 			
 			function myCompare(a:Object, b:Object, fields:Array = null):int
@@ -124,11 +123,7 @@
 				}
 				if(!encontrou){
 					listaNotaFiscal.addItemAt(notaFiscal,0);
-//					sortList();
 				}
-				
-				popularFiltros();
-				atualizaCombos();
 			}
 			
 			public function editItem(data:Object=null, event:Event=null):void
@@ -222,138 +217,10 @@
 				}	
 				return 0x5FA6BF;
 			}
-			
-			public function atualizaCombos(event:Event=null):void{
-				configurarFiltroLista();
-			}
-			
-			private function configurarFiltroLista():void
-			{
-				listaNotaFiscal.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-					var bolStatus:Boolean;
-					if(cbStatus.selectedItem == null || cbStatus.selectedItem == "" || cbStatus.selectedItem == 'Todos'){
-						bolStatus = true;
-					}else{
-						bolStatus = item.statusString.toLowerCase() == cbStatus.selectedItem.toLowerCase();
-					}
-					
-					var bolCliente:Boolean;
-					if(cbCliente.selectedItem == null || cbCliente.selectedItem == "" || cbCliente.selectedItem == 'Todos'){
-						bolCliente = true;
-					}else{
-						if(item != null && item.nomeCliente != null){
-							bolCliente = item.nomeCliente.toLowerCase() == cbCliente.selectedItem.toLowerCase();
-						}else{
-							bolCliente = false;
-						}
-					}
-					
-					var bolNumero:Boolean;
-					if(cbNumeroNota.selectedItem == null || cbNumeroNota.selectedItem == "" || cbNumeroNota.selectedItem == 'Todos'){
-						bolNumero = true;
-					}else{
-						if(item != null && item.numero != null){
-							bolNumero = item.numero.toLowerCase() == cbNumeroNota.selectedItem.toLowerCase();
-						}else{
-							bolNumero = false;
-						}
-					}
-					
-					
-					return bolStatus && bolCliente && bolNumero;	
-				};		
-				listaNotaFiscal.refresh();
-			}
-			
-			private function popularFiltros():void
-			{
-				statusSelecionado = cbStatus.selectedItem as String;
-				listaStatus = new ArrayCollection();
-				clienteSelecionado = cbCliente.selectedItem as String;
-				listaCliente = new ArrayCollection();
-				notaFiscalSelecionada = cbNumeroNota.selectedItem as String;
-				listaNumeroNotaFiscal = new ArrayCollection();
-				
-				for each (var notaFiscal:NotaFiscal in listaNotaFiscal){
-					if(notaFiscal.statusString != null && notaFiscal.statusString.length > 0 && !listaStatus.contains(notaFiscal.statusString)){
-						listaStatus.addItem(notaFiscal.statusString);
-					}
-					if(notaFiscal.nomeCliente != null && notaFiscal.nomeCliente.length > 0 && !listaCliente.contains(notaFiscal.nomeCliente)){
-						listaCliente.addItem(notaFiscal.nomeCliente);
-					}else if(notaFiscal.cliente != null && notaFiscal.cliente.nomeSistema != null && notaFiscal.cliente.nomeSistema.length > 0 && !listaCliente.contains(notaFiscal.cliente.nomeSistema)){
-						listaCliente.addItem(notaFiscal.cliente.nomeSistema);
-					}
-					if(notaFiscal.numero != null && notaFiscal.numero.length > 0 && !listaNumeroNotaFiscal.contains(notaFiscal.numero)){
-						listaNumeroNotaFiscal.addItem(notaFiscal.numero);
-					}
-				}
-				
-				
-				//Filtro status
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaStatus.sort=sortA;
-				listaStatus.refresh();
-				listaStatus.sort = null;
-				listaStatus.addItemAt("Todos",0);
-				
-				cbStatus.enabled = true;
-				cbStatus.dataProvider = listaStatus;
-				
-				if(listaStatus.length > 0){
-					if(statusSelecionado){
-						cbStatus.selectedItem = statusSelecionado;
-					}
-				}
-				
-				
-				//Filtro numero da nota
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaNumeroNotaFiscal.sort=sortA;
-				listaNumeroNotaFiscal.refresh();
-				listaNumeroNotaFiscal.sort = null;
-				listaNumeroNotaFiscal.addItemAt("Todos",0);
-				
-				cbNumeroNota.enabled = true;
-				cbNumeroNota.dataProvider = listaNumeroNotaFiscal;
-				
-				if(listaNumeroNotaFiscal.length > 0){
-					if(notaFiscalSelecionada){
-						cbNumeroNota.selectedItem = notaFiscalSelecionada;
-					}
-				}
-				
-				
-				//Filtro cliente
-				var sortA:Sort = new Sort();
-				sortA.fields=[new SortField(null,true,false,false)];
-				listaCliente.sort=sortA;
-				listaCliente.refresh();
-				listaCliente.sort = null;
-				listaCliente.addItemAt("Todos",0);
-				
-				cbCliente.enabled = true;
-				cbCliente.dataProvider = listaCliente;
-				
-				if(listaCliente.length > 0){
-					if(clienteSelecionado){
-						cbCliente.selectedItem = clienteSelecionado;
-					}
-				}
-				
-			}
-			
+									
 		]]>
 	</fx:Script>		
 	
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
-		
-		<components:DropBoxInput id="cbNumeroNota" labelText="Nº Nota Fiscal" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbStatus" labelText="Status" change="atualizaCombos" requireSelectionFlag="true"  />
-		<components:DropBoxInput id="cbCliente" labelText="Cliente" change="atualizaCombos" requireSelectionFlag="true"  />
-	</mx:HBox>
 	<grid:MantisTable id="viewTable"
 					  width="100%"
 					  height="100%"
@@ -366,51 +233,51 @@
 			<!-- CHANGE HERE THE ENTITY COLUMNS -->
 			
 			
-			<mx:DataGridColumn id="numero"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numero"
 							   headerText = "Nº da nota"
 							   textAlign="center" width=".10"
 							   sortable="false"
 							   dataField="numero"							   
 							   />
 			
-			<mx:DataGridColumn id="cliente" dataField="nomeCliente"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente" dataField="nomeCliente"
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 							   textAlign="center" width=".30"
 							   sortable="false"					   
 							   />
 			
 			
-			<mx:DataGridColumn id="status" 
+			<dc:DataGridColumnFilter id="status" 
 							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
 							   dataField = "statusString"
 							   width=".10"
 							   />
 			
-			<mx:DataGridColumn id="dataCriacao" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataCriacao" 
 							   headerText = "Dt criação"
 							   dataField = "dataCriacaoString"
 							   width=".08"
 							   />
 			
-			<mx:DataGridColumn id="dataNotaFiscal" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataNotaFiscal" 
 							   headerText = "{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}"
 							   dataField = "dataNotaFiscalString"
 							   width=".08"
 							   />
 			
-			<mx:DataGridColumn id="dataChegada" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataChegada" 
 							   headerText = "Dt chegada"
 							   dataField = "dataChegadaString"
 							   width=".08"
 							   />
 			
-			<mx:DataGridColumn id="caseAvaya" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="caseAvaya" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CASE_AVAYA')}"
 							   dataField = "caseAvaya"
 							   width=".10"
 							   />
 			
-			<mx:DataGridColumn id="clienteAvaya" 
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="clienteAvaya" 
 							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE_AVAYA')}"
 							   dataField = "clienteAvaya"
 							   width=".10"
