@@ -713,9 +713,8 @@ public class OrdemServicoService {
 							ordemServico.setValorSistema(itemProposta.getValorSemDesconto());
 						}else if(ordemServico.getLpu() != null){
 							//LPU
-							//TODO - modificar o metodo calcular valor faturado
-							//ordemServico.setValorFaturado(ordemServico.getLpu().getValorReparo());
-							//ordemServico.setValorSistema(ordemServico.getLpu().getValorReparo());
+							ordemServico.setValorFaturado(ordemServico.getLpu().getValorReparo());
+							ordemServico.setValorSistema(ordemServico.getLpu().getValorReparo());
 						}else{
 							//ORCAMENTO
 							ItemProposta itemProposta = itemPropostaService.buscarPorOrdemServico(ordemServico);

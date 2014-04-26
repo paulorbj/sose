@@ -1,5 +1,6 @@
 package br.com.sose.service.recebimento;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -11,9 +12,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.daoImpl.recebimento.ItemNotaFiscalDao;
+import br.com.sose.daoImpl.recebimento.NotaFiscalDao;
 import br.com.sose.entity.recebimento.ItemNotaFiscal;
 import br.com.sose.entity.recebimento.NotaFiscal;
 import br.com.sose.entity.recebimento.OrdemServico;
+import br.com.sose.status.recebimento.Nova;
 
 @Service(value="itemNotaFiscalService")
 @RemotingDestination(value="itemNotaFiscalService")
@@ -23,6 +26,9 @@ public class ItemNotaFiscalService {
 
 	@Autowired
 	public ItemNotaFiscalDao itemNotaFiscalDao;
+	
+	@Autowired
+	public NotaFiscalDao notaFiscalDao;
 
 	/********************** Metodos de listagem *********************/
 	@RemotingInclude
@@ -96,6 +102,11 @@ public class ItemNotaFiscalService {
 	public ItemNotaFiscal adicionarItemNotaFiscal(ItemNotaFiscal itemNotaFiscal,NotaFiscal notaFiscal) throws Exception {
 		ItemNotaFiscal itemNotaFiscalSalva;
 		try {
+			if(notaFiscal.getId() == null || notaFiscal.getId().equals(new Long(0))){
+				notaFiscal.setStatusString(Nova.nome);
+				notaFiscal.setDataCriacao(new Date());
+				notaFiscal = notaFiscalDao.save(notaFiscal);
+			}
 			if(itemNotaFiscal.getId() == null || itemNotaFiscal.getId().equals(new Long(0))){
 				itemNotaFiscal.setNotaFiscal(notaFiscal);
 				itemNotaFiscalSalva =(ItemNotaFiscal) itemNotaFiscalDao.save(itemNotaFiscal);	

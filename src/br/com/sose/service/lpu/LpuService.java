@@ -26,7 +26,6 @@ import br.com.sose.daoImpl.ArquivoUploadDao;
 import br.com.sose.daoImpl.lpu.LpuDao;
 import br.com.sose.entity.admistrativo.Unidade;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
-import br.com.sose.entity.lpu.ItemLpu;
 import br.com.sose.entity.lpu.Lpu;
 import br.com.sose.utils.ArquivoUpload;
 
@@ -42,8 +41,7 @@ public class LpuService {
 	@Autowired
 	public ArquivoUploadDao arquivoUploadDao;
 	
-	@Autowired
-	public ItemLpuService itemLpuService;
+
 
 	/********************** Metodos de listagem *********************/
 
@@ -174,7 +172,7 @@ public class LpuService {
 		Lpu lpuSalva;
 		try {
 			if(lpu.getId() == null || lpu.getId().equals(new Long(0))){
-				lpu.setUploadEm(new Date());
+				//lpu.setUploadEm(new Date());
 				lpuSalva =(Lpu) lpuDao.save(lpu);	
 			}else{
 				lpuSalva =(Lpu) lpuDao.update(lpu);	
@@ -186,6 +184,7 @@ public class LpuService {
 		return lpuSalva;
 	}
 
+	/**
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public Lpu processarLpu(Lpu lpu) throws Exception {
@@ -265,6 +264,7 @@ public class LpuService {
 		}
 		return lpuSalva;
 	}
+	**/
 	
 	private String lerCelula(Cell cell){
 		Integer cellType = cell.getCellType();
