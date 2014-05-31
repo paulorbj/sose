@@ -10,7 +10,11 @@
 		 creationComplete="onCreationComplete()">
 	
 	<fx:Declarations>
-		<mx:RemoteObject id="itemLpuService" destination="itemLpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+		<mx:RemoteObject id="lpuService" destination="lpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarLpu"      
+					   fault="onListarLpusFault(event)" 
+					   result="onListarLpusResult(event)"
+					   />
 			<mx:method name="listarPorCliente"      
 					   fault="onListarLpuPorClienteFault(event)" 
 					   result="onListarLpuPorClienteResult(event)"
@@ -20,7 +24,6 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import entities.administrativo.ItemLpu;
 			import entities.administrativo.Lpu;
 			import entities.administrativo.parceiros.Pessoa;
 			
@@ -37,13 +40,10 @@
 			[Bindable]
 			public var required:Boolean = false;
 			
-			[Bindable]
-			public var labelText:String = "";
-			
 			private function onCreationComplete():void
 			{
 				comboBox.labelField = "unidade";
-				comboBox.textoPadrao = "Selecione uma unidade lpu...";
+				comboBox.textoPadrao = "Selecione uma unidade...";
 			}
 			
 			private function onListarLpusResult(event:ResultEvent = null):void
@@ -71,17 +71,17 @@
 				trace("[ListarLpuPorClienteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");	
 			}
 			
-			public function get itemLpuSelecionada():ItemLpu 
+			public function get lpuSelecionada():Lpu 
 			{
 				if(comboBox.selectedItem == null || comboBox.selectedItemIndex == -1)
 					return null;
 				else
-					return comboBox.selectedItem as ItemLpu; 
+					return comboBox.selectedItem as Lpu; 
 			}
 			
-			public function set itemLpuSelecionada(itemLpu:ItemLpu):void 
+			public function set lpuSelecionada(lpu:Lpu):void 
 			{
-				comboBox.selectedItem = itemLpu;
+				comboBox.selectedItem = lpu;
 			}
 			
 			public function get cliente():Pessoa
@@ -92,16 +92,27 @@
 			public function set cliente(value:Pessoa):void
 			{
 				if(value){
-					itemLpuService.listarPorCliente(value);
+					lpuService.listarPorCliente(value);
 				}
 				_cliente = value;
+			}
+			
+			public function get labelText():String
+			{
+				return comboBox.labelText;
+			}
+			
+			public function set labelText(value:String):void
+			{
+				if(comboBox)
+					comboBox.labelText = value;
 			}
 			
 			//TODO - não está removendo o item selecionado
 			public function limpar():void
 			{
 				if((comboBox.dataProvider != null) && (comboBox.dataProvider.length > 0)){
-					comboBox.selectedItem = new ItemLpu();
+					comboBox.selectedItem = new Lpu();
 					comboBox.clean();
 				}else{
 					comboBox.clean();
@@ -110,5 +121,5 @@
 		]]>
 	</fx:Script>
 	
-	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" labelText="{labelText}" sortField="unidade" />
+	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" sortField="unidade" />
 </mx:VBox>
