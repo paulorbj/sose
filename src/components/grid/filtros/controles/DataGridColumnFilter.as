@@ -200,6 +200,9 @@ public class DataGridColumnFilter extends DataGridColumn
 			var splits:Array = dataField.split(".");
 			for each(var str:String in splits){
 				item = item[str];
+				if(item == null) {
+					return null;
+				}
 			}
 			if(item != null){
 				return item.toString();
