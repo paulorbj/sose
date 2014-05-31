@@ -140,43 +140,7 @@
 			private var _modalCadastroComponente:ModalCadastroComponente;
 			
 			private var app:SoseFlex = FlexGlobals.topLevelApplication as SoseFlex;
-			
-			//			private function publicarRequisicao(req:RequisicaoComponente, msg:String):void   { 								
-			//				var message:AsyncMessage = new AsyncMessage();
-			//				var messageGlobal:GlobalMessage=new GlobalMessage();
-			//				messageGlobal.mensagem=msg;
-			//				messageGlobal.conteudo = req;				
-			//				message.body=messageGlobal;
-			//				produtorEstoqueService.send(message);	
-			//			}
-			//			
-			//			private function publicarReparo(rep:Reparo, msg:String):void   { 								
-			//				var message:AsyncMessage = new AsyncMessage();
-			//				var messageGlobal:GlobalMessage=new GlobalMessage();
-			//				messageGlobal.mensagem=msg;
-			//				messageGlobal.conteudo = rep;				
-			//				message.body=messageGlobal;
-			//				produtorReparoService.send(message);	
-			//			}
-			//			
-			//			private function publicarOrcamento(orc:Orcamento, msg:String):void   { 								
-			//				var message:AsyncMessage = new AsyncMessage();
-			//				var messageGlobal:GlobalMessage=new GlobalMessage();
-			//				messageGlobal.mensagem=msg;
-			//				messageGlobal.conteudo = orc;				
-			//				message.body=messageGlobal;
-			//				produtorOrcamentoService.send(message);	
-			//			}
-			//			
-			//			private function publicarComponente(orc:Componente, msg:String):void   { 								
-			//				var message:AsyncMessage = new AsyncMessage();
-			//				var messageGlobal:GlobalMessage=new GlobalMessage();
-			//				messageGlobal.mensagem=msg;
-			//				messageGlobal.conteudo = orc;				
-			//				message.body=messageGlobal;
-			//				produtorEstoqueService.send(message);	
-			//			}
-			
+						
 			private function onMsgEstoque(event:MessageEvent):void{ 
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
@@ -225,6 +189,10 @@
 				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR){
 					var comp:Componente = globalMessage.conteudo as Componente;
 					atualizarComponente(comp);
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.COMPONENTE_ATUALIZAR){
+					componenteService.listarComponentes();
 				}
 			} 
 			
