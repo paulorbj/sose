@@ -46,6 +46,21 @@ public class PedidoCompraService {
 	
 	@RemotingInclude
 	@Transactional(readOnly = true)
+	public PedidoCompra buscarPorEstoqueMinimoAguardandoCompra(Componente componente) throws Exception {
+		PedidoCompra pedidoCompraEncontrado = null;
+		try {
+			List<PedidoCompra> pedidos = pedidoCompraDao.buscarPorEstoqueMinimoAguardandoCompra(componente);
+			if(pedidos != null &&! pedidos.isEmpty()) {
+				pedidoCompraEncontrado = pedidos.get(0);
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+		}
+		return pedidoCompraEncontrado;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
 	public PedidoCompra buscarPorRequisicao(Long id) throws Exception {
 		PedidoCompra pedidoCompraEncontrado;
 		try {

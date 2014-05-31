@@ -22,6 +22,7 @@ import br.com.sose.entity.orcrepGenerico.RequisicaoComponente;
 import br.com.sose.entity.reparo.Reparo;
 import br.com.sose.service.administrativo.ComponenteService;
 import br.com.sose.service.administrativo.ObservacaoService;
+import br.com.sose.service.administrativo.UsuarioService;
 import br.com.sose.service.areatecnica.exceptions.SaldoInsuficienteException;
 import br.com.sose.service.compra.PedidoCompraService;
 import br.com.sose.service.orcamento.OrcamentoService;
@@ -48,6 +49,9 @@ public class RequisicaoComponenteService {
 
 	@Autowired
 	public ReparoService reparoService;
+	
+	@Autowired
+	public UsuarioService usuarioService;
 
 	@Autowired
 	public OrcamentoService orcamentoService;
@@ -263,12 +267,20 @@ public class RequisicaoComponenteService {
 
 				if(componente.getQtdEstoqueMinimo() > 0){
 					if(saldoEstoque <= componente.getQtdEstoqueMinimo()){
-						PedidoCompra pedidoCompra = new PedidoCompra();
-						pedidoCompra.setDataCriacao(new Date());
-						pedidoCompra.setComponente(componente);
-						pedidoCompra.setOrigemPedido("Estoque mínimo");
-						pedidoCompra.setStatusString("Aguardando compra");
-						pedidoCompra.setQuantidade(componente.getQtdEstoqueMinimo() - saldoEstoque);
+						PedidoCompra pedidoCompra = pedidoCompraService.buscarPorEstoqueMinimoAguardandoCompra(componente);
+						
+						if(pedidoCompra == null){
+							pedidoCompra = new PedidoCompra();
+							pedidoCompra.setDataCriacao(new Date());
+							pedidoCompra.setComponente(componente);
+							pedidoCompra.setTecnico(usuarioService.buscarPorId(new Long(65)));
+							pedidoCompra.setOrigemPedido("Estoque mínimo");
+							pedidoCompra.setStatusString("Aguardando compra");
+							pedidoCompra.setQuantidade(componente.getQtdEstoqueMinimo() - saldoEstoque);
+						}else{
+							pedidoCompra.setQuantidade(pedidoCompra.getQuantidade() + requisicaoComponente.getQuantidade());
+						}
+						
 						pedidoCompraService.salvarPedidoCompra(pedidoCompra);
 					}
 				}
@@ -297,6 +309,7 @@ public class RequisicaoComponenteService {
 				throw new SaldoInsuficienteException();
 			}
 		}catch (Exception e) {
+			logger.error(e.getMessage());
 			throw e;
 		}
 		return requisicaoComponenteSalva;

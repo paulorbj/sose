@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorioLaudoTecnico" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8faf10dc-1e69-4f1c-9240-5ffd41d8f0a4">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="537"/>
+	<property name="ireport.y" value="559"/>
 	<parameter name="logo" class="java.lang.String"/>
 	<field name="id" class="java.lang.Long"/>
 	<field name="controle" class="java.lang.String"/>
@@ -71,7 +71,7 @@
 					<rightPen lineWidth="0.25"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Calibri" size="20"/>
+					<font fontName="SansSerif" size="20"/>
 				</textElement>
 				<text><![CDATA[Laudo técnico]]></text>
 			</staticText>
@@ -94,7 +94,9 @@
 			</textField>
 			<staticText>
 				<reportElement uuid="b591987c-3048-452a-90c6-568fa9fb48b5" x="187" y="62" width="38" height="13"/>
-				<textElement/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
 				<text><![CDATA[N. OS]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
@@ -179,7 +181,7 @@
 			<staticText>
 				<reportElement uuid="0d611e51-0d0a-4e86-b0a8-34b6e2ea109c" x="26" y="244" width="45" height="13"/>
 				<textElement>
-					<font fontName="Calibri"/>
+					<font fontName="SansSerif"/>
 				</textElement>
 				<text><![CDATA[Unidade]]></text>
 			</staticText>
@@ -198,7 +200,7 @@
 			<staticText>
 				<reportElement uuid="d6e7f06c-c1f1-4401-a223-b9a26d8dd1bd" x="306" y="244" width="51" height="13"/>
 				<textElement>
-					<font fontName="Calibri"/>
+					<font fontName="SansSerif"/>
 				</textElement>
 				<text><![CDATA[Fabricante]]></text>
 			</staticText>
@@ -217,7 +219,7 @@
 			<staticText>
 				<reportElement uuid="01e4842f-5395-4deb-a622-c9de97304d53" x="26" y="293" width="100" height="13"/>
 				<textElement>
-					<font fontName="Calibri"/>
+					<font fontName="SansSerif"/>
 				</textElement>
 				<text><![CDATA[Informações técnicas]]></text>
 			</staticText>
@@ -284,15 +286,15 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$F{dataFimString}]]></textFieldExpression>
 			</textField>
-			<image scaleImage="FillFrame">
+			<image scaleImage="RealSize">
 				<reportElement uuid="c40114e9-bec2-459d-887a-b66e292ea45e" x="29" y="420" width="160" height="160"/>
 				<imageExpression><![CDATA[$F{imagem1}]]></imageExpression>
 			</image>
-			<image scaleImage="FillFrame">
+			<image scaleImage="RealSize">
 				<reportElement uuid="c4827c91-f62d-4938-8e3a-f1896cc17081" x="201" y="420" width="160" height="160"/>
 				<imageExpression><![CDATA[$F{imagem2}]]></imageExpression>
 			</image>
-			<image scaleImage="FillFrame">
+			<image scaleImage="RealSize">
 				<reportElement uuid="2bab5a92-d3a0-4eac-8ac9-b60ebdc06431" x="373" y="420" width="160" height="160"/>
 				<imageExpression><![CDATA[$F{imagem3}]]></imageExpression>
 			</image>

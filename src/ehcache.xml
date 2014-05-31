@@ -31,7 +31,7 @@
 	<cache name="br.com.sose.entity.admistrativo.Encapsulamento" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
 	<cache name="br.com.sose.entity.admistrativo.Fabricante" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
 	<cache name="br.com.sose.entity.admistrativo.Laboratorio" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
-	<cache name="br.com.sose.entity.admistrativo.Lpu" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.lpu.Lpu" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
 	<cache name="br.com.sose.entity.admistrativo.Observacao" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
 	<cache name="br.com.sose.entity.admistrativo.Perfil" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
 	<cache name="br.com.sose.entity.admistrativo.TipoComponente" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />

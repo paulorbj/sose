@@ -30,7 +30,6 @@ import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.expedicao.NotaFiscalRemessa;
 import br.com.sose.entity.faturamento.Faturamento;
-import br.com.sose.entity.lpu.ItemLpu;
 import br.com.sose.entity.lpu.Lpu;
 import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.orcamento.OrcamentoDiferenciado;
@@ -122,10 +121,6 @@ public class OrdemServico implements Serializable {
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "lpu_id", referencedColumnName = "id")
 	private Lpu lpu;
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name = "item_lpu_id", referencedColumnName = "id")
-	private ItemLpu itemLpu;
 
 	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "orcamento_id", referencedColumnName = "id")
@@ -911,18 +906,5 @@ public class OrdemServico implements Serializable {
 	public void setObservacaoConsulta(String observacaoConsulta) {
 		this.observacaoConsulta = observacaoConsulta;
 	}
-
-
-
-	public ItemLpu getItemLpu() {
-		return itemLpu;
-	}
-
-
-
-	public void setItemLpu(ItemLpu itemLpu) {
-		this.itemLpu = itemLpu;
-	}
-
 
 }

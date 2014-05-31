@@ -1,19 +1,9 @@
 package br.com.sose.service.lpu;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.flex.remoting.RemotingDestination;
@@ -27,7 +17,8 @@ import br.com.sose.daoImpl.lpu.LpuDao;
 import br.com.sose.entity.admistrativo.Unidade;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.lpu.Lpu;
-import br.com.sose.utils.ArquivoUpload;
+import br.com.sose.exceptions.LpuExistenteException;
+import br.com.sose.exceptions.LpuNaoExclusaoDependenciaExistenteException;
 
 @Service(value="lpuService")
 @RemotingDestination(value="lpuService")
@@ -50,7 +41,7 @@ public class LpuService {
 	public List<Lpu> listarLpu() throws Exception {
 		List<Lpu> lpus;
 		try {
-			lpus =(List<Lpu>) lpuDao.findAll();	
+			lpus =(List<Lpu>) lpuDao.findAllOrderByNome();	
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
@@ -171,14 +162,23 @@ public class LpuService {
 	public Lpu salvarLpu(Lpu lpu) throws Exception {
 		Lpu lpuSalva;
 		try {
+			lpuSalva = buscarPorNomeECliente(lpu.getUnidade(), lpu.getCliente());
+			if(lpuSalva != null && !lpuSalva.getId().equals(lpu.getId())){
+				throw new LpuExistenteException(lpu.getUnidade()); 
+			}
+
 			if(lpu.getId() == null || lpu.getId().equals(new Long(0))){
-				//lpu.setUploadEm(new Date());
 				lpuSalva =(Lpu) lpuDao.save(lpu);	
 			}else{
 				lpuSalva =(Lpu) lpuDao.update(lpu);	
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			
+			lpuDao.atualizarValor(lpu);
+		} catch (LpuExistenteException e) {
+			logger.error(e);
+			throw e;
+		}catch (Exception e) {
+			logger.error("Erro ao salvar lpu: " + lpu.getUnidade());;
 			throw e;
 		}
 		return lpuSalva;
@@ -290,26 +290,10 @@ public class LpuService {
 	public Lpu excluirLpu(Lpu lpu) throws Exception {
 		try {
 			lpuDao.remover(lpu);	
-			//logger.info("Lpu com o nome: "+lpu.getUnidade()+" foi removida do sistema");
+			logger.info("Lpu com o nome: "+lpu.getUnidade()+" foi removida do sistema");
 		} catch (ConstraintViolationException e) {
 			logger.error(e);
-			//throw new LpuNaoExclusaoDependenciaExistenteException(lpu.getUnidade());
-		}catch (Exception e) {
-			logger.error(e);
-			throw e;
-		}
-		return lpu;
-	}
-
-	@RemotingInclude
-	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
-	public Lpu importarLpu(Lpu lpu) throws Exception {
-		try {
-			lpuDao.remover(lpu);	
-			//logger.info("Lpu com o nome: "+lpu.getUnidade()+" foi removida do sistema");
-		} catch (ConstraintViolationException e) {
-			logger.error(e);
-			//throw new LpuNaoExclusaoDependenciaExistenteException(lpu.getUnidade());
+			throw new LpuNaoExclusaoDependenciaExistenteException(lpu.getUnidade());
 		}catch (Exception e) {
 			logger.error(e);
 			throw e;

@@ -35,6 +35,15 @@ public class PedidoCompraDao extends HibernateDaoGenerico<PedidoCompra, Long> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<PedidoCompra> buscarPorEstoqueMinimoAguardandoCompra(final Componente componente) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.componente = :componente AND h.origemPedido = :origemPedido AND h.statusString = :status");
+		q.setParameter("componente", componente);
+		q.setParameter("origemPedido", "Estoque mínimo");
+		q.setParameter("status", "Aguardando compra");
+		return q.list();
+	}	
+		
+	@SuppressWarnings("unchecked")
 	public PedidoCompra buscarPorRequisicao(final Long id) {
 		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.requisicao.id=:id");
 		q.setParameter("id", id);

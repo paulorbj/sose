@@ -29,6 +29,9 @@ public class ItemNotaFiscalService {
 	
 	@Autowired
 	public NotaFiscalDao notaFiscalDao;
+	
+	@Autowired
+	public OrdemServicoService ordemServicoService;
 
 	/********************** Metodos de listagem *********************/
 	@RemotingInclude
@@ -75,6 +78,19 @@ public class ItemNotaFiscalService {
 		}
 		return itemNotaFiscalSalva;
 	}
+	
+	@RemotingInclude
+	@Transactional(readOnly=true)
+	public ItemNotaFiscal buscarPorId(Long id) throws Exception {
+		ItemNotaFiscal itemNotaFiscalSalva;
+		try {
+			itemNotaFiscalSalva =(ItemNotaFiscal) itemNotaFiscalDao.buscarPorId(id);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return itemNotaFiscalSalva;
+	}
 
 	/*********************** Metodos de busca ***********************/
 
@@ -112,6 +128,14 @@ public class ItemNotaFiscalService {
 				itemNotaFiscalSalva =(ItemNotaFiscal) itemNotaFiscalDao.save(itemNotaFiscal);	
 			}else{
 				itemNotaFiscalSalva =(ItemNotaFiscal) itemNotaFiscalDao.update(itemNotaFiscal);
+				if(notaFiscal.getStatusString().equals("Aberta") || notaFiscal.getStatusString().equals("Processada")){
+					itemNotaFiscalSalva = itemNotaFiscalDao.buscarPorId(itemNotaFiscal.getId());
+					for(OrdemServico os : itemNotaFiscalSalva.getOrdensServico()){
+						os.setUnidade(itemNotaFiscalSalva.getUnidade());
+						os.setLpu(itemNotaFiscalSalva.getLpu());
+						ordemServicoService.salvarSimplesOrdemServico(os);
+					}
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
