@@ -21,6 +21,7 @@ import br.com.sose.entity.compra.PedidoCompra;
 import br.com.sose.exceptions.ComponenteExistenteException;
 import br.com.sose.exceptions.ComponenteNaoExclusaoDependenciaExistenteException;
 import br.com.sose.service.areatecnica.RequisicaoComponenteService;
+import br.com.sose.service.compra.CompraService;
 import br.com.sose.service.compra.ItemCompraService;
 import br.com.sose.service.compra.PedidoCompraService;
 import br.com.sose.status.compra.Comprado;
@@ -34,6 +35,9 @@ public class ComponenteService {
 
 	@Autowired
 	public ComponenteDao componenteDao;
+	
+	@Autowired
+	public CompraService compraService;
 
 	@Autowired
 	public ObservacaoService observacaoService;
@@ -134,9 +138,13 @@ public class ComponenteService {
 					pc.setStatusString(Comprado.nome);
 					pc.setDataFinalizacao(new Date());
 					pedidoCompraService.salvarPedidoCompra(pc);
+					observacaoService.log("Compra", "Componente liberado no estoque", 2, new Date(), pc.getOrdemServico(), null);
 				}
 				ic.setStatus("Finalizado");
 				itemCompraService.salvarItemCompra(ic);
+				
+				//Verifica se a compra deve ser finalizada
+				compraService.finalizarCompra(ic.getCompra());
 			}
 
 			saldoEstoque = qtdEstoque + qtdEstocadaInformada - qtdAtendida;

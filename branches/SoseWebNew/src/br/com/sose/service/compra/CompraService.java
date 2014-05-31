@@ -19,6 +19,7 @@ import br.com.sose.entity.admistrativo.Componente;
 import br.com.sose.entity.compra.Compra;
 import br.com.sose.entity.compra.ItemCompra;
 import br.com.sose.entity.compra.PedidoCompra;
+import br.com.sose.service.administrativo.ObservacaoService;
 import br.com.sose.status.compra.AguardandoCompra;
 import br.com.sose.status.compra.ProcessandoPreCompra;
 
@@ -36,6 +37,9 @@ public class CompraService {
 
 	@Autowired
 	public ItemCompraService itemCompraService;
+	
+	@Autowired
+	private ObservacaoService observacaoService;
 
 	@RemotingInclude
 	@Transactional(readOnly = true)
@@ -80,9 +84,14 @@ public class CompraService {
 
 			comprasAux = compraDao.listarCompra("Aberta");
 			if(comprasAux != null && !comprasAux.isEmpty()){
-				compras.addAll(comprasAux);
+				for(Compra c : comprasAux){
+					c = finalizarCompra(c);
+					if(c.getStatusString().equals("Aberta")){
+						compras.add(c);
+					}
+				}
 			}
-
+			
 			comprasAux = compraDao.listarCompra("Finalizada");
 			if(comprasAux != null && !comprasAux.isEmpty()){
 				compras.addAll(comprasAux);
@@ -119,6 +128,14 @@ public class CompraService {
 		try {
 			compra.setStatusString(AguardandoCompra.nome); // nao sei se eh necessario
 			compraSalvo =(Compra) salvarCompra(compra);	
+
+			for(ItemCompra ic : compra.getListaItemCompra()){
+				for(PedidoCompra pc : ic.getListaPedidoCompra()){
+					if(pc.getOrdemServico() != null){
+						observacaoService.log("Compra", "Componente em compra", 2, new Date(), pc.getOrdemServico(), null);
+					}
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);
 			throw e;
@@ -298,4 +315,25 @@ public class CompraService {
 		return compraSalva;
 	}
 
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public Compra finalizarCompra(Compra compra) throws Exception {
+		Boolean finalizarCompra = true;
+		List<ItemCompra> itensCompra = itemCompraService.buscarPorCompra(compra);
+		for(ItemCompra ic : itensCompra){
+			if(!ic.getStatus().equals("Finalizado") && !ic.getStatus().equals("Componente não encontrado")){
+				finalizarCompra = false;
+				break;
+			}
+		}
+
+		if(finalizarCompra){
+			compra.setStatusString("Finalizada");
+			compra = salvarCompra(compra);
+		}
+		
+		return compra;
+	}
+	
 }

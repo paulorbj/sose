@@ -21,6 +21,7 @@ import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.orcrepGenerico.RequisicaoComponente;
 import br.com.sose.entity.reparo.Reparo;
 import br.com.sose.service.administrativo.ComponenteService;
+import br.com.sose.service.administrativo.ObservacaoService;
 import br.com.sose.service.areatecnica.RequisicaoComponenteService;
 import br.com.sose.service.orcamento.OrcamentoService;
 import br.com.sose.service.reparo.ReparoService;
@@ -52,6 +53,9 @@ public class ItemCompraService {
 	
 	@Autowired
 	public OrcamentoService orcamentoService;
+	
+	@Autowired
+	private ObservacaoService observacaoService;
 
 	@RemotingInclude
 	@Transactional(readOnly = true)
@@ -159,6 +163,11 @@ public class ItemCompraService {
 		try {
 			if(itemCompra.getQtdComprada() != null && itemCompra.getQtdComprada() > 0 && itemCompra.getStatus().equals("Pendente")){
 				itemCompra.setStatus("Comprado");
+				for(PedidoCompra pc : itemCompra.getListaPedidoCompra()){
+					if(pc.getOrdemServico() != null){
+						observacaoService.log("Compra", "Componente comprado, aguardando chegada", 2, new Date(), pc.getOrdemServico(), null);
+					}
+				}
 			}
 			if(itemCompra.getId() == null || itemCompra.getId().equals(new Long(0)))
 				itemCompraSalvo =(ItemCompra) itemCompraDao.save(itemCompra);	
@@ -200,7 +209,7 @@ public class ItemCompraService {
 			if(compra.getListaItemCompra() == null || compra.getListaItemCompra().isEmpty()){
 				compraService.deletarCompra(compra);
 			}
-			//caso todos os itens compra jah foram notificados: Alterar status da compra para 'Finalizado'
+			//caso todos os itens compra jah foram notificados: Alterar status da compra para 'Finalizado' (Finalizar compra)
 			Boolean finalizarCompra = true;
 			for(ItemCompra ic : compra.getListaItemCompra()){
 				if(!ic.getStatus().equals("Notificado")){
@@ -228,6 +237,11 @@ public class ItemCompraService {
 			componenteComprado = itemCompra.getComponente();
 
 			itemCompra.setStatus("Notificado");
+			for(PedidoCompra pc : itemCompra.getListaPedidoCompra()){
+				if(pc.getOrdemServico() != null){
+					observacaoService.log("Compra", "Componente enviado para o estoque", 2, new Date(), pc.getOrdemServico(), null);
+				}
+			}
 			itemCompra.setDataEntrada(new Date());
 			itemCompra.setComponenteNotificacao(componenteComprado);
 			itemCompra =  salvarItemCompra(itemCompra);
@@ -238,6 +252,8 @@ public class ItemCompraService {
 				componenteComprado.setQtdComprada(itemCompra.getQtdComprada());
 			}
 			componenteComprado = componenteService.salvarComponente(componenteComprado);
+
+			itemCompraDao.flush();
 
 			Compra compra = itemCompra.getCompra();
 			compra = compraService.buscarPorId(compra.getId());
@@ -307,20 +323,10 @@ public class ItemCompraService {
 
 			Compra compra = itemCompra.getCompra();
 			compra = compraService.buscarPorId(compra.getId());
-			Boolean alterarStatusCompra = true;
-			for(ItemCompra ic :compra.getListaItemCompra()){
-				if(!ic.getStatus().equals("Notificado") && !ic.getStatus().equals("Componente não encontrado")){
-					alterarStatusCompra = false;
-					break;
-				}
-			}
-
-			if(alterarStatusCompra){
-				compra.setStatusString("Finalizada");
-				compra = compraService.salvarCompra(compra);
-				itemCompra.setCompra(compra);
-			}
-
+			
+			compra = compraService.finalizarCompra(compra);
+			itemCompra.setCompra(compra);
+			
 			return itemCompra;
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);

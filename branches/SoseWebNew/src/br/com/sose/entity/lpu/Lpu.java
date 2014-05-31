@@ -1,9 +1,7 @@
 package br.com.sose.entity.lpu;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.math.BigDecimal;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -14,13 +12,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import br.com.sose.entity.admistrativo.Equipamento;
+import br.com.sose.entity.admistrativo.Fabricante;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 
 @Entity
@@ -39,39 +38,32 @@ public class Lpu implements Serializable {
 	@JoinColumn(name="cliente_id", referencedColumnName="id")
 	private Pessoa cliente;
 	
-	@Column(name="celula_unidade", length = 4)
-	private String celulaUnidade;
-	@Column(name="celula_codigo1", length = 4)
-	private String celulaCodigo1;
-	@Column(name="celula_codigo2", length = 4)
-	private String celulaCodigo2;
-	@Column(name="celula_fabricante", length = 4)
-	private String celulaFabricante;
-	@Column(name="celula_equipamento", length = 4)
-	private String celulaEquipamento;
-	@Column(name="celula_valor", length = 4)
-	private String celulaValor;
+	@Column(length = 200, nullable = false)
+	private String unidade;
+
+	@Column(length = 1000)
+	private String descricao;
+
+	private String codigo1;
+
+	private String codigo2;
+
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="fabricante_id", referencedColumnName="id")
+	private Fabricante fabricante;
+
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="equipamento_id", referencedColumnName="id")
+	private Equipamento equipamento;
+
+	private String moeda;
+
+	private BigDecimal valorReparo;
+
+	@Column(name = "cadastro_ativo")
+	private Boolean cadastroSistemaAtivo;
 	
-	@Column(name="linha_cabecalho", length = 4)
-	private String linhaCabecalho;
-	@Column(name="primeira_linha_dados", length = 4)
-	private String primeiraLinhaDados;
-	@Column(name="ultima_linha_dados", length = 4)
-	private String ultimaLinhaDados;
 	
-	private Boolean ativa;
-	
-	@Column(name="valido_ate")
-	private Date validoAte;
-	
-	@Column(name="upload_em")
-	private Date uploadEm;
-	
-	@Column(name="rodou_auto_associar")
-	private Boolean rodouAutoAssociar;
-	
-	@OneToMany(mappedBy = "lpu", fetch=FetchType.LAZY)
-	private Set<UnidadeItemLpu> listaUnidadeItemLpu;
 	
 	public Long getId() {
 		return id;
@@ -81,111 +73,26 @@ public class Lpu implements Serializable {
 		this.id = id;
 	}
 
-	public String getCelulaUnidade() {
-		return celulaUnidade;
+	public String getDescricao() {
+		return descricao;
 	}
 
-	public void setCelulaUnidade(String celulaUnidade) {
-		this.celulaUnidade = celulaUnidade;
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
 	}
 
-	public String getCelulaCodigo1() {
-		return celulaCodigo1;
+	public Boolean getCadastroSistemaAtivo() {
+		return cadastroSistemaAtivo;
 	}
 
-	public void setCelulaCodigo1(String celulaCodigo1) {
-		this.celulaCodigo1 = celulaCodigo1;
-	}
-
-	public String getCelulaCodigo2() {
-		return celulaCodigo2;
-	}
-
-	public void setCelulaCodigo2(String celulaCodigo2) {
-		this.celulaCodigo2 = celulaCodigo2;
-	}
-
-	public String getCelulaFabricante() {
-		return celulaFabricante;
-	}
-
-	public void setCelulaFabricante(String celulaFabricante) {
-		this.celulaFabricante = celulaFabricante;
-	}
-
-	public String getCelulaEquipamento() {
-		return celulaEquipamento;
-	}
-
-	public void setCelulaEquipamento(String celulaEquipamento) {
-		this.celulaEquipamento = celulaEquipamento;
-	}
-
-	public String getCelulaValor() {
-		return celulaValor;
-	}
-
-	public void setCelulaValor(String celulaValor) {
-		this.celulaValor = celulaValor;
-	}
-
-	public String getLinhaCabecalho() {
-		return linhaCabecalho;
-	}
-
-	public void setLinhaCabecalho(String linhaCabecalho) {
-		this.linhaCabecalho = linhaCabecalho;
-	}
-
-	public String getPrimeiraLinhaDados() {
-		return primeiraLinhaDados;
-	}
-
-	public void setPrimeiraLinhaDados(String primeiraLinhaDados) {
-		this.primeiraLinhaDados = primeiraLinhaDados;
-	}
-
-	public String getUltimaLinhaDados() {
-		return ultimaLinhaDados;
-	}
-
-	public void setUltimaLinhaDados(String ultimaLinhaDados) {
-		this.ultimaLinhaDados = ultimaLinhaDados;
-	}
-
-	public Boolean getAtiva() {
-		return ativa;
-	}
-
-	public void setAtiva(Boolean ativa) {
-		this.ativa = ativa;
-	}
-
-	public Date getValidoAte() {
-		return validoAte;
-	}
-
-	public void setValidoAte(Date validoAte) {
-		this.validoAte = validoAte;
-	}
-
-	public Date getUploadEm() {
-		return uploadEm;
-	}
-
-	public void setUploadEm(Date uploadEm) {
-		this.uploadEm = uploadEm;
-	}
-
-	public Boolean getRodouAutoAssociar() {
-		return rodouAutoAssociar;
-	}
-
-	public void setRodouAutoAssociar(Boolean rodouAutoAssociar) {
-		this.rodouAutoAssociar = rodouAutoAssociar;
+	public void setCadastroSistemaAtivo(Boolean cadastroSistemaAtivo) {
+		this.cadastroSistemaAtivo = cadastroSistemaAtivo;
 	}
 
 	public Pessoa getCliente() {
+		if(!Hibernate.isInitialized(cliente)){
+			cliente = null;	
+		}
 		return cliente;
 	}
 
@@ -193,15 +100,69 @@ public class Lpu implements Serializable {
 		this.cliente = cliente;
 	}
 
-	public Set<UnidadeItemLpu> getListaUnidadeItemLpu() {
-		if(!Hibernate.isInitialized(listaUnidadeItemLpu) || listaUnidadeItemLpu == null){
-			listaUnidadeItemLpu = new HashSet<UnidadeItemLpu>();
+	public String getUnidade() {
+		if(!Hibernate.isInitialized(unidade)){
+			unidade = null;	
 		}
-		return listaUnidadeItemLpu;
+		return unidade;
 	}
 
-	public void setListaUnidadeItemLpu(Set<UnidadeItemLpu> listaUnidadeItemLpu) {
-		this.listaUnidadeItemLpu = listaUnidadeItemLpu;
+	public void setUnidade(String unidade) {
+		this.unidade = unidade;
 	}
 
+	public String getCodigo1() {
+		return codigo1;
+	}
+
+	public void setCodigo1(String codigo1) {
+		this.codigo1 = codigo1;
+	}
+
+	public String getCodigo2() {
+		return codigo2;
+	}
+
+	public void setCodigo2(String codigo2) {
+		this.codigo2 = codigo2;
+	}
+
+	public Fabricante getFabricante() {
+		if(!Hibernate.isInitialized(fabricante)){
+			fabricante = null;	
+		}
+		return fabricante;
+	}
+
+	public void setFabricante(Fabricante fabricante) {
+		this.fabricante = fabricante;
+	}
+
+	public Equipamento getEquipamento() {
+		if(!Hibernate.isInitialized(equipamento)){
+			equipamento = null;	
+		}
+		return equipamento;
+	}
+
+	public void setEquipamento(Equipamento equipamento) {
+		this.equipamento = equipamento;
+	}
+
+	public String getMoeda() {
+		return moeda;
+	}
+
+	public void setMoeda(String moeda) {
+		this.moeda = moeda;
+	}
+
+	public BigDecimal getValorReparo() {
+		return valorReparo;
+	}
+
+	public void setValorReparo(BigDecimal valorReparo) {
+		this.valorReparo = valorReparo;
+	}
+	
 }

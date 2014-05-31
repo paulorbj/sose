@@ -22,7 +22,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import br.com.sose.entity.admistrativo.Unidade;
-import br.com.sose.entity.lpu.ItemLpu;
 import br.com.sose.entity.lpu.Lpu;
 
 @Entity
@@ -63,10 +62,6 @@ public class ItemNotaFiscal implements Serializable{
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "lpu", referencedColumnName = "id")
 	private Lpu lpu;
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name = "itemLpu", referencedColumnName = "id")
-	private ItemLpu itemLpu;
 
 	@OneToMany(mappedBy = "itemNotaFiscal", fetch=FetchType.LAZY)
 	private Set<OrdemServico> ordensServico;
@@ -160,8 +155,7 @@ public class ItemNotaFiscal implements Serializable{
 
 	public void setLpu(Lpu lpu) {
 		this.lpu = lpu;
-		//TODO - verificar LPU
-		//this.lpuString = lpu.getUnidade();
+		this.lpuString = lpu.getUnidade();
 	}
 
 	public Set<OrdemServico> getOrdensServico() {
@@ -262,18 +256,6 @@ public class ItemNotaFiscal implements Serializable{
 
 	public void setOrdemNaLista(Integer ordemNaLista) {
 		this.ordemNaLista = ordemNaLista;
-	}
-
-
-
-	public ItemLpu getItemLpu() {
-		return itemLpu;
-	}
-
-
-
-	public void setItemLpu(ItemLpu itemLpu) {
-		this.itemLpu = itemLpu;
 	}
 
 	
