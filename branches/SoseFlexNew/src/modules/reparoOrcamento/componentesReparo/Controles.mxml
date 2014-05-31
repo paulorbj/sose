@@ -265,7 +265,7 @@
 				   (_reparo.ordemServico.bloqueado == 0 || _reparo.ordemServico.bloqueado == 8 || _reparo.ordemServico.bloqueado == 9 || _reparo.ordemServico.bloqueado == 2) &amp;&amp; 
 				   (_reparo.ordemServico.unidadePai != null || 
 				   _reparo.ordemServico.lpu == null || 
-				   (_reparo.ordemServico.unidadePai == null &amp;&amp; _reparo.ordemServico.lpu != null &amp;&amp; _reparo.ordemServico.lpu.valorReparo != 0) ||
+				   (_reparo.ordemServico.unidadePai == null &amp;&amp; _reparo.ordemServico.lpu != null &amp;&amp; (_reparo.ordemServico.lpu.valorReparo != 0 || _reparo.propostaAprovada !== null)) ||
 				   ((_reparo.condicao == 'Sem condição de reparo' || _reparo.condicao == 'Devolução sem reparo') &amp;&amp; _reparo.ordemServico.unidadePai == null &amp;&amp; _reparo.ordemServico.lpu != null &amp;&amp; _reparo.ordemServico.lpu.valorReparo == 0))}" 
 				   
 				   enabled.visualizar="false"

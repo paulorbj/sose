@@ -65,7 +65,6 @@
 		<texto:TextInput id="nOrdemServico" labelText="{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}" width="20%" habilitado="false" />
 		<texto:TextInput id="nNotaFiscal" labelText="{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}" width="20%" habilitado="false" />
 		<s:Spacer width="100%" />
-		<s:Label id="labelTeste" />
 		<s:Label text="Status:" />
 		<s:Label id="statusOrcRep" fontSize="20" color="red" text="{orcRep.statusString}" />
 	</mx:HBox>
