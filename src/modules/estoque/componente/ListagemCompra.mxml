@@ -4,7 +4,7 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 xmlns:components="components.*" width="100%" height="100%" horizontalAlign="center"
 		 paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
-		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:dc="components.grid.filtros.controles.*"
 		 initialize="init()" xmlns:compra="modules.estoque.componente.*">
 	
 	<fx:Declarations>
@@ -55,6 +55,11 @@
 			
 			[Bindable]
 			public var _compra:Compra;
+			
+			[Embed(source='/assets/icon_synchronize.png')]
+			public static var synchronized:Class;
+			[Embed(source='/assets/icon_synchronize_green.png')]
+			public static var synchronized_verde:Class;
 			
 			private function init():void
 			{
@@ -166,6 +171,7 @@
 				return 0x5FA6BF;
 			}
 			
+			
 		]]>
 	</fx:Script>
 	
@@ -173,7 +179,7 @@
 		<s:State name="listagem"/>
 		<s:State name="edicao"/>
 	</mx:states>
-	
+
 	<grid:MantisTable id="viewTable"
 					  width="100%"
 					  height="100%"
@@ -210,9 +216,9 @@
 				</mx:itemRenderer>
 			</mx:DataGridColumn>
 			
-			<mx:DataGridColumn 	headerText = "Apelido da compra" textAlign="center" sortable="false" dataField="nome" />
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" 	headerText = "Apelido da compra" textAlign="center" sortable="false" dataField="nome" />
 			
-			<mx:DataGridColumn headerText = "Status" textAlign="center" sortable="false" dataField="statusString" />
+			<dc:DataGridColumnFilter headerText = "Status" textAlign="center" sortable="false" dataField="statusString" />
 		</grid:columns>
 	</grid:MantisTable>
 	

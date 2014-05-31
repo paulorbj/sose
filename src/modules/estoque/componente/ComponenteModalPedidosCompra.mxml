@@ -143,7 +143,7 @@
 									   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
 									   textAlign="center"
 									   sortable="false"
-									   dataField="dataCriacao"							   
+									   dataField="dataCriacaoString"							   
 									   />
 			
 		</grid:columns>

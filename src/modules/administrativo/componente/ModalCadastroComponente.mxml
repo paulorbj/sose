@@ -31,6 +31,9 @@ You cannot run it independently. -->
 			import mx.managers.CursorManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
 						
 			public var myParentObject:DisplayObject;
 			
@@ -69,6 +72,7 @@ You cannot run it independently. -->
 				}
 				(myParentObject as Componentes).realizarRequisicao(_componente);
 				(myParentObject as Componentes).hideModalCadastroNovoComponente();
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_ATUALIZAR, _componente);
 				dados.limpar();
 				
 			}

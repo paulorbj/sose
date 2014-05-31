@@ -52,6 +52,15 @@ package entities.compra
 		{
 			_dataCotacao = value;
 		}
+		
+		public function get dataCotacaoString():String
+		{
+			if(_dataCotacao)
+				return ScreenUtils.formatarDataDDMMYYYY(_dataCotacao);
+			else{
+				return "";
+			}
+		}
 
 		public function get fornecedor():String
 		{

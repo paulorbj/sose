@@ -6,6 +6,8 @@ package entities.estoque
 	import entities.orcamentoreparo.Reparo;
 	import entities.orcamentoreparo.RequisicaoComponente;
 	
+	import utils.ScreenUtils;
+	
 	[Bindable]	
 	[RemoteClass(alias="br.com.sose.entity.estoque.DevolucaoComponente")]	
 	public class DevolucaoComponente
@@ -93,6 +95,15 @@ package entities.estoque
 		{
 			_devolvidoEm = value;
 		}
+		
+		public function get devolvidoEmString():String
+		{
+			if(_devolvidoEm)
+				return ScreenUtils.formatarDataDDMMYYYY(_devolvidoEm);
+			else{
+				return "";
+			}
+		}
 
 		public function get recebidoPor():Usuario
 		{
@@ -112,6 +123,15 @@ package entities.estoque
 		public function set recebidoEm(value:Date):void
 		{
 			_recebidoEm = value;
+		}
+		
+		public function get recebidoEmString():String
+		{
+			if(_recebidoEm)
+				return ScreenUtils.formatarDataDDMMYYYY(_recebidoEm);
+			else{
+				return "";
+			}
 		}
 
 		public function get condicao():String

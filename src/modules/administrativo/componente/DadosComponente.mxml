@@ -88,7 +88,7 @@
 	<mx:HBox verticalAlign="bottom" width="100%">
 		<texto:TextInput id="nome" required="true" labelText="{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}" width="30%"  />
 		<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="60%" />
-		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
+		<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" excludeFrom="modal" />
 	</mx:HBox>
 	
 	<mx:HBox verticalAlign="bottom" width="100%">

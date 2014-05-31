@@ -3,7 +3,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
 		 xmlns:components="components.*" horizontalAlign="center"  
-		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:dc="components.grid.filtros.controles.*"
 		 initialize="init()">
 	
 	<fx:Declarations>
@@ -423,10 +423,15 @@
 			private function tipoComponenteLabel(item:Object, column:DataGridColumn):String
 			{
 				if(item.requisicao){
-					return item.requisicao.componente.nome;
+					if(item.requisicao.componente.tipo){
+						return item.requisicao.componente.tipo.nome;
+					}
 				}else{
-					return item.componente.nome;
+					if(item.componente.tipo){
+						return item.componente.tipo.nome;
+					}
 				}
+				return "";
 			}
 			
 			private function encapsulamentoComponenteLabel(item:Object, column:DataGridColumn):String
@@ -518,78 +523,78 @@
 								   dataField="isSelected"
 								   />
 				
-				<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroRequisicao" width="70"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_PEDIDO_COMPRA')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="id"							   
 								   />
-				<mx:DataGridColumn id="cOrigem" width="70"
+				<dc:DataGridColumnFilter id="cOrigem" width="70"
 								   headerText = "Origem"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="origemPedido"							   
 								   />
-				<mx:DataGridColumn id="cNumeroOrdemServico" width="70"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroOrdemServico" width="70"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center" dataField="ordemServico.numeroOrdemServico"
 								   sortable="false"					   
 								   />
-				<mx:DataGridColumn  id="cComponente"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  id="cComponente"
 									headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
 									textAlign="center"
 									sortable="false"
 									labelFunction="nomeComponenteLabel"							   
 									/>
 				
-				<mx:DataGridColumn  id="cTipo"
+				<dc:DataGridColumnFilter  id="cTipo"
 									headerText = "Tipo"
 									textAlign="center"
 									sortable="false"
 									labelFunction="tipoComponenteLabel"							   
 									/>
 				
-				<mx:DataGridColumn id="cEncapsulamento"
+				<dc:DataGridColumnFilter id="cEncapsulamento"
 								   headerText = "Encapsulamento"
 								   textAlign="center"
 								   sortable="false"
 								   labelFunction="encapsulamentoComponenteLabel"							   
 								   />
 				
-				<mx:DataGridColumn id="cPosicao"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cPosicao"
 								   headerText = "Posição"
 								   textAlign="center"
 								   sortable="false"
 								   labelFunction="posicaoComponenteLabel"							   
 								   />
 				
-				<mx:DataGridColumn id="cQuantidade" width="40"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQuantidade" width="40"
 								   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="quantidade"							   
 								   />
 				
-				<mx:DataGridColumn id="cPossuiAmostra" width="80"
+				<dc:DataGridColumnFilter id="cPossuiAmostra" width="80"
 								   headerText = "Amostra"
 								   labelFunction="possuiAmostraLabel"
 								   />
 				
-				<mx:DataGridColumn id="cRequisitante" width="80"
+				<dc:DataGridColumnFilter id="cRequisitante" width="80"
 								   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
 								   dataField = "tecnico.usuario"
 								   />
 				
-				<mx:DataGridColumn id="cLaboratorio" width="110"
+				<dc:DataGridColumnFilter id="cLaboratorio" width="110"
 								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
 								   dataField="ordemServico.unidade.laboratorio.nome"
 								   />
 				
-				<mx:DataGridColumn id="cDataRequisicao"  width="130"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer"  width="130"
 								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
 								   textAlign="center"
 								   sortable="false"
-								   dataField="dataCriacao"							   
+								   dataField="dataCriacaoString"							   
 								   />
 			</grid:columns>
 		</grid:MantisTable>
