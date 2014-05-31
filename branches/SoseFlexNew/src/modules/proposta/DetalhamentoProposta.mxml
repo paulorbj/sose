@@ -59,6 +59,7 @@
 			import mx.collections.Sort;
 			import mx.collections.SortField;
 			import mx.core.FlexGlobals;
+			import mx.events.DataGridEvent;
 			import mx.managers.CursorManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -705,6 +706,20 @@
 				_modalObservacao.listarObservacoes();
 			}
 			
+			private function disableEditing(event:DataGridEvent):void {
+				
+				if((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).ordemServico.unidadePai != null 
+					|| ((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).statusItem == "Aprovado")
+					|| ((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).statusItem == "Reprovado")
+					|| (_proposta.tipo == "Orçamento" && ((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).ordemServico.orcamento.condicao == "Sem condição de reparo"))
+					|| (_proposta.tipo == "Orçamento" && ((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).ordemServico.orcamento.condicao == "Devolução sem reparo"))
+					|| (_proposta.tipo == "Orçamento diferenciado" && ((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).ordemServico.reparo.condicao == "Devolução sem reparo"))
+					|| (_proposta.tipo == "Orçamento diferenciado" && ((((event.currentTarget as MantisTable).dataProvider as ArrayCollection).getItemAt(event.rowIndex) as ItemProposta).ordemServico.reparo.condicao == "Devolução sem reparo"))
+					)
+				{  
+					event.preventDefault(); 
+				}
+			} 
 			
 		]]>
 	</fx:Script>
@@ -816,6 +831,7 @@
 						  dataProvider="{_listaItensProposta}"
 						  dataProvider.editarItemProposta="{_listaItensPropostaEdicao}"
 						  doubleClickEnabled="false"
+						  itemEditBeginning="disableEditing(event);"
 						  >
 			<grid:columns>
 				
@@ -947,14 +963,14 @@
 	<mx:VBox width="100%" height="100%" includeIn="editarItemProposta" cornerRadius="3" borderStyle="solid" borderThickness="1" paddingLeft="10" paddingRight="10" >
 		
 		<mx:HBox width="100%"   paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="5" verticalAlign="middle" >
-			<texto:TextInputDinheiro2d id="totalSemDescontoItem" tabObjectEnabled="true" tabObject="{parentDocument.btSalvar}"  initialize="initTxtTotalSemDesconto()" labelText="{resourceManager.getString('ApplicationResource','TOTAL_SEM_DESCONTO')}" width="25%"  />
+			<texto:TextInputDinheiro2d id="totalSemDescontoItem" habilitado="{_itemProposta.ordemServico.unidadePai == null}" tabObjectEnabled="true" tabObject="{parentDocument.btSalvar}"  initialize="initTxtTotalSemDesconto()" labelText="{resourceManager.getString('ApplicationResource','TOTAL_SEM_DESCONTO')}" width="25%"  />
 			<s:RadioButton id="btDescontoPorcentagemItem" enabled="false" selected="true" groupName="descontoItemProposta"/>
 			<texto:TextInput id="descontoPorcentagemItem" enabled="false" habilitado="{btDescontoPorcentagemItem.selected}" labelText="{resourceManager.getString('ApplicationResource','DESCONTO_PORCENTAGEM')}" width="25%"  />
 			<s:RadioButton id="btDescontoDinheiroItem" enabled="false" groupName="descontoItemProposta"/>
 			<texto:TextInputDinheiro2d id="descontoDinheiroItem" enabled="false" habilitado="{btDescontoDinheiroItem.selected}" labelText="{resourceManager.getString('ApplicationResource','DESCONTO_DINHEIRO')}" width="25%" />
 			<mx:Button id="btAplicarValoresItemProposta"
 					   label="{resourceManager.getString('ApplicationResource','APLICAR')}"
-					   height="25" enabled="true"
+					   height="25" enabled="{_itemProposta.ordemServico.unidadePai == null}"
 					   icon="@Embed(source='/assets/icons/add.png')"
 					   click="aplicarItemProposta(event)"/>
 			<texto:TextInputDinheiro2d id="totalComDescontoItem" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TOTAL_COM_DESCONTO')}" width="25%" />

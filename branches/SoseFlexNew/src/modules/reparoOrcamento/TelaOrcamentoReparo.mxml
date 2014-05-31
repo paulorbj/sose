@@ -449,6 +449,7 @@
 					infoDefeitos.enabled = false;
 					infoAtividades.enabled = false;
 				}
+								
 				infoOrdemServico.orcRep = value;
 				infoTecnicaReparo.reparo = value;
 				infoComponentes.setReparo(value);
@@ -762,12 +763,19 @@
 						dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
 						dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NOTIFICACAO_REPARO_ORCAMENTO_DIFERENCIADO_REPROVADO'), MessageType.WARNING,-1));
 					}
-				}else{
-					return;
 				}
 				
-				
-				
+				//Caso a lpu associada ao reparo tenha valor zero
+				if(reparo.statusString == 'Iniciado' && 
+					(
+						(reparo.ordemServico.lpu != null && reparo.ordemServico.lpu.valorReparo == 0 && reparo.ordemServico.orcamentoDiferenciado == null) || 
+						(reparo.ordemServico.lpu != null && reparo.ordemServico.lpu.valorReparo == 0 && reparo.ordemServico.orcamentoDiferenciado != null && reparo.propostaAprovada == null)
+					)){
+					dispatchEvent(new NotificationEvent(NotificationEvent.LIMPAR_NOTIFICACOES));
+					dispatchEvent(new MensagemEvent("Não é possível finalizar o reparo, pois valor da lpu associado está zerado! Favor comunicar seus superiores!", MessageType.WARNING,-1));
+				}
+
+				return;
 				
 			}
 			

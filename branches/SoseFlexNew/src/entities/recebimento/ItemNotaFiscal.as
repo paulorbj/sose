@@ -1,6 +1,5 @@
 package entities.recebimento
 {
-	import entities.administrativo.ItemLpu;
 	import entities.administrativo.Lpu;
 	import entities.administrativo.Unidade;
 	
@@ -17,7 +16,7 @@ package entities.recebimento
 		private var _quantidade:Number;
 		private var _valorUnitario:Number;
 		private var _unidade:Unidade;
-		private var _itemLpu:ItemLpu;
+		private var _lpu:Lpu;
 		private var _ordensServico:ArrayCollection;
 		private var _notaFiscal:NotaFiscal;
 		private var _ncm:String;
@@ -86,6 +85,16 @@ package entities.recebimento
 		public function set unidade(value:Unidade):void
 		{
 			_unidade = value;
+		}
+
+		public function get lpu():Lpu
+		{
+			return _lpu;
+		}
+
+		public function set lpu(value:Lpu):void
+		{
+			_lpu = value;
 		}
 
 		public function get ordensServico():ArrayCollection
@@ -196,16 +205,6 @@ package entities.recebimento
 		public function set ordemNaLista(value:int):void
 		{
 			_ordemNaLista = value;
-		}
-
-		public function get itemLpu():ItemLpu
-		{
-			return _itemLpu;
-		}
-
-		public function set itemLpu(value:ItemLpu):void
-		{
-			_itemLpu = value;
 		}
 
 

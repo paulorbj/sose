@@ -38,7 +38,7 @@
 			{
 				var itemNf:ItemNotaFiscal = item as ItemNotaFiscal;
 				if(itemNf.valorUnitario != 0){
-					return ScreenUtils.formatarMoeda(itemNf.valorUnitario);
+					return ScreenUtils.formatarMoeda4(itemNf.valorUnitario);
 				}else{
 					return "R$0,00"
 				}

@@ -6,6 +6,8 @@ package entities.compra
 	
 	import mx.collections.ArrayCollection;
 	
+	import utils.ScreenUtils;
+	
 	[Bindable]	
 	[RemoteClass(alias="br.com.sose.entity.compra.Compra")]	
 	public class Compra
@@ -70,6 +72,14 @@ package entities.compra
 			_dataCriacaoCompra = value;
 		}
 
+		public function get dataCriacaoCompraString():String
+		{
+			if(_dataCriacaoCompra)
+				return ScreenUtils.formatarDataDDMMYYYY(_dataCriacaoCompra);
+			else{
+				return "";
+			}
+		}
 
 	}
 }

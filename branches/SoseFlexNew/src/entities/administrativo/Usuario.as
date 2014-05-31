@@ -2,6 +2,8 @@ package entities.administrativo
 {
 	import entities.administrativo.parceiros.Endereco;
 	
+	import utils.ScreenUtils;
+	
 	[Bindable]	
 	[RemoteClass(alias="br.com.sose.entity.admistrativo.Usuario")]	
 	public class Usuario
@@ -99,6 +101,15 @@ package entities.administrativo
 		public function set dataNascimento(value:Date):void
 		{
 			_dataNascimento = value;
+		}
+		
+		public function get dataNascimentoString():String
+		{
+			if(_dataNascimento)
+				return ScreenUtils.formatarDataDDMMYYYY(_dataNascimento);
+			else{
+				return "";
+			}
 		}
 
 		public function get bloqueado():Boolean

@@ -5,6 +5,8 @@ package entities.compra
 	import entities.orcamentoreparo.RequisicaoComponente;
 	import entities.recebimento.OrdemServico;
 	
+	import utils.ScreenUtils;
+	
 	[Bindable]	
 	[RemoteClass(alias="br.com.sose.entity.compra.PedidoCompra")]	
 	public class PedidoCompra
@@ -36,6 +38,15 @@ package entities.compra
 		public function set dataCriacao(value:Date):void
 		{
 			_dataCriacao = value;
+		}
+		
+		public function get dataCriacaoString():String
+		{
+			if(_dataCriacao)
+				return ScreenUtils.formatarDataDDMMYYYY(_dataCriacao);
+			else{
+				return "";
+			}
 		}
 
 		public function get possuiAmostra():Boolean

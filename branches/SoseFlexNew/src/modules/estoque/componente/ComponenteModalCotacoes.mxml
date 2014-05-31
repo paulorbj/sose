@@ -231,7 +231,7 @@
 			
 			<mx:DataGridColumn id="cDataCotacao" textAlign="center" sortable="true" draggable="false" width=".10"
 							   headerText = "Data cotação"
-							   dataField = "dataCotacao"
+							   dataField = "dataCotacaoString"
 							   />
 						
 			<!-- EDIT/REMOVE COLUMNS -->

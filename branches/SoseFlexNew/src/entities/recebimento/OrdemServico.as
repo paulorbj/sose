@@ -1,6 +1,5 @@
 package entities.recebimento
 {
-	import entities.administrativo.ItemLpu;
 	import entities.administrativo.Lpu;
 	import entities.administrativo.Unidade;
 	import entities.administrativo.Usuario;
@@ -88,7 +87,6 @@ package entities.recebimento
 		private var _valorFreteCobrado:Number;
 		private var _observacaoConsulta:String;
 		private var _isEnabledBaixaExpedicao:Boolean = true;
-		private var _itemLpu:ItemLpu;
 
 		public function OrdemServico()
 		{
@@ -832,17 +830,6 @@ package entities.recebimento
 		{
 			_isEnabled = value;
 		}
-
-		public function get itemLpu():ItemLpu
-		{
-			return _itemLpu;
-		}
-
-		public function set itemLpu(value:ItemLpu):void
-		{
-			_itemLpu = value;
-		}
-
 
 	}
 }

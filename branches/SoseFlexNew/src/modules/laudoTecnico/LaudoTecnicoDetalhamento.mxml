@@ -70,6 +70,7 @@
 			{
 				_laudoTecnico = value;	
 				_listaOrdemServico = new ArrayCollection();
+				visualizadoImagem.limpar();
 				
 				var os:OrdemServico = _laudoTecnico.ordemServico;
 				if(_laudoTecnico.reparo){

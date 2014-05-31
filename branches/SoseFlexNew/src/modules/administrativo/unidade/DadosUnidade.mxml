@@ -245,7 +245,7 @@
 					   />
 				
 			</mx:HBox>	
-			<mx:AdvancedDataGrid id="dgArquivosUpload" dataProvider="{listaImagem}"
+			<mx:DataGrid id="dgArquivosUpload" dataProvider="{listaImagem}"
 						 draggableColumns="false" resizableColumns="false" sortableColumns="false">
 				<mx:columns>
 					<mx:DataGridColumn headerText="Nome Sistema" dataField="nome" width="200" />
@@ -278,7 +278,7 @@
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
 				</mx:columns>
-			</mx:AdvancedDataGrid>
+			</mx:DataGrid>
 		</mx:VBox>
 	
 </mx:VBox>
