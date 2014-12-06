@@ -113,10 +113,15 @@ public class UsuarioService {
 		Usuario usuarioSalvo;
 		Endereco endereco;
 		try {
-			usuarioSalvo = buscarPorNome(usuario.getNome());
+			usuarioSalvo = buscarPorUsername(usuario.getUsuario());
 			if(usuarioSalvo != null && !usuarioSalvo.getId().equals(usuario.getId())){
-				throw new UsuarioExistenteException(usuario.getNome()); 
+				throw new UsuarioExistenteException(usuario.getUsuario()); 
 			}
+			
+			if(usuarioSalvo == null && usuario.getId() != null) {
+				usuarioSalvo = buscarPorId(usuario.getId());
+			}
+			
 			if(usuarioSalvo != null){
 				if(!(usuarioSalvo.getSenha().equals(usuario.getSenha()))){
 					usuario.setSenha(PasswordUtil.encryptPassword2(usuario.getSenha()));
@@ -163,6 +168,17 @@ public class UsuarioService {
 			return usuarioDao.buscarPorNome(nome);
 		} catch (Exception e) {
 			logger.info("Não há usuário cadastrado com o nome: "+nome+" no sistema");
+		}
+		return null;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public Usuario buscarPorUsername(String nome) throws Exception {
+		try {
+			return usuarioDao.buscarPorUsername(nome);
+		} catch (Exception e) {
+			logger.info("Não há usuário cadastrado com o username: "+nome+" no sistema");
 		}
 		return null;
 	}

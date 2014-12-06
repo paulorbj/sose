@@ -666,7 +666,7 @@ public class OrdemServicoService {
 		BigDecimal valorTotal = new BigDecimal(0);
 		ItemProposta itemProposta = null;
 		try{
-			itemProposta = itemPropostaService.buscarPorOrdemServico(osPai);
+			itemProposta = itemPropostaService.buscarPorOrdemServicoAprovado(osPai);
 			if(itemProposta.getIsAprovado()){
 				if(itemProposta.getValorSemDesconto() != null){
 					valorTotal = valorTotal.add(itemProposta.getValorSemDesconto());
@@ -708,7 +708,10 @@ public class OrdemServicoService {
 						//COM CONDICAO
 						if(ordemServico.getProposta() != null && ordemServico.getProposta().getTipo().equals(ConstantesAplicacao.TIPO_PROPOSTA_ORCAMENTO_DIFERENCIADO)){
 							//ORCAMENTO DIFERENCIDO
-							ItemProposta itemProposta = itemPropostaService.buscarPorOrdemServico(ordemServico);
+							//TODO O metodo abaixo estah trazendo mais de um itemproposta. Ele traz itens aprovados e reprovados de uma mesma ordem de servico. Foi
+							//Criado um metodo chamado buscarPorOrdemServicoAprovado que verifica se o itemproposta foi aprovado
+							//Fazer as alteracoes necessarias aqui e no orcamento
+							ItemProposta itemProposta = itemPropostaService.buscarPorOrdemServicoAprovado(ordemServico);
 							ordemServico.setValorFaturado(itemProposta.getValorSemDesconto());
 							ordemServico.setValorSistema(itemProposta.getValorSemDesconto());
 						}else if(ordemServico.getLpu() != null){
@@ -717,7 +720,7 @@ public class OrdemServicoService {
 							ordemServico.setValorSistema(ordemServico.getLpu().getValorReparo());
 						}else{
 							//ORCAMENTO
-							ItemProposta itemProposta = itemPropostaService.buscarPorOrdemServico(ordemServico);
+							ItemProposta itemProposta = itemPropostaService.buscarPorOrdemServicoAprovado(ordemServico);
 							ordemServico.setValorFaturado(itemProposta.getValorSemDesconto());
 							ordemServico.setValorSistema(itemProposta.getValorSemDesconto());
 						}

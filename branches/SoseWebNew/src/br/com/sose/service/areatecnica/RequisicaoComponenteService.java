@@ -328,6 +328,7 @@ public class RequisicaoComponenteService {
 			if(requisicaoComponenteSalva.getOrcamento() != null){
 				Orcamento orc = requisicaoComponenteSalva.getOrcamento();
 				orc.setComponentePendente(true);
+				orc.setComponenteEmFalta(true);
 				orc =orcamentoService.salvarOrcamento(orc);
 				orc = orcamentoService.buscarPorId(orc.getId());
 				requisicaoComponenteSalva.setOrcamento(orc);
@@ -335,6 +336,7 @@ public class RequisicaoComponenteService {
 			}else{
 				Reparo rep = requisicaoComponenteSalva.getReparo();
 				rep.setComponentePendente(true);
+				rep.setComponenteEmFalta(true);
 				rep = reparoService.salvarReparo(rep);
 				rep = reparoService.buscarPorId(rep.getId());
 				requisicaoComponenteSalva.setReparo(rep);
@@ -486,11 +488,13 @@ public class RequisicaoComponenteService {
 				if(requisicaoComponente.getReparo() != null){
 					Reparo rep = requisicaoComponente.getReparo();
 					rep.setComponentePendente(false);
+					rep.setComponenteEmFalta(false);
 					rep = reparoService.salvarReparo(rep);
 					requisicaoComponenteSalva.setReparo(rep);
 				}else{
 					Orcamento orc = requisicaoComponente.getOrcamento();
 					orc.setComponentePendente(false);
+					orc.setComponenteEmFalta(false);
 					orc = orcamentoService.salvarOrcamento(orc);
 					requisicaoComponenteSalva.setOrcamento(orc);
 				}

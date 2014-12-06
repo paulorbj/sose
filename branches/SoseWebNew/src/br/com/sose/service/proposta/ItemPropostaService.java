@@ -75,6 +75,19 @@ public class ItemPropostaService {
 	
 	@RemotingInclude
 	@Transactional(readOnly=true)
+	public ItemProposta buscarPorOrdemServicoAprovado(OrdemServico ordemServico) throws Exception {
+		ItemProposta itemPropostaSalva;
+		try {
+			itemPropostaSalva =(ItemProposta) itemPropostaDao.buscarPorOrdemServicoAprovado(ordemServico);	
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return itemPropostaSalva;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly=true)
 	public ItemProposta buscarPorOrdemServico(OrdemServico ordemServico, Proposta proposta) throws Exception {
 		ItemProposta itemPropostaSalva;
 		try {

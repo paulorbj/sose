@@ -24,6 +24,14 @@ public class ItemPropostaDao extends HibernateDaoGenerico<ItemProposta, Long> {
 		ItemProposta r = (ItemProposta)q.uniqueResult();
 		return r;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public ItemProposta buscarPorOrdemServicoAprovado(final OrdemServico ordemServico) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h WHERE h.ordemServico=:ordemServico AND h.dataAprovacao IS NOT NULL AND h.dataLiberacao IS NOT NULL AND h.isAprovado = true");
+		q.setParameter("ordemServico", ordemServico);
+		ItemProposta r = (ItemProposta)q.uniqueResult();
+		return r;
+	}
 
 	@SuppressWarnings("unchecked")
 	public ItemProposta buscarPorOrdemServico(final OrdemServico ordemServico, final Proposta proposta) {

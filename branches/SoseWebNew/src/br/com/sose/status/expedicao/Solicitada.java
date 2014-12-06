@@ -102,9 +102,12 @@ public class Solicitada extends StatusExpedicao {
 		}else{
 			throw new NumeroNotaFiscalSaidaNaoDisponivelException(notaFiscalRemessa.getNumero());
 		}
+		}catch(NumeroNotaFiscalSaidaNaoDisponivelException e){
+			e.printStackTrace();
+			throw new NumeroNotaFiscalSaidaNaoDisponivelException(notaFiscalRemessa.getNumero());
 		}catch(Exception e){
 			e.printStackTrace();
-			return null;
+			throw e;
 		}
 	}
 

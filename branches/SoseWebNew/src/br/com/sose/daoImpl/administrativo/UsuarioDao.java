@@ -78,6 +78,14 @@ public class UsuarioDao extends HibernateDaoGenerico<Usuario, Long> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public Usuario buscarPorUsername(final String username) {
+		String queryString = "SELECT h FROM "+ entityClass.getName() + " h WHERE h.usuario = :username";
+		Query q = sessionFactory.getCurrentSession().createQuery(queryString);
+		q.setParameter("username", username);
+		return (Usuario)q.uniqueResult();
+	}
+	
+	@SuppressWarnings("unchecked")
 	public Usuario buscarPorId(final Long id) {
 		String queryString = "SELECT h FROM "+ entityClass.getName() + " h WHERE h.id = :id";
 		Query q = sessionFactory.getCurrentSession().createQuery(queryString);

@@ -111,10 +111,12 @@ public class ComponenteEmFalta extends StatusEstoque {
 			if(requisicaoComponente.getReparo() != null){
 				Reparo rep = requisicaoComponente.getReparo();
 				rep.setComponentePendente(false);
+				rep.setComponenteEmFalta(false);
 				reparoService.salvarReparo(rep);
 			}else{
 				Orcamento orc = requisicaoComponente.getOrcamento();
 				orc.setComponentePendente(false);
+				orc.setComponenteEmFalta(false);
 				orcamentoService.salvarOrcamento(orc);
 			}
 		}
