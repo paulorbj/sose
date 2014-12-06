@@ -100,6 +100,8 @@ public class OrcRepGenerico {
 	protected Date dataLimite;
 	
 	protected Boolean componentePendente;
+	
+	protected Boolean componenteEmFalta;
 
 	public OrcRepGenerico() {
 
@@ -318,6 +320,14 @@ public class OrcRepGenerico {
 
 	public void setComponentePendente(Boolean componentePendente) {
 		this.componentePendente = componentePendente;
+	}
+
+	public Boolean getComponenteEmFalta() {
+		return componenteEmFalta;
+	}
+
+	public void setComponenteEmFalta(Boolean componenteEmFalta) {
+		this.componenteEmFalta = componenteEmFalta;
 	}
 
 }

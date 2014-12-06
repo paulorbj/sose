@@ -99,7 +99,7 @@ public class ArquivoUploadService {
 			arquivoUploadDao.remover(arquivoUpload);	
 			logger.info("Arquivo com o nome: "+arquivoUpload.getNome()+" foi removido do sistema");
 
-			String caminhoParaSalvar = caminho + arquivoUpload.getTipoEntidade() + "\\" + arquivoUpload.getId() + "\\" +  arquivoUpload.getTipoArquivo() + "\\" + arquivoUpload.getNome();
+			String caminhoParaSalvar = caminho + arquivoUpload.getTipoEntidade() + "\\" + arquivoUpload.getIdentificadorEntidade() + "\\" +  arquivoUpload.getTipoArquivo() + "\\" + arquivoUpload.getNome();
 			File localParaDeletar = new File(caminhoParaSalvar);
 			localParaDeletar.delete();
 

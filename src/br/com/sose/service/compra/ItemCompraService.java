@@ -302,11 +302,13 @@ public class ItemCompraService {
 						if(requisicao.getReparo() != null){
 							Reparo rep = requisicao.getReparo();
 							rep.setComponentePendente(false);
+							rep.setComponenteEmFalta(false);
 							rep = reparoService.salvarReparo(rep);
 							requisicao.setReparo(rep);
 						}else{
 							Orcamento orc = requisicao.getOrcamento();
 							orc.setComponentePendente(false);
+							orc.setComponenteEmFalta(false);
 							orc = orcamentoService.salvarOrcamento(orc);
 							requisicao.setOrcamento(orc);
 						}

@@ -316,5 +316,13 @@ public class NotaFiscalRemessaDao extends HibernateDaoGenerico<NotaFiscalRemessa
 		query.setParameter("nNotaFiscalSaida", nNotaFiscalSaida.trim());
 		return (NotaFiscalRemessa)query.uniqueResult();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public NotaFiscalRemessa verificarNumeroNotaFiscalSaida(final String nNotaFiscalSaida) {
+		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h WHERE (h.statusString = 'Emitida' OR h.statusString = 'Finalizada') AND (h.numero  = :nNotaFiscalSaida)");							
+		Query query = sessionFactory.getCurrentSession().createQuery(sb.toString());
+		query.setParameter("nNotaFiscalSaida", nNotaFiscalSaida.trim());
+		return (NotaFiscalRemessa)query.uniqueResult();
+	}
 
 }

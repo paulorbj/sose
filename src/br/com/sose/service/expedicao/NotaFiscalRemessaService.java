@@ -21,9 +21,13 @@ import br.com.sose.daoImpl.expedicao.NotaFiscalRemessaDao;
 import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.expedicao.NotaFiscalRemessa;
 import br.com.sose.entity.expedicao.Volume;
+import br.com.sose.entity.recebimento.NotaFiscal;
 import br.com.sose.entity.recebimento.OrdemServico;
+import br.com.sose.exceptions.NumeroNotaFiscalSaidaNaoDisponivelException;
 import br.com.sose.service.administrativo.parceiros.PessoaService;
+import br.com.sose.service.recebimento.NotaFiscalService;
 import br.com.sose.service.recebimento.OrdemServicoService;
+import br.com.sose.status.aplicacao.AguardandoExpedicao;
 import br.com.sose.status.aplicacao.ExpedicaoSendoRealizada;
 import br.com.sose.status.expedicao.Emitida;
 import br.com.sose.status.expedicao.Finalizada;
@@ -31,6 +35,7 @@ import br.com.sose.status.expedicao.Iniciada;
 import br.com.sose.status.expedicao.Nova;
 import br.com.sose.status.expedicao.PreExpedicao;
 import br.com.sose.status.expedicao.Solicitada;
+import br.com.sose.status.recebimento.Aberta;
 
 @Service(value="notaFiscalRemessaService")
 @RemotingDestination(value="notaFiscalRemessaService")
@@ -40,6 +45,9 @@ public class NotaFiscalRemessaService {
 
 	@Autowired
 	public NotaFiscalRemessaDao notaFiscalRemessaDao;
+	
+	@Autowired
+	public NotaFiscalService notaFiscalService;
 
 	@Autowired
 	private OrdemServicoService ordemServicoService;
@@ -101,6 +109,23 @@ public class NotaFiscalRemessaService {
 			if(notasFiscaisSaidaAux != null && !notasFiscaisSaidaAux.isEmpty()) notasFiscaisSaida.addAll(notasFiscaisSaidaAux);
 			notasFiscaisSaidaAux = notaFiscalRemessaDao.listarNotaFiscalSaida(Solicitada.nome);
 			if(notasFiscaisSaidaAux != null && !notasFiscaisSaidaAux.isEmpty()) notasFiscaisSaida.addAll(notasFiscaisSaidaAux);
+			notasFiscaisSaidaAux = notaFiscalRemessaDao.listarNotaFiscalSaida(Emitida.nome);
+			if(notasFiscaisSaidaAux != null && !notasFiscaisSaidaAux.isEmpty()) notasFiscaisSaida.addAll(notasFiscaisSaidaAux);
+			notasFiscaisSaidaAux = notaFiscalRemessaDao.listarNotaFiscalSaida(Finalizada.nome);
+			if(notasFiscaisSaidaAux != null && !notasFiscaisSaidaAux.isEmpty()) notasFiscaisSaida.addAll(notasFiscaisSaidaAux);
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+		return notasFiscaisSaida;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public List<NotaFiscalRemessa> listarNotaFiscalSaidaEmitidaOuFinalizada() throws Exception {
+		List<NotaFiscalRemessa> notasFiscaisSaida = new ArrayList<NotaFiscalRemessa>();
+		List<NotaFiscalRemessa> notasFiscaisSaidaAux = null;
+		try {
 			notasFiscaisSaidaAux = notaFiscalRemessaDao.listarNotaFiscalSaida(Emitida.nome);
 			if(notasFiscaisSaidaAux != null && !notasFiscaisSaidaAux.isEmpty()) notasFiscaisSaida.addAll(notasFiscaisSaidaAux);
 			notasFiscaisSaidaAux = notaFiscalRemessaDao.listarNotaFiscalSaida(Finalizada.nome);
@@ -466,6 +491,93 @@ public class NotaFiscalRemessaService {
 		}catch(Exception e){
 			return false;
 		}
+	}
+	
+	@Transactional(readOnly = true)
+	public Boolean verificarNumeroNotaFiscalSaida(NotaFiscalRemessa notaFiscalSaida, String numeroNotaFiscal) {
+		try{
+			NotaFiscalRemessa nfEncontrada = notaFiscalRemessaDao.verificarNumeroNotaFiscalSaida(numeroNotaFiscal);
+			if(nfEncontrada == null){
+				return true;
+			}else{
+				if(notaFiscalSaida.getId().equals(nfEncontrada.getId())){
+					return true;
+				}
+				return false;
+			}
+		}catch(EmptyResultDataAccessException e){
+			return true;
+		}catch(Exception e){
+			return false;
+		}
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public Boolean retornarOsParaBaixa(NotaFiscalRemessa notaFiscalSaida) {
+		try{
+			Set<NotaFiscal> listaNotaFiscal = new HashSet<NotaFiscal>();
+			
+			notaFiscalSaida = buscarPorId(notaFiscalSaida.getId());
+			
+			//Colocar as OS's nos estado para baixa
+			for(OrdemServico ordemServico : notaFiscalSaida.getOrdensServico()){
+				ordemServico.setBloqueado(0);
+				ordemServico.setDataConhecimentoExpedicao(null);
+				ordemServico.setDataEmissaoNotaFiscalSaida(null);
+				ordemServico.setDataFinalizacao(null);
+				ordemServico.setDataGarantiaAte(null);
+				ordemServico.setNumeroNotaFiscalSaida(null);
+				ordemServico.setOrigemFaturamento(null);
+				ordemServico.setStatusString(AguardandoExpedicao.nome);
+				ordemServico.setValorFaturado(new BigDecimal(0));
+				ordemServico.setValorSistema(new BigDecimal(0));
+				ordemServico.setValorUnitario(new BigDecimal(0));
+				ordemServico.setNotaFiscalSaida(null);
+				
+				if(ordemServico.getNotaFiscal() != null) {
+					listaNotaFiscal.add(ordemServico.getNotaFiscal());
+				}
+				
+				ordemServicoService.salvarSimplesOrdemServico(ordemServico);
+			}
+			
+			//Atualizar status das notas fiscais de entrada
+			for(NotaFiscal notaFiscal : listaNotaFiscal) {
+				notaFiscal.setStatusString(Aberta.nome);
+				notaFiscalService.salvarNotaFiscalSimples(notaFiscal);				
+			}
+			
+			//Deletar os volumes associados
+			for(Volume volume : notaFiscalSaida.getVolumes()){
+				volumeService.excluirVolume(volume);
+			}
+			
+			//Deletar a notafiscal
+			notaFiscalRemessaDao.delete(notaFiscalSaida);
+			
+			return true;
+		}catch(Exception e){
+			return false;
+		}
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public NotaFiscalRemessa atualizarNumeroNotaFiscalSaida(NotaFiscalRemessa notaFiscalSaida, String novoNumero) {
+		try{
+			if(notaFiscalSaida.getNumero() == novoNumero || verificarNumeroNotaFiscalSaida(notaFiscalSaida,novoNumero)){
+			verificarDisponibilidadeNumeroOrdemServico(notaFiscalSaida);
+			notaFiscalSaida = buscarPorId(notaFiscalSaida.getId());
+			notaFiscalSaida.setNumero(novoNumero);
+			notaFiscalRemessaDao.update(notaFiscalSaida);	
+			}else{
+				throw new NumeroNotaFiscalSaidaNaoDisponivelException(novoNumero);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return notaFiscalSaida;
 	}
 	
 }

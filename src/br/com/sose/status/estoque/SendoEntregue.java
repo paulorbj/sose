@@ -74,6 +74,7 @@ public class SendoEntregue extends StatusEstoque {
 			if(requisicaoComponente.getReparo() != null){
 				Reparo rep = requisicaoComponente.getReparo();
 				rep.setComponentePendente(false);
+				rep.setComponenteEmFalta(false);
 				//rep.setStatusString(Iniciado.nome);
 				rep = reparoService.salvarReparo(rep);
 				rep = reparoService.buscarPorId(rep.getId());
@@ -83,6 +84,7 @@ public class SendoEntregue extends StatusEstoque {
 			}else{
 				Orcamento orc = requisicaoComponente.getOrcamento();
 				orc.setComponentePendente(false);
+				orc.setComponenteEmFalta(false);
 				//orc.setStatusString(br.com.sose.status.orcamento.Iniciado.nome);
 				orc = orcamentoService.salvarOrcamento(orc);
 				orc = orcamentoService.buscarPorId(orc.getId());

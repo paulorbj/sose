@@ -102,6 +102,11 @@ public class Perfil implements Serializable {
 	private Boolean subMenuExpedicaoBaixaOs;
 
 	private Boolean subMenuExpedicaoListagemNfSaida;
+	
+	private Boolean subMenuExpedicaoCorrecoes;
+	
+	private Boolean subMenuExpedicaoPermitirRetornarOS;
+	
 	//Permissoes de sub menu proposta
 
 	private Boolean subMenuPropostaBaixaOs;
@@ -652,6 +657,23 @@ public class Perfil implements Serializable {
 
 	public void setSubMenuConsultaGraficos(Boolean subMenuConsultaGraficos) {
 		this.subMenuConsultaGraficos = subMenuConsultaGraficos;
+	}
+
+	public Boolean getSubMenuExpedicaoCorrecoes() {
+		return subMenuExpedicaoCorrecoes;
+	}
+
+	public void setSubMenuExpedicaoCorrecoes(Boolean subMenuExpedicaoCorrecoes) {
+		this.subMenuExpedicaoCorrecoes = subMenuExpedicaoCorrecoes;
+	}
+
+	public Boolean getSubMenuExpedicaoPermitirRetornarOS() {
+		return subMenuExpedicaoPermitirRetornarOS;
+	}
+
+	public void setSubMenuExpedicaoPermitirRetornarOS(
+			Boolean subMenuExpedicaoPermitirRetornarOS) {
+		this.subMenuExpedicaoPermitirRetornarOS = subMenuExpedicaoPermitirRetornarOS;
 	}
 
 	
