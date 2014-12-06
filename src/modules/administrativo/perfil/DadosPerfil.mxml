@@ -85,6 +85,8 @@
 	
 	<fx:Binding destination="subMenuExpedicaoBaixaOs.selected" source="_perfil.subMenuExpedicaoBaixaOs" twoWay="true"/>
 	<fx:Binding destination="subMenuExpedicaoListagemNfSaida.selected" source="_perfil.subMenuExpedicaoListagemNfSaida" twoWay="true"/>
+	<fx:Binding destination="subMenuExpedicaoCorrecoes.selected" source="_perfil.subMenuExpedicaoCorrecoes" twoWay="true"/>
+	<fx:Binding destination="subMenuExpedicaoPermitirRetornarOS.selected" source="_perfil.subMenuExpedicaoPermitirRetornarOS" twoWay="true"/>
 	
 	<fx:Binding destination="subMenuPropostaBaixaOs.selected" source="_perfil.subMenuPropostaBaixaOs" twoWay="true"/>
 	<fx:Binding destination="subMenuPropostaListagemProposta.selected" source="_perfil.subMenuPropostaListagemProposta" twoWay="true"/>
@@ -164,6 +166,8 @@
 	
 	<mx:CheckBox id="subMenuExpedicaoBaixaOs" label="{resourceManager.getString('ApplicationResource','SUB_MENU_EXPEDICAO_BAIXA_OS')}" />
 	<mx:CheckBox id="subMenuExpedicaoListagemNfSaida" label="{resourceManager.getString('ApplicationResource','SUB_MENU_EXPEDICAO_LISTAGEM_NF_SAIDA')}" />
+	<mx:CheckBox id="subMenuExpedicaoCorrecoes" label="Correções do módulo de expedição" />
+	<mx:CheckBox id="subMenuExpedicaoPermitirRetornarOS" label="Permitir retornar OS para baixa" />
 
 	<mx:CheckBox id="subMenuPropostaBaixaOs" label="{resourceManager.getString('ApplicationResource','SUB_MENU_PROPOSTA_BAIXA_OS')}" />
 	<mx:CheckBox id="subMenuPropostaListagemProposta" label="{resourceManager.getString('ApplicationResource','SUB_MENU_PROPOSTA_LISTAGEM_PROPOSTA')}" />

@@ -611,47 +611,47 @@
 						  >
 			
 			<grid:columns>					
-				<mx:DataGridColumn id="cComponente2" width="250"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cComponente2" width="250"
 								   headerText = "Componente"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="componente.nome"							   
 								   />
 				
-				<mx:DataGridColumn id="cTecnicos2" width="200"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cTecnicos2" width="200"
 								   headerText = "Técnicos"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="tecnicos"
 								   />
 				
-				<mx:DataGridColumn id="cTemAmostra2" width="50"
+				<dc:DataGridColumnFilter id="cTemAmostra2" width="50"
 								   headerText = "A" 
 								   textAlign="center"
 								   sortable="false"	
 								   labelFunction="possuiAmostraLabel"
 								   />
 				
-				<mx:DataGridColumn id="cNumeroAmostra" width="100"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroAmostra" width="100"
 								   headerText = "Nº amostra"
 								   textAlign="center"
 								   sortable="false"	
 								   dataField="nAmostra"
 								   />
 				
-				<mx:DataGridColumn id="cQtdRequisitada" width="130"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdRequisitada" width="130"
 								   headerText = "Qtd Requisitada"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="qtdTotalRequisitada"							   
 								   />
 				
-				<mx:DataGridColumn id="cQtdEsperada" width="130"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdEsperada" width="130"
 								   headerText = "Qtd Esperada"
 								   dataField="qtdEsperada"
 								   />
 				
-				<mx:DataGridColumn id="cNumeroPedidos" width="130"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroPedidos" width="130"
 								   headerText = "Nº Pedidos"
 								   dataField="qtdPedido"
 								   />

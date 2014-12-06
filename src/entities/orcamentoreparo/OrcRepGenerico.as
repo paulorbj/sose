@@ -48,7 +48,7 @@ package entities.orcamentoreparo
 		private var _prazoReparo:int;
 		private var _dataRequisicaoLaudoTecnico:Date;
 		private var _componentePendente:Boolean;
-
+		private var _componenteEmFalta:Boolean;
 		
 		public function get id():Number
 		{
@@ -472,6 +472,16 @@ package entities.orcamentoreparo
 		public function set componentePendente(value:Boolean):void
 		{
 			_componentePendente = value;
+		}
+
+		public function get componenteEmFalta():Boolean
+		{
+			return _componenteEmFalta;
+		}
+
+		public function set componenteEmFalta(value:Boolean):void
+		{
+			_componenteEmFalta = value;
 		}
 
 

@@ -82,6 +82,11 @@ package entities.administrativo
 		private var _subMenuExpedicaoBaixaOs:Boolean;
 		
 		private var _subMenuExpedicaoListagemNfSaida:Boolean;
+		
+		private var _subMenuExpedicaoCorrecoes:Boolean;
+		
+		private var _subMenuExpedicaoPermitirRetornarOS:Boolean;
+		
 		//Permissoes de sub menu proposta
 		
 		private var _subMenuPropostaBaixaOs:Boolean;
@@ -755,6 +760,26 @@ package entities.administrativo
 		public function set subMenuConsultaGraficos(value:Boolean):void
 		{
 			_subMenuConsultaGraficos = value;
+		}
+
+		public function get subMenuExpedicaoCorrecoes():Boolean
+		{
+			return _subMenuExpedicaoCorrecoes;
+		}
+
+		public function set subMenuExpedicaoCorrecoes(value:Boolean):void
+		{
+			_subMenuExpedicaoCorrecoes = value;
+		}
+
+		public function get subMenuExpedicaoPermitirRetornarOS():Boolean
+		{
+			return _subMenuExpedicaoPermitirRetornarOS;
+		}
+
+		public function set subMenuExpedicaoPermitirRetornarOS(value:Boolean):void
+		{
+			_subMenuExpedicaoPermitirRetornarOS = value;
 		}
 
 

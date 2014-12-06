@@ -17,6 +17,9 @@
 					if(!Login.currentUser.perfil.subMenuExpedicaoListagemNfSaida){
 						subMenu.removeChild(listagem);
 					}
+					if(!Login.currentUser.perfil.subMenuExpedicaoCorrecoes){
+						subMenu.removeChild(correcoes);
+					}
 				}
 			}
 			
@@ -42,6 +45,9 @@
 		</mx:Canvas>
 		<mx:Canvas id="listagem" label = "{resourceManager.getString('ApplicationResource','LISTAGEM_NOTA_FISCAL_SAIDA')}"  showEffect="fadeIn" hideEffect="fadeOut"  >
 			<expedicao:ListagemNotaFiscalSaida />
+		</mx:Canvas>
+		<mx:Canvas id="correcoes" label = "Correções"  showEffect="fadeIn" hideEffect="fadeOut"  >
+			<expedicao:CorrecoesExpedicao />
 		</mx:Canvas>
 	</mx:ViewStack>
 	

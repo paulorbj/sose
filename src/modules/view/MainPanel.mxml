@@ -156,6 +156,8 @@
 				if(event.modalCorrente != null){
 					modalCorrente = event.modalCorrente;
 					PopUpManager.removePopUp(modalCorrente);
+				}else{
+					modalCorrente = null;
 				}
 				containerPrincipal.addChild(visualizadoPDF);
 			}
@@ -167,7 +169,6 @@
 				if(modalCorrente != null){
 					//PopUpManager.centerPopUp(modalCorrente);
 					PopUpManager.addPopUp(modalCorrente,moduloCorrente, true);
-					//modalCorrente = null;
 				}
 			}
 			
@@ -193,7 +194,7 @@
 				if(modalCorrente != null){
 					//PopUpManager.centerPopUp(modalCorrente);
 					PopUpManager.addPopUp(modalCorrente,moduloCorrente, true);
-					//modalCorrente = null;
+					modalCorrente = null;
 				}
 				visualizadorImagem.idEntidade = null;
 				visualizadorImagem.tipoEntidade = null;
@@ -303,7 +304,7 @@
 	<mx:Canvas id="header" top="0" left="0" right="0">
 		
 		<mx:VBox right="730" verticalCenter="0" verticalGap="0">
-			<s:Label text="Versão: 02/06/2014" fontSize="12" color="red" />
+			<s:Label text="Versão: 28/11/2014" fontSize="12" color="red" />
 			<mx:HBox>
 				<s:Label text="USUÁRIO LOGADO:" styleName="welcome" fontSize="12"  />
 				<s:Spacer width="100%" />

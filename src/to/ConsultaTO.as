@@ -332,10 +332,14 @@ package to
 		
 		public function get propostaAprovada():String
 		{
-			if(_isAprovado){
-				return "Aprovado";
+			if(_nProposta != null && _nProposta != ""){
+				if(_isAprovado){
+					return "Aprovado";
+				}else{
+					return "Reprovado";
+				}
 			}else{
-				return "Reprovado";
+				return "";
 			}
 		}
 		

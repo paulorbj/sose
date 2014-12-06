@@ -18,6 +18,11 @@
 					   fault="onBuscarNotaFiscalRemessaFault(event)" 
 					   result="onBuscarNotaFiscalRemessaResult(event)"
 					   />
+			
+			<mx:method name="retornarOsParaBaixa"      
+					   fault="onRetornarOsParaBaixaFault(event)" 
+					   result="onRetornarOsParaBaixaResult(event)"
+					   />
 		</mx:RemoteObject>
 		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="expedicaoController" destination="expedicaoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
 			<mx:method name="iniciarNotaFiscalSaida"      
@@ -308,6 +313,50 @@
 				visualizarDetalhe();
 			}
 			
+			public function retornarOsParaBaixa(data:Object=null, event:Event=null):void
+			{	
+				
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaNotaFiscalRemessa.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data)
+					_notaFiscalSaida = data as NotaFiscalRemessa;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					notaFiscalRemessaService.retornarOsParaBaixa(_notaFiscalSaida);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(retornarOSParaBaixaAutenticar);	
+				}
+			}
+			
+			public function retornarOSParaBaixaAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				retornarOsParaBaixa();
+			}
+			
+			private function onRetornarOsParaBaixaResult(event:ResultEvent = null):void
+			{
+				var _resultado:Boolean = event.result as Boolean;
+				
+				if(_resultado) {
+					Publicador.enviarMensagemExpedicao(MensagensAplicacao.ATUALIZAR_BAIXA_NOTA_FISCAL_REMESSA,null);
+					notaFiscalRemessaService.listarNotaFiscalSaida();
+					dispatchEvent(new MensagemEvent("Nota fiscal removida e OS's retornadas para baixa", MessageType.SUCCESS, 5000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao realizar a operação", MessageType.ERROR, 5000));
+				}	
+			}
+			
+			private function onRetornarOsParaBaixaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onRetornarOsParaBaixaFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao buscar nota fiscal", MessageType.ERROR, 5000));
+			}
+			
 			private function onBuscarNotaFiscalRemessaResult(event:ResultEvent = null):void
 			{
 				this.currentState = "edicao";
@@ -569,13 +618,26 @@
 							<mx:HBox horizontalAlign="center"
 									 verticalAlign="middle"
 									 >
+								<fx:Script>
+									<![CDATA[
+										import modules.view.Login;
+									]]>
+								</fx:Script>
 								
 								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
 										  click="parentDocument.visualizarDetalhe(data, event)"
 										  buttonMode="true"
 										  useHandCursor="true"
 										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
-										  />						
+										  />	
+								
+								<mx:Image source="@Embed(source='/assets/icons/arrow_undo.png')"
+										  click="parentDocument.retornarOsParaBaixa(data, event)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  visible="{Login.currentUser.perfil.subMenuExpedicaoPermitirRetornarOS}"
+										  toolTip="Retornar OS's para baixa"
+										  />	
 							</mx:HBox>
 						</fx:Component>
 					</mx:itemRenderer>

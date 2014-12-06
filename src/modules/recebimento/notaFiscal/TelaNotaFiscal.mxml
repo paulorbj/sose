@@ -1037,7 +1037,7 @@
 					if(_notaFiscal.cliente.possuiContrato){
 						cbUnidadeLpu.cliente = _notaFiscal.cliente;
 						pfUnidadeLpu.cliente = _notaFiscal.cliente;
-						
+						cbUnidadeLpu.enabled = true;
 						/**
 						if(_notaFiscal.statusString == '' ||_notaFiscal.statusString == 'Nova'){
 							cbUnidadeLpu.enabled = true;
