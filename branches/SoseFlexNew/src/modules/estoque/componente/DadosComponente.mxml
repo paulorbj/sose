@@ -17,12 +17,19 @@
 					   fault="onAtualizarImagemPrincipalFault(event)" 
 					   result="onAtualizarImagemPrincipalResult(event)"
 					   />
+			<mx:method name="excluirArquivoUpload"      
+					   fault="onExcluirArquivoUploadFault(event)" 
+					   result="onExcluirArquivoUploadResult(event)"
+					   />
+			
 		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
 			import components.fileupload.UploadEvent;
+			import components.imageviewer.ImagemViewerEvent;
+			import components.pdfViewer.PDFViewerEvent;
 			
 			import entities.ArquivoUpload;
 			import entities.administrativo.Componente;
@@ -39,11 +46,15 @@
 			[Bindable]
 			private var _listaArquivoUpload:ArrayCollection = new ArrayCollection();
 			
+			[Bindable]
+			public var urlVisualizarArquivo:String = "";
+			
 			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
 			{
 				CursorManager.removeAllCursors(); 
 				_listaArquivoUpload.removeAll();
 				_listaArquivoUpload = event.result as ArrayCollection;
+				urlVisualizarArquivo = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
 			}
 			
 			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
@@ -113,6 +124,21 @@
 				arquivoUploadService.atualizarImagemPrincipal(imagemPrincipal);
 			}
 			
+			public function removerArquivo(data:Object=null, event:Event=null):void
+			{
+				var arq:ArquivoUpload;
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data != null){
+					arq = data as ArquivoUpload;
+				}
+				
+				arquivoUploadService.excluirArquivoUpload(arq);
+			}
+			
 			private function onAtualizarImagemPrincipalResult(event:ResultEvent = null):void
 			{
 				CursorManager.removeAllCursors(); 
@@ -124,6 +150,47 @@
 			{
 				CursorManager.removeAllCursors();
 				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onExcluirArquivoUploadResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				//var _arqToRemove:ArquivoUpload = event.result as ArquivoUpload;
+				arquivoUploadService.listarPorEntidadePorIdentificador("COMPONENTE",_componente.id);
+				visualizadoImagem.recarregarImagens();
+				
+			}
+			
+			private function onExcluirArquivoUploadFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function visualizarPDF(data:Object, event:Event):void
+			{			
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				var arquivoPDF:ArquivoUpload = data as ArquivoUpload;
+				
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlVisualizarArquivo + arquivoPDF.montarURLRelativa(), null));
+			}
+			
+			public function visualizarImagem(data:Object, event:Event):void
+			{			
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				var arquivoImagem:ArquivoUpload = data as ArquivoUpload;
+				
+				dispatchEvent(new ImagemViewerEvent(ImagemViewerEvent.ABRIR_IMAGEM_VIEWER,"COMPONENTE",_componente.id,arquivoImagem, null));
 			}
 			
 		]]>
@@ -178,7 +245,7 @@
 							<mx:DataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
 							<mx:DataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="175" />
 							<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
-											   draggable="false"  textAlign="center" width="50"							 
+											   draggable="false"  textAlign="center" width="150"							 
 											   editable="false"
 											   sortable="false">
 								<mx:itemRenderer>
@@ -186,6 +253,11 @@
 										<mx:HBox horizontalAlign="center"
 												 verticalAlign="middle"
 												 >
+											<fx:Script>
+												<![CDATA[
+													import entities.ArquivoUpload;
+												]]>
+											</fx:Script>
 											<mx:Image source="@Embed(source='/assets/icons/image_link.png')"
 													  click="parentDocument.setarImagemPrincipal(data, event)"
 													  buttonMode="true"
@@ -193,9 +265,24 @@
 													  toolTip="Imagem principal"
 													  />
 											
+											<mx:Image source="@Embed(source='/assets/icons/page_white_acrobat.png')"
+													  click="parentDocument.visualizarPDF(data, event)"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  visible="{(data as ArquivoUpload).tipoArquivo == 'PDF'}"
+													  toolTip="Visualizar PDF"
+													  />
+											<mx:Image source="@Embed(source='/assets/icons/image.png')"
+													  click="parentDocument.visualizarImagem(data, event)"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  visible="{(data as ArquivoUpload).tipoArquivo == 'IMAGEM'}"
+													  toolTip="Visualizar Imagem"
+													  />
+											
 											<mx:Image source="@Embed(source='/assets/icons/delete.png')"
-													  click="parentDocument.excluirItem(data, event)"
-													  enabled="false"
+													  click="parentDocument.removerArquivo(data, event)"
+													  enabled="true"
 													  buttonMode="true"
 													  useHandCursor="true"
 													  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"

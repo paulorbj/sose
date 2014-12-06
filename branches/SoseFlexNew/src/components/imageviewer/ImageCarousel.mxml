@@ -99,11 +99,10 @@
 			  height="100%" width="100%"
 			  horizontalAlign="center">
 		<mx:Image id="img"
-				  
 				  maintainAspectRatio="true"
 				  horizontalAlign="center"
 				  width="100%"
-				  height="160" />
+				  height="100%" />
 		<mx:ControlBar horizontalAlign="center">
 			<mx:HorizontalList id="horizontalList"
 							   labelField="nome"

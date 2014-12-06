@@ -451,6 +451,7 @@ package utils
 			
 			orcRep.unidade = reparo.ordemServico.unidade.nome;
 			orcRep.componentePendente = reparo.componentePendente;
+			orcRep.componenteEmFalta = reparo.componenteEmFalta;
 			orcRep.criadoFromOrcamento = reparo.criadoFromOrcamento;
 			return orcRep;
 		}
@@ -490,6 +491,7 @@ package utils
 			orcRep.bloqueado = orcamento.ordemServico.bloqueado;
 			orcRep.unidade = orcamento.ordemServico.unidade.nome;
 			orcRep.componentePendente = orcamento.componentePendente;
+			orcRep.componenteEmFalta = orcamento.componenteEmFalta;
 			return orcRep;
 		}
 

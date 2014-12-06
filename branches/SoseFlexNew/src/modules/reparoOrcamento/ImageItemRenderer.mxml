@@ -11,7 +11,10 @@
 			import mx.containers.Grid;
 			import mx.controls.DataGrid;
 			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.dataGridClasses.DataGridListData;
 			import mx.controls.listClasses.BaseListData;
+			
+			import to.OrcRepGenericoTO;
 			
 			private var _data:Object;
 			
@@ -26,6 +29,27 @@
 				this.source = component_icon;
 			}
 			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void 
+			{ 
+				//super.updateDisplayList(unscaledWidth, unscaledHeight); 
+				if(listData != null && data != null) {
+					var g:Graphics = graphics; 
+					g.clear(); 
+					var grid1:DataGrid = DataGrid(DataGridListData(listData).owner); 
+					if (grid1.isItemSelected(data) || grid1.isItemHighlighted(data)) 
+						return; 
+					if (data is OrcRepGenericoTO) 
+					{ 
+						if((data as OrcRepGenericoTO).componenteEmFalta){
+							g.beginFill(0xFF0000); 
+							g.drawRect(0, 0, unscaledWidth, unscaledHeight); 
+							g.endFill(); 
+						}
+					} 
+					
+				}
+			} 
+			
 			override public function set data(value:Object):void
 			{
 				_data = value;
@@ -34,6 +58,10 @@
 					this.toolTip = "Possui componente pendente";
 				}else{
 					this.source = null;
+				}
+				
+				if(_data != null && _data.componenteEmFalta == true){
+//					this.
 				}
 				
 			}

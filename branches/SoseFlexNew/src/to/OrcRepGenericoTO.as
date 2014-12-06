@@ -75,6 +75,8 @@ package to
 		
 		private var _componentePendente:Boolean;
 		
+		private var _componenteEmFalta:Boolean;
+		
 		private var _criadoFromOrcamento:Boolean;
 		
 		public function OrcRepGenericoTO()
@@ -493,6 +495,16 @@ package to
 		public function set criadoFromOrcamento(value:Boolean):void
 		{
 			_criadoFromOrcamento = value;
+		}
+
+		public function get componenteEmFalta():Boolean
+		{
+			return _componenteEmFalta;
+		}
+
+		public function set componenteEmFalta(value:Boolean):void
+		{
+			_componenteEmFalta = value;
 		}
 		
 		

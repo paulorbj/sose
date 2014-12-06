@@ -43,7 +43,7 @@
 			<mx:method name="buscarPorIdBaixaOS"      
 					   fault="onBuscarPorIdFault(event)" 
 					   result="onBuscarPorIdResult(event)"
-					   />
+					   />			
 		</mx:RemoteObject>
 		
 		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="expedicaoController" destination="expedicaoController" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
@@ -131,6 +131,11 @@
 				if (globalMessage.mensagem==MensagensAplicacao.EXPEDICAO_OS_AGUARDANDO_BAIXA){
 					btAtualizar.setStyle("icon", synchronized_verde);
 					btAtualizar.enabled = true;
+				}
+				
+				if(globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_BAIXA_NOTA_FISCAL_REMESSA){
+					notaFiscalRemessaService.listarOrdemServicoBaixaExpedicao();
+					clientes.recarregar();
 				}
 			} 
 			

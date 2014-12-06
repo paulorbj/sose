@@ -50,13 +50,15 @@
 			
 			private function close():void
 			{
+				urlSource = "";
+				visualizadorComponente.removeAllChildren();
 				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.FECHAR_VIEWER, null));
 			}
 									
 		]]>
 	</fx:Script>
 	
-	<mx:VBox width="100%" height="100%" borderStyle="solid" verticalScrollPolicy="off" horizontalAlign="center" horizontalScrollPolicy="off">
+	<mx:VBox width="100%" id="visualizadorComponente" height="100%" borderStyle="solid" verticalScrollPolicy="off" horizontalAlign="center" horizontalScrollPolicy="off">
 		<flexiframe:IFrame id="googleIFrame"
 						   scrollPolicy="no"
 						   label="Google"
