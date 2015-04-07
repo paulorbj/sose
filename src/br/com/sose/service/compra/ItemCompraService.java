@@ -72,6 +72,23 @@ public class ItemCompraService {
 
 	@RemotingInclude
 	@Transactional(readOnly = true)
+	public Integer calcularQuantidadeAguardandoCompra(Componente componente) throws Exception {
+		List<ItemCompra> listaRetorno;
+		Integer quantidade = 0;
+		try {
+			listaRetorno =(List<ItemCompra>) itemCompraDao.listarItemCompraEmAguardandoCompra(componente);	
+			for(ItemCompra ic : listaRetorno) {
+				quantidade += ic.getQtdTotalRequisitada();
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); logger.error(e);
+			quantidade = 0;;
+		}
+		return quantidade;
+	}
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
 	public List<ItemCompra> listarUltimasCompras(Componente componente, int qtdResultado) throws Exception {
 		List<ItemCompra> listaRetorno;
 		try {

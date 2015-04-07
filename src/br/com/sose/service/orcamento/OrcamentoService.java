@@ -317,6 +317,7 @@ public class OrcamentoService {
 			observacaoService.log("Orçamento", "Reatribuição de técnico: " + (orcamento.getTecnicoResponsavel() != null ?orcamento.getTecnicoResponsavel().getUsuario() : vazio) + " -> " + usuario.getUsuario(), 2, new Date(),orcamento, atribuidoPor);
 			usuario = usuarioService.buscarPorId(usuario.getId());
 			orcamento.setTecnicoResponsavel(usuario);
+			requisicaoComponenteService.reatribuirTecnico(orcamento.getListaRequisicao(), usuario);
 			orcamentoEditado =(Orcamento) salvarOrcamentoSimples(orcamento);	
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);

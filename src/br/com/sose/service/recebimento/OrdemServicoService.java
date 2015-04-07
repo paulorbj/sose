@@ -55,7 +55,7 @@ import br.com.sose.utils.OrdemServicoUtils;
 public class OrdemServicoService {
 
 	private Logger logger = Logger.getLogger(this.getClass());
-	
+
 	@Autowired
 	public OrdemServicoDao ordemServicoDao;
 
@@ -217,7 +217,7 @@ public class OrdemServicoService {
 		}
 		return osEncontrada;
 	}
-	
+
 	@RemotingInclude
 	@Transactional(readOnly=true)
 	public OrdemServico buscarPorOrdemServicoSimples(String numero) throws Exception {
@@ -420,7 +420,7 @@ public class OrdemServicoService {
 		}
 		return ordemServicoSalva;
 	}
-	
+
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public Boolean corrigirOrdemServico(String nOSBuscada, String nOS, String nsFabricante, String nsCliente,String osCliente, Usuario realizadoPor) throws Exception {
@@ -432,7 +432,7 @@ public class OrdemServicoService {
 				throw new NumeroOrdemServicoNaoDisponivelException(osInformada.getNumeroOrdemServico());
 			}
 			int i = ordemServicoDao.corrigirOrdemServico(nOSBuscada, nOS, nsFabricante, nsCliente, osCliente);
-			
+
 			observacaoService.log("Recebimento", "Atualização de informações: Nº OS("+osEncontrada.getNumeroOrdemServico()+"->"+nOS+"), N/S Fabricante("+osEncontrada.getSerieFabricante()+"->"+nsFabricante+"), N/S Cliente("+osEncontrada.getSerieCliente()+"->"+nsCliente+"), OS Cliente("+osEncontrada.getOrdemServicoCliente()+"->"+osCliente+")", 2, new Date(), osEncontrada, realizadoPor);
 
 			if(i > 0){
@@ -591,8 +591,8 @@ public class OrdemServicoService {
 			if(Integer.parseInt(ordemServico.getNumeroOrdemServico()) > maiorNumeroOS.intValue() + 3000){
 				throw new NumeroOrdemServicoMaiorQuePermitidoException(ordemServico.getNumeroOrdemServico(),  maiorNumeroOS.intValue() + 3000);
 			}
-			
-			
+
+
 			if(osRetornadas == null || osRetornadas.isEmpty()){
 				//Busca invertida
 				osRetornadas = ordemServicoDao.buscarOSporSeries(ordemServico.getCliente(),ordemServico.getSerieCliente(),ordemServico.getSerieFabricante(),ordemServico.getUnidade());
@@ -605,9 +605,9 @@ public class OrdemServicoService {
 				if(osRetornadas != null && !osRetornadas.isEmpty()){
 					OrdemServico osRetornada = osRetornadas.get(0);
 					if(osRetornada.getDataFinalizacao() == null ||
-					   osRetornada.getReparo() != null && (osRetornada.getReparo().getCondicao().equalsIgnoreCase("Sem condição de reparo") || osRetornada.getReparo().getCondicao().equalsIgnoreCase("Devolução sem reparo")) ||
-					   osRetornada.getOrcamento() != null && (osRetornada.getOrcamento().getCondicao().equalsIgnoreCase("Sem condição de reparo") || osRetornada.getOrcamento().getCondicao().equalsIgnoreCase("Devolução sem reparo"))
-					   ){
+							osRetornada.getReparo() != null && (osRetornada.getReparo().getCondicao().equalsIgnoreCase("Sem condição de reparo") || osRetornada.getReparo().getCondicao().equalsIgnoreCase("Devolução sem reparo")) ||
+							osRetornada.getOrcamento() != null && (osRetornada.getOrcamento().getCondicao().equalsIgnoreCase("Sem condição de reparo") || osRetornada.getOrcamento().getCondicao().equalsIgnoreCase("Devolução sem reparo"))
+							){
 						// os ainda Não foi finalizada e deve estar na servilogi
 						// verificar o que deve ser feito nesse caso
 						//os foi devolvida sem condicao de reparo ou devolucao sem reparo
@@ -642,6 +642,40 @@ public class OrdemServicoService {
 			throw e;
 		}
 	}
+
+	/**
+	 * Retorna null se a ordemServico Não possui garantia
+	 * Retorna a ordem de serviço encontrada como garantia
+	 * @param ordemServico
+	 * @return
+	 */
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public OrdemServico verificarReincidencia(OrdemServico ordemServico) throws Exception{
+		List<OrdemServico> osRetornadas = ordemServicoDao.buscarOSporSeries(ordemServico.getCliente(),ordemServico.getSerieFabricante(),ordemServico.getSerieCliente(),ordemServico.getUnidade());
+
+		try{
+
+			if(osRetornadas == null || osRetornadas.isEmpty()){
+				//Busca invertida
+				osRetornadas = ordemServicoDao.buscarOSporSeries(ordemServico.getCliente(),ordemServico.getSerieCliente(),ordemServico.getSerieFabricante(),ordemServico.getUnidade());
+			}
+
+			if(osRetornadas != null && !osRetornadas.isEmpty()){
+
+				observacaoService.log("Recebimento", "O sistema identificou reincidência", 2, new Date(),ordemServico, null);
+
+				return ordemServico;
+			}else{
+				//Nenhuma das duas buscas retornou algum valor
+				return null;
+			}
+		}catch(Exception e){
+			e.printStackTrace(); logger.error(e);
+			throw e;
+		}
+	}
+
 
 	@Transactional(readOnly=true)
 	public Boolean verificarDisponibilidadeNumeroOrdemServico(OrdemServico ordemServico) {
@@ -735,7 +769,7 @@ public class OrdemServicoService {
 					ordemServico.setValorSistema(new BigDecimal(0));
 				}
 			}
-			
+
 			//Configura origem
 			if(ordemServico.getGarantia()){
 				ordemServico.setOrigemFaturamento("Garantia");
@@ -760,11 +794,11 @@ public class OrdemServicoService {
 			e.printStackTrace(); logger.error(e);
 			throw e;
 		}
-		
+
 		return ordemServico;
 	}
-	
-	
+
+
 	/**
 	 * 
 	 * 

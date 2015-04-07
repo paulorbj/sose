@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.sose.daoImpl.areaTecnica.RequisicaoComponenteDao;
 import br.com.sose.daoImpl.reparo.ReparoDao;
 import br.com.sose.entity.admistrativo.Usuario;
 import br.com.sose.entity.orcamento.Orcamento;
 import br.com.sose.entity.orcrepGenerico.AtividadeOrcRep;
 import br.com.sose.entity.orcrepGenerico.ComponenteOrcRep;
 import br.com.sose.entity.orcrepGenerico.DefeitoOrcRep;
+import br.com.sose.entity.orcrepGenerico.RequisicaoComponente;
 import br.com.sose.entity.recebimento.OrdemServico;
 import br.com.sose.entity.reparo.Reparo;
 import br.com.sose.service.administrativo.ObservacaoService;
@@ -28,6 +28,7 @@ import br.com.sose.service.administrativo.UsuarioService;
 import br.com.sose.service.areatecnica.AtividadeOrcRepService;
 import br.com.sose.service.areatecnica.ComponenteOrcRepService;
 import br.com.sose.service.areatecnica.DefeitoOrcRepService;
+import br.com.sose.service.areatecnica.RequisicaoComponenteService;
 import br.com.sose.service.orcamento.OrcamentoService;
 import br.com.sose.service.recebimento.OrdemServicoService;
 import br.com.sose.status.reparo.AguardandoLiberacao;
@@ -61,7 +62,7 @@ public class ReparoService {
 	public ComponenteOrcRepService componenteOrcRepService;
 
 	@Autowired
-	public RequisicaoComponenteDao requisicaoComponenteDao;
+	public RequisicaoComponenteService requisicaoComponenteService;
 
 	@Autowired
 	public ObservacaoService observacaoService;
@@ -235,6 +236,15 @@ public class ReparoService {
 						reparo.getListaComponente().add(aor);
 					}
 				}
+				
+				if(orcamento.getListaRequisicao() != null && !orcamento.getListaRequisicao().isEmpty()){
+					RequisicaoComponente reqAux = null;
+					for(RequisicaoComponente req : orcamento.getListaRequisicao()) {
+						req.setReparo(reparo);
+						reqAux = requisicaoComponenteService.salvarRequisicao(req);
+						reparo.getListaRequisicao().add(reqAux);
+					}		
+				}
 
 			}
 
@@ -389,6 +399,7 @@ public class ReparoService {
 			observacaoService.log("Reparo", "Reatribuição de técnico: " + (reparo.getTecnicoResponsavel() != null ?reparo.getTecnicoResponsavel().getUsuario() : vazio) + " -> " + usuario.getUsuario(), 2, new Date(),reparo.getOrdemServico(), atribuidoPor);
 			usuario = usuarioService.buscarPorId(usuario.getId());
 			reparo.setTecnicoResponsavel(usuario);
+			requisicaoComponenteService.reatribuirTecnico(reparo.getListaRequisicao(), usuario);
 			reparoEditado =(Reparo) salvarReparoSimples(reparo);	
 		} catch (Exception e) {
 			e.printStackTrace(); logger.error(e);

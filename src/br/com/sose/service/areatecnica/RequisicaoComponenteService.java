@@ -2,7 +2,9 @@ package br.com.sose.service.areatecnica;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
@@ -24,6 +26,7 @@ import br.com.sose.service.administrativo.ComponenteService;
 import br.com.sose.service.administrativo.ObservacaoService;
 import br.com.sose.service.administrativo.UsuarioService;
 import br.com.sose.service.areatecnica.exceptions.SaldoInsuficienteException;
+import br.com.sose.service.compra.ItemCompraService;
 import br.com.sose.service.compra.PedidoCompraService;
 import br.com.sose.service.orcamento.OrcamentoService;
 import br.com.sose.service.reparo.ReparoService;
@@ -65,6 +68,9 @@ public class RequisicaoComponenteService {
 	@Autowired
 	private ObservacaoService observacaoService;
 
+	@Autowired
+	private ItemCompraService itemCompraService;
+	
 	@RemotingInclude
 	@Transactional(readOnly = true)
 	public List<RequisicaoComponente> listarRequisicao() throws Exception {
@@ -269,7 +275,17 @@ public class RequisicaoComponenteService {
 					if(saldoEstoque <= componente.getQtdEstoqueMinimo()){
 						PedidoCompra pedidoCompra = pedidoCompraService.buscarPorEstoqueMinimoAguardandoCompra(componente);
 						
-						if(pedidoCompra == null){
+						Integer quantidadeEmCompra = itemCompraService.calcularQuantidadeAguardandoCompra(componente);
+						
+						if(pedidoCompra == null && quantidadeEmCompra > 0){
+							pedidoCompra = new PedidoCompra();
+							pedidoCompra.setDataCriacao(new Date());
+							pedidoCompra.setComponente(componente);
+							pedidoCompra.setTecnico(usuarioService.buscarPorId(new Long(65)));
+							pedidoCompra.setOrigemPedido("Estoque mínimo");
+							pedidoCompra.setStatusString("Aguardando compra");
+							pedidoCompra.setQuantidade(requisicaoComponente.getQuantidade());							
+						}else if(pedidoCompra == null) {
 							pedidoCompra = new PedidoCompra();
 							pedidoCompra.setDataCriacao(new Date());
 							pedidoCompra.setComponente(componente);
@@ -519,6 +535,22 @@ public class RequisicaoComponenteService {
 			throw e;
 		}
 		return requisicaoComponente;
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public Set<RequisicaoComponente> reatribuirTecnico(Set<RequisicaoComponente> requisicoes, Usuario novoTecnico) {
+		Set<RequisicaoComponente> requisicoesAux = new HashSet<RequisicaoComponente>();
+		try {
+			for(RequisicaoComponente requisicao : requisicoes){
+				requisicao.setRequisitante(novoTecnico);
+				requisicao = requisicaoComponenteDao.update(requisicao);
+				requisicoesAux.add(requisicao);
+			}
+			return requisicoesAux;
+		} catch (Exception e) {
+			return requisicoes;
+		}
 	}
 
 }
