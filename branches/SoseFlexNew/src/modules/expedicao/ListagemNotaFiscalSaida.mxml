@@ -655,7 +655,7 @@
 								   dataField = "statusString"
 								   />
 				
-				<mx:DataGridColumn id="dataCriacao" width="80"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataCriacao" width="80"
 								   headerText = "{resourceManager.getString('ApplicationResource','DATA_CRIACAO')}"
 								   textAlign="center"
 								   sortable="false"
@@ -663,7 +663,7 @@
 								   />
 				
 				
-				<mx:DataGridColumn id="dataSaida" width="80"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataSaida" width="80"
 								   headerText = "Data saída"
 								   textAlign="center"
 								   sortable="false"

@@ -62,7 +62,7 @@
 				if(!isNaN(ic.valorUnitario) && ic.valorUnitario != 0){
 					return Formatador.formatarValorNumber(ic.valorUnitario);
 				}else{
-					return Formatador.formatarValorNumber(ic.valorUnitarioDolar);
+					return Formatador.formatarValorDolarNumber(ic.valorUnitarioDolar);
 				}
 			}
 			

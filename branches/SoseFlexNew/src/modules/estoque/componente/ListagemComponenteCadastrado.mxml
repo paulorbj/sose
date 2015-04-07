@@ -61,7 +61,9 @@
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
 					var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
-					adicionarComponente(req.componente);
+					if(req != null){
+						adicionarComponente(req.componente);
+					}
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR){
 					var req1:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;

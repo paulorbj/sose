@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 horizontalAlign="center"
-		 verticalAlign="middle">
+		 verticalAlign="middle" xmlns:s="library://ns.adobe.com/flex/spark">
 		
 	<mx:Script>
 		<![CDATA[
@@ -15,9 +15,13 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Image id="imgMiniatura"
-		width="50" height="50"
-		/>
+	<s:Graphic>
+		<s:BitmapImage id="imgMiniatura"
+					   fillMode="scale"
+				  width="50" height="50"
+				  />
+	</s:Graphic>
+	
 	
 	<mx:Label id="imgLabel" width="50" />
 	

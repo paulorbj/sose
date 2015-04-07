@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" initialize="init()"
-		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center" xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*" 
 		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%" >
 	
@@ -335,61 +335,61 @@
 		
 		<grid:columns>
 						
-			<mx:DataGridColumn id="cComponente" width="250"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="cComponente" width="250"
 							   headerText = "Componente"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="componente.nome"							   
 							   />
 			
-			<mx:DataGridColumn id="cTecnicos" width="200"
+			<dc:DataGridColumnFilter id="cTecnicos" width="200"
 							   headerText = "Técnicos"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="tecnicos"
 							   />
 			
-			<mx:DataGridColumn id="cStatus" width="100"
+			<dc:DataGridColumnFilter id="cStatus" width="100"
 							   headerText = "Status" 
 							   textAlign="center"
 							   sortable="false"	
 							   dataField="status"
 							   />
 			
-			<mx:DataGridColumn id="cTemAmostra" width="50"
+			<dc:DataGridColumnFilter id="cTemAmostra" width="50"
 							   headerText = "A" 
 							   textAlign="center"
 							   sortable="false"	
 							   labelFunction="possuiAmostraLabel"
 							   />
 			
-			<mx:DataGridColumn id="cNumeroAmostra" width="80"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroAmostra" width="80"
 							   headerText = "Nº amostra"
 							   textAlign="center"
 							   sortable="false"		
 							   dataField="nAmostra"
 							   />
 			
-			<mx:DataGridColumn id="cQtdEstoque" width="100"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdEstoque" width="100"
 							   headerText = "Qtd em estoque"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="componente.qtdEstoque"							   
 							   />
 			
-			<mx:DataGridColumn id="cQtdRequisitada" width="100"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdRequisitada" width="100"
 							   headerText = "Qtd Requisitada"
 							   textAlign="center"
 							   sortable="false"
 							   dataField="qtdTotalRequisitada"							   
 							   />
 			
-			<mx:DataGridColumn id="cQtdEsperada" width="100"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdEsperada" width="100"
 							   headerText = "Qtd Esperada"
 							   dataField="qtdEsperada"
 							   />
 			
-			<mx:DataGridColumn id="cNumeroPedidos" width="80"
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cNumeroPedidos" width="80"
 							   headerText = "Nº Pedidos"
 							   dataField="qtdPedido"
 							   />

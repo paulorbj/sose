@@ -1004,18 +1004,19 @@
 					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_DEFEITO_INFORMADO'), MessageType.WARNING, 5000));
 					return false;
 				}
-				
-				if(infoComponentes.listaRequisicoes.length > 0){
-					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
-						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
-							
-						}else{
-							//Alguma requisicao ainda não foi devidamente atendida
-							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXISTEM_REQUISICOES_PENDENTES'), MessageType.WARNING, 5000));
-							return false;
-						}
-					}
-				}
+
+//O fato de uma requisicao estar pendente nao irah travar o processo, somente no momento de finalizar a OS				
+//				if(infoComponentes.listaRequisicoes.length > 0){
+//					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
+//						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
+//							
+//						}else{
+//							//Alguma requisicao ainda não foi devidamente atendida
+//							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXISTEM_REQUISICOES_PENDENTES'), MessageType.WARNING, 5000));
+//							return false;
+//						}
+//					}
+//				}
 				if(infoComponentes.listaComponentePosicao.length > 0){
 					for each(var comp:ComponenteOrcRep in infoComponentes.listaComponentePosicao){
 						if(comp.condicao == "Utilizado" && comp.posicao == ""){
@@ -1633,17 +1634,17 @@
 					return false;
 				}
 				
-				if(infoComponentes.listaRequisicoes != null && infoComponentes.listaRequisicoes.length > 0){
-					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
-						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
-							
-						}else{
-							//Alguma requisicao ainda não foi devidamente atendida
-							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXISTEM_REQUISICOES_PENDENTES'), MessageType.WARNING, 5000));
-							return false;
-						}
-					}
-				}
+//				if(infoComponentes.listaRequisicoes != null && infoComponentes.listaRequisicoes.length > 0){
+//					for each(var rec:RequisicaoComponente in infoComponentes.listaRequisicoes){
+//						if(rec.statusString == "Retirado" || rec.statusString == "Cancelado" || rec.statusString == "Recebido"){
+//							
+//						}else{
+//							//Alguma requisicao ainda não foi devidamente atendida
+//							dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','EXISTEM_REQUISICOES_PENDENTES'), MessageType.WARNING, 5000));
+//							return false;
+//						}
+//					}
+//				}
 				if(infoComponentes.listaComponentePosicao != null && infoComponentes.listaComponentePosicao.length > 0){
 					for each(var comp:ComponenteOrcRep in infoComponentes.listaComponentePosicao){
 						if(comp.condicao == "Utilizado" && comp.posicao == ""){

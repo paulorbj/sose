@@ -25,6 +25,13 @@
 		</s:ChannelSet>
 		
 		<mx:Consumer id="consumidorRecebimentoMessageService" destination="RecebimentoMessageServicePush" message="onMsgAreaTecnica(event)" />
+		
+		<mx:RemoteObject id="timeUtils" destination="timeUtils" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="dataAtual"      
+					   fault="onDataAtualFault(event)" 
+					   result="onDataAtualResult(event)"
+					   />
+		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<!-- Action Scripts -->
@@ -47,6 +54,8 @@
 			import mx.logging.LogEventLevel;
 			import mx.messaging.FlexClient;
 			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			
 			import utils.ConfigurationUtil;
 			import utils.ConfigureI18N;
@@ -57,6 +66,8 @@
 			public static const LOG:ILogger = Log.getLogger("RemoteLogging");
 
 			private var mainPainel:MainPanel;
+			
+			public var dataAtual:Date;
 			
 			/**
 			 * Configurations made before any component creation
@@ -71,7 +82,17 @@
 			private function init():void
 			{
 				consumidorRecebimentoMessageService.subscribe();
-				
+				timeUtils.dataAtual();
+			}
+			
+			public function onDataAtualResult(event:ResultEvent):void			
+			{
+				dataAtual = event.result as Date;
+			}
+			
+			public function onDataAtualFault(event:FaultEvent):void
+			{
+				dataAtual = new Date();	
 			}
 			
 			private function creationComplete():void

@@ -124,5 +124,19 @@ package utils
 				strRetorno = "R$ " + strRetorno;
 			return strRetorno;
 		}
+		
+		public static function formatarValorDolarNumber(num:Number):String
+		{
+			if(num == 0 || isNaN(num)){
+				return "US$ 0,00";
+			}
+			var str:String = num.toString();
+			var strRetorno:String = "";
+			str = str.replace(".",",");
+			strRetorno = formatarValorString(str);
+			if(strRetorno.indexOf("US$") == -1)
+				strRetorno = "US$ " + strRetorno;
+			return strRetorno;
+		}
 	}
 }

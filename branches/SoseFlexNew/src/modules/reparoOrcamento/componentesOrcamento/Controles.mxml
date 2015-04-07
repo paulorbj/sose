@@ -186,7 +186,7 @@
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/money.png')"
 				   click="encaminharAoLider(event)"
-				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; _orcamento.ordemServico.bloqueado == 0 &amp;&amp; _orcamento.componentePendente == false}" enabled.visualizar="false"
+				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; _orcamento.ordemServico.bloqueado == 0}" enabled.visualizar="false"
 				   />
 		
 		<mx:Button id="btDevolverSemReparo" 
@@ -194,14 +194,14 @@
 				   labelPlacement="bottom" width="70"
 				   icon="@Embed(source='/assets/icons/cog_error.png')"
 				   click="devolverSemReparo(event)"
-				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; (_orcamento.ordemServico.bloqueado == 0 || _orcamento.ordemServico.bloqueado == 8) &amp;&amp; _orcamento.componentePendente == false}" enabled.visualizar="false"
+				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; (_orcamento.ordemServico.bloqueado == 0 || _orcamento.ordemServico.bloqueado == 8)}" enabled.visualizar="false"
 				   />
 		<mx:Button id="btRequisitarLaudo" width="70"
 				   label="Laudo"
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/table_gear.png')"
 				   click="requisitarLaudoTecnico(event)"
-				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; _orcamento.ordemServico.bloqueado == 0 &amp;&amp; _orcamento.componentePendente == false}" enabled.visualizar="false"
+				   enabled.editar="{(_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.laudoTecnicoAprovado == null) &amp;&amp; (_orcamento.statusString == 'Iniciado' &amp;&amp; _orcamento.propostaReprovada == null) &amp;&amp; _orcamento.ordemServico.bloqueado == 0}" enabled.visualizar="false"
 				   />
 		<mx:Button id="btRequisitarReparoExterno" width="70"
 				   label="Reparo Externo"

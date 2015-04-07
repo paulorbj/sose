@@ -343,6 +343,12 @@
 				listaComponentesFiltrados.addAll(listaComponentes);
 			}
 			
+			
+			private function notificarEstoque(event:MouseEvent=null):void
+			{
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA,null);
+			}
+			
 			public function efetivarRequisicaoAutenticar(event:UserRegisterNumberModalEvent=null):void{
 				efetivarRequisicao();
 			}
@@ -401,10 +407,10 @@
 				CursorManager.removeAllCursors(); 
 				_requisicao = event.result as RequisicaoComponente;
 				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA,_requisicao);
-				//publicarRequisicao(_requisicao, MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA);
+				
 				atualizarComponente(_requisicao.componente);
 				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR,_requisicao.componente)
-				//publicarComponente(_requisicao.componente,MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR);
+
 				if(_orcamento){
 					_orcamento = _requisicao.orcamento;
 					dispatchEvent(new OrcamentoEvent(OrcamentoEvent.ATUALIZAR_ORCAMENTO, _orcamento));
@@ -942,10 +948,15 @@
 					<texto:TextInput id="componenteNome" habilitado="false" required="true" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE')}" width="50%" />
 					<texto:TextInput id="componenteQuantidade" restrict="0-9" required="true" habilitado.visualizarRequisicao="false" labelText="{resourceManager.getString('ApplicationResource','QUANTIDADE')}" width="10%" />
 					<mx:Button id="btEfetivarPedido"
-							   label="Enviar"
+							   label="Adicionar"
 							   height="25" enabled.visualizarRequisicao="false" 
 							   icon="@Embed(source='/assets/icons/save.png')"
-							   click="efetivarRequisicao(event)"/>	
+							   click="efetivarRequisicao(event)"/>
+					<mx:Button id="btNotificarEstoque"
+							   label="Notificar estoque"
+							   height="25" enabled.visualizarRequisicao="false" 
+							   icon="@Embed(source='/assets/icons/save.png')"
+							   click="notificarEstoque(event)"/>
 				</mx:HBox>
 				
 				<grid:MantisTable id="requisicaoTable"

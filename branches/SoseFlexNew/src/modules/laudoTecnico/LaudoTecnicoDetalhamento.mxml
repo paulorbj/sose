@@ -12,6 +12,10 @@
 					   result="onListarPorEntidadePorIdentificadorResult(event)"
 					   />
 			
+			<mx:method name="excluirArquivoUpload"      
+					   fault="onExcluirArquivoUploadFault(event)" 
+					   result="onExcluirArquivoUploadResult(event)"
+					   />
 		</mx:RemoteObject>
 	</fx:Declarations>
 	
@@ -27,6 +31,7 @@
 			import entities.recebimento.OrdemServico;
 			
 			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
 			import mx.managers.CursorManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -156,7 +161,33 @@
 			{
 				_listaArquivoUpload = value;
 			}
+			
+			public function removerArquivo(data:Object=null, event:Event=null):void
+			{
+				var arq:ArquivoUpload;
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data != null){
+					arq = data as ArquivoUpload;
+				}
+				
+				arquivoUploadService.excluirArquivoUpload(arq);
+			}
 
+			private function onExcluirArquivoUploadResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				uploadConcluidoCallback();
+			}
+			
+			private function onExcluirArquivoUploadFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
 			
 		]]>
 	</fx:Script>
@@ -322,8 +353,8 @@
 													 verticalAlign="middle"
 													 >
 												<mx:Image source="@Embed(source='/assets/icons/delete.png')"
-														  click="parentDocument.excluirItem(data, event)"
-														  enabled="false"
+														  click="parentDocument.removerArquivo(data, event)"
+														  enabled="true"
 														  buttonMode="true"
 														  useHandCursor="true"
 														  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"

@@ -3,7 +3,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
 		 xmlns:components="components.*" horizontalAlign="center"
-		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:dc="components.grid.filtros.controles.*"
 		 initialize="init()">
 	
 	<fx:Declarations>
@@ -57,18 +57,6 @@
 			private var _devolucaoComponente:DevolucaoComponente;
 			
 			[Bindable]
-			private var listaComponente:ArrayCollection = new ArrayCollection;
-			
-			[Bindable]
-			private var listaStatus:ArrayCollection = new ArrayCollection;
-			
-			[Bindable]
-			private var listaUsuario:ArrayCollection = new ArrayCollection;
-			
-			[Bindable]
-			private var listaLaboratorio:ArrayCollection = new ArrayCollection;
-			
-			[Bindable]
 			private var totalComponentes:Number = 0;
 			
 			private function init():void
@@ -76,25 +64,7 @@
 				devolucaoComponenteService.listarDevolucoesAreaTecnica();
 				consumidorEstoqueService.subscribe();
 			}
-			
-//			private function publicarDevolucao(orc:DevolucaoComponente, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = orc;				
-//				message.body=messageGlobal;
-//				produtorEstoqueService.send(message);	
-//			}
-//			
-//			private function publicarComponente(orc:Componente, msg:String):void   { 								
-//				var message:AsyncMessage = new AsyncMessage();
-//				var messageGlobal:GlobalMessage=new GlobalMessage();
-//				messageGlobal.mensagem=msg;
-//				messageGlobal.conteudo = orc;				
-//				message.body=messageGlobal;
-//				produtorEstoqueService.send(message);	
-//			}
-			
+						
 			private function onMsgEstoque(event:MessageEvent):void{ 
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
 				
@@ -125,9 +95,7 @@
 			private function onListarRequisicaoResult(event:ResultEvent = null):void
 			{
 				_listaDevolucoes = event.result as ArrayCollection;
-				atualizaTotalComponentes(_listaDevolucoes);
-				popularFiltros();
-				
+				atualizaTotalComponentes(_listaDevolucoes);				
 			}
 			
 			private function atualizaTotalComponentes(lista:ArrayCollection):void{
@@ -142,113 +110,8 @@
 				CursorManager.removeAllCursors();
 				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
-			
-			private function popularFiltros():void
-			{
-				listaComponente.removeAll();
-				listaStatus.removeAll();
-				listaUsuario.removeAll();
-				listaLaboratorio.removeAll();
-				for each (var req:DevolucaoComponente in _listaDevolucoes){
-					if(!listaComponente.contains(req.componente.nome)){
-						listaComponente.addItem(req.componente.nome);
-					}
-					if(!listaStatus.contains(req.condicao)){
-						listaStatus.addItem(req.condicao);
-					}
-					if(req.devolvidoPor != null && !listaUsuario.contains(req.devolvidoPor.usuario)){
-						listaUsuario.addItem(req.devolvidoPor.usuario);
-					}
-					if(req.reparo && !listaLaboratorio.contains(req.reparo.ordemServico.unidade.laboratorio.nome)){
-						listaLaboratorio.addItem(req.reparo.ordemServico.unidade.laboratorio.nome);
-					}else if(req.orcamento && !listaLaboratorio.contains(req.orcamento.ordemServico.unidade.laboratorio.nome)){
-						listaLaboratorio.addItem(req.orcamento.ordemServico.unidade.laboratorio.nome);
-					}
-				}
-				
-				if(listaComponente.length > 0){
-					listaComponente.addItemAt("Todos",0);
-					cbComponente.enabled = true;
-				}else{
-					cbComponente.enabled = false;
-				}
-				cbComponente.dataProvider = listaComponente;
-				
-				if(listaStatus.length > 0){
-					listaStatus.addItemAt("Todos",0);
-					cbStatus.enabled = true;
-				}else{
-					cbStatus.enabled = false;
-				}
-				cbStatus.dataProvider = listaStatus;
-				
-				if(listaUsuario.length > 0){
-					listaUsuario.addItemAt("Todos",0);
-					cbUsuario.enabled = true;
-				}else{
-					cbUsuario.enabled = false;
-				}
-				cbUsuario.dataProvider = listaUsuario;
-				
-				if(listaLaboratorio.length > 0){
-					listaLaboratorio.addItemAt("Todos",0);
-					cbLaboratorio.enabled = true;
-				}else{
-					cbLaboratorio.enabled = false;
-				}
-				cbLaboratorio.dataProvider = listaLaboratorio;
-			}
-			
-			
-			
-			public function atualizaCombos(event:Event):void{
-				_listaDevolucoes.filterFunction = function stateFilterFunc(item:Object):Boolean 
-				{
-
-					
-					var bolComponente:Boolean;
-					if(cbComponente.selectedItem == null || cbComponente.selectedItem == "" || cbComponente.selectedItem == 'Todos'){
-						bolComponente = true;
-					}else{
-						bolComponente = item.componente.nome.toLowerCase().indexOf(cbComponente.selectedItem.toLowerCase())==0;
-					}
-					
-					var bolStatus:Boolean;
-					if(cbStatus.selectedItem == null || cbStatus.selectedItem == "" || cbStatus.selectedItem == 'Todos'){
-						bolStatus = true;
-					}else{
-						bolStatus = item.statusString.toLowerCase().indexOf(cbStatus.selectedItem.toLowerCase())==0;
-					}
-					
-					var bolUsuario:Boolean;
-					if(cbUsuario.selectedItem == null || cbUsuario.selectedItem == "" || cbUsuario.selectedItem == 'Todos'){
-						bolUsuario = true;
-					}else{
-						bolUsuario = item.requisitante != null ? item.requisitante.usuario.toLowerCase().indexOf(cbUsuario.selectedItem.toLowerCase())==0 : false;
-					}
-					
-					var bolLaboratorio:Boolean;
-					if(cbLaboratorio.selectedItem == null || cbLaboratorio.selectedItem == "" || cbLaboratorio.selectedItem == 'Todos'){
-						bolLaboratorio = true;
-					}else{
-						if(item.reparo){
-							bolLaboratorio = item.reparo.ordemServico.unidade.laboratorio.nome.toLowerCase().indexOf(cbLaboratorio.selectedItem.toLowerCase())==0;
-						}else if(item.orcamento){
-							bolLaboratorio = item.orcamento.ordemServico.unidade.laboratorio.nome.toLowerCase().indexOf(cbLaboratorio.selectedItem.toLowerCase())==0;
-						}else{
-							bolLaboratorio = false;
-						}
-					}
-					
-					return bolComponente && bolStatus && bolUsuario && bolLaboratorio;
-					
-				};
-				
-				_listaDevolucoes.refresh();
-				atualizaTotalComponentes(_listaDevolucoes);
-			}
-			
-			private function labelFunction(item:Object, column:DataGridColumn):String
+						
+			private function labelFunction(item:Object, column:DataGridColumnFilter):String
 			{
 				if((item as DevolucaoComponente).reparo){
 					return (item as DevolucaoComponente).reparo.ordemServico.unidade.laboratorio.nome;
@@ -259,7 +122,7 @@
 				}
 			}
 			
-			private function labelFunction2(item:Object, column:DataGridColumn):String
+			private function labelFunction2(item:Object, column:DataGridColumnFilter):String
 			{
 				if((item as DevolucaoComponente).reparo){
 					return (item as DevolucaoComponente).reparo.ordemServico.numeroOrdemServico;
@@ -270,7 +133,7 @@
 				}
 			}
 			
-			private function labelFunction3(item:Object, column:DataGridColumn):String
+			private function labelFunction3(item:Object, column:DataGridColumnFilter):String
 			{
 				if((item as DevolucaoComponente).recebidoEm == null){
 					return "Pendente";
@@ -330,14 +193,6 @@
 		]]>
 	</fx:Script>
 	
-	
-	<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="left">
-		<components:ComboBoxInput id="cbStatus" labelText="Status" change="atualizaCombos" />
-		<components:ComboBoxInput id="cbComponente" labelText="Componente" change="atualizaCombos" />
-		<components:ComboBoxInput id="cbUsuario" labelText="Usuário" change="atualizaCombos" />
-		<components:ComboBoxInput id="cbLaboratorio" labelText="Laboratório" change="atualizaCombos" />
-	</mx:HBox>
-	
 	<mx:VBox width="100%" height="100%" verticalGap="0">
 		<grid:MantisTable id="requisicoesTable"
 						  width="100%"
@@ -348,62 +203,62 @@
 						  >
 			<grid:columns>
 
-				<mx:DataGridColumn id="cStatusRequisicao" 
+				<dc:DataGridColumnFilter id="cStatusRequisicao" 
 								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_COMPONENTE')}"
 								   dataField = "condicao"
 								   width="170"
 								   />
 				
-				<mx:DataGridColumn id="cStatusRecebimento" 
+				<dc:DataGridColumnFilter id="cStatusRecebimento" 
 								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
 								   labelFunction="labelFunction3"
 								   width="170"
 								   />
 				
-				<mx:DataGridColumn id="cNumeroRequisicao" width="70"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroRequisicao" width="70"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="requisicao.id"							   
 								   />
-				<mx:DataGridColumn id="cNumeroOrdemServico" width="70"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroOrdemServico" width="70"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center"
 								   sortable="false"
 								   labelFunction="labelFunction2"						   
 								   />
-				<mx:DataGridColumn id="cComponente"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cComponente"
 								   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="componente.nome"							   
 								   />
 				
-				<mx:DataGridColumn id="cTipo"
+				<dc:DataGridColumnFilter id="cTipo"
 								   headerText = "Tipo"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="componente.tipo.nome"							   
 								   />
 				
-				<mx:DataGridColumn id="cEncapsulamento"
+				<dc:DataGridColumnFilter id="cEncapsulamento"
 								   headerText = "Encapsulamento"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="componente.encapsulamento.nome"							   
 								   />
 
-				<mx:DataGridColumn id="cRequisitante" width="80"
+				<dc:DataGridColumnFilter id="cRequisitante" width="80"
 								   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
 								   dataField = "devolvidoPor.usuario"
 								   />
 				
-				<mx:DataGridColumn id="cLaboratorio" width="110"
+				<dc:DataGridColumnFilter id="cLaboratorio" width="110"
 								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
 								   labelFunction="labelFunction"
 								   />
 				
-				<mx:DataGridColumn id="cDataRequisicao"  width="130"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="cDataRequisicao"  width="130"
 								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
 								   textAlign="center"
 								   sortable="false"
