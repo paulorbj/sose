@@ -28,6 +28,8 @@
 		
 		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
 		
+		<mx:Consumer id="consumidorAreaTecnicaService" destination="AreaTecnicaMessageServicePush" message="onMsgAreaTecnica(event)" />
+		
 		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
 		
 		<mx:Producer id="produtorReparoService" destination="ReparoMessageServicePush" /> 
@@ -95,7 +97,17 @@
 			{
 				requisicaoComponenteService.listarRequisicao();
 				consumidorEstoqueService.subscribe();
+				consumidorAreaTecnicaService.subscribe();
 			}
+			
+			private function onMsgAreaTecnica(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.AREA_TECNICA_ATRIBUICAO_TECNICO){
+					requisicaoComponenteService.listarRequisicao();
+				}
+
+			} 
 			
 			private function onMsgEstoque(event:MessageEvent):void{ 
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
@@ -330,7 +342,7 @@
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
 				
-				<mx:DataGridColumn id="cStatusRequisicao" 
+				<dc:DataGridColumnFilter id="cStatusRequisicao" 
 								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
 								   dataField = "statusString"
 								   width="170"
@@ -386,7 +398,7 @@
 								   labelFunction="labelFunction"
 								   />
 				
-				<mx:DataGridColumn id="cDataRequisicao"  width="130"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="cDataRequisicao"  width="130"
 								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
 								   textAlign="center"
 								   sortable="false"

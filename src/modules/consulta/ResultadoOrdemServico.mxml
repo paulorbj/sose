@@ -297,6 +297,12 @@
 								   width="80"
 								   />
 				
+				<dc:DataGridColumnFilter id="dtFimOrcamento" filterRenderer="components.grid.filtros.DateFilterRenderer"
+										 headerText = "DT fim orçamento"
+										 dataField = "orcamentoDtFimString"
+										 width="80"
+										 />
+				
 				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNotaFiscal" width="80"
 								   headerText = "Nº NF"
 								   dataField = "nNf"

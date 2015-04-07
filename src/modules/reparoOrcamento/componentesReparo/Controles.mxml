@@ -211,21 +211,21 @@
 				   icon="@Embed(source='/assets/icons/cog_error.png')"
 				   click="devolverSemReparo(event)"
 				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.propostaAprovada == null &amp;&amp; _reparo.propostaReprovada == null &amp;&amp; 
-				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; (_reparo.ordemServico.bloqueado == 0) &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"				   />
+				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; (_reparo.ordemServico.bloqueado == 0)}" enabled.visualizar="false"				   />
 		<mx:Button id="btRequisitarOrcDiferenciado" 
 				   label="{resourceManager.getString('ApplicationResource','REQUISITAR_ORCAMENTO_DIFERENCIADO')}"
 				   labelPlacement="bottom" width="70"
 				   icon="@Embed(source='/assets/icons/money.png')"
 				   click="requisitarOrcamentoDiferenciado(event)"
 				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.propostaAprovada == null &amp;&amp; _reparo.propostaReprovada == null &amp;&amp; 
-				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0 &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"
+				   _reparo.ordemServico.orcamento == null &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0}" enabled.visualizar="false"
 																																						   />
 		<mx:Button id="btRequisitarLaudo" 
 				   label="Laudo"
 				   labelPlacement="bottom" width="70"
 				   icon="@Embed(source='/assets/icons/table_gear.png')"
 				   click="requisitarLaudoTecnico(event)"
-				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0 &amp;&amp; _reparo.componentePendente == false}" enabled.visualizar="false"
+				   enabled.editar="{_reparo.statusString == 'Iniciado' &amp;&amp; _reparo.laudoTecnicoAprovado == null &amp;&amp; _reparo.ordemServico.bloqueado == 0}" enabled.visualizar="false"
 				   />
 		<mx:Button id="btRequisitarReparoExterno" 
 				   label="Reparo Externo"

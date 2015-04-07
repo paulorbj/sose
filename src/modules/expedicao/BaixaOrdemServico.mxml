@@ -4,7 +4,7 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 xmlns:components="components.*" width="100%" height="100%"
 		 paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
-		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:dc="components.grid.filtros.controles.*"
 		 initialize="init()">
 	
 	<fx:Declarations>
@@ -668,69 +668,69 @@
 								   dataField="isSelected"
 								   />
 				
-				<mx:DataGridColumn id="numeroOs" width=".10"	
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOs" width=".10"	
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="numeroOsPai" width=".10"	
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOsPai" width=".10"	
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidadePai.numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="diasServilogi" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="diasServilogi" 
 								   headerText = "Serv."
 								   width=".10" sortable="false" dataField = "tempoNaServilogi"
 								   />
 				
-				<mx:DataGridColumn id="analiseTecnica" width=".10"
+				<dc:DataGridColumnFilter id="analiseTecnica" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
 								   labelFunction="labelCondicao"
 								   />
 				
-				<mx:DataGridColumn id="unidade" width=".20"	
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="unidade" width=".20"	
 								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidade.nome"							   
 								   />
 				
-				<mx:DataGridColumn id="nSerieFabricante" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nSerieFabricante" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 								   dataField = "serieFabricante"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nSerieCliente" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nSerieCliente" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 								   dataField = "serieCliente"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nCaseAvaya" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nCaseAvaya" 
 								   headerText = "Case avaya"
 								   dataField = "caseAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nClienteAvaya" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nClienteAvaya" 
 								   headerText = "Ciente avaya"
 								   dataField = "clienteAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="numeroNF" width=".10"	
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroNF" width=".10"	
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="notaFiscal.numero"							   
 								   />
 				
-				<mx:DataGridColumn id="garantia" width=".10"	
+				<dc:DataGridColumnFilter id="garantia" width=".10"	
 								   headerText = "Em garantia"
 								   textAlign="center"
 								   sortable="false"
@@ -772,69 +772,69 @@
 						  >
 			<grid:columns>
 				
-				<mx:DataGridColumn id="numeroOs1" width=".10"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOs1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="numeroOsPai1" width=".10"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOsPai1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidadePai.numeroOrdemServico"							   
 								   />
 				
-				<mx:DataGridColumn id="diasServilogi1" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="diasServilogi1" 
 								   headerText = "Serv."
 								   width=".10" sortable="false" dataField = "tempoNaServilogi"
 								   />
 				
-				<mx:DataGridColumn id="analiseTecnica1" width=".10"
+				<dc:DataGridColumnFilter id="analiseTecnica1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','ANALISE_TECNICA')}"
 								   labelFunction="labelCondicao"
 								   />
 				
-				<mx:DataGridColumn id="unidade1" width=".10"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="unidade1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="unidade.nome"							   
 								   />
 				
-				<mx:DataGridColumn id="nSerieFabricante1" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nSerieFabricante1" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
 								   dataField = "serieFabricante"
 								   width=".10"
 								   />
 				
-				<mx:DataGridColumn id="nSerieCliente1" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nSerieCliente1" 
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
 								   dataField = "serieCliente"
 								   width=".10"
 								   />
 				
-				<mx:DataGridColumn id="nCaseAvaya1" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nCaseAvaya1" 
 								   headerText = "Case avaya"
 								   dataField = "caseAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="nClienteAvaya1" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nClienteAvaya1" 
 								   headerText = "Ciente avaya"
 								   dataField = "clienteAvaya"
 								   width=".15"	
 								   />
 				
-				<mx:DataGridColumn id="numeroNF1" width=".10"
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroNF1" width=".10"
 								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
 								   textAlign="center"
 								   sortable="false"
 								   dataField="notaFiscal.numero"							   
 								   />
 				
-				<mx:DataGridColumn id="cGarantia" width=".10"	
+				<dc:DataGridColumnFilter id="cGarantia" width=".10"	
 								   headerText = "Em garantia"
 								   textAlign="center"
 								   sortable="false"

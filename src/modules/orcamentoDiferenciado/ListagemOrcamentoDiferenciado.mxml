@@ -149,15 +149,15 @@
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR){
 					//adicionarOrcamentoDiferenciado(globalMessage.conteudo as OrcamentoDiferenciado);
-					orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
+					//orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_APROVADO){
 					//adicionarOrcamentoDiferenciado(globalMessage.conteudo as OrcamentoDiferenciado);
-					orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
+					//orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
 				}
 				if (globalMessage.mensagem==MensagensAplicacao.ORCAMENTO_DIFERENCIADO_REJEITADO){
 					//adicionarOrcamentoDiferenciado(globalMessage.conteudo as OrcamentoDiferenciado);
-					orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
+					//orcamentoDiferenciadoService.listarOrcamentosDiferenciados();
 				}
 			} 
 			
@@ -264,9 +264,10 @@
 			
 			private function onIniciarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
 			{
+				CursorManager.removeAllCursors();
 				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
 				adicionarOrcamentoDiferenciado(_orcamentoDiferenciado);
-				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR,_orcamentoDiferenciado);
+				//Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR,_orcamentoDiferenciado);
 				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
 				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_INICIADA_SUCESSO'), MessageType.SUCCESS, 10000));
 			}
@@ -296,9 +297,10 @@
 			
 			private function onSalvarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
 			{
+				CursorManager.removeAllCursors();
 				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
 				adicionarOrcamentoDiferenciado(_orcamentoDiferenciado);
-				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR,_orcamentoDiferenciado);
+				//Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_ATUALIZAR,_orcamentoDiferenciado);
 				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
 				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_SALVA_SUCESSO'), MessageType.SUCCESS, 10000));
 			}
@@ -332,10 +334,10 @@
 			
 			private function onAprovarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
 			{
+				CursorManager.removeAllCursors();
 				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_APROVADO_SUCESSO'), MessageType.SUCCESS, 10000));	
 				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
 				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_APROVADO,_orcamentoDiferenciado);
-				//publicarOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_APROVADO,_orcamentoDiferenciado);
 				adicionarOrcamentoDiferenciado(_orcamentoDiferenciado);
 				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;				
 			}
@@ -371,10 +373,11 @@
 			
 			private function onRejeitarOrcamentoDiferenciadoResult(event:ResultEvent = null):void
 			{
+				CursorManager.removeAllCursors();
 				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ORCAMENTO_DIFERENCIADO_REJEITADO_SUCESSO'), MessageType.SUCCESS, 10000));	
 				_orcamentoDiferenciado = event.result as OrcamentoDiferenciado;
+				adicionarOrcamentoDiferenciado(_orcamentoDiferenciado);
 				Publicador.enviarMensagemOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_REJEITADO,_orcamentoDiferenciado);
-				//publicarOrcamentoDiferenciado(MensagensAplicacao.ORCAMENTO_DIFERENCIADO_REJEITADO,_orcamentoDiferenciado);
 				detalhamentoOrcamentoDiferenciado.orcamentoDiferenciado = _orcamentoDiferenciado;
 			}
 			

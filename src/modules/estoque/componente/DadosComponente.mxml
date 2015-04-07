@@ -262,6 +262,7 @@
 													  click="parentDocument.setarImagemPrincipal(data, event)"
 													  buttonMode="true"
 													  useHandCursor="true"
+													  visible="{(data as ArquivoUpload).tipoArquivo == 'IMAGEM'}"
 													  toolTip="Imagem principal"
 													  />
 											

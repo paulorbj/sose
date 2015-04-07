@@ -797,7 +797,7 @@
 								   width="35" sortable="false" dataField = "prazoReparo"
 								   />
 				
-				<mx:DataGridColumn id="clDataPrioridade" 
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="clDataPrioridade" 
 								   headerText = "{resourceManager.getString('ApplicationResource','PRIORIDADE')}"
 								   width="60" dataField = "prioridadeString"
 								   />

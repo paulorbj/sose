@@ -482,6 +482,15 @@ package to
 			_orcamentoDtFim = value;
 		}
 		
+		public function get orcamentoDtFimString():String
+		{
+			if(_orcamentoDtFim)
+				return ScreenUtils.formatarDataDDMMYYYY(_orcamentoDtFim);
+			else{
+				return "";
+			}
+		}
+		
 		public function get obsNotaFiscal():String
 		{
 			return _obsNotaFiscal;
