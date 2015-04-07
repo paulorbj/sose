@@ -179,6 +179,7 @@ public class ExportXlsUtil {
 		sw.createCell(38, "Observação Reparo", styleIndex);
 		sw.createCell(39, "Observação Proposta", styleIndex);
 		sw.createCell(40, "Observação Consulta", styleIndex);
+		sw.createCell(41, "DT Fim Orçamento", styleIndex);
 
 		sw.endRow();
 
@@ -272,62 +273,50 @@ public class ExportXlsUtil {
 				sw.createCell(10,StringEscapeUtils.escapeXml((consultaGeralTO[6].toString())));
 			}
 			if(consultaGeralTO[7]  != null){
-				//				sw.createCell(8,consultaGeralTO[7].toString());
 				sw.createCell(11,StringEscapeUtils.escapeXml((consultaGeralTO[7].toString())));
 			}
 
 			if(consultaGeralTO[8]  != null){
-				//				sw.createCell(9,consultaGeralTO[8].toString());
 				sw.createCell(12,StringEscapeUtils.escapeXml((consultaGeralTO[8].toString())));
 			}
 
 			if(consultaGeralTO[9]  != null){
-				//				sw.createCell(10,consultaGeralTO[9].toString());
 				sw.createCell(13,StringEscapeUtils.escapeXml((consultaGeralTO[9].toString())));
 			}
 
 			if(consultaGeralTO[10]  != null){
-				//				sw.createCell(11,consultaGeralTO[10].toString());
 				sw.createCell(14,StringEscapeUtils.escapeXml((consultaGeralTO[10].toString())));
 			}
 
 			if(consultaGeralTO[11]  != null){
-				//				sw.createCell(12,consultaGeralTO[11].toString());
 				sw.createCell(15,StringEscapeUtils.escapeXml((consultaGeralTO[11].toString())));
 			}
 
 			if(consultaGeralTO[12]  != null){
-				//				sw.createCell(13,consultaGeralTO[12].toString());
 				sw.createCell(16,StringEscapeUtils.escapeXml((consultaGeralTO[12].toString())));
 			}
 
 			if(consultaGeralTO[13]  != null){
-				//				sw.createCell(14,DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[13]));
 				sw.createCell(17,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[13])));
 			}else{
 				sw.createCell(17,"");
 			}
 
 			if(consultaGeralTO[14]  != null){
-				//				sw.createCell(15,DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[14]));
 				sw.createCell(18,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[14])));
 			}else{
 				sw.createCell(18,"");
 			}
 
 			if(consultaGeralTO[15]  != null){
-				//				sw.createCell(16,DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[15]));
 				sw.createCell(19,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[15])));					
 			}else{
 				sw.createCell(19,"");
 			}
 
-			if(consultaGeralTO[32]  != null || consultaGeralTO[45] != null){
-				if(consultaGeralTO[32]  != null && consultaGeralTO[34] != null){
-					sw.createCell(20,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[32])));
-				}else if(consultaGeralTO[45]  != null && consultaGeralTO[36] != null){
-					sw.createCell(20,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[45])));
-				}
+			//Data fim reparo
+			if(consultaGeralTO[32]  != null){
+				sw.createCell(20,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[32])));
 			}else{
 				sw.createCell(20,"");
 			}
@@ -340,32 +329,26 @@ public class ExportXlsUtil {
 			}
 
 			if(consultaGeralTO[17]  != null){
-				//				sw.createCell(18,consultaGeralTO[17].toString());
 				sw.createCell(22,StringEscapeUtils.escapeXml((consultaGeralTO[17].toString())));
 			}
 
 			if(consultaGeralTO[18]  != null){
-				//				sw.createCell(19,consultaGeralTO[18].toString());
 				sw.createCell(23,StringEscapeUtils.escapeXml((consultaGeralTO[18].toString())));
 			}
 			
 			if(consultaGeralTO[41]  != null){
-				//				sw.createCell(19,consultaGeralTO[18].toString());
 				sw.createCell(24,StringEscapeUtils.escapeXml((consultaGeralTO[41].toString())));
 			}
 			
 			if(consultaGeralTO[42]  != null){
-				//				sw.createCell(19,consultaGeralTO[18].toString());
 				sw.createCell(25,StringEscapeUtils.escapeXml((consultaGeralTO[42].toString())));
 			}
 
 			if(consultaGeralTO[19]  != null){
-				//				sw.createCell(20,consultaGeralTO[19].toString());
 				sw.createCell(26,StringEscapeUtils.escapeXml((consultaGeralTO[19].toString())));
 			}
 
 			if(consultaGeralTO[20]  != null){
-				//				sw.createCell(21,DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[20]));
 				sw.createCell(27,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[20])));
 			}else{
 				sw.createCell(27,"");
@@ -380,14 +363,12 @@ public class ExportXlsUtil {
 			}
 
 			if(consultaGeralTO[22]  != null){
-				//				sw.createCell(23,DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[22]));
 				sw.createCell(29,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[22])));
 			}else{
 				sw.createCell(29,"");
 			}
 
 			if(consultaGeralTO[23]  != null){
-				//				sw.createCell(24,consultaGeralTO[23].toString());
 				sw.createCell(30,StringEscapeUtils.escapeXml((consultaGeralTO[23].toString())));
 			}
 
@@ -407,50 +388,49 @@ public class ExportXlsUtil {
 
 			//Observ. nota fiscal
 			if(consultaGeralTO[25]  != null){
-				//				sw.createCell(26,consultaGeralTO[25].toString());
 				sw.createCell(33,StringEscapeUtils.escapeXml((consultaGeralTO[25].toString())));
 			}
 
 			//Observ. faturamento
 			if(consultaGeralTO[26]  != null){
-				//				sw.createCell(27,consultaGeralTO[26].toString());
 				sw.createCell(34,StringEscapeUtils.escapeXml((consultaGeralTO[26].toString())));
 			}
 
 			//Observ. nota fiscal saida
 			if(consultaGeralTO[27]  != null){
-				//				sw.createCell(28,consultaGeralTO[27].toString());
 				sw.createCell(35,StringEscapeUtils.escapeXml((consultaGeralTO[27].toString())));
 			}
 
 			//Observ. orcamento
 			if(consultaGeralTO[28]  != null){
-				//				sw.createCell(29,consultaGeralTO[28].toString());
 				sw.createCell(36,StringEscapeUtils.escapeXml((consultaGeralTO[28].toString())));
 			}
 
 			//Observ. ordem servico
 			if(consultaGeralTO[29]  != null){
-				//				sw.createCell(34,consultaGeralTO[29].toString());
 				sw.createCell(37,StringEscapeUtils.escapeXml((consultaGeralTO[29].toString())));
 			}
 
 			//Observ. reparo
 			if(consultaGeralTO[30]  != null){
-				//				sw.createCell(31,consultaGeralTO[30].toString());
 				sw.createCell(38,StringEscapeUtils.escapeXml((consultaGeralTO[30].toString())));
 			}
 
 			//Observ. proposta
 			if(consultaGeralTO[31]  != null){
-				//				sw.createCell(36,consultaGeralTO[31].toString());
 				sw.createCell(39,StringEscapeUtils.escapeXml((consultaGeralTO[31].toString())));
 			}
 			
 			//Observ. consulta
 			if(consultaGeralTO[44]  != null){
-				//				sw.createCell(36,consultaGeralTO[31].toString());
 				sw.createCell(40,StringEscapeUtils.escapeXml((consultaGeralTO[44].toString())));
+			}
+			
+			//Data fim orçamento
+			if(consultaGeralTO[45]  != null){
+				sw.createCell(41,StringEscapeUtils.escapeXml(DateUtils.formatarDataDDMMYYYY((Date)consultaGeralTO[45])));
+			}else{
+				sw.createCell(41,"");
 			}
 
 			sw.endRow();

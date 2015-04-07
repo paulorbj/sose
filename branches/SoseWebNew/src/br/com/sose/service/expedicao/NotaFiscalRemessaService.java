@@ -24,6 +24,7 @@ import br.com.sose.entity.expedicao.Volume;
 import br.com.sose.entity.recebimento.NotaFiscal;
 import br.com.sose.entity.recebimento.OrdemServico;
 import br.com.sose.exceptions.NumeroNotaFiscalSaidaNaoDisponivelException;
+import br.com.sose.service.administrativo.ObservacaoService;
 import br.com.sose.service.administrativo.parceiros.PessoaService;
 import br.com.sose.service.recebimento.NotaFiscalService;
 import br.com.sose.service.recebimento.OrdemServicoService;
@@ -36,6 +37,7 @@ import br.com.sose.status.expedicao.Nova;
 import br.com.sose.status.expedicao.PreExpedicao;
 import br.com.sose.status.expedicao.Solicitada;
 import br.com.sose.status.recebimento.Aberta;
+import br.com.sose.utils.LoginUtils;
 
 @Service(value="notaFiscalRemessaService")
 @RemotingDestination(value="notaFiscalRemessaService")
@@ -57,6 +59,9 @@ public class NotaFiscalRemessaService {
 
 	@Autowired
 	private PessoaService pessoaService;
+	
+	@Autowired
+	private ObservacaoService observacaoService;
 
 	@RemotingInclude
 	@Transactional(readOnly = true)
@@ -540,6 +545,8 @@ public class NotaFiscalRemessaService {
 				}
 				
 				ordemServicoService.salvarSimplesOrdemServico(ordemServico);
+				
+				observacaoService.log("Expedição", "Ordem de serviço retornada para baixa! Apelido NF Saída: " + notaFiscalSaida.getNome(),  2, new Date(),ordemServico, LoginUtils.getLoggedUser());
 			}
 			
 			//Atualizar status das notas fiscais de entrada
@@ -569,8 +576,13 @@ public class NotaFiscalRemessaService {
 			if(notaFiscalSaida.getNumero() == novoNumero || verificarNumeroNotaFiscalSaida(notaFiscalSaida,novoNumero)){
 			verificarDisponibilidadeNumeroOrdemServico(notaFiscalSaida);
 			notaFiscalSaida = buscarPorId(notaFiscalSaida.getId());
+			
+			String numeroAntigo = notaFiscalSaida.getNumero();
+			
 			notaFiscalSaida.setNumero(novoNumero);
 			notaFiscalRemessaDao.update(notaFiscalSaida);	
+	
+			observacaoService.log("Expedição", "Número da NF Saída alterado de " + numeroAntigo + " para " + novoNumero,  2, new Date(),notaFiscalSaida, LoginUtils.getLoggedUser());
 			}else{
 				throw new NumeroNotaFiscalSaidaNaoDisponivelException(novoNumero);
 			}

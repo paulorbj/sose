@@ -57,6 +57,16 @@ public class ItemCompraDao extends HibernateDaoGenerico<ItemCompra, Long> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<ItemCompra> listarItemCompraEmAguardandoCompra(final Componente componente) {
+		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h " +
+				"WHERE h.componente=:componente AND h.compra.statusString = :status ");
+		q.setParameter("componente", componente);
+		q.setParameter("status", "Aguardando compra");
+		List<ItemCompra> r = q.list();
+		return r;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public List<ItemCompra> listarUltimasCompras(final Componente componente, int qtdResultados) {
 		Query q = sessionFactory.getCurrentSession().createQuery("SELECT h FROM "+ entityClass.getName() + " h " +
 				"WHERE h.componente=:componente AND h.status <> :status ORDER BY h.dataEntrada DESC");

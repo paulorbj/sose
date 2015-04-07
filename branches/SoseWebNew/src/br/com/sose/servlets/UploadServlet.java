@@ -141,7 +141,7 @@ public class UploadServlet extends HttpServlet {
 			if(extensao.equalsIgnoreCase("pdf")){
 				return "PDF";
 			}
-			if(extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("gif") || extensao.equalsIgnoreCase("png") || extensao.equalsIgnoreCase("jpeg")){
+			if(extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("gif") || extensao.equalsIgnoreCase("png") || extensao.equalsIgnoreCase("jpeg") || extensao.equalsIgnoreCase("bmp")){
 				return "IMAGEM";
 			}
 			if(extensao.equalsIgnoreCase("xls") || extensao.equalsIgnoreCase("xlsx")){

@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
@@ -33,16 +35,20 @@ public class OrcRepGenerico {
 	@Column(name="status")
 	protected String statusString;
 	
-	@Column(name = "dt_entrada")
+	@Column(name = "dt_entrada", columnDefinition="DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
 	protected Date dataEntrada;
 
-	@Column(name = "dt_inicio")
+	@Column(name = "dt_inicio", columnDefinition="DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
 	protected Date dataInicio;
 
-	@Column(name = "dt_fim")
+	@Column(name = "dt_fim", columnDefinition="DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
 	protected Date dataFim;
 
-	@Column(name = "dt_liberacao_lider")
+	@Column(name = "dt_liberacao_lider", columnDefinition="DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
 	protected Date dataLiberacao;
 
 	@Column(name = "dt_abertura_lider")
