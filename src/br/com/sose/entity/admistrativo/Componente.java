@@ -94,6 +94,7 @@ public class Componente implements Serializable {
 	
 	private Date dtUltimoInventario;
 
+	
 	public Componente() {
 	}
 
