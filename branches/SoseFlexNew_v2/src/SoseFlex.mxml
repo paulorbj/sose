@@ -67,7 +67,7 @@
 
 			private var mainPainel:MainPanel;
 			
-			public var dataAtual:Date;
+			public static var dataAtual:Date;
 			
 			/**
 			 * Configurations made before any component creation

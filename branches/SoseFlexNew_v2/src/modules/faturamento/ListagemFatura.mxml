@@ -110,6 +110,7 @@
 			private function init():void
 			{
 				faturamentoService.listarFaturas();	
+				//timeUtils.dataAtual();
 				consumidorFaturamentoService.subscribe();
 				fileRef = new FileReference();
 				fileRef.addEventListener(Event.OPEN, openHandler);
@@ -418,7 +419,6 @@
 				if (event.detail == Alert.YES)
 				{
 					fileRef.save(byteArray, "Relatório faturamento " + getFormattedDateToWriteFile(new Date()) +".xls");
-					
 				}
 				else
 				{
@@ -450,6 +450,15 @@
 				PopUpManager.removePopUp(_cancelarModal);
 			}
 			
+			private function colorFaturaRow(item:Object,
+											rowIndex:int,
+											dataIndex:int,
+											color:uint):uint {
+				//Implementar a logica de colorir tabela de fatura
+				SoseFlex.dataAtual 
+				return 0;
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -462,6 +471,7 @@
 					  width="100%"
 					  height="100%"
 					  includeIn="listagem"
+					  rowColorFunction="colorFaturaRow"
 					  draggableColumns="true"
 					  dataProvider="{_listaFatura}"
 					  doubleClickEnabled="false"
