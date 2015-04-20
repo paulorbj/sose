@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:dc="components.grid.filtros.controles.*" initialize="init(event)"
+		 xmlns:components="components.*" width="100%" height="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
+		
+		<mx:RemoteObject id="componenteService" destination="componenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarCompletoPorId"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.PopupModalController;
+			import components.RemoveModalEvent;
+			import components.events.UserRegisterNumberModalEvent;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Componente;
+			import entities.administrativo.Usuario;
+			import entities.compra.ItemCompra;
+			import entities.orcamentoreparo.RequisicaoComponente;
+			
+			import modules.administrativo.componente.eventos.ComponenteEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			
+			[Bindable]
+			private var listaComponente:ArrayCollection = new ArrayCollection;
+			
+			private var componente:Componente;
+			
+			[Bindable]
+			private var _totalAguardandoValidacaoCadastro:Number;
+			
+			[Bindable]
+			private var _totalAguardandoValidacaoQtdEstoque:Number;
+			
+			private function onMsgEstoque(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
+					var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
+					if(req != null){
+						adicionarComponente(req.componente);
+					}
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_ATUALIZAR){
+					var req1:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
+					adicionarComponente(req1.componente);
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_ITEM_COMPRA){
+					var itemcompra:ItemCompra = globalMessage.conteudo as ItemCompra;
+					adicionarComponente(itemcompra.componente);
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_COMPONENTE_VALIDACAO_QTD_ESTOQUE){
+					var compAtualizar:Componente = globalMessage.conteudo as Componente;
+					adicionarComponente(compAtualizar);
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.NOVO_COMPONENTE){
+					var novoComponente:Componente = globalMessage.conteudo as Componente;
+					adicionarComponente(novoComponente);
+				}
+				calcularTotais();
+			} 
+			
+			public function setListaComponente(lista:ArrayCollection):void
+			{
+				listaComponente = lista;
+				calcularTotais();
+			}
+			
+			public function adicionarComponente(componente:Componente):void
+			{
+				var componenteAux:Componente = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaComponente.length; i++){
+					componenteAux = listaComponente.getItemAt(i) as Componente; 
+					if(componenteAux.id == componente.id){	
+						var orcRepSub:Object = listaComponente.removeItemAt(i);
+						listaComponente.addItemAt(componente,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaComponente.addItem(componente);
+				}
+				
+				calcularTotais();
+			}
+			
+			public function editItem(data:Object=null, event:Event=null):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaComponente.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data)
+					componente = data as Componente;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					componenteService.buscarCompletoPorId(componente.id)
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(editItemAutenticar);
+				}
+				
+			}
+			
+			private function onBuscarPorIdResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var c:Componente = event.result as Componente;
+				
+				dispatchEvent(new ComponenteEvent(ComponenteEvent.EDITAR_COMPONENTE, c));
+			}
+			
+			private function onBuscarPorIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				
+			}
+			
+			public function editItemAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				editItem();
+			}
+			
+			public function excluirItem(data:Object=null, event:Event=null):void
+			{			
+				if(data)
+					componente = data as Componente;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+					modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+					PopUpManager.centerPopUp(modal);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(excluirItemAutenticar);
+				}
+			}
+			
+			public function excluirItemAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				excluirItem();
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				dispatchEvent(new ComponenteEvent(ComponenteEvent.EXCLUIR_COMPONENTE,componente));
+				componente = null;
+			}
+			
+			private function getRowColor(item:Object,
+										 rowIndex:int,
+										 dataIndex:int,
+										 color:uint):uint
+			{
+				//branco
+				var colorReturn:uint = 0xFDFFFF;
+				if(item.qtdComprada > 0){
+					//azul claro
+					return colorReturn = 0x81E2FF;
+				}
+				
+				if(!item.valido){
+					//laranja
+					return colorReturn = 0xFCD67F;
+				}
+				
+				if(item.qtdEstoqueMinimo > 0 &&item.qtdEstoque < item.qtdEstoqueMinimo ){
+					//vermelho claro
+					return colorReturn = 0xFF8181;
+				}
+				
+				if(item.qtdEstoque == 0){
+					//amarelo claro
+					return colorReturn = 0xFFFF81;
+				}
+				
+				if(item.qtdEstoque > 0){
+					//verde claro
+					return colorReturn = 0x81FF8E;
+				}
+	
+				return colorReturn;
+			}
+			
+			private function validoLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.valido == true){
+					return "Sim";
+				}else{
+					return "Não";
+				}
+			}
+			
+			
+			
+			public function calcularTotais():void
+			{
+				var totalQtd:Number = 0;
+				var totalValido:Number = 0;
+				for each(var c:Componente in listaComponente){
+					if(c.qtdComprada != 0){
+						totalQtd = totalQtd + 1;
+					}
+					if(!c.valido){
+						totalValido = totalValido + 1;
+					}
+				}
+				_totalAguardandoValidacaoCadastro = totalValido;
+				_totalAguardandoValidacaoQtdEstoque = totalQtd;
+			}
+			
+			protected function init(event:FlexEvent):void
+			{
+				consumidorEstoqueService.subscribe();
+			}
+			
+		]]>
+	</fx:Script>	
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<mx:HBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			<s:Label text="Total Cadastrado: {listaComponente.length}" />
+		</mx:HBox>
+		
+		<mx:HBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" color="0xFCD67F">
+			<s:Label text="Total Aguardando validação cadastro: {_totalAguardandoValidacaoCadastro}" />
+		</mx:HBox>
+		
+		<mx:HBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" color="0x81E2FF">
+			<s:Label text="Total aguardando validação qtd estoque: {_totalAguardandoValidacaoQtdEstoque}" />
+		</mx:HBox>		
+	</mx:HBox>
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{listaComponente}"
+					  rowColorFunction="getRowColor"
+					  itemDoubleClick="editItem(data, event)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.ComponenteValidoFilterRenderer" id="cValido" width=".10"
+							   headerText = "Valido"
+							   textAlign="center"
+							   sortable="true" draggable="false"
+							   labelFunction="validoLabel"						   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome" width=".30"
+							   headerText = "{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}"
+							   textAlign="center"
+							   sortable="true" draggable="false"
+							   dataField="nome"							   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.AguardandoEstoqueFilterRenderer" id="cQtdComprada" width=".10"
+									 headerText = "Qtd comprada"
+									 textAlign="center"
+									 sortable="true" draggable="false"
+									 dataField="qtdComprada"	
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.QtdEstoqueInferiorQtdMinimoFilterRenderer" id="estoqueMinimo" textAlign="center" sortable="true" draggable="false" width=".05"
+									 headerText = "{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO_ABREVIADO')}"
+									 dataField = "qtdEstoqueMinimo"
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="qtdEstoque" textAlign="center" sortable="true" draggable="false" width=".05"
+									 headerText = "{resourceManager.getString('ApplicationResource','QTD_ESTOQUE_ABREVIADO')}"
+									 dataField = "qtdEstoque"
+									 />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="descricao" textAlign="center" sortable="true" draggable="false" width=".15"
+							   headerText = "{resourceManager.getString('ApplicationResource','DESCRICAO')}"
+							   dataField = "descricao"
+							   />
+			
+			<dc:DataGridColumnFilter id="tipoComponente" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}"
+							   dataField = "nomeTipoComponente"
+							   />
+			
+			<dc:DataGridColumnFilter id="encapsulamento" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}"
+							   dataField = "nomeEncapsulamento"
+							   />
+			
+			<dc:DataGridColumnFilter id="fabricante" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','FABRICANTE')}"
+							   dataField = "nomeFabricante"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cPinos" width=".10" draggable="false"
+							   headerText = "{resourceManager.getString('ApplicationResource','PINOS')}"
+							   textAlign="center" sortable="false" dataField="pinos"							   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="posicao" textAlign="center" sortable="true" draggable="false" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE_POSICAO')}"
+							   dataField = "posicaoEstoque"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".10"							 
+							   editable="false" textAlign="center"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0" width="200"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="compraService" destination="compraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPreCompras"      
+					   fault="onListarCompraFault(event)" 
+					   result="onListarCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.compra.Compra;
+			import entities.expedicao.NotaFiscalRemessa;
+			import entities.faturamento.Faturamento;
+			
+			import modules.expedicao.eventos.ExpedicaoEvent;
+			import modules.proposta.eventos.PropostaEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var changeFunction:Function = null;
+			
+			[Bindable]
+			public var required:Boolean = false;
+
+			
+			private function onCreationComplete():void
+			{
+				compraService.listarPreCompras();
+				comboBox.labelField = "nome";
+				comboBox.textoPadrao = "Selecione uma pré-compra...";
+
+			}
+			
+			public function recarregar():void
+			{
+				onCreationComplete();
+			}
+			
+			private function onListarCompraResult(event:ResultEvent = null):void
+			{
+				comboBox.dataProvider = event.result as ArrayCollection;
+			}
+			
+			private function onListarCompraFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			[Bindable]
+			public function get compraSelecionada():Compra 
+			{
+				if(comboBox.selectedItem == null)
+					return null;
+				else
+					return comboBox.selectedItem as Compra; 
+			}
+			
+			public function set compraSelecionada(compra:Compra):void 
+			{
+				comboBox.selectedItem = compra;
+			}
+			
+			[Bindable]
+			public function get labelText():String 
+			{
+				if(comboBox)
+					return comboBox.labelText;
+				else
+					return "";
+			}
+			
+			public function set labelText(value:String):void 
+			{
+				if(comboBox)
+					comboBox.labelText = value;
+			}
+			
+			public function limpar():void
+			{
+				comboBox.clean();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox" editable="false" required="{required}" change="{changeFunction}" />
+</mx:VBox>

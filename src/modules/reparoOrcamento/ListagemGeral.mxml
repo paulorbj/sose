@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" verticalScrollPolicy="off" horizontalScrollPolicy="off" initialize="init()"
+		 xmlns:components="components.*" width="100%" height="100%" paddingRight="10" paddingBottom="10" creationComplete="onCreation()"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:reparoOrcamento="modules.reparoOrcamento.*" xmlns:textInput="components.textInput.*">
+	
+	<fx:Declarations>
+		<mx:Consumer id="consumidorAreaTecnicaService" destination="AreaTecnicaMessageServicePush" message="onMsgAreaTecnica(event)" />
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="orcamentoService" destination="orcamentoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="reparoService" destination="reparoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="relatorioService" destination="relatorioService" requestTimeout="600" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="gerarRelatorio"      
+					   fault="onCreateFileFault(event)" 
+					   result="onCreateFileResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:ArrayCollection id="listaOrcamentoReparo"
+							collectionChange="listenerListaAlterada(event);" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.UserRegisterNumberModal;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Usuario;
+			import entities.orcamentoreparo.OrcRepGenerico;
+			import entities.orcamentoreparo.Orcamento;
+			import entities.orcamentoreparo.Reparo;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.reparoOrcamento.CustomBackgroundComp;
+			import modules.reparoOrcamento.eventos.ListaOrcamentoReparoEvent;
+			import modules.reparoOrcamento.eventos.OrcamentoEvent;
+			import modules.reparoOrcamento.eventos.ReparoEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import to.OrcRepGenericoTO;
+			
+			import utils.MensagensAplicacao;
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			private var listaOrcamentoReparoCompleta:ArrayCollection = new ArrayCollection;
+			
+			//			[Bindable]
+			//			private var listaOrcamentoReparo:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaCliente:ArrayCollection = new ArrayCollection;
+			private var clienteSelecionado:String;
+			
+			[Bindable]
+			private var listaUnidade:ArrayCollection = new ArrayCollection;
+			private var unidadeSelecionado:String;
+			
+			[Bindable]
+			private var listaNotaFiscal:ArrayCollection = new ArrayCollection;
+			private var notaFiscalSelecionado:String;
+			
+			[Bindable]
+			private var listaUsuario:ArrayCollection = new ArrayCollection;
+			private var usuarioSelecionado:String;
+			
+			[Bindable]
+			private var listaLaboratorio:ArrayCollection = new ArrayCollection;
+			private var laboratorioSelecionado:String;
+			
+			[Bindable]
+			private var listaStatus:ArrayCollection = new ArrayCollection;
+			private var statusSelecionado:String;
+			
+			[Bindable]
+			private var listaOs:ArrayCollection = new ArrayCollection;
+			private var osSelecionado:String;
+			
+			[Bindable]
+			private var validatorArr:Array;
+			
+			private var orcRep:OrcRepGenericoTO = null;
+			
+			private var modal:UserRegisterNumberModal = null;
+			
+			private var byteArray:ByteArray;
+			
+			private var fileRef:FileReference;
+			
+			[Bindable]
+			[Embed(source='assets/icons/edit.png')]
+			public static var editIcon:Class;
+						
+			private function init():void
+			{
+				fileRef = new FileReference();
+				fileRef.addEventListener(Event.OPEN, openHandler);
+			}
+			
+			private function onCreation():void
+			{
+				consumidorAreaTecnicaService.subscribe();
+				viewTable.addEventListener("atualizarLegenda",atualizarLegenda);
+			}
+			
+			private function listenerListaAlterada(evt:CollectionEvent):void {
+				if(viewTable)
+					viewTable.filter();
+			}
+			
+			private function onMsgAreaTecnica(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.AREA_TECNICA_ATRIBUICAO_TECNICO){
+					adicionarOrcRep(globalMessage.conteudo as OrcRepGenericoTO);
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+				if (globalMessage.mensagem==MensagensAplicacao.AREA_TECNICA_ATRIBUICAO_PRIORIDADE){
+					adicionarOrcRep(globalMessage.conteudo as OrcRepGenericoTO);
+					//dispatchEvent(new MensagemEvent("Novo reparo inserido na listagem", MessageType.INFO, 5000));
+				}
+			} 
+			
+			public function setListaOrcamentoReparo(lista:ArrayCollection):void
+			{
+				listaOrcamentoReparo = lista;
+				listaOrcamentoReparoCompleta = new ArrayCollection();
+				listaOrcamentoReparoCompleta.addAll(lista);
+				viewTable.filter();
+				legenda.atualizarLegenda(listaOrcamentoReparo);
+			}
+			
+			private function atualizarLegenda(event:Event):void
+			{
+				legenda.atualizarLegenda(listaOrcamentoReparo);
+			}
+			
+			public function adicionarOrcRep(orcRep:OrcRepGenericoTO):void
+			{
+				var orcRepAux:OrcRepGenericoTO = null;
+				var encontrou:Boolean = false;
+				
+				for(var i:int=0; i<listaOrcamentoReparoCompleta.length; i++){
+					orcRepAux = listaOrcamentoReparoCompleta.getItemAt(i) as OrcRepGenericoTO; 
+					if(orcRepAux.numeroOrdemServico == orcRep.numeroOrdemServico && orcRep.finalidade == orcRepAux.finalidade ){	
+						var orcRepSub:Object = listaOrcamentoReparoCompleta.removeItemAt(i);
+						listaOrcamentoReparoCompleta.addItemAt(orcRep,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaOrcamentoReparoCompleta.addItem(orcRep);
+				}
+				
+				listaOrcamentoReparo = new ArrayCollection();
+				listaOrcamentoReparo.addAll(listaOrcamentoReparoCompleta);
+				
+				
+				viewTable.filter();
+				legenda.atualizarLegenda(listaOrcamentoReparo);
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{		
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaOrcamentoReparo.getItemAt(event2.rowIndex);				
+				}	
+				
+				if(data.tecnico != null){
+					//um tecnico jah foi atribuido ao orcrep
+					
+					//Recupera o orcrep que foi selecionado
+					orcRep = data as OrcRepGenericoTO;
+					
+					//Abre popup para autenticar o tecnico do reparo
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(detalharOrcRep);
+				}else{
+					//nenhum tecnico foi atribuido ao orcrep
+					
+					//Recupera o orcrep que foi selecionado
+					orcRep = data as OrcRepGenericoTO;
+					
+					//avisa que o orcrep ainda nao possui um tecnico atribuido
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','REPARO_TECNICO_NAO_ATRIBUIDO'), MessageType.WARNING, 3000));
+					
+					if(orcRep.finalidade == "Reparo"){
+						reparoService.buscarPorId(orcRep.idOrcRep);						
+					}
+					if(orcRep.finalidade == "Orçamento"){
+						orcamentoService.buscarPorId(orcRep.idOrcRep);						
+					}
+				}
+			}
+			
+			
+			//Esse metodo decide se o orcrep recuperado eh um orcamento ou um reparo,
+			//alem de dispachar a acao que deve ser tomada:
+			// - visualizacao: caso nao haja tecnico atribuido ao orcrep
+			// - edicao: caso o orcrep seja do tecnico autenticado
+			private function onBuscarPorIdResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors();				
+				var orcRepGenerico:OrcRepGenerico = event.result as OrcRepGenerico;
+				
+				if(orcRepGenerico.tecnicoResponsavel==null){
+					//orcrep nao possui um tecnico responsavel
+					
+					if(orcRepGenerico is Reparo){
+						dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.VISUALIZAR_REPARO,null,null,null,orcRepGenerico));
+					}else{
+						dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.VISUALIZAR_ORCAMENTO,null,null,null,orcRepGenerico));
+					}
+				}else{
+					//orcrep possui um tecnico responsavel
+					
+					if(!Login.usuarioAutenticado.bloqueado && Login.usuarioAutenticado.id != orcRepGenerico.tecnicoResponsavel.id){
+						//Usuario nao estah bloqueado e o orcrep possui um tecnico responsavel
+						//O tecnico responsavel nao eh o usuario autenticado. Permitir somente que o usuario visualize o orcrep
+						if(orcRepGenerico is Reparo){
+							dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.VISUALIZAR_REPARO,null,null,null,orcRepGenerico));
+						}else{
+							dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.VISUALIZAR_ORCAMENTO,null,null,null,orcRepGenerico));
+						}
+					}else{
+						//Usuario nao estah bloqueado e o orcrep possui um tecnico responsavel
+						//O tecnico responsavel eh o usuario autenticado. Permitir que o usuario edite o orcrep
+						if(orcRepGenerico is Reparo){
+							dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.EDITAR_REPARO,null,null,null,orcRepGenerico));
+						}else{
+							dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.EDITAR_ORCAMENTO,null,null,null,orcRepGenerico));
+						}
+					}
+				}
+			}
+			
+			private function onBuscarPorIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarPorIdOrcamentoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			
+			//Apos autenticado esse metodo eh chamado
+			public function detalharOrcRep(event:UserRegisterNumberModalEvent=null):void
+			{				
+				if(orcRep.finalidade == "Reparo"){
+					reparoService.buscarPorId(orcRep.idOrcRep);						
+				}
+				if(orcRep.finalidade == "Orçamento"){
+					orcamentoService.buscarPorId(orcRep.idOrcRep);						
+				}
+			}
+			
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				
+			}
+			
+			private function atribuirTecnicos(event:MouseEvent=null):void
+			{
+				if(validateAtribuicaoTecnico()){
+					
+					var usr:Usuario = Login.usuarioAutenticado;
+					if(usr){
+						if(usr.perfil.acaoAtribuirTecnico){
+							var thereAreSelectedElements:Boolean = false;
+							for (var i:int = 0; i < listaOrcamentoReparo.length; i++) {
+								if (listaOrcamentoReparo[i].isSelected) {
+									thereAreSelectedElements = true;
+									break;
+								}
+							}
+							
+							if (thereAreSelectedElements) {
+								CursorManager.setBusyCursor();
+								
+								var selectedUsers:ArrayCollection = new ArrayCollection();
+								
+								for (var j:int = 0; j < listaOrcamentoReparo.length; j++) {
+									
+									if (listaOrcamentoReparo[j].isSelected) {
+										
+										selectedUsers.addItem(listaOrcamentoReparo[j]);
+									}
+								}
+								
+								dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.ATRIBUIR_TECNICO, selectedUsers,usuarios.usuarioSelecionado,null,null,usr));
+							} else {
+								dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_ITEM_SELECIONADO'), MessageType.WARNING, 5000));
+							}
+						}else{
+							dispatchEvent(new MensagemEvent("Usuário não é líder!", MessageType.WARNING, 3000));
+							Login.usuarioAutenticado = null;
+						}
+					}else{
+						PopupModalController.getInstance().showModalAutenticacaoUsuario(onAtribuirTecnicoAutenticar);
+					}
+					
+					
+					
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 5000));
+				}
+			}
+			
+			
+			
+			public function onAtribuirTecnicoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				atribuirTecnicos();
+			}
+			
+			
+			private function atribuirPrioridade(event:MouseEvent=null):void
+			{
+				if(validateAtribuicaoPrioridade()){
+					
+					var usr:Usuario = Login.usuarioAutenticado;
+					if(usr){
+						if(usr.perfil.acaoAtribuirPrioridade){
+							var thereAreSelectedElements:Boolean = false;
+							for (var i:int = 0; i < listaOrcamentoReparo.length; i++) {
+								if (listaOrcamentoReparo[i].isSelected) {
+									thereAreSelectedElements = true;
+									break;
+								}
+							}
+							
+							if (thereAreSelectedElements) {
+								CursorManager.setBusyCursor();
+								
+								var selectedUsers:ArrayCollection = new ArrayCollection();
+								
+								for (var j:int = 0; j < listaOrcamentoReparo.length; j++) {
+									
+									if (listaOrcamentoReparo[j].isSelected) {
+										
+										selectedUsers.addItem(listaOrcamentoReparo[j]);
+									}
+								}
+								dispatchEvent(new ListaOrcamentoReparoEvent(ListaOrcamentoReparoEvent.ATRIBUIR_PRIORIDADE, selectedUsers,Login.usuarioAutenticado, dataPrioridade.inputDate));
+							} else {
+								dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUM_ITEM_SELECIONADO'), MessageType.WARNING, 5000));
+							}
+						}else{
+							dispatchEvent(new MensagemEvent("Usuário não é o líder!", MessageType.WARNING, 3000));
+							Login.usuarioAutenticado = null;
+						}
+					}else{
+						PopupModalController.getInstance().showModalAutenticacaoUsuario(onAtribuirPrioridadeAutenticar);
+					}					
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 5000));
+				}
+			}
+			
+			
+			public function onAtribuirPrioridadeAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				atribuirPrioridade();
+			}
+			
+			private function validateAtribuicaoTecnico():Boolean {	
+				validatorArr = new Array();
+				validatorArr.push(usuarios.comboBox.comboValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				
+				return isValidForm;
+			}
+			
+			private function validateAtribuicaoPrioridade():Boolean {	
+				validatorArr = new Array();
+				validatorArr.push(dataPrioridade.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				
+				return isValidForm;
+			}
+			
+			private function getRowColor2(item:Object,
+										  rowIndex:int,
+										  dataIndex:int,
+										  color:uint):uint
+			{
+				
+				return item.color;
+			}
+			
+			
+			
+			private function getRowColor(item:Object,
+										 rowIndex:int,
+										 dataIndex:int,
+										 color:uint):uint
+			{
+				if(item.statusString == "Aguardando liberação"){
+					return 0xF0F8FF;
+				}
+				if(item.statusString == "Não Iniciado"){
+					if(item.criadoFromOrcamento){
+						return 0x00FF66;	
+					}
+					return 0xD2691E;
+				}
+				if(item.statusString == "Iniciado"){
+					if(item.condicao == "Devolução sem reparo"){
+						return 0xDC143C;
+					}
+					if(item.finalidade == "Reparo"){
+						if(item.laudoTecnicoAprovado == null && 
+							item.laudoTecnicoReprovado == null &&
+							item.propostaAprovada == null && 
+							item.propostaReprovada == null && 
+							item.orcamentoDiferenciadoRejeitado == null){
+							return 0xFF9900;
+						}else{
+							var dataNaoNulas:ArrayCollection = new ArrayCollection();
+							if(item.laudoTecnicoAprovado){
+								dataNaoNulas.addItem(item.laudoTecnicoAprovado);
+							}
+							if(item.laudoTecnicoReprovado){
+								dataNaoNulas.addItem(item.laudoTecnicoReprovado);
+							}
+							if(item.propostaAprovada){
+								dataNaoNulas.addItem(item.propostaAprovada);
+							}
+							if(item.propostaReprovada){
+								dataNaoNulas.addItem(item.propostaReprovada);
+							}
+							if(item.orcamentoDiferenciadoRejeitado){
+								dataNaoNulas.addItem(item.orcamentoDiferenciadoRejeitado);
+							}
+							
+							if(dataNaoNulas.length > 0){
+								var sortData:Sort = new Sort();
+								sortData.fields = [new SortField(null,true)];
+								dataNaoNulas.sort= sortData;
+								dataNaoNulas.refresh();
+								
+								var ultimaData:Date = dataNaoNulas.getItemAt(0) as Date;
+								
+								if(item.laudoTecnicoAprovado != null && item.laudoTecnicoAprovado == ultimaData){
+									return 0xDC143C;
+								}
+								if(item.laudoTecnicoReprovado != null && item.laudoTecnicoReprovado == ultimaData){
+									return 0xFDFF00;
+								}
+								if(item.propostaAprovada != null && item.propostaAprovada == ultimaData){
+									return 0x00FF66;
+								}
+								if(item.propostaReprovada != null && item.propostaReprovada == ultimaData){
+									return 0xDC143C;
+								}
+								if(item.orcamentoDiferenciadoRejeitado != null && item.orcamentoDiferenciadoRejeitado == ultimaData){
+									return 0xFDFF00;
+								}
+							}
+						}
+					}else{
+						if(item.laudoTecnicoAprovado == null && 
+							item.laudoTecnicoReprovado == null &&
+							item.rejeitadoPeloLider == null && 
+							item.propostaReprovada == null){
+							return 0xFF9900;
+						}else{
+							var dataNaoNulas1:ArrayCollection = new ArrayCollection();
+							if(item.laudoTecnicoAprovado){
+								dataNaoNulas1.addItem(item.laudoTecnicoAprovado);
+							}
+							if(item.laudoTecnicoReprovado){
+								dataNaoNulas1.addItem(item.laudoTecnicoReprovado);
+							}
+							if(item.rejeitadoPeloLider){
+								dataNaoNulas1.addItem(item.rejeitadoPeloLider);
+							}
+							if(item.propostaReprovada){
+								dataNaoNulas1.addItem(item.propostaReprovada);
+							}
+							
+							if(dataNaoNulas1.length > 0){
+								var sortData1:Sort = new Sort();
+								sortData1.fields = [new SortField(null,true)];
+								dataNaoNulas1.sort= sortData1;
+								dataNaoNulas1.refresh();
+								
+								var ultimaData1:Date = dataNaoNulas1.getItemAt(0) as Date;
+								
+								if(item.laudoTecnicoAprovado != null && item.laudoTecnicoAprovado == ultimaData1){
+									return 0xDC143C;
+								}
+								if(item.laudoTecnicoReprovado != null && item.laudoTecnicoReprovado == ultimaData1){
+									return 0xFDFF00;
+								}
+								if(item.rejeitadoPeloLider != null && item.rejeitadoPeloLider == ultimaData1){
+									return 0xFDFF00;
+								}
+								if(item.propostaReprovada != null && item.propostaReprovada == ultimaData1){
+									return 0xDC143C;
+								}
+								
+							}
+						}
+					}
+				}
+				if(item.statusString == "Aguardando proposta" || item.statusString == "Aguardando laudo técnico" || 
+					item.statusString == "Aguardando componente" || item.statusString == "Aguardando aprovação do líder" || 
+					item.statusString == "Laudo aguardando aprovação do líder" || item.statusString == "Devolução sem reparo aguardando aprovação do líder" ||
+					item.statusString == "Aguardando orçamento diferenciado" || item.statusString == "Aguardando conjunto para proposta" ||
+					item.statusString == "Aguardando conjunto para expedição" || item.statusString == "Proposta aguardando aprovação do líder"){
+					return 0x00AAFF;
+				}
+				if(item.statusString == "Finalizado"){
+					return 0x7FFF00;
+				}
+				
+				return 0x5FA6BF;
+			}	
+			
+			public function atualizarFiltros():void
+			{
+				viewTable.filter();
+			}
+			
+			private function exportar(event:MouseEvent):void
+			{
+				if(listaOrcamentoReparo != null && listaOrcamentoReparo.length > 0){
+					relatorioService.channelSet = parentApplication.channelSet;
+					relatorioService.showBusyCursor = true;
+					var resultList:ArrayCollection = new ArrayCollection();
+					resultList.addAll(listaOrcamentoReparo);
+					relatorioService.gerarRelatorio(null, "relatorioListagemGeral",resultList);
+				}else{
+					dispatchEvent(new MensagemEvent("Nenhuma informação disponível para gerar o relatório!", MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function onCreateFileResult(event:ResultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				byteArray = event.result as ByteArray;
+				dispatchEvent(new MensagemEvent("Arquivo criado com sucesso", MessageType.INFO, 3000));
+				
+				Alert.noLabel = "Não";
+				Alert.yesLabel = "Sim"
+				var alert:Alert = new Alert();
+				alert = Alert.show("Deseja salvar o arquivo?","Download completo",3,this,alertClickHandler);
+				PopUpManager.centerPopUp(alert);
+				var newY:Number = 180;
+				alert.move(alert.x, newY);
+			}
+			
+			private function openHandler(event:Event):void
+			{
+				//dispatchEvent(new MensagemEvent("Texto openHandler", MessageType.INFO, 3000));
+			}
+			
+			public static function getFormattedDateToWriteFile(date:Date):String
+			{
+				var date:Date = date;
+				var dateF:DateFormatter = new DateFormatter();
+				dateF.formatString = "DDMMYYYY - LLNNSS";
+				return dateF.format(date);
+			}
+			
+			private function alertClickHandler(event:CloseEvent):void
+			{
+				if (event.detail == Alert.YES)
+				{
+					fileRef.save(byteArray, "Relatório listagem geral " + getFormattedDateToWriteFile(new Date()) +".xlsx");
+					
+				}
+				else
+				{
+					dispatchEvent(new MensagemEvent("Exportação foi cancelada", MessageType.INFO, 3000));
+				}
+			}
+			
+			private function onCreateFileFault(event:FaultEvent):void
+			{
+				// Return the cursor to its original state
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent("Texto onCreateFileFault", MessageType.INFO, 3000));
+				// Debug output
+				trace("[OrdersComponent.handleUsersServicefindAllFault] [" 
+					+ event.fault.faultCode + "] " 
+					+ event.fault.faultString 
+					+ " (" + event.fault.faultDetail +
+					")");
+			}
+			
+			private function labelFunction2(item:Object):String
+			{
+				var myString:String = "";
+				if(item != null)
+				{
+					myString = myString + "Nº OS : " + item.numeroOrdemServico + "\n";
+					myString = myString + "Unidade : " + item.unidade + "\n"
+				}
+				return myString;
+			}			
+		]]>
+	</fx:Script>
+	
+	
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<combos:ComboUsuario id="usuarios" required="true" labelText="{resourceManager.getString('ApplicationResource','USUARIOS')}" width="10%" />
+		<mx:Button id="removeSelectedButton"
+				   label="{resourceManager.getString('ApplicationResource','ATRIBUIR_USUARIO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/user.png')"
+				   click="atribuirTecnicos(event)"/>
+		<components:DataInput id="dataPrioridade" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_PRIORIDADE')}" width="5%" inputHeight="20" />
+		
+		<mx:Button id="btAtribuirPrioridade"
+				   label="{resourceManager.getString('ApplicationResource','ATRIBUIR_PRIORIDADE')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/date.png')"
+				   click="atribuirPrioridade(event)"/>
+		<mx:Button id="btExportar"
+				   label="Exportar"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/user.png')"
+				   click="exportar(event)"/>
+	</mx:HBox>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<grid:MantisTable id="viewTable" 
+						  width="100%"
+						  height="100%"
+						  rowColorFunction="getRowColor"
+						  draggableColumns="true"
+						  dataProvider="{listaOrcamentoReparo}"
+						  itemDoubleClick="editItem(data, event,false)"	>
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = ""	
+								   draggable="false" width="25"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.editItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn headerText = ""							   
+								   itemRenderer="components.grid.CheckBoxItemRenderer"
+								   headerRenderer="components.grid.CheckBoxItemRenderer"
+								   width="25" resizable="false" draggable="false" sortable="false"
+								   dataField="isSelected"
+								   />
+				
+				<dc:DataGridColumnFilter id="origem" showDataTips="true" 
+										 headerText = "{resourceManager.getString('ApplicationResource','FINALIDADE')}"
+										 textAlign="center"
+										 sortable="false" width="50" 
+										 dataField = "finalidade"							   
+										 />
+				
+				<dc:DataGridColumnFilter id="status"  showDataTips="true" 
+										 headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+										 dataField = "statusString" 
+										 width="80"
+										 />
+				
+				<dc:DataGridColumnFilter id="cUsuario" showDataTips="true"
+										 headerText = "{resourceManager.getString('ApplicationResource','TECNICO')}"
+										 dataField = "tecnico" 
+										 width="80"
+										 />
+				
+				<dc:DataGridColumnFilter id="cLaboratorio" showDataTips="true"
+										 headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+										 dataField= "laboratorio" 
+										 width="80"
+										 />
+				
+				<mx:DataGridColumn headerText = ""	dataField="componentePendente"
+								   draggable="false" width="25"							 
+								   editable="false" itemRenderer="modules.reparoOrcamento.ImageItemRenderer"
+								   sortable="false" />
+
+
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOs"
+										 headerText = "OS" 
+										 textAlign="center"
+										 sortable="false" width="70" 
+										 dataField="numeroOrdemServico"		 						   
+										 />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroOsPai"
+										 headerText = "OS Pai"
+										 textAlign="center"
+										 sortable="false" width="70"
+										 dataField="numeroOrdemServicoPai" 						   
+										 />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente" dataField="cliente" 
+										 headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+										 showDataTips="true"
+										 textAlign="center" width="200"
+										 sortable="false"					   
+										 />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="unidade"
+										 headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+										 textAlign="center" showDataTips="true"
+										 sortable="false" width="200"
+										 dataField="unidade" 						   
+										 />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroNF"
+										 headerText = "NF"  
+										 textAlign="center" showDataTips="true" 
+										 sortable="false" width="80"
+										 dataField="numeroNotaFiscal"								   
+										 />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nCaseAvaya"
+										 headerText = "Case"
+										 textAlign="center" showDataTips="true"
+										 sortable="false" width="80"
+										 dataField="caseAvaya"							   
+										 />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nClienteAvaya"
+										 headerText = "C.C."
+										 textAlign="center" showDataTips="true"
+										 sortable="false" width="80"
+										 dataField="clienteAvaya"						   
+										 />				
+				<mx:DataGridColumn id="diasServilogi" 
+								   headerText = "Serv."
+								   width="35" sortable="false" dataField = "tempoNaServilogi"
+								   />
+				
+				<mx:DataGridColumn id="diasLaboratorio" showDataTips="true" 
+								   headerText = "Lab." dataTipFunction="labelFunction2"
+								   width="35" sortable="false" dataField = "tempoNoLaboratorio"
+								   />
+				
+				<mx:DataGridColumn id="prazo" itemRenderer="modules.reparoOrcamento.CustomBackgroundComp"
+								   headerText = "{resourceManager.getString('ApplicationResource','PRAZO')}"
+								   width="35" sortable="false" dataField = "prazoReparo"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="clDataPrioridade" 
+								   headerText = "{resourceManager.getString('ApplicationResource','PRIORIDADE')}"
+								   width="60" dataField = "prioridadeString"
+								   />
+			</grid:columns>
+		</grid:MantisTable>
+		<reparoOrcamento:LegendaReparo id="legenda" />
+	</mx:VBox>
+</mx:VBox>

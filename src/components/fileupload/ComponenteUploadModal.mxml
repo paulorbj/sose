@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="Realizar upload de arquivos" 
+				xmlns:componentes="components.*" 
+				xmlns:fileupload="components.fileupload.*"
+				showCloseButton="true"
+				close="close()"
+				mouseDownOutside="close()"
+				initialize="addListeners()"
+				creationPolicy="all" width="400" height="300"
+				xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[		
+			import entities.recebimento.OrdemServico;
+			
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var idObjeto:Number;
+			
+			[Bindable]
+			public var tipoEntidade:String;
+			
+			[Bindable]
+			public var callbackFunction:Function;
+			
+			private function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+				FlexGlobals.topLevelApplication.systemManager.addEventListener(UploadEvent.UPLOAD_COMPLETO,uploadConcluido);
+			}
+			
+			private function keyDownListener (e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ESCAPE) {
+					close();
+				}
+			}
+			
+			private function uploadConcluido(e:UploadEvent):void {
+				callbackFunction();
+			}
+			
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:HBox horizontalAlign="center" verticalAlign="bottom" width="100%" height="100%" creationPolicy="all">
+		<fileupload:ComponenteUpload width="100%" height="100%" id="componenteUpload" idObjeto="{idObjeto}" tipoEntidade="{tipoEntidade}" />
+	</mx:HBox>
+	
+	
+	
+</mx:TitleWindow>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FilterRendererBase xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="components.grid.filtros.controles.*" 
+	creationComplete="creationCompleteHandler()" xmlns:components="components.*"
+	paddingTop="0" paddingBottom="0" paddingLeft="0" 
+	paddingRight="0" direction="vertical">
+	
+	<mx:Script>
+		<![CDATA[
+			import entities.administrativo.Componente;
+			
+			import mx.controls.DateField;
+			import mx.utils.ObjectUtil;
+		
+			private function creationCompleteHandler():void
+			{
+			}
+		
+			override public function onFilter(item:Object, itemLabelField:String):Boolean 
+			{
+				var componente:Componente = item as Componente;
+				if(ativo.selected){
+					if((item as Componente).qtdComprada > 0){
+						return true;
+					}else{
+						return false;
+					}
+				}else{
+					if((item as Componente).qtdComprada > 0){
+						return false;
+					}else{
+						return true;
+					}
+				}
+				return false;
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:VBox>
+		<mx:HBox>
+			<mx:Label text="Aguardando estoque" />
+			<mx:CheckBox id="ativo" />
+		</mx:HBox>
+		<mx:Button label="OK" click="filter()" />
+	</mx:VBox>	
+</FilterRendererBase>

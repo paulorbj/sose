@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:components="components.*" width="100%" height="100%"
+		 paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10" initialize="init()"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*">
+	
+	<fx:Declarations>		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="notaFiscalRemessaService" destination="notaFiscalRemessaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarNotaFiscalSaidaEmitidaOuFinalizada"      
+					   fault="onListarNotaFiscalRemessasFault(event)" 
+					   result="onListarNotaFiscalRemessasResult(event)"
+					   />
+			
+			<mx:method name="atualizarNumeroNotaFiscalSaida"      
+					   fault="onAtualizarNumeroNotaFiscalSaidaFault(event)" 
+					   result="onAtualizarNumeroNotaFiscalSaidaResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.expedicao.NotaFiscalRemessa;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _listaNotaFiscalRemessa:ArrayCollection;
+			
+			[Bindable]
+			private var _notaFiscalSaida:NotaFiscalRemessa;
+			
+			[Bindable]
+			private var _numeroNovo:String;
+			
+			private function init():void
+			{
+				notaFiscalRemessaService.listarNotaFiscalSaidaEmitidaOuFinalizada();	
+			}
+			
+			private function onListarNotaFiscalRemessasResult(event:ResultEvent = null):void
+			{
+				_listaNotaFiscalRemessa = event.result as ArrayCollection;	
+			}
+			
+			private function onListarNotaFiscalRemessasFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function selecionarNotaFiscal(data:Object=null, event:Event=null):void
+			{	
+				
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaNotaFiscalRemessa.getItemAt(event2.rowIndex);				
+				}
+				
+				_notaFiscalSaida = data as NotaFiscalRemessa;
+			}
+			
+			private function atualizar(event:MouseEvent = null):void
+			{
+				if(validarCampos()){
+					if(_notaFiscalSaida == null){
+						dispatchEvent(new MensagemEvent("Nenhuma nota fiscal foi selecionada!", MessageType.ERROR, 3000));
+					}else{
+						notaFiscalRemessaService.atualizarNumeroNotaFiscalSaida(_notaFiscalSaida,_numeroNovo);
+					}
+				}else{
+					dispatchEvent(new MensagemEvent("Campos obrigatórios não foram preenchidos", MessageType.ERROR, 3000));	
+				}
+			}
+			
+			private function onAtualizarNumeroNotaFiscalSaidaResult(event:ResultEvent = null):void
+			{
+				notaFiscalRemessaService.listarNotaFiscalSaidaEmitidaOuFinalizada();	
+				Publicador.enviarMensagemExpedicao(MensagensAplicacao.ATUALIZAR_NOTA_FISCAL_REMESSA,null);
+				_notaFiscalSaida = null;
+				_numeroNovo = null;
+				dispatchEvent(new MensagemEvent("Nº da NF atualizado com sucesso!", MessageType.SUCCESS, 3000));	
+			}
+			
+			private function onAtualizarNumeroNotaFiscalSaidaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 3000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao atualizar número da nota fiscal", MessageType.ERROR, 3000));	
+				}	
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(nNotaFiscalSaidaNova.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;		
+
+				return isValidForm;
+			}
+			
+		]]>
+	</fx:Script>
+
+	<fx:Binding source="nNotaFiscalSaidaAtual.inputText" destination="_notaFiscalSaida.numero" twoWay="true" />
+	<fx:Binding source="nNotaFiscalSaidaNova.inputText" destination="_numeroNovo" twoWay="true" />
+	
+	<mx:VBox width="100%" height="300" verticalGap="0" verticalScrollPolicy="off" >
+		<grid:MantisTable id="viewTable"
+						  width="1200"
+						  height="100%"
+						  draggableColumns="true"
+						  dataProvider="{_listaNotaFiscalRemessa}"
+						  doubleClickEnabled="false"
+						  >
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false" width="40"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.selecionarNotaFiscal(data, event)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="Selecionar nota fiscal de saída"
+										  />	
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<dc:DataGridColumnFilter  id="cliente" width="250" filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
+										  headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+										  textAlign="center"
+										  sortable="false"
+										  dataField="nomeCliente"							   
+										  />
+				
+				<dc:DataGridColumnFilter  id="status" width="100" textAlign="center"
+										  headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+										  dataField = "statusString"
+										  />
+				
+				<mx:DataGridColumn id="dataSaida" width="80"
+								   headerText = "Data saída"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="dtSaidaString"							   
+								   />
+				
+				<dc:DataGridColumnFilter  id="numeroNF" width="60" filterRenderer="components.grid.filtros.BeginWithFilterRenderer"
+										  headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
+										  textAlign="center"
+										  sortable="false"
+										  dataField="numero"							   
+										  />
+				
+			</grid:columns>
+		</grid:MantisTable>
+	</mx:VBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom" >
+		<texto:TextInput id="nNotaFiscalSaidaAtual" habilitado="false" labelText="Nº atual da NF saída" width="40%"  />
+		<texto:TextInput id="nNotaFiscalSaidaNova" required="true" labelText="Novo Nº da NF saída" habilitado="true" width="40%"  />
+		<mx:Button id="btSalvar"
+				   label="Atualizar"
+				   height="25"
+				   width="20%"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="atualizar(event)"/>
+	</mx:HBox>
+</mx:VBox>

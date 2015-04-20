@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
+		   width="300" height="300" borderStyle="solid" creationComplete="init()"  creationPolicy="all"
+		   >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			public function mudarParaConfiguracao():void
+			{
+				this.currentState = "config";
+				if(!containerConfiguracao.contains(configuracao)){
+					containerConfiguracao.addElement(configuracao);
+				}
+			}
+			
+			public function mudarParaGrafico():void
+			{
+				this.currentState = "normal";
+			}
+			
+			// Define a property for the top component.
+			public var grafico:UIComponent;
+			
+			public var configuracao:UIComponent;
+			
+			[Bindable]
+			public var tituloDoGrafico:String;
+			
+			private function init():void {            				
+				containerGrafico.addElement(grafico);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="config"/>
+	</mx:states>
+	
+	<s:Label text="{tituloDoGrafico}" top="10" left="5" includeIn="normal" />
+	<mx:Image source="@Embed(source='/assets/icons/cog.png')" top="10" right="5" includeIn="normal" click="mudarParaConfiguracao()" />
+	<s:Label text="Configurações" top="10" left="5" includeIn="config" />
+	<mx:Image source="@Embed(source='/assets/icons/black_cross.png')" width="16" height="16" top="10" right="5" includeIn="config" click="mudarParaGrafico()" />
+	
+	<mx:VBox top="30" bottom="10" backgroundColor="0xFFFFFF" id="containerGrafico" includeIn="normal" creationPolicy="all"
+			 height="100%" width="100%" />
+	
+	<mx:VBox top="30" bottom="10" backgroundColor="0xFFFFFF" id="containerConfiguracao" includeIn="config" creationPolicy="all"
+			 height="100%" width="100%" />
+</mx:Canvas>

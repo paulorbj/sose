@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				close="close()"
+				showCloseButton="true"
+				creationPolicy="all"
+				xmlns:imageviewer="components.imageviewer.*"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				title="Visualizador de Imagem" width="100%" height="100%"
+				xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Declarations>
+		
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.Message;
+			import components.messages.MessageFactory;
+			import components.messages.MessageType;
+			import components.imageviewer.ImagemViewerEvent;
+			
+			import entities.ArquivoUpload;
+			import entities.administrativo.Usuario;
+			
+			import modules.reparoOrcamento.ListagemGeral;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			public var listagemGeral:ListagemGeral;
+			
+			private var yesListeners:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var idEntidade:Number;
+			
+			[Bindable]
+			public var tipoEntidade:String;
+			
+			[Bindable]
+			public var imagemSelecionada:ArquivoUpload;
+			
+			override public function addEventListener(
+				type:String, listener:Function,
+				useCapture:Boolean = false,
+				priority:int = 0,
+				useWeakReference:Boolean = false):void {
+				yesListeners.addItem(listener);
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			
+			private function close():void
+			{
+				dispatchEvent(new ImagemViewerEvent(ImagemViewerEvent.FECHAR_IMAGEM_VIEWER));
+			}
+			
+			public function carregarImagens():void
+			{
+				visualizadorImagem.recarregarImagens();
+			}
+									
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" borderStyle="solid" verticalScrollPolicy="off" horizontalAlign="center" horizontalScrollPolicy="off">
+		<imageviewer:ImageCarousel width="100%" height="100%" widthComponente="400" id="visualizadorImagem" idEntidade="{idEntidade}" tipoEntidade="{tipoEntidade}" imagemSelecionada="{imagemSelecionada}"/>
+	</mx:VBox>
+	
+	
+</mx:TitleWindow>

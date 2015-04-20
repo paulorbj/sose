@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DefaultGridHeaderRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+							 xmlns:s="library://ns.adobe.com/flex/spark" 
+							 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.ToolTip;
+			import mx.events.ToolTipEvent;
+			import mx.managers.ToolTipManager;
+			
+			
+			public var myTip:ToolTip;
+			
+			private function createBigTip(event:Object):void {
+				var s:String = "These buttons let you save, exit, or continue with the current operation."
+				myTip = ToolTipManager.createToolTip(s,event.currentTarget.x + event.currentTarget.width + 10, event.currentTarget.y) as ToolTip;
+				myTip.setStyle("backgroundColor",0xFFCC00);
+				myTip.width = 150;
+				myTip.height = 200;
+			}
+			
+			private function destroyBigTip(event:Object):void {
+				ToolTipManager.destroyToolTip(myTip);
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Remove text styles as you wish.
+		I have removed fontWeight="bold" and textAlign="start" here.
+		Must be a TextBase instance (not a factory). -->
+		<s:Label id="labelDisplay"  
+				 verticalCenter="1" left="0" right="0" top="0" bottom="0"
+				 verticalAlign="middle" color="black" fontSize="10" fontWeight="bold" rotation="90" 
+				 maxDisplayedLines="1" width="150"
+				  />
+	</fx:Declarations>
+</s:DefaultGridHeaderRenderer>

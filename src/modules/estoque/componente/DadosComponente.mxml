@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:grid="components.grid.*"
+		 xmlns:texto="components.textInput.*" width="100%"
+		 xmlns:componente="modules.estoque.componente.*"
+		 xmlns:combos="components.combos.*" xmlns:componentes="components.*" xmlns:fileupload="components.fileupload.*" xmlns:imageviewer="components.imageviewer.*"
+		 >
+	<fx:Declarations>
+		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorEntidadePorIdentificador"      
+					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
+					   result="onListarPorEntidadePorIdentificadorResult(event)"
+					   />
+			<mx:method name="atualizarImagemPrincipal"      
+					   fault="onAtualizarImagemPrincipalFault(event)" 
+					   result="onAtualizarImagemPrincipalResult(event)"
+					   />
+			<mx:method name="excluirArquivoUpload"      
+					   fault="onExcluirArquivoUploadFault(event)" 
+					   result="onExcluirArquivoUploadResult(event)"
+					   />
+			
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.fileupload.UploadEvent;
+			import components.imageviewer.ImagemViewerEvent;
+			import components.pdfViewer.PDFViewerEvent;
+			
+			import entities.ArquivoUpload;
+			import entities.administrativo.Componente;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var _componente:Componente = new Componente();
+			
+			[Bindable]
+			private var _listaArquivoUpload:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var urlVisualizarArquivo:String = "";
+			
+			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaArquivoUpload.removeAll();
+				_listaArquivoUpload = event.result as ArrayCollection;
+				urlVisualizarArquivo = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+			}
+			
+			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function get componente():Componente
+			{
+				_componente.qtdEstoqueMinimo = parseInt(estoqueMinimo.inputText);
+				_componente.qtdEstoque = parseInt(qtdEstoque.inputText);
+				_componente.tipo = cbTipoComponente.tipoComponenteSelecionado;
+				_componente.encapsulamento = cbEncapsulamento.encapsulamentoSelecionado;
+				_componente.fabricante = cbFabricante.fabricanteSelecionado;
+				return _componente;
+			}
+			
+			public function set componente(value:Componente):void
+			{
+				estoqueMinimo.inputText = value.qtdEstoqueMinimo.toString();
+				qtdEstoque.inputText = value.qtdEstoque.toString();
+				posicaoEstoque.inputText = value.posicaoEstoque;
+				cbTipoComponente.tipoComponenteSelecionado = value.tipo;
+				cbEncapsulamento.encapsulamentoSelecionado = value.encapsulamento;
+				cbFabricante.fabricanteSelecionado = value.fabricante;
+				_componente = value;
+				cmHistoricoCompra.componente = _componente;
+				cmHistoricoUso.componente = _componente;
+				cmCotacoes.componente = _componente;
+				this.addEventListener(UploadEvent.UPLOAD_COMPLETO,uploadConcluidoCallback);
+				uploadConcluidoCallback();
+				accordion.selectedIndex = 0;
+			}
+			
+			public function limpar():void
+			{
+				_componente = new Componente();
+				cbTipoComponente.limpar();
+				cbEncapsulamento.limpar();
+				cbFabricante.limpar();
+				estoqueMinimo.inputText = "";
+				qtdEstoque.inputText = "";
+				posicaoEstoque.inputText = "";
+				visualizadoImagem.limpar();
+			}
+			
+			private function uploadConcluidoCallback(event:Event=null):void
+			{
+				//componenteUpload.limpar();
+				arquivoUploadService.listarPorEntidadePorIdentificador("COMPONENTE",_componente.id);
+				visualizadoImagem.recarregarImagens();
+			}
+			
+			public function setarImagemPrincipal(data:Object=null, event:Event=null):void
+			{
+				var imagemPrincipal:ArquivoUpload;
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data != null){
+					imagemPrincipal = data as ArquivoUpload;
+				}
+				
+				arquivoUploadService.atualizarImagemPrincipal(imagemPrincipal);
+			}
+			
+			public function removerArquivo(data:Object=null, event:Event=null):void
+			{
+				var arq:ArquivoUpload;
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data != null){
+					arq = data as ArquivoUpload;
+				}
+				
+				arquivoUploadService.excluirArquivoUpload(arq);
+			}
+			
+			private function onAtualizarImagemPrincipalResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaArquivoUpload.removeAll();
+				_listaArquivoUpload = event.result as ArrayCollection;
+			}
+			
+			private function onAtualizarImagemPrincipalFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onExcluirArquivoUploadResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				//var _arqToRemove:ArquivoUpload = event.result as ArquivoUpload;
+				arquivoUploadService.listarPorEntidadePorIdentificador("COMPONENTE",_componente.id);
+				visualizadoImagem.recarregarImagens();
+				
+			}
+			
+			private function onExcluirArquivoUploadFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function visualizarPDF(data:Object, event:Event):void
+			{			
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				var arquivoPDF:ArquivoUpload = data as ArquivoUpload;
+				
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlVisualizarArquivo + arquivoPDF.montarURLRelativa(), null));
+			}
+			
+			public function visualizarImagem(data:Object, event:Event):void
+			{			
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				var arquivoImagem:ArquivoUpload = data as ArquivoUpload;
+				
+				dispatchEvent(new ImagemViewerEvent(ImagemViewerEvent.ABRIR_IMAGEM_VIEWER,"COMPONENTE",_componente.id,arquivoImagem, null));
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="_componente.dtUltimoInventario" destination="dtUltimoInventario.inputDate" twoWay="true" />
+	<fx:Binding destination="datasheet.inputText" source="_componente.dataSheet" twoWay="true"/>
+	<fx:Binding destination="pinos.inputText" source="_componente.pinos" twoWay="true"/>
+	<fx:Binding destination="nome.inputText" source="_componente.nome" twoWay="true"/>
+	<fx:Binding destination="descricao.inputText" source="_componente.descricao" twoWay="true"/>
+	<fx:Binding destination="posicaoEstoque.inputText" source="_componente.posicaoEstoque" twoWay="true"/>
+	<fx:Binding destination="ativo.selected" source="_componente.cadastroSistemaAtivo" twoWay="true"/>
+	
+	<mx:TabNavigator id="accordion" borderStyle="solid"  width="100%" height="350" paddingTop="0" paddingBottom="0" >
+		
+		<mx:VBox label="Informações do componente" width="100%" height="100%" paddingTop="0" paddingBottom="0">
+			<mx:HBox verticalAlign="bottom" width="100%">
+				<texto:TextInput id="nome" labelText="{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}" width="40%"  />
+				<texto:TextInput id="descricao" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="50%" />
+				<mx:CheckBox id="ativo" label="{resourceManager.getString('ApplicationResource','CADASTRO_ATIVO')}" />
+			</mx:HBox>
+			
+			<mx:HBox verticalAlign="bottom" width="100%">
+				<combos:ComboTipoComponente id="cbTipoComponente" labelText="{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}" width="20%" />
+				<combos:ComboEncapsulamento id="cbEncapsulamento" labelText="{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}" width="20%" />
+				<combos:ComboFabricante id="cbFabricante" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="20%" />
+				<texto:TextInput id="estoqueMinimo" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}" width="12%" restrict="0-9" />
+				<texto:TextInput id="qtdEstoque" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_QUANTIDADE')}" width="12%" restrict="0-9" />
+				<texto:TextInput id="posicaoEstoque" labelText="{resourceManager.getString('ApplicationResource','COMPONENTE_POSICAO')}" width="12%"  />
+			</mx:HBox>
+			
+			<mx:HBox verticalAlign="bottom" width="100%">
+				<texto:TextInput id="pinos" labelText="Pinos" width="10%"  />
+				<texto:TextInput id="datasheet" labelText="Datasheet" width="30%"  />
+				<componentes:DataInput id="dtUltimoInventario"  labelText="Dt. último inventário" width="10%" inputHeight="20" />
+			</mx:HBox>
+		</mx:VBox>
+		
+		<mx:VBox label="Arquivos dos componentes" width="100%" height="100%" enabled="{_componente.id != 0}" paddingTop="0" paddingBottom="0">
+			
+			<mx:HBox width="100%" height="100%" horizontalGap="1" paddingBottom="0" paddingLeft="2" paddingRight="2" paddingTop="0">
+				<mx:VBox height="300">
+					<fileupload:ComponenteUpload id="componenteUpload" width="500" idObjeto="{_componente.id}" tipoEntidade="{ComponenteUpload.T_ENTIDADE_COMPONENTE}" />
+					<grid:MantisTable id="viewTable"
+									  width="500" height="100%"
+									  draggableColumns="true"
+									  dataProvider="{_listaArquivoUpload}" >
+						
+						<grid:columns>
+							<mx:DataGridColumn dataField="isImagemPrincipal" width="25" itemRenderer="modules.estoque.componente.ImagemPrincipalItemRenderer" />
+							<mx:DataGridColumn headerText="Nome Sistema" dataField="nome" width="175" />
+							<mx:DataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
+							<mx:DataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="175" />
+							<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+											   draggable="false"  textAlign="center" width="150"							 
+											   editable="false"
+											   sortable="false">
+								<mx:itemRenderer>
+									<fx:Component>
+										<mx:HBox horizontalAlign="center"
+												 verticalAlign="middle"
+												 >
+											<fx:Script>
+												<![CDATA[
+													import entities.ArquivoUpload;
+												]]>
+											</fx:Script>
+											<mx:Image source="@Embed(source='/assets/icons/image_link.png')"
+													  click="parentDocument.setarImagemPrincipal(data, event)"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  visible="{(data as ArquivoUpload).tipoArquivo == 'IMAGEM'}"
+													  toolTip="Imagem principal"
+													  />
+											
+											<mx:Image source="@Embed(source='/assets/icons/page_white_acrobat.png')"
+													  click="parentDocument.visualizarPDF(data, event)"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  visible="{(data as ArquivoUpload).tipoArquivo == 'PDF'}"
+													  toolTip="Visualizar PDF"
+													  />
+											<mx:Image source="@Embed(source='/assets/icons/image.png')"
+													  click="parentDocument.visualizarImagem(data, event)"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  visible="{(data as ArquivoUpload).tipoArquivo == 'IMAGEM'}"
+													  toolTip="Visualizar Imagem"
+													  />
+											
+											<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+													  click="parentDocument.removerArquivo(data, event)"
+													  enabled="true"
+													  buttonMode="true"
+													  useHandCursor="true"
+													  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+													  />
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+						</grid:columns>
+					</grid:MantisTable>
+				</mx:VBox>
+				
+				<imageviewer:ImageCarousel width="400" height="300" widthComponente="400" id="visualizadoImagem" idEntidade="{_componente.id}" tipoEntidade="COMPONENTE"/>
+			</mx:HBox>
+		</mx:VBox>
+		
+		<mx:VBox label="Histórico de uso" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalHistoricoUso id="cmHistoricoUso" />
+		</mx:VBox>
+		
+		<mx:VBox label="Histórico de compra" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalHistoricoCompra id="cmHistoricoCompra" />
+		</mx:VBox>  
+		
+		<mx:VBox label="Cotações" 
+				 width="100%" 
+				 height="100%">
+			<componente:ComponenteModalCotacoes id="cmCotacoes" />
+		</mx:VBox>
+		
+	</mx:TabNavigator>
+</mx:VBox>

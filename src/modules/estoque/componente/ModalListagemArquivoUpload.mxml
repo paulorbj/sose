@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" title="Detalhamento do item de compra" creationPolicy="all"
+				xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+				xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*"
+				close="close();" showCloseButton="true"
+				paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="800" height="100%" xmlns:componente="modules.estoque.componente.*">
+	<fx:Declarations>
+		<mx:RemoteObject id="arquivoUploadService" destination="arquivoUploadService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorEntidadePorIdentificador"      
+					   fault="onListarPorEntidadePorIdentificadorFault(event)" 
+					   result="onListarPorEntidadePorIdentificadorResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.imageviewer.ImagemViewerEvent;
+			import components.pdfViewer.PDFViewerEvent;
+			
+			import entities.ArquivoUpload;
+			import entities.administrativo.Componente;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.TitleWindow;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public var myParentObject:DisplayObject;
+			
+			[Bindable]
+			public var urlVisualizarArquivo:String = "";
+			
+			[Bindable]
+			private var _componente:Componente = new Componente();
+			
+			[Bindable]
+			private var _listaArquivoUpload:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var modal:TitleWindow;
+			
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function onListarPorEntidadePorIdentificadorResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaArquivoUpload.removeAll();
+				_listaArquivoUpload = event.result as ArrayCollection;
+				urlVisualizarArquivo = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+			}
+			
+			private function onListarPorEntidadePorIdentificadorFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarComponentesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function get componente():Componente
+			{
+				return _componente;
+			}
+			
+			public function set componente(value:Componente):void
+			{
+				_componente = value;
+				arquivoUploadService.listarPorEntidadePorIdentificador("COMPONENTE",_componente.id);
+			}
+			
+			public function visualizarPDF(data:Object, event:Event):void
+			{			
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				var arquivoPDF:ArquivoUpload = data as ArquivoUpload;
+				
+				myParentObject.dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlVisualizarArquivo + arquivoPDF.montarURLRelativa(), modal));
+			}
+			
+			public function visualizarImagem(data:Object, event:Event):void
+			{			
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaArquivoUpload.getItemAt(event2.rowIndex);				
+				}
+				
+				var arquivoImagem:ArquivoUpload = data as ArquivoUpload;
+				
+				myParentObject.dispatchEvent(new ImagemViewerEvent(ImagemViewerEvent.ABRIR_IMAGEM_VIEWER,"COMPONENTE",_componente.id,arquivoImagem, modal));
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:HBox width="100%" height="100%" horizontalGap="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+		<grid:MantisTable id="viewTable"
+						  width="500" height="100%"
+						  draggableColumns="true"
+						  dataProvider="{_listaArquivoUpload}" >
+			
+			<grid:columns>
+				
+				<mx:DataGridColumn headerText="Nome Sistema" dataField="nome" width="175" />
+				<mx:DataGridColumn headerText="Tipo" dataField="tipoArquivo" width="100" />
+				<mx:DataGridColumn headerText="Nome Original" dataField="nomeOriginal" width="175" />
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false"  textAlign="center" width="50"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								<fx:Script>
+									<![CDATA[
+										import entities.ArquivoUpload;
+									]]>
+								</fx:Script>
+								<mx:Image source="@Embed(source='/assets/icons/page_white_acrobat.png')"
+										  click="parentDocument.visualizarPDF(data, event)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  visible="{(data as ArquivoUpload).tipoArquivo == 'PDF'}"
+										  toolTip="Visualizar PDF"
+										  />
+								<mx:Image source="@Embed(source='/assets/icons/image.png')"
+										  click="parentDocument.visualizarImagem(data, event)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  visible="{(data as ArquivoUpload).tipoArquivo == 'IMAGEM'}"
+										  toolTip="Visualizar Imagem"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</grid:columns>
+		</grid:MantisTable>		
+	</mx:HBox>
+
+
+
+
+
+</mx:TitleWindow>

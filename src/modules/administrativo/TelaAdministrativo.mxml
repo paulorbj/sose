@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 paddingLeft="12"
+		 paddingRight="12"
+		 paddingBottom="20"
+		 width="100%" height="100%"
+		 verticalGap="0" creationComplete="configurarSubMenu();"
+		 xmlns:pessoa="modules.administrativo.parceiros.pessoa.*" 
+		 xmlns:atividade="modules.administrativo.atividade.*" 
+		 xmlns:componente="modules.administrativo.componente.*" 
+		 xmlns:defeito="modules.administrativo.defeito.*" 
+		 xmlns:encapsulamento="modules.administrativo.encapsulamento.*" 
+		 xmlns:equipamento="modules.administrativo.equipamento.*" 
+		 xmlns:fabricante="modules.administrativo.fabricante.*" 
+		 xmlns:laboratorio="modules.administrativo.laboratorio.*" 
+		 xmlns:unidade="modules.administrativo.unidade.*" 
+		 xmlns:usuario="modules.administrativo.usuario.*" 
+		 xmlns:perfil="modules.administrativo.perfil.*"
+		 xmlns:tipocomponente="modules.administrativo.tipocomponente.*">
+	<fx:Script>
+		<![CDATA[
+			import modules.view.Login;
+
+			private function configurarSubMenu():void
+			{
+				if(Login.currentUser){
+					if(!Login.currentUser.perfil.subMenuCadastroAtividade){
+						subMenu.removeChild(atividade);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroDefeito){
+						subMenu.removeChild(defeito);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroEncapsulamento){
+						subMenu.removeChild(encapsulamento);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroEquipamento){
+						subMenu.removeChild(equipamento);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroFabricante){
+						subMenu.removeChild(fabricante);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroLaboratorio){
+						subMenu.removeChild(laboratorio);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroPerfil){
+						subMenu.removeChild(perfil);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroPessoa){
+						subMenu.removeChild(pessoa);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroTipoComponente){
+						subMenu.removeChild(tipoComponente);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroUnidade){
+						subMenu.removeChild(unidade);
+					}
+					if(!Login.currentUser.perfil.subMenuCadastroUsuario){
+						subMenu.removeChild(usuario);
+					}
+				}
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:Fade id="fadeIn" duration="100" alphaFrom="0" alphaTo="1"/>
+		<mx:Fade id="fadeOut" duration="100" alphaFrom="1" alphaTo="0"/>
+	</fx:Declarations>
+	
+	<mx:LinkBar dataProvider = "{subMenu}"
+				borderStyle = "none"
+				fontFamily="Verdana" />
+	 
+	<mx:ViewStack id="subMenu"  backgroundAlpha="0"
+				  borderStyle = "none" 
+				  width = "100%"	height="100%"			  
+				  creationPolicy="all">
+		
+		<mx:Canvas id="atividade" label = "{resourceManager.getString('ApplicationResource','ATIVIDADES')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<atividade:CadastroAtividade visible="true" />
+		</mx:Canvas>
+				
+		<mx:Canvas id="defeito" label = "{resourceManager.getString('ApplicationResource','DEFEITOS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<defeito:CadastroDefeito visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="encapsulamento" label = "{resourceManager.getString('ApplicationResource','ENCAPSULAMENTOS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<encapsulamento:CadastroEncapsulamento visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="tipoComponente" label = "{resourceManager.getString('ApplicationResource','TIPOS_COMPONENTE')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<tipocomponente:CadastroTipoComponente visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="equipamento" label = "{resourceManager.getString('ApplicationResource','EQUIPAMENTOS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<equipamento:CadastroEquipamento visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="fabricante" label = "{resourceManager.getString('ApplicationResource','FABRICANTES')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<fabricante:CadastroFabricante visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="laboratorio" label = "{resourceManager.getString('ApplicationResource','LABORATORIOS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<laboratorio:CadastroLaboratorio visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="pessoa" label = "{resourceManager.getString('ApplicationResource','PESSOAS')}" width="100%" height="100%"
+				   showEffect="fadeIn" hideEffect="fadeOut">
+			<pessoa:CadastroPessoa />
+		</mx:Canvas>
+		
+		<mx:Canvas id="unidade" label = "{resourceManager.getString('ApplicationResource','UNIDADES')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<unidade:CadastroUnidade visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="usuario" label = "{resourceManager.getString('ApplicationResource','USUARIOS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<usuario:CadastroUsuario visible="true" />
+		</mx:Canvas>
+		
+		<mx:Canvas id="perfil" label = "{resourceManager.getString('ApplicationResource','PERFIS')}" showEffect="fadeIn" hideEffect="fadeOut"  >
+			<perfil:CadastroPerfil visible="true" />
+		</mx:Canvas>
+	</mx:ViewStack>
+	
+</mx:VBox>

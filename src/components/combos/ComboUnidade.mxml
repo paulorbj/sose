@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0" width="200"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="unidadeService" destination="unidadeService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarUnidadesCombo"      
+					   fault="onListarUnidadesFault(event)" 
+					   result="onListarUnidadesResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Unidade;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var changeFunction:Function = null;
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			[Bindable]
+			public var labelText:String = "";
+			
+			private function onCreationComplete():void
+			{
+				unidadeService.listarUnidadesCombo();
+				comboBox.labelField = "codigoUnidade";
+				comboBox.textoPadrao = "Selecione um unidade...";
+			}
+			
+			
+			private function onListarUnidadesResult(event:ResultEvent = null):void
+			{
+				comboBox.dataProvider = event.result as ArrayCollection;
+			}
+			
+			private function onListarUnidadesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo unidade] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function get unidadeSelecionado():Unidade 
+			{
+				if(comboBox.selectedItem == null || comboBox.selectedItemIndex == -1)
+					return null;
+				else
+					return comboBox.selectedItem as Unidade; 
+			}
+			
+			public function set unidadeSelecionado(unidade:Unidade):void 
+			{
+				comboBox.selectedItem = unidade;
+			}
+			
+			public function limpar():void
+			{
+				comboBox.selectedItem = new Unidade();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox" required="{required}" change="{changeFunction}" labelText="{labelText}"  sortField="nome" />
+</mx:VBox>

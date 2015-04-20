@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FilterRendererBase xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="components.grid.filtros.controles.*" 
+					creationComplete="creationCompleteHandler()" xmlns:components="components.*"
+					paddingTop="0" paddingBottom="0" paddingLeft="0" 
+					paddingRight="0" direction="vertical">
+	
+	<mx:Script>
+		<![CDATA[
+			import entities.administrativo.Componente;
+			
+			import mx.controls.DateField;
+			import mx.utils.ObjectUtil;
+			
+			private function creationCompleteHandler():void
+			{
+			}
+			
+			override public function onFilter(item:Object, itemLabelField:String):Boolean 
+			{
+				if(ativo.selected){
+					var componente:Componente = item as Componente;
+					if(componente.qtdEstoqueMinimo == 0){
+						return false;
+					}
+					
+					if(componente.qtdEstoque < componente.qtdEstoqueMinimo){
+						return true;
+					}
+					return false;
+				}else{
+					return true;
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox>
+		<mx:HBox>
+			<mx:Label text="Exibir componentes com estoque inferior ao mínimo?" />
+			<mx:CheckBox id="ativo" />
+		</mx:HBox>
+		<mx:Button label="OK" click="filter()" />
+	</mx:VBox>	
+</FilterRendererBase>

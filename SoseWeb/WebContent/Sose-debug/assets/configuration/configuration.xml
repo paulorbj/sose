@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<locale lang="pt_BR">
-	<property key="project_root" value="SoseWeb" />	
-	<property key="amf" value="http://192.168.1.3:8080/SoseWeb/messagebroker/amf" />
-	<property key="streamingamf" value="http://192.168.1.3:8080/SoseWeb/messagebroker/streamingamf"/>
-	<property key="file_servlet" value="http://192.168.1.3:8080/SoseWeb/uploadservlet"/>
-</locale>

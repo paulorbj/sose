@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:grid="components.grid.*"
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		
+		<mx:RemoteObject id="itemCompraService" destination="itemCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarUltimas10Compras"      
+					   fault="onListarUltimas10ComprasFault(event)" 
+					   result="onListarUltimas10ComprasResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Componente;
+			import entities.compra.ItemCompra;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.Formatador;
+			
+			[Bindable]
+			private var _listaItemCompra:ArrayCollection;
+			
+			[Bindable]
+			private var _componente:Componente;
+			
+			public function get componente():Componente
+			{
+				return _componente;
+			}
+			
+			public function set componente(value:Componente):void
+			{
+				_componente = value;
+				itemCompraService.listarUltimas10Compras(_componente);
+			}
+			
+			public function onListarUltimas10ComprasResult(event:ResultEvent):void
+			{
+				_listaItemCompra = event.result as ArrayCollection;	
+			}
+			
+			public function onListarUltimas10ComprasFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarUltimas10ComprasFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}	
+			
+			private function labelFunctionValorUnitario(item:Object, column:DataGridColumn):String {
+				var ic:ItemCompra = item as ItemCompra;
+				if(!isNaN(ic.valorUnitario) && ic.valorUnitario != 0){
+					return Formatador.formatarValorNumber(ic.valorUnitario);
+				}else{
+					return Formatador.formatarValorDolarNumber(ic.valorUnitarioDolar);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<grid:MantisTable id="tabelaItemCompra"
+					  width="100%"
+					  height="98%"
+					  draggableColumns="true" editable="false"
+					  dataProvider="{_listaItemCompra}"
+					  doubleClickEnabled="false"
+					  >
+		
+		<grid:columns>
+						
+			<mx:DataGridColumn width="250"
+							   headerText = "Data da compra"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="dataEntradaString"							   
+							   />
+			
+			<mx:DataGridColumn width="250"
+							   headerText = "Qtd comprada"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="qtdComprada"							   
+							   />
+			
+			<mx:DataGridColumn width="250"
+							   headerText = "Valor unitário"
+							   textAlign="center"
+							   sortable="false"
+							   labelFunction="labelFunctionValorUnitario"							   
+							   />
+			
+			
+			<mx:DataGridColumn width="250"
+							   headerText = "Fornecedor"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="fornecedor.nomeSistema"							   
+							   />
+			
+		</grid:columns>
+	</grid:MantisTable>
+</mx:VBox>

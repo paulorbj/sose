@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*" 
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="itemCompraService" destination="itemCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarItemCompra"      
+					   fault="onSalvarItemCompraFault(event)" 
+					   result="onSalvarItemCompraResult(event)"
+					   />
+			<mx:method name="notificarEstoque"      
+					   fault="onNotificarEstoqueFault(event)" 
+					   result="onNotificarEstoqueResult(event)"
+					   />
+			<mx:method name="componenteNaoEncontrado"      
+					   fault="onComponenteNaoEncontradoFault(event)" 
+					   result="onComponenteNaoEncontradoResult(event)"
+					   />
+			
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarPessoa"      
+					   fault="onSalvarFornecedorFault(event)" 
+					   result="onSalvarFornecedorResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="requisicaoComponenteService" destination="requisicaoComponenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarTotalRequisicoesUltimos6Meses"      
+					   fault="onListarTotalRequisicoesUltimos6MesesFault(event)" 
+					   result="onListarTotalRequisicoesUltimos6MesesResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.compra.ItemCompra;
+			
+			import modules.administrativo.parceiros.pessoa.CadastroPessoaModal;
+			import modules.estoque.componente.eventos.ModalItemCompraEvent;
+			
+			import mx.containers.TitleWindow;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			import utils.ScreenUtils;
+			import utils.TipoPessoa;
+			
+			[Bindable]
+			private var _itemCompra:ItemCompra;
+			
+			[Bindable]
+			private var _pessoa:Pessoa;
+			
+			public var myParentObject:DisplayObject;
+			
+			[Bindable]
+			public var modal:TitleWindow;
+			
+			private function adicionarFornecedor(event:MouseEvent):void
+			{
+				this.currentState = "adicionarFornecedor";
+				_pessoa = new Pessoa();
+			}
+			
+			private function salvarFornecedor(event:MouseEvent):void
+			{
+				if(validarCampos()){
+					_pessoa.tipo = ScreenUtils.TIPO_FORNECEDOR.id;
+					_pessoa.tipoPessoa = tipoPessoa.tipoPessoaSelecionado.id;
+					pessoaService.salvarPessoa(_pessoa);
+				}
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				nomeRazaoSocial.required = true;
+				validatorArr.push(nomeRazaoSocial.stringValidator);
+				nomeSistema.required = true;
+				validatorArr.push(nomeSistema.stringValidator);
+				cpfCnpj.required = true;
+				validatorArr.push(cpfCnpj.stringValidator);
+				rgIe.required = true;
+				validatorArr.push(rgIe.stringValidator);
+				tipoPessoa.required = true;
+				validatorArr.push(tipoPessoa.comboBox.comboValidator);
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				
+				return isValidForm;
+			}
+			
+			public function onSalvarFornecedorResult(event:ResultEvent):void
+			{
+				_pessoa = event.result as Pessoa;
+				cbFornecedor.comboBox.dataProvider.addItem(_pessoa);
+				cbFornecedor.fornecedorSelecionado = _pessoa;
+				this.currentState = "normal";
+				dispatchEvent(new MensagemEvent("Fornecedor adicionado com sucesso", MessageType.SUCCESS, 10000));
+			}
+			
+			public function onSalvarFornecedorFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarLpuPorClienteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				cancelarFornecedor();
+				dispatchEvent(new MensagemEvent("Erro ao adicionar fornecedor", MessageType.SUCCESS, 10000));
+			}
+			
+			private function cancelarFornecedor(event:MouseEvent=null):void
+			{
+				this.currentState = "normal";
+				_pessoa = new Pessoa();
+			}
+			
+			private function notificarEstoque(event:MouseEvent):void
+			{
+				if(validarNotificarEstoque()){
+					if(habilitarNotificarEstoque()){
+						itemCompraService.notificarEstoque(this.itemCompra);
+					}else{
+						myParentObject.dispatchEvent(new MensagemEvent("A qtd comprada (+ qtd em estoque) não atende a qtd requisitada", MessageType.WARNING, 3000));
+					}
+				}else{
+					myParentObject.dispatchEvent(new MensagemEvent("Campos obrigatórios não foram preenchidos", MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function fecharModal(event:MouseEvent):void
+			{
+				(modal as ModalItemCompra).close();
+			}
+			
+			private function componenteNaoEncontrado(event:MouseEvent):void
+			{
+				itemCompraService.componenteNaoEncontrado(this.itemCompra);
+			}
+			
+			
+			public function validarNotificarEstoque():Boolean {	
+				var validatorArr:Array = new Array();
+				
+				valorUnitario.input.errorString = '';
+				valorUnitarioDolar.input.errorString = '';
+				
+				if((isNaN(valorUnitario.valor) || valorUnitario.valor == 0) && (isNaN(valorUnitarioDolar.valor) || valorUnitarioDolar.valor == 0)){
+					valorUnitario.required = true;
+					valorUnitarioDolar.required = true;
+					validatorArr.push(valorUnitario.stringValidator);
+					validatorArr.push(valorUnitarioDolar.stringValidator);
+					var validatorErrorArray1:Array = Validator.validateAll(validatorArr);;
+					var isValidForm1:Boolean = validatorErrorArray1.length == 0;			
+					return isValidForm1;
+				}
+				
+				validatorArr.push(qtdComprada.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			private function onNotificarEstoqueResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_itemCompra = event.result as ItemCompra;
+				var eventSalvar:ModalItemCompraEvent = new ModalItemCompraEvent(ModalItemCompraEvent.NOTIFICAR_ESTOQUE_ITEM_COMPRA,_itemCompra,true, false);
+				myParentObject.dispatchEvent(eventSalvar);
+				myParentObject.dispatchEvent(new MensagemEvent("Estoque notificado com sucesso", MessageType.SUCCESS, 3000));
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_ITEM_COMPRA, _itemCompra);
+			}
+			
+			private function onNotificarEstoqueFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onNotificarEstoqueFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				myParentObject.dispatchEvent(new MensagemEvent("Erro ao notificar estoque", MessageType.ERROR, 10000));
+			}
+			
+			
+			private function onComponenteNaoEncontradoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_itemCompra = event.result as ItemCompra;
+				myParentObject.dispatchEvent(new MensagemEvent("Componente não encontrado!", MessageType.SUCCESS, 3000));
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_ITEM_COMPRA, _itemCompra);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_NAO_ENCONTRADO, _itemCompra);
+			}
+			
+			private function onComponenteNaoEncontradoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onComponenteNaoEncontradoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				myParentObject.dispatchEvent(new MensagemEvent("Erro sinalizar componente não encontrado", MessageType.ERROR, 10000));
+			}
+			
+			
+			
+			private function salvarItemCompra(event:MouseEvent):void
+			{				
+				itemCompraService.salvarItemCompra(this.itemCompra);	
+			}
+			
+			private function onSalvarItemCompraResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_itemCompra = event.result as ItemCompra;
+				var eventSalvar:ModalItemCompraEvent = new ModalItemCompraEvent(ModalItemCompraEvent.SALVAR_ITEM_COMPRA,_itemCompra,true, false);
+				dispatchEvent(eventSalvar);
+				myParentObject.dispatchEvent(new MensagemEvent("Item de compra salvo com sucesso", MessageType.SUCCESS, 3000));
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_ITEM_COMPRA, _itemCompra);
+			}
+			
+			private function onSalvarItemCompraFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				myParentObject.dispatchEvent(new MensagemEvent("Erro ao salvar item de compra", MessageType.ERROR, 10000));
+			}
+			
+			
+			
+			public function get itemCompra():ItemCompra
+			{
+				_itemCompra.qtdComprada = parseFloat(qtdComprada.inputText);
+				_itemCompra.qtdEsperada = parseFloat(qtdEsperada.inputText);
+				_itemCompra.fornecedor = cbFornecedor.fornecedorSelecionado;
+				_itemCompra.valorUnitario = valorUnitario.valor;
+				_itemCompra.valorUnitarioDolar = valorUnitarioDolar.valor;
+				
+				return _itemCompra;
+			}
+			
+			public function set itemCompra(value:ItemCompra):void
+			{
+				_itemCompra = value;
+				qtdComprada.inputText = _itemCompra.qtdComprada.toString();
+				qtdEsperada.inputText = _itemCompra.qtdEsperada.toString();
+				qtdEstoque.inputText = _itemCompra.componente.qtdEstoque.toString();
+				qtdRequisitada.inputText = _itemCompra.qtdTotalRequisitada.toString();
+				txtEstoqueMinimo.inputText = _itemCompra.componente.qtdEstoqueMinimo.toString();
+				cbFornecedor.fornecedorSelecionado = _itemCompra.fornecedor;
+				pessoa = _itemCompra.fornecedor;
+				valorUnitario.setValor(_itemCompra.valorUnitario);
+				valorUnitarioDolar.setValor(_itemCompra.valorUnitarioDolar);
+				requisicaoComponenteService.listarTotalRequisicoesUltimos6Meses(_itemCompra.componente);
+			}
+			
+			private function onListarTotalRequisicoesUltimos6MesesResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var qtdRequisitada:Number = event.result as Number;
+				if(isNaN(qtdRequisitada)){
+					qtdRequisitada = 0;
+				}
+				mediaUltimo6Meses.inputText = qtdRequisitada.toString();
+			}
+			
+			private function onListarTotalRequisicoesUltimos6MesesFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarTotalRequisicoesUltimos6MesesFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			public function atualiza(event:Event = null):void{
+				if(tipoPessoa != null && tipoPessoa.tipoPessoaSelecionado != null)
+					if(tipoPessoa.tipoPessoaSelecionado.id == 1){
+						nomeRazaoSocial.labelText = resourceManager.getString('ApplicationResource','NOME');
+						rgIe.labelText = resourceManager.getString('ApplicationResource','RG');
+						cpfCnpj.labelText = resourceManager.getString('ApplicationResource','CPF');
+					}else{
+						nomeRazaoSocial.labelText = resourceManager.getString('ApplicationResource','RAZAO_SOCIAL');
+						rgIe.labelText = resourceManager.getString('ApplicationResource','IE');
+						cpfCnpj.labelText = resourceManager.getString('ApplicationResource','CNPJ');
+					}	
+			}
+			
+			public function atualizarComboFornecedor(event:Event):void{
+				pessoa = cbFornecedor.fornecedorSelecionado;
+			}
+			
+			public function get pessoa():Pessoa
+			{
+				return _pessoa;
+			}
+			
+			public function set pessoa(value:Pessoa):void
+			{
+				_pessoa = value;
+				if(_pessoa != null && !isNaN(_pessoa.id) && _pessoa.id != 0 ){
+					if(_pessoa.tipoPessoa){
+						tipoPessoa.setTipoPessoaSelecionado(_pessoa.tipoPessoa);
+						atualiza();
+					}
+				}
+				
+			}
+			
+			public function habilitarNotificarEstoque():Boolean
+			{
+				var qtComprada:Number = this.itemCompra.qtdComprada;
+				if(isNaN(qtComprada))
+					qtComprada = 0;
+				
+				var qtTotalReq:Number = this.itemCompra.qtdTotalRequisitada;
+				if(isNaN(qtTotalReq))
+					qtTotalReq = 0;
+				
+				var qtEstoque:Number = this.itemCompra.componente.qtdEstoque;
+				if(isNaN(qtEstoque))
+					qtEstoque = 0;
+				
+				if(qtComprada > 0 && 
+					(qtComprada >= qtTotalReq || (qtComprada + qtEstoque) >= qtTotalReq))
+				{
+					return true;
+				}else{
+					return false;
+				}
+				
+				
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="nome.inputText" source="_itemCompra.componente.nome" twoWay="true"/>
+	<fx:Binding destination="descricao.inputText" source="_itemCompra.componente.descricao" twoWay="true"/>
+	<fx:Binding destination="txtTipoComponente.inputText" source="_itemCompra.componente.tipo.nome" twoWay="true"/>
+	<fx:Binding destination="txtEncapsulamento.inputText" source="_itemCompra.componente.encapsulamento.nome" twoWay="true"/>
+	<fx:Binding destination="txtFabricante.inputText" source="_itemCompra.componente.fabricante.nome" twoWay="true"/>
+	<fx:Binding destination="nNotaFiscal.inputText" source="_itemCompra.nNotaFiscal" twoWay="true"/>
+	<fx:Binding destination="dtEntrada.inputText" source="_itemCompra.dataEntradaString" twoWay="false"/>
+	
+	<fx:Binding destination="nomeRazaoSocial.input.text" source="_pessoa.nomeRazaoSocial" twoWay="true"/>
+	<fx:Binding destination="nomeSistema.input.text" source="_pessoa.nomeSistema" twoWay="true"/>
+	<fx:Binding destination="cpfCnpj.input.text" source="_pessoa.cpfCnpj" twoWay="true"/>
+	<fx:Binding destination="rgIe.input.text" source="_pessoa.rgIe" twoWay="true"/>
+	<fx:Binding destination="im.input.text" source="_pessoa.inscricaoMunicipal" twoWay="true"/>
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="adicionarFornecedor"/>
+	</mx:states>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="nome" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','NOME_COMPONENTE')}" width="35%"  />
+		<texto:TextInput id="descricao" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','DESCRICAO')}" width="65%" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="txtTipoComponente" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','TIPO_COMPONENTE')}" width="25%" />
+		<texto:TextInput id="txtEncapsulamento" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','ENCAPSULAMENTO')}" width="25%" />
+		<texto:TextInput id="txtFabricante" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','FABRICANTE')}" width="25%" />
+		<texto:TextInput id="txtEstoqueMinimo" habilitado="false" labelText="{resourceManager.getString('ApplicationResource','ESTOQUE_MINIMO')}" width="25%"  />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextArea id="listaComponentesEquivalentes" habilitado="false" width="100%" nLinhas="3" labelText="Lista dos componentes equivalentes" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="middle">
+		<texto:TextInput id="qtdEstoque" habilitado="false" labelText="Qtd em estoque" width="25%"  />
+		<texto:TextInput id="qtdRequisitada" habilitado="false" labelText="Qtd requisitada" width="25%"  />
+		<texto:TextInput id="qtdEsperada"  labelText="Qtd esperada" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" width="25%"  />
+		<texto:TextInput id="mediaUltimo6Meses" habilitado="false" labelText="Qtd dos últimos 6 meses" width="25%"  />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="middle">
+		<texto:TextInput id="qtdComprada" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" required="true" labelText="Qtd comprada" width="10%"  />
+		<texto:TextInputDinheiro2d id="valorUnitario" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"  labelText="Valor unitário (R$)" width="10%"  />
+		<texto:TextInputDinheiro2d id="valorUnitarioDolar" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"  labelText="Valor unitário (US$)" width="10%"  />
+		<texto:TextInput id="nNotaFiscal" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" labelText="Nº NF" width="15%"  />
+		
+		<combos:ComboFornecedor id="cbFornecedor" labelText="Fornecedor" width="25%" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" changeFunction="atualizarComboFornecedor"  />
+		
+		<mx:Button id="btAdicionarFornecedor"  excludeFrom="adicionarFornecedor"
+				   label="Adicionar fornecedor"
+				   height="25" width="10%" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionarFornecedor(event)"/>
+		<mx:Button id="btSalvarFornecedor"  includeIn="adicionarFornecedor"
+				   label="Salvar fornecedor"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="salvarFornecedor(event)"/>
+		<mx:Button id="btCancelar"  includeIn="adicionarFornecedor"
+				   label="Cancelar fornecedor"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/cancel.png')"
+				   click="cancelarFornecedor(event)"/>
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<combos:ComboTipoPessoa enabled="false" enabled.adicionarFornecedor="true" required="true" id="tipoPessoa" labelText="{resourceManager.getString('ApplicationResource','TIPO_PESSOA')}" changeFunction="atualiza" />
+		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true" required="true" id="nomeRazaoSocial" labelText="{resourceManager.getString('ApplicationResource','NOME')}" width="25%"  />
+		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true"  required="true" id="nomeSistema" labelText="{resourceManager.getString('ApplicationResource','NOME_SISTEMA')}" width="25%" />
+		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true" required="true" id="cpfCnpj" labelText="{resourceManager.getString('ApplicationResource','CPF')}" width="10%"  />
+		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true" required="true" id="rgIe" labelText="{resourceManager.getString('ApplicationResource','RG')}" width="10%" />
+		<texto:TextInput  habilitado="false" habilitado.adicionarFornecedor="true" id="im" labelText="IM" width="10%" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<texto:TextInput id="dtEntrada" habilitado="false" labelText="Dt entrada" width="30%"  />
+		<combos:ComboComponente id="cbComponenteEquivalente" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}" labelText="Componente equivalente" width="50%" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="bottom">
+		<mx:Button id="btSalvarItemCompra"
+				   label="Salvar item compra"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
+				   click="salvarItemCompra(event)"/>
+		
+		<mx:Button id="btNotificarEstoque"
+				   label="Notificar Estoque"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="notificarEstoque(event)"/>
+		
+		<mx:Button id="btFechar"
+				   label="Fechar"
+				   height="25" 
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="fecharModal(event)"/>
+		
+		<s:Spacer width="100" />
+		
+		<mx:Button id="btNaoEncontrado"
+				   label="Componente não encontrado"
+				   height="25" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Componente não encontrado' &amp;&amp; _itemCompra.status != 'Finalizado'}"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="componenteNaoEncontrado(event)"/>
+	</mx:HBox>
+	
+</mx:VBox>
