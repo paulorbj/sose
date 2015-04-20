@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" title="Validar quantidade em estoque" creationPolicy="all"
+				xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center"
+				xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*"
+				close="close();" showCloseButton="true"
+				paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="1200" height="450" xmlns:componente="modules.estoque.componente.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="componenteService" destination="componenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="atualizarQtdComponenteEstoque"      
+					   fault="onAtualizarQtdComponenteEstoqueFault(event)" 
+					   result="onAtualizarQtdComponenteEstoqueResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Componente;
+			import entities.administrativo.Usuario;
+			
+			import modules.view.Login;
+			
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _componente:Componente;
+			
+			public var myParentObject:DisplayObject;
+			
+			private var qtdDiferente:Boolean = false;
+			
+			override public function addEventListener(
+				type:String, listener:Function,
+				useCapture:Boolean = false,
+				priority:int = 0,
+				useWeakReference:Boolean = false):void {
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			
+			private function close():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function onAtualizarQtdComponenteEstoqueResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				if(qtdDiferente){
+					myParentObject.dispatchEvent(new MensagemEvent("Estoque atualizado com quantidade diferente da comprada!", MessageType.SUCCESS, 3000));
+				}else{
+					myParentObject.dispatchEvent(new MensagemEvent("Estoque atualizado!", MessageType.SUCCESS, 3000));
+				}
+				qtdDiferente = false;
+				_componente = event.result as Componente;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_ATUALIZAR, _componente);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ATUALIZAR_LISTA_REQUISICAO, null);				
+			}
+			
+			private function onAtualizarQtdComponenteEstoqueFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				qtdDiferente = false;
+				trace("[onAtualizarQtdComponenteEstoqueFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				myParentObject.dispatchEvent(new MensagemEvent("Erro ao atualizar o estoque!", MessageType.ERROR, 10000));
+			}
+			
+			[Bindable]
+			public function get componente():Componente
+			{
+				return _componente;
+			}
+			
+			public function set componente(value:Componente):void
+			{
+				_componente = value;
+				qtdComprada.inputText = _componente.qtdComprada.toString();
+				qtdEstocada.inputText = _componente.qtdComprada.toString();
+				txtObservacao.inputText = "";
+			}
+			
+			private function validarQtdEstoque(event:MouseEvent = null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					
+					var qtdCompradaInformada:Number = parseInt(qtdComprada.inputText);
+					var qtdEstocadaInformada:Number = parseInt(qtdEstocada.inputText);
+					
+					//Verificar se a observação foi preenchida
+					if(qtdEstocadaInformada != qtdCompradaInformada){
+						qtdDiferente = true;
+						if(validarObservacao()){
+							componenteService.atualizarQtdComponenteEstoque(_componente, qtdEstocadaInformada, txtObservacao.inputText,usr);
+						}else{
+							myParentObject.dispatchEvent(new MensagemEvent("Qtd estocada diferente da qtd comprada! Favor preencher uma justificativa", MessageType.WARNING, 3000));
+						}
+					}else{
+						componenteService.atualizarQtdComponenteEstoque(_componente, qtdEstocadaInformada, null,usr);
+						
+					}
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(validarQtdEstoqueAutenticar);
+				}	
+			}
+			
+			public function validarQtdEstoqueAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				validarQtdEstoque();
+			}
+			
+			private function validarObservacao():Boolean {	
+				var validatorArr:Array = new Array();
+				txtObservacao.required = true;
+				validatorArr.push(txtObservacao.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;
+				return isValidForm;
+			}
+			
+			private function cancelar(event:MouseEvent = null):void
+			{
+				close();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" >
+		<mx:HBox width="100%" >
+			<texto:TextInput id="qtdComprada" labelText="Qtd comprada" habilitado="false" restrict="0-9" />
+			<texto:TextInput id="qtdEstocada" labelText="Qtd estocada" habilitado="true" restrict="0-9" />
+		</mx:HBox>
+		<texto:TextArea id="txtObservacao" labelText="Observação" width="100%" />
+		<mx:HBox width="100%" >
+			<s:Button label="Validar qtd estoque" height="25"
+					  icon="@Embed(source='/assets/icons/flag_green.png')"
+					  enabled="{_componente.qtdComprada != 0}"
+					  click="validarQtdEstoque(event)" />
+			
+			<s:Button label="Cancelar" height="25"
+					  icon="@Embed(source='/assets/icons/flag_green.png')"
+					  click="cancelar(event)" />
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow>

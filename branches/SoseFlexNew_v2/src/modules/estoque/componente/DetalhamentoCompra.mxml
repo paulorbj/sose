@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" initialize="init()"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:grid="components.grid.*" horizontalAlign="center" xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:components="components.*" 
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="100%" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="compraService" destination="compraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="deletarCompra"      
+					   fault="onDeletarCompraFault(event)" 
+					   result="onDeletarCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="itemCompraService" destination="itemCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="removerItemCompra"      
+					   fault="onRemoverItemCompraFault(event)" 
+					   result="onRemoverItemCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="relatorioCompra" destination="relatorioCompra" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="gerarRelatorio"      
+					   fault="onGerarRelatorioFault(event)" 
+					   result="onGerarRelatorioResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="relatorioListagemComponenteCompra" destination="relatorioListagemComponenteCompra" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="gerarRelatorio"      
+					   fault="onGerarListagemRelatorioFault(event)" 
+					   result="onGerarListagemRelatorioResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		
+		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
+		
+		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			import components.pdfViewer.PDFViewerEvent;
+			
+			import entities.GlobalMessage;
+			import entities.compra.Compra;
+			import entities.compra.ItemCompra;
+			
+			import modules.estoque.componente.eventos.ModalItemCompraEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.collections.Sort;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _compra:Compra;
+			
+			[Bindable]
+			private var _itemCompra:ItemCompra;
+			
+			[Bindable]
+			private var _listaItemCompra:ArrayCollection;
+						
+			public function init():void
+			{
+				consumidorEstoqueService.subscribe();
+			}
+			
+			private function onMsgEstoque(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.ATUALIZAR_ITEM_COMPRA){
+					var itemCompra:ItemCompra = globalMessage.conteudo as ItemCompra;
+					atualizarListaItemCompra(itemCompra.compra, itemCompra);
+				}
+			} 
+			
+			private function atualizarListaItemCompra(compra:Compra,itemCompra:ItemCompra):void
+			{
+				if(_compra != null && compra.id == _compra.id){
+					for each(var ic:ItemCompra in _compra.listaItemCompra)
+					{
+						if(ic.id == itemCompra.id){
+							var itemIndex:int = _compra.listaItemCompra.getItemIndex(ic);
+							_compra.listaItemCompra.removeItemAt(itemIndex);
+							_compra.listaItemCompra.addItemAt(itemCompra, itemIndex);
+						}
+					}
+				}
+			}
+			
+			public function get compra():Compra
+			{
+				return _compra;
+			}
+			
+			public function set compra(value:Compra):void
+			{
+				_compra = value;
+				_listaItemCompra = _compra.listaItemCompra;
+				ordenarListaItemCompra();
+			}
+			
+			private function deletarCompra(event:MouseEvent):void
+			{
+				for each(var c:ItemCompra in _compra.listaItemCompra){
+					if(c.status == "Comprado" || c.status == "Notificado" || c.status == "Finalizado"){
+						dispatchEvent(new MensagemEvent("A compra não pode ser deletada! Já existem itens comprados", MessageType.WARNING, 3000));
+						return;
+					}
+				}
+				
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				compraService.deletarCompra(_compra);
+			}
+			
+			public function onDeletarCompraResult(event:ResultEvent):void
+			{
+				dispatchEvent(new Event("compraDeletada"));
+			}
+			
+			public function onDeletarCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onDeletarCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar compra", MessageType.ERROR, 3000));
+			}	
+			
+		
+			
+			private function voltar(event:MouseEvent):void
+			{
+				dispatchEvent(new Event("voltarListagemCompra"));
+			}
+			
+			public function editarItemCompra(data:Object, event:Event):void
+			{			
+				_itemCompra = data as ItemCompra;
+				var modal:ModalItemCompra=ModalItemCompra(PopUpManager.createPopUp( this, ModalItemCompra , true));
+				modal.myParentObject = this;
+				modal.itemCompra = _itemCompra;
+				modal.addEventListener(ModalItemCompraEvent.REMOVE_MODAL_ITEM_COMPRA, fecharModalItemCompra);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function fecharModalItemCompra(event:ModalItemCompraEvent):void
+			{
+				_itemCompra = event.itemCompra;
+			}
+			
+			public function excluirItemCompra(data:Object, event:Event):void
+			{	
+				_itemCompra = data as ItemCompra;
+				
+				if(_itemCompra.status == "Pendente"){
+					itemCompraService.removerItemCompra(_itemCompra);
+				}else{
+					dispatchEvent(new MensagemEvent("O item compra já foi comprado e não pode ser deletado!", MessageType.WARNING, 3000));
+				}	
+			}
+			
+			public function onRemoverItemCompraResult(event:ResultEvent):void
+			{
+				var idDeletado:int = _compra.listaItemCompra.getItemIndex(_itemCompra);
+				_compra.listaItemCompra.removeItemAt(idDeletado);
+				
+				_itemCompra = event.result as ItemCompra;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.DELETAR_ITEM_COMPRA, _itemCompra);
+			}
+			
+			public function onRemoverItemCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onRemoverItemCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao deletar item compra", MessageType.ERROR, 3000));
+			}	
+			
+			private function ordenarListaItemCompra():void
+			{
+				var numericDataSort:Sort = new Sort();
+				numericDataSort.compareFunction=sortFunction;
+				_listaItemCompra.sort = numericDataSort;
+				_listaItemCompra.refresh();
+			}
+			
+			private function sortFunction(a:Object, b:Object, array:Array = null):int
+			{
+				
+				var aItemCompra:ItemCompra = a as ItemCompra;
+				var bItemCompra:ItemCompra = b as ItemCompra;
+				
+				if(aItemCompra.status == "Pendente" && bItemCompra.status == "Pendente")
+				{
+					return ObjectUtil.numericCompare(aItemCompra.id, bItemCompra.id);
+				}
+				
+				if(aItemCompra.status == "Pendente" && bItemCompra.status != "Pendente")
+				{
+					return -1;	
+				}
+				
+				if(aItemCompra.status != "Pendente" && bItemCompra.status == "Pendente")
+				{
+					return 1;	
+				}
+				
+				if(aItemCompra.status == "Comprado" && bItemCompra.status == "Comprado")
+				{
+					return ObjectUtil.numericCompare(aItemCompra.id, bItemCompra.id);
+				}
+				
+				if(aItemCompra.status == "Comprado" && bItemCompra.status != "Comprado")
+				{
+					return -1;	
+				}
+				
+				if(aItemCompra.status != "Comprado" && bItemCompra.status == "Comprado")
+				{
+					return 1;	
+				}
+				return ObjectUtil.numericCompare(aItemCompra.id, bItemCompra.id);
+			}
+			
+			private function getRowColor(item:Object,
+										 rowIndex:int,
+										 dataIndex:int,
+										 color:uint):uint
+			{
+				if(item.status == "Pendente"){
+					return 0xFFD786;
+				}
+				if(item.status == "Comprado"){
+					return 0x87ECFF;
+				}
+				if(item.status == "Notificado"){
+					return 0x87FF9B;
+				}
+				if(item.status == "Componente não encontrado"){
+					return 0xFD6464;
+				}
+				return 0x5FA6BF;
+			}
+			
+			private function possuiAmostraLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.possuiAmostra){
+					return "Sim";
+				}else{
+					return "Não";
+				}
+			}
+			
+			private function gerarPDF(event:MouseEvent):void
+			{
+				var urlString:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO');
+				relatorioCompra.gerarRelatorio(_compra,urlString);
+			}
+			
+			private function onGerarRelatorioResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent("Relatório de compra criado com sucesso", MessageType.SUCCESS, 5000));
+				var urlPDF:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + "temporario/" + event.result as String;
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlPDF, null));
+			}
+						
+			private function onGerarRelatorioFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onGerarRelatorioFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar relatório de compra", MessageType.ERROR, 3000));
+			}
+			
+			private function gerarListagemPDF(event:MouseEvent):void
+			{
+				relatorioListagemComponenteCompra.gerarRelatorio(_compra);
+			}
+			
+			private function onGerarListagemRelatorioResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent("Relatório de compra criado com sucesso", MessageType.SUCCESS, 5000));
+				var urlPDF:String = resourceManager.getString('ApplicationResource','URL_VISUALIZAR_ARQUIVO') + "temporario/" + event.result as String;
+				dispatchEvent(new PDFViewerEvent(PDFViewerEvent.ABRIR_VIEWER, urlPDF, null));
+			}
+			
+			private function onGerarListagemRelatorioFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onGerarListagemRelatorioFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar relatório de listagem de componente", MessageType.ERROR, 3000));
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="_compra.nome" destination="apelido.inputText" twoWay="true" />
+	
+	
+	<mx:HBox width="100%" verticalAlign="bottom" >
+		<texto:TextInput id="apelido" habilitado="false" labelText="Apelido" width="400"  />
+		<texto:TextInput id="criadoEm" habilitado="false" labelText="Criado em" width="200"  />
+	</mx:HBox>
+	
+	<grid:MantisTable id="tabelaItemCompra"
+					  width="100%"
+					  height="98%"
+					  draggableColumns="true" editable="false"
+					  dataProvider="{_compra.listaItemCompra}"
+					  doubleClickEnabled="false"
+					  rowColorFunction="getRowColor"
+					  >
+		
+		<grid:columns>
+						
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="cComponente" width="250"
+							   headerText = "Componente"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="componente.nome"							   
+							   />
+			
+			<dc:DataGridColumnFilter id="cTecnicos" width="200"
+							   headerText = "Técnicos"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="tecnicos"
+							   />
+			
+			<dc:DataGridColumnFilter id="cStatus" width="100"
+							   headerText = "Status" 
+							   textAlign="center"
+							   sortable="false"	
+							   dataField="status"
+							   />
+			
+			<dc:DataGridColumnFilter id="cTemAmostra" width="50"
+							   headerText = "A" 
+							   textAlign="center"
+							   sortable="false"	
+							   labelFunction="possuiAmostraLabel"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroAmostra" width="80"
+							   headerText = "Nº amostra"
+							   textAlign="center"
+							   sortable="false"		
+							   dataField="nAmostra"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdEstoque" width="100"
+							   headerText = "Qtd em estoque"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="componente.qtdEstoque"							   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdRequisitada" width="100"
+							   headerText = "Qtd Requisitada"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="qtdTotalRequisitada"							   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdEsperada" width="100"
+							   headerText = "Qtd Esperada"
+							   dataField="qtdEsperada"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cNumeroPedidos" width="80"
+							   headerText = "Nº Pedidos"
+							   dataField="qtdPedido"
+							   />
+			
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width="50"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  buttonMode="true" 
+									  useHandCursor="true"
+									  click="parentDocument.editarItemCompra(data, event)"
+									  toolTip="Editar item de compra"
+									  />	
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  buttonMode="true" 
+									  useHandCursor="true"
+									  click="parentDocument.excluirItemCompra(data, event)"
+									  toolTip="Excluir item de compra"
+									  />						
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+	<mx:HBox width="100%" horizontalAlign="left">
+		<mx:Button id="btDeletar"
+				   label="Deletar Compra"
+				   height="25" 
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="deletarCompra(event)"/>
+		<s:Spacer width="50" />
+		<mx:Button id="btGerarPdf" 
+				   label="Gerar relatório de compra"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="gerarPDF(event)"
+				   />
+		<mx:Button id="btGerarListagemPdf" 
+				   label="Gerar listagem"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/page_gear.png')"
+				   click="gerarListagemPDF(event)"
+				   />
+		<s:Spacer width="50" />
+		<mx:Button id="btVoltar"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   click="voltar(event)"/>
+		
+	</mx:HBox>
+	
+</mx:VBox>

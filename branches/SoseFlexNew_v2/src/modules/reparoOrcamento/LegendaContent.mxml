@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" verticalGap="0" horizontalGap="0"
+		 xmlns:s="library://ns.adobe.com/flex/spark" borderStyle="solid"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" backgroundColor="{corDeFundo}"
+		 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var labelStatus:String="";
+			
+			[Bindable]
+			public var orcTotal:Number=0;
+			
+			[Bindable]
+			public var repTotal:Number=0;
+			
+			[Bindable]
+			public var total:Number=0;
+			
+			[Bindable]
+			public var corDeFundo:uint;
+			
+			
+		]]>
+	</fx:Script>
+
+	<mx:VBox width="70%" borderStyle="solid" horizontalAlign="left">
+		<mx:Label text="{labelStatus}"
+				  fontSize="9" fontWeight="bold"
+				  paddingTop="0"
+				  paddingBottom="0"
+				  paddingLeft="0"
+				  paddingRight="0"
+				  />
+	</mx:VBox>
+
+	<s:Spacer height="100%" />
+	<mx:VBox width="10%" borderStyle="solid" horizontalAlign="center">
+		<mx:Label text="{orcTotal}"
+				  fontSize="9"
+				  paddingTop="0"
+				  paddingBottom="0"
+				  paddingLeft="0"
+				  paddingRight="0"
+				  />
+	</mx:VBox>
+	
+	<mx:VBox width="10%" borderStyle="solid" horizontalAlign="center">
+		<mx:Label text="{repTotal}"
+				  fontSize="9"
+				  paddingTop="0"
+				  paddingBottom="0"
+				  paddingLeft="0"
+				  paddingRight="0"
+				  />
+	</mx:VBox>
+	
+	<mx:VBox width="10%" borderStyle="solid" horizontalAlign="center">
+		<mx:Label text="{orcTotal+repTotal}"
+				  fontSize="9"
+				  paddingTop="0"
+				  paddingBottom="0"
+				  paddingLeft="0"
+				  paddingRight="0"
+				  />
+	</mx:VBox>
+</mx:HBox>

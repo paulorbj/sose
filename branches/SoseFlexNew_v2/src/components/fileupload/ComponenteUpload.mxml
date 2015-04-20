@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:com="components.fileupload.com.flashdev.file.*" 
+	creationComplete="initApp()" >
+	
+	<mx:Script>
+		<![CDATA[
+		
+			import mx.controls.Alert;
+			
+			[Bindable]
+			private var _strDomain:String = "";
+			
+			[Bindable]
+			private var _strUploadScript:String = ""
+			
+			public static const T_ENTIDADE_UNIDADE:String = new String("UNIDADE");
+			public static const T_ENTIDADE_COMPONENTE:String = new String("COMPONENTE");
+			public static const T_ENTIDADE_USUARIO:String = new String("USUARIO");
+			public static const T_ENTIDADE_LAUDO_TECNICO:String = new String("LAUDO_TECNICO");
+			
+			[Bindable]
+			public var idObjeto:Number;
+			
+			[Bindable]
+			public var tipoEntidade:String;
+			
+			[Bindable]
+			public var altura:Number = 180;
+	
+			[Bindable]
+			public var largura:Number = 300;
+			
+			// Initalize
+			private function initApp():void {
+				configurarStringDomain();
+			}
+			
+			public function limpar():void {
+				componenteUpload.removeFiles();
+			}
+			
+			public function retornoUploadComplete():void
+			{
+				Alert.okLabel = "OK";
+				Alert.show('Arquivo(s) carregado(s) com sucesso.', 'Carregado com sucesso', Alert.OK);
+				dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_COMPLETO));
+			}
+			
+			private function configurarStringDomain():void
+			{
+				_strDomain = resourceManager.getString('ApplicationResource','URL_SERVIDOR_SOSE');
+				_strUploadScript = new String(_strDomain + "uploadservlet");
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+		<com:FileUpload id="componenteUpload"
+			identificadorObjeto="{idObjeto}"
+			tipoObjeto="{tipoEntidade}"
+			width="100%" height="100%"
+			uploadUrl="{_strUploadScript}"
+			uploadComplete="retornoUploadComplete()" 
+			uploadIOError="Alert.show('IO Error in uploading file.', 'Error')" 
+			uploadSecurityError="Alert.show('Security Error in uploading file.', 'Error')"/>
+	</mx:Canvas>
+</mx:VBox>

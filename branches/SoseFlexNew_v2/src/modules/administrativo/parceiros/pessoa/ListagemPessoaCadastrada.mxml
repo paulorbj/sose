@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="initializeListagem()"
+		 xmlns:components="components.*" width="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.parceiros.Pessoa;
+			
+			import modules.administrativo.parceiros.pessoa.eventos.PessoaEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			private var listaPessoa:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var listaPessoaCompleta:ArrayCollection = new ArrayCollection;
+			
+			private var pessoa:Pessoa;
+			
+			[Bindable]
+			private var listaNome:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var nomeSelecionado:String;
+			
+			[Bindable]
+			private var listaTipo:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var tipoSelecionado:String;
+			
+			[Bindable]
+			private var listaTipoPessoa:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var tipoPessoaSelecionado:String;
+			
+			[Bindable]
+			private var listaRgIe:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var rgIeSelecionado:String;
+			
+			[Bindable]
+			private var listaCpfCnpj:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var cpfCnpjSelecionado:String;
+			
+			private var sortPessoa:mx.collections.Sort;
+			
+			private function initializeListagem():void
+			{
+				sortPessoa = new Sort();
+				sortPessoa.fields=[new SortField("nomeSistema",true,false,false)];
+			}
+			
+			private function sortListaPessoa(lista:ArrayCollection):void
+			{
+				lista.sort = sortPessoa;
+				lista.refresh();
+			}
+			
+			public function setListaPessoa(lista:ArrayCollection):void
+			{
+				if(lista){
+					sortListaPessoa(lista);
+					listaPessoa = lista;
+					listaPessoaCompleta = new ArrayCollection();
+					listaPessoaCompleta.addAll(listaPessoa);
+				}
+			}
+			
+			public function adicionarPessoa(pessoa:Pessoa):void
+			{
+				var pessoaAux:Pessoa = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaPessoa.length; i++){
+					pessoaAux = listaPessoa.getItemAt(i) as Pessoa; 
+					if(pessoaAux.id == pessoa.id){	
+						var orcRepSub:Object = listaPessoa.removeItemAt(i);
+						listaPessoa.addItemAt(pessoa,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaPessoa.addItem(pessoa);
+				}
+				
+				for(var i:int=0; i<listaPessoaCompleta.length; i++){
+					pessoaAux = listaPessoaCompleta.getItemAt(i) as Pessoa; 
+					if(pessoaAux.id == pessoa.id){	
+						var atividadeSub:Object = listaPessoaCompleta.removeItemAt(i);
+						listaPessoaCompleta.addItemAt(pessoa,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					listaPessoaCompleta.addItem(pessoa);
+				}
+				
+				sortListaPessoa(listaPessoa);
+				sortListaPessoa(listaPessoaCompleta);
+			}
+
+			private function onBuscarPorIdResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var pessoa:Pessoa = event.result as Pessoa;
+				dispatchEvent(new PessoaEvent(PessoaEvent.EDITAR_PESSOA, pessoa));
+			}
+			
+			private function onBuscarPorIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao buscar pessoa", MessageType.ERROR, 10000));			
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaPessoa.getItemAt(event2.rowIndex);				
+				}
+				
+				pessoaService.buscarPorId((data as Pessoa).id);
+			}
+			
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{			
+				pessoa = data as Pessoa;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);
+				
+			}
+			
+			private function excluir(event:RemoveModalEvent):void
+			{
+				dispatchEvent(new PessoaEvent(PessoaEvent.EXCLUIR_PESSOA,pessoa));
+				pessoa = null;
+			}
+			
+			private function labelFunctionTipo(item:Object, column:DataGridColumn):String{
+				switch((item as Pessoa).tipo)
+				{
+					case ScreenUtils.TIPO_CLIENTE.id:
+						return ScreenUtils.TIPO_CLIENTE.nome;
+					case ScreenUtils.TIPO_FORNECEDOR.id:
+						return ScreenUtils.TIPO_FORNECEDOR.nome;
+					case ScreenUtils.TIPO_PRESTADOR_SERVICO.id:
+						return ScreenUtils.TIPO_PRESTADOR_SERVICO.nome;
+					case ScreenUtils.TIPO_TRANSPORTADORA.id:
+						return ScreenUtils.TIPO_TRANSPORTADORA.nome;
+					default:
+						return "";
+				}
+			}
+			
+			private function labelFunctionTipoPessoa(item:Object, column:DataGridColumn):String{
+				switch((item as Pessoa).tipoPessoa)
+				{
+					case ScreenUtils.TIPO_PESSOA_FISICA.id:
+						return ScreenUtils.TIPO_PESSOA_FISICA.nome;
+					case ScreenUtils.TIPO_PESSOA_JURIDICA.id:
+						return ScreenUtils.TIPO_PESSOA_JURIDICA.nome;
+					default:
+						return "";
+				}
+			}
+						
+		]]>
+	</fx:Script>		
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{listaPessoa}"
+					  itemDoubleClick="editItem(data, event,false)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="nome"
+							   headerText = "{resourceManager.getString('ApplicationResource','NOME')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="nomeSistema"							   
+							   />
+			
+			<dc:DataGridColumnFilter id="tipo" labelFunction="labelFunctionTipo"
+							   headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"
+							   textAlign="center"
+							   sortable="false"					   
+							   />
+			
+			<dc:DataGridColumnFilter id="tipoPessoa" labelFunction="labelFunctionTipoPessoa"
+							   headerText = "{resourceManager.getString('ApplicationResource','TIPO_PESSOA')}"
+							   textAlign="center"
+							   sortable="false"							   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="rgIe" 
+							   headerText = "{resourceManager.getString('ApplicationResource','RGIE')}"
+							   dataField = "rgIe"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cpfCnpj" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CPFCNPJ')}"
+							   dataField = "cpfCnpj"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width="100"	 						 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="900" 
+		 xmlns:texto="components.textInput.*" xmlns:combos="components.combos.*"
+		 initialize="init()"
+		 >
+	<fx:Declarations>
+
+		<mx:RemoteObject id="lpuService" destination="lpuService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarLpu"      
+					   fault="onSalvarLpuFault(event)" 
+					   result="onSalvarLpuResult(event)"
+					   />
+			<mx:method name="processarLpu"      
+					   fault="onProcessarLpuFault(event)" 
+					   result="onProcessarLpuResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Lpu;
+			
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]
+			private var _lpu:Lpu = new Lpu();
+			
+			private var fileRef:FileReference;
+			
+			private var allTypes:Array;
+			
+			private const _strDomain:String = new String("http://127.0.0.1:8080/SoseWeb/");
+			private const _strUploadScript:String = new String(_strDomain + "uploadlpuservlet");
+			
+			public function get lpu():Lpu
+			{
+				return _lpu;
+			}
+
+			public function set lpu(value:Lpu):void
+			{
+				_lpu = value;				
+			}
+			
+			public function limpar():void
+			{
+				_lpu = new Lpu();
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(txtUnidade.stringValidator);
+				validatorArr.push(txtValor.stringValidator);
+				validatorArr.push(txtLinhaCabecalho.stringValidator);
+				validatorArr.push(txtPrimeiraLinhaDados.stringValidator);
+				validatorArr.push(txtUltimaLinhaDados.stringValidator);
+				validatorArr.push(comboCliente.comboBox.comboValidator);
+				validatorArr.push(txtCaminhoArquivo.stringValidator);
+
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			private function init():void {
+				fileRef = new FileReference();
+				fileRef.addEventListener(Event.SELECT, fileRef_select);
+				fileRef.addEventListener(ProgressEvent.PROGRESS, fileRef_progress);
+				fileRef.addEventListener(Event.COMPLETE, fileRef_complete);
+				var textTypes:FileFilter = new FileFilter("Arquivo excel (*.xls, *.xlsx)", "*.xls; *.xlsx");
+				allTypes = new Array(textTypes);
+			}
+			
+			private function selecionarArquivo():void {
+				fileRef.browse(allTypes);
+			}
+			
+			private function fileRef_select(evt:Event):void {
+				try {
+					txtCaminhoArquivo.input.text = fileRef.name;
+					
+				} catch (err:Error) {
+
+				}
+			}
+			
+			private function importar():void {
+				if(validarCampos()){
+					_lpu.cliente = comboCliente.clienteSelecionado;
+					lpuService.salvarLpu(_lpu);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function voltar():void {
+				dispatchEvent(new Event("voltarListagemLPU"));
+			}
+			
+			private function onSalvarLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_lpu = event.result as Lpu;
+				
+			
+				var sendVars:URLVariables = new URLVariables();
+				sendVars.action = "uploadlpuservlet";
+				sendVars.idLpu = _lpu.id;
+
+				var request:URLRequest = new URLRequest();
+				request.data = sendVars;
+				request.url = _strUploadScript;
+				request.method = URLRequestMethod.POST;
+				fileRef.upload(request, "file", false);
+
+			}
+			
+			private function onSalvarLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LPU_SALVAR_ERRO'), MessageType.ERROR, 10000));	
+				}	
+			}
+			
+			
+			private function onProcessarLpuResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_lpu = event.result as Lpu;
+								
+			}
+			
+			private function onProcessarLpuFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onProcessarLpuFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent("Erro ao importar o excel", MessageType.ERROR, 10000));	
+				}	
+			}
+				
+			
+			private function fileRef_progress(evt:ProgressEvent):void {
+
+			}
+			
+			private function fileRef_complete(evt:Event):void {
+				lpuService.processarLpu(_lpu);
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="txtUnidade.input.text" source="_lpu.celulaUnidade" twoWay="true"/>
+	<fx:Binding destination="txtEquipamento.input.text" source="_lpu.celulaEquipamento" twoWay="true"/>
+	<fx:Binding destination="txtFabricante.input.text" source="_lpu.celulaFabricante" twoWay="true"/>
+	<fx:Binding destination="txtCodigo1.input.text" source="_lpu.celulaCodigo1" twoWay="true"/>
+	<fx:Binding destination="txtCodigo2.input.text" source="_lpu.celulaCodigo2" twoWay="true"/>
+	<fx:Binding destination="txtValor.input.text" source="_lpu.celulaValor" twoWay="true"/>
+	
+	<fx:Binding destination="txtLinhaCabecalho.input.text" source="_lpu.linhaCabecalho" twoWay="true"/>
+	<fx:Binding destination="txtPrimeiraLinhaDados.input.text" source="_lpu.primeiraLinhaDados" twoWay="true"/>
+	<fx:Binding destination="txtUltimaLinhaDados.input.text" source="_lpu.ultimaLinhaDados" twoWay="true"/>
+	
+	<combos:ComboCliente id="comboCliente" required="true" labelText="Cliente" width="400" />
+	
+	<mx:TitleWindow title="Configuração de campos (Informe a letra correspondente a coluna)" width="600">
+		<mx:HBox width="100%" >
+			<texto:TextInput id="txtUnidade" required="true" labelText="Unidade" width="33%" restrict="A-Za-z" maxLength="2" />
+			<texto:TextInput id="txtEquipamento" labelText="Equipamento" width="33%" restrict="A-Za-z" maxLength="2" />
+			<texto:TextInput id="txtFabricante" labelText="Fabricante" width="33%" restrict="A-Za-z" maxLength="2" />
+
+		</mx:HBox>
+		<mx:HBox width="100%" >
+			<texto:TextInput id="txtCodigo1" labelText="Código 1" width="33%" restrict="A-Za-z" maxLength="2" />
+			<texto:TextInput id="txtCodigo2" labelText="Código 2" width="33%" restrict="A-Za-z" maxLength="2" />
+			<texto:TextInput id="txtValor" required="true" labelText="Valor" width="33%" restrict="A-Za-z" maxLength="2" />
+		</mx:HBox>
+	</mx:TitleWindow>
+	
+	<mx:TitleWindow title="Configuração da leitura de dados (Informe o número correspondente a linha)" width="600">
+		<mx:HBox width="100%" >
+			<texto:TextInput id="txtLinhaCabecalho" labelText="Linha do cabeçalho" required="true" width="33%" restrict="0-9" maxLength="9" />
+			<texto:TextInput id="txtPrimeiraLinhaDados" labelText="Primeira linha de dados" required="true" width="33%" restrict="0-9" maxLength="9" />
+			<texto:TextInput id="txtUltimaLinhaDados" labelText="Última linha de dados" required="true" width="33%" restrict="0-9" maxLength="9" />
+		</mx:HBox>
+	</mx:TitleWindow>
+	
+	<mx:HBox width="600" verticalAlign="bottom">
+		<s:Button label="Selecionar LPU"  click="selecionarArquivo()" height="25" width="200" icon="@Embed(source='/assets/icons/folder.png')" />
+		<texto:TextInput id="txtCaminhoArquivo" required="true" habilitado="false" width="100%" />
+		<s:Button label="Importar" click="importar()" height="25" width="100" icon="@Embed(source='/assets/icons/arrow_up.png')" />
+	</mx:HBox>
+	
+	<mx:HBox width="600" verticalAlign="bottom">
+		<s:Button label="Voltar" click="voltar()" height="25" width="200" icon="@Embed(source='/assets/icons/back.png')" />
+	</mx:HBox>
+	
+</mx:VBox>

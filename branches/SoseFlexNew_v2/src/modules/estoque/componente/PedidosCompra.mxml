@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:components="components.*" horizontalAlign="center"  
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:dc="components.grid.filtros.controles.*"
+		 initialize="init()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="pedidoCompraService" destination="pedidoCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listaPedidosCompraAguardandoCompra"      
+					   fault="onListarRequisicaoFault(event)" 
+					   result="onListarRequisicaoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="compraService" destination="compraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+			<mx:method name="criarCompra"      
+					   fault="onSalvarCompraFault(event)" 
+					   result="onSalvarCompraResult(event)"
+					   />
+			<mx:method name="adicionarPedidoCompra"      
+					   fault="onAdicionarPedidoCompraFault(event)" 
+					   result="onAdicionarPedidoCompraResult(event)"
+					   />
+			<mx:method name="excluirPedidoCompra"      
+					   fault="onExcluirPedidoCompraFault(event)" 
+					   result="onExcluirPedidoCompraResult(event)"
+					   />
+			<mx:method name="gerarCompra"      
+					   fault="onGerarCompraFault(event)" 
+					   result="onGerarCompraResult(event)"
+					   />
+			<mx:method name="deletarCompra"      
+					   fault="onDeletarCompraFault(event)" 
+					   result="onDeletarCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="itemCompraService" destination="itemCompraService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="removerItemCompra"      
+					   fault="onRemoverItemCompraFault(event)" 
+					   result="onRemoverItemCompraResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Usuario;
+			import entities.compra.Compra;
+			import entities.compra.ItemCompra;
+			import entities.compra.PedidoCompra;
+			import entities.orcamentoreparo.RequisicaoComponente;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _listaPedidoCompra:ArrayCollection;
+			
+			[Bindable]
+			private var _pedidoCompra:PedidoCompra;
+			
+			[Bindable]
+			private var _compra:Compra;
+			
+			[Bindable]
+			private var _pedidosCompraSelecionados:ArrayCollection;
+			
+			[Bindable]
+			private var _pedidosCompraNaoSelecionados:ArrayCollection;
+			
+			[Bindable]
+			private var _requisicao:RequisicaoComponente;
+			
+			[Bindable]
+			private var _itemCompra:ItemCompra;
+			
+			private function init():void
+			{
+				pedidoCompraService.listaPedidosCompraAguardandoCompra();
+				consumidorEstoqueService.subscribe();
+			}
+			
+			private function onMsgEstoque(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.PEDIDO_COMPRA_CRIADO){
+					var pedidoCompraCriado:PedidoCompra = globalMessage.conteudo as PedidoCompra;
+					_listaPedidoCompra.addItem(pedidoCompraCriado);
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.CANCELAR_PEDIDO_COMPRA){
+					var req:RequisicaoComponente = globalMessage.conteudo as RequisicaoComponente;
+					var req1:RequisicaoComponente;
+					for (var index:int=0;index<_listaPedidoCompra.length;index++){
+						req1 = (_listaPedidoCompra.getItemAt(index) as PedidoCompra).requisicao;
+						if(req1 != null && req1.id == req.id){
+							_listaPedidoCompra.removeItemAt(index);
+							break;
+						}
+					}
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.DELETAR_ITEM_COMPRA){
+					pedidoCompraService.listaPedidosCompraAguardandoCompra();
+				}
+				
+				if (globalMessage.mensagem==MensagensAplicacao.COMPRA_DELETADA){
+					pedidoCompraService.listaPedidosCompraAguardandoCompra();
+				}
+			} 
+			
+			private function onListarRequisicaoResult(event:ResultEvent = null):void
+			{
+				_listaPedidoCompra = event.result as ArrayCollection;
+				
+			}
+			
+			private function onListarRequisicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function possuiAmostraLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.possuiAmostra){
+					return "Sim";
+				}else{
+					return "Não";
+				}
+			}
+			
+			private function onCompraChange(event:Event):void
+			{
+				_compra = cbCompras.compraSelecionada;
+				compraService.channelSet = parentApplication.channelSet;
+				compraService.showBusyCursor = true;
+				compraService.buscarPorId(_compra.id);
+			}
+			
+			public function onBuscarPorIdResult(event:ResultEvent):void
+			{
+				_compra = event.result as Compra;	
+			}
+			
+			public function onBuscarPorIdFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarPorIdFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao carregar compra", MessageType.ERROR, 3000));
+			}
+			
+			public function validarCamposAdicionar():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(cbCompras.comboBox.comboValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			private function adicionar(event:MouseEvent):void
+			{
+				if(validarCamposAdicionar()){
+					_pedidosCompraNaoSelecionados = new ArrayCollection();
+					_pedidosCompraSelecionados = new ArrayCollection();
+					for each (var p:PedidoCompra in _listaPedidoCompra){
+						if(p.isSelected){
+							_pedidosCompraSelecionados.addItem(p);
+						}else{
+							_pedidosCompraNaoSelecionados.addItem(p);
+						}
+					}
+					
+					
+					if(_pedidosCompraSelecionados.length == 0){
+						dispatchEvent(new MensagemEvent("Nenhum pedido de compra selecionado", MessageType.WARNING, 3000));
+					}else{
+						compraService.channelSet = parentApplication.channelSet;
+						compraService.showBusyCursor = true;
+						compraService.adicionarPedidoCompra(_compra, _pedidosCompraSelecionados);
+						_listaPedidoCompra = _pedidosCompraNaoSelecionados;
+					}
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+				}
+				
+			}
+			
+			private function limpar(event:MouseEvent):void
+			{
+				_compra = null;	
+				cbCompras.comboBox.clean();				
+			}
+			
+			public function excluirItemCompra(data:Object, event:Event):void
+			{
+				var pedidoCompraExcluido:PedidoCompra = data as PedidoCompra;
+				compraService.excluirPedidoCompra(_compra,pedidoCompraExcluido);
+				
+				if(_listaPedidoCompra != null){
+					_listaPedidoCompra.addItem(pedidoCompraExcluido);
+				}	
+			}
+			
+			public function onExcluirPedidoCompraResult(event:ResultEvent):void
+			{
+				_compra = event.result as Compra;	
+				dispatchEvent(new MensagemEvent("Pedido de compra excluído com sucesso", MessageType.SUCCESS, 3000));
+			}
+			
+			public function onExcluirPedidoCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[DeletarFaturaFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao excluir pedido de compra", MessageType.ERROR, 3000));
+			}	
+			
+			public function editarItemCompra(data:Object, event:Event):void
+			{
+				
+			}
+			
+			private function criarPreCompra(event:MouseEvent):void
+			{
+				this.currentState = "adicionarCompra";
+				_compra = new Compra();
+				nomeCompra.input.setFocus();
+			}
+			
+			private function cancelarNovaCompra(event:MouseEvent=null):void
+			{
+				this.currentState = "normal";
+			}
+			
+			
+			
+			private function salvarNovaCompra(event:MouseEvent):void
+			{
+				if(validarCampos()){
+					compraService.channelSet = parentApplication.channelSet;
+					compraService.showBusyCursor = true;
+					compraService.criarCompra(_compra);	
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+				}
+			}
+			
+			public function onSalvarCompraResult(event:ResultEvent):void
+			{
+				this.currentState = "normal";
+				
+				_compra = event.result as Compra;
+				cbCompras.comboBox.dataProvider.addItem(_compra);
+				cbCompras.compraSelecionada = _compra;
+				
+				dispatchEvent(new MensagemEvent("Pré-compra criada com sucesso", MessageType.SUCCESS, 3000));
+			}
+			
+			public function onSalvarCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarFaturaFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao criar pré-compra", MessageType.ERROR, 3000));
+				cancelarNovaCompra();
+			}	
+			
+			public function onAdicionarPedidoCompraResult(event:ResultEvent):void
+			{
+				compraService.buscarPorId((event.result as Compra).id);
+				pedidoCompraService.listaPedidosCompraAguardandoCompra();
+				dispatchEvent(new MensagemEvent("Pedido(s) de compra adicionado(s) com sucesso", MessageType.SUCCESS, 3000));
+			}
+			
+			public function onAdicionarPedidoCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onSalvarCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao adicionar pedido(s) de compra", MessageType.ERROR, 3000));
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(nomeCompra.stringValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+			private function salvar(event:MouseEvent):void
+			{
+				compraService.channelSet = parentApplication.channelSet;
+				compraService.showBusyCursor = true;
+				compraService.editarCompra(_compra);	
+			}
+			
+			private function deletar(event:MouseEvent):void
+			{
+				if(validarCamposAdicionar()){
+					compraService.channelSet = parentApplication.channelSet;
+					compraService.showBusyCursor = true;
+					compraService.deletarCompra(_compra);
+				}else{
+					dispatchEvent(new MensagemEvent("Nenhuma compra selecionada!", MessageType.WARNING, 3000));
+				}
+			}
+			
+			public function onDeletarCompraResult(event:ResultEvent):void
+			{
+				cbCompras.limpar();
+				cbCompras.recarregar();				
+				_compra = null;	
+				pedidoCompraService.listaPedidosCompraAguardandoCompra();
+				dispatchEvent(new MensagemEvent("Compra deletada com sucesso", MessageType.SUCCESS, 3000));
+			}
+			
+			public function onDeletarCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onDeletarCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar compra", MessageType.ERROR, 3000));
+			}	
+			
+			private function gerarCompra(event:MouseEvent):void
+			{
+				if(validarCamposGerar()){
+					compraService.gerarCompra(_compra);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+				}
+			}
+			
+			public function onGerarCompraResult(event:ResultEvent):void
+			{
+				cbCompras.limpar();
+				cbCompras.recarregar();				
+				_compra = event.result as Compra;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPRA_CRIADA, _compra);
+				_compra = null;	
+				dispatchEvent(new MensagemEvent("Compra gerada com sucesso", MessageType.SUCCESS, 3000));
+			}
+			
+			public function onGerarCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onGerarCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao gerar compra", MessageType.ERROR, 3000));
+			}	
+			
+			public function validarCamposGerar():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(cbCompras.comboBox.comboValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;	
+				
+				var isListaOrdemServicoCheia:Boolean = false;
+				if(_compra != null && _compra.listaItemCompra != null && _compra.listaItemCompra.length > 0){
+					isListaOrdemServicoCheia = true;
+				}
+				
+				return isValidForm && isListaOrdemServicoCheia;
+			}
+			
+			public function removerItemCompra(data:Object, event:Event):void
+			{			
+				_itemCompra = data as ItemCompra;
+				itemCompraService.removerItemCompra(_itemCompra);
+			}
+			
+			public function onRemoverItemCompraResult(event:ResultEvent):void
+			{
+				var iRemovido:int = _compra.listaItemCompra.getItemIndex(_itemCompra);
+				_compra.listaItemCompra.removeItemAt(iRemovido);
+				pedidoCompraService.listaPedidosCompraAguardandoCompra();
+				dispatchEvent(new MensagemEvent("Item compra removido com sucesso", MessageType.SUCCESS, 3000));
+				_itemCompra = null;
+			}
+			
+			public function onRemoverItemCompraFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onExcluirItemCompraFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao remover item compra", MessageType.ERROR, 3000));
+			}
+			
+			private function nomeComponenteLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.requisicao){
+					return item.requisicao.componente.nome;
+				}else{
+					return item.componente.nome;
+				}
+			}
+			
+			private function tipoComponenteLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.requisicao){
+					if(item.requisicao.componente.tipo){
+						return item.requisicao.componente.tipo.nome;
+					}
+				}else{
+					if(item.componente.tipo){
+						return item.componente.tipo.nome;
+					}
+				}
+				return "";
+			}
+			
+			private function encapsulamentoComponenteLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.requisicao){
+					if(item.requisicao.componente.encapsulamento)
+						return item.requisicao.componente.encapsulamento.nome;
+					else 
+						return ""
+				}else{
+					if(item.componente.encapsulamento)
+						return item.componente.encapsulamento.nome;
+					else 
+						return ""
+				}
+			}
+			
+			private function posicaoComponenteLabel(item:Object, column:DataGridColumn):String
+			{
+				if(item.requisicao){
+					return item.requisicao.componente.posicaoEstoque;
+				}else{
+					return item.componente.posicaoEstoque;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding destination="_compra.nome" source="nomeCompra.inputText" twoWay="true"/>
+	
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="adicionarCompra"/>
+	</mx:states>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		
+		<combos:ComboPreCompra id="cbCompras" labelText="Selecione uma compra" width="200" includeIn="normal" required="true" changeFunction="onCompraChange" />
+		
+		<texto:TextInput id="nomeCompra" includeIn="adicionarCompra"  labelText="Apelido da compra" width="20%" required="true"  />
+		<mx:Button id="btLimpar"
+				   height="25" includeIn="normal" toolTip="Limpar"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   click="limpar(event)"/>
+		<mx:Button id="btAdicionar"
+				   label="Adicionar"
+				   height="25" includeIn="normal"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionar(event)"/>
+		<mx:Button id="btSalvarPreFatura"  includeIn="adicionarCompra"
+				   label="Salvar"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   click="salvarNovaCompra(event)"/>
+		<mx:Button id="btCancelarPreCompra" includeIn="adicionarCompra"
+				   label="Cancelar"
+				   height="25" width="10%"
+				   icon="@Embed(source='/assets/icons/cancel.png')"
+				   click="cancelarNovaCompra(event)"/>
+		<mx:Button id="btNova"
+				   label="Criar nova compra"
+				   height="25" includeIn="normal"
+				   icon="@Embed(source='/assets/icons/new.png')"
+				   click="criarPreCompra(event)"/>
+	</mx:HBox>
+	
+	<mx:TitleWindow title="Pedidos de compra pendentes - Nº de pedidos: {_listaPedidoCompra.length}" width="100%" height="98%" >
+		<grid:MantisTable id="requisicoesTable"
+						  width="100%"
+						  height="98%"
+						  draggableColumns="false"
+						  dataProvider="{_listaPedidoCompra}"
+						  doubleClickEnabled="false"
+						  >
+			
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				
+				<mx:DataGridColumn headerText = ""	width="50"						   
+								   itemRenderer="components.grid.CheckBoxItemRenderer"
+								   headerRenderer="components.grid.CheckBoxItemRenderer"
+								   resizable="false" draggable="false" sortable="false"
+								   dataField="isSelected"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroRequisicao" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_PEDIDO_COMPRA')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="id"							   
+								   />
+				<dc:DataGridColumnFilter id="cOrigem" width="70"
+								   headerText = "Origem"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="origemPedido"							   
+								   />
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroOrdemServico" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+								   textAlign="center" dataField="ordemServico.numeroOrdemServico"
+								   sortable="false"					   
+								   />
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer"  id="cComponente"
+									headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+									textAlign="center"
+									sortable="false"
+									labelFunction="nomeComponenteLabel"							   
+									/>
+				
+				<dc:DataGridColumnFilter  id="cTipo"
+									headerText = "Tipo"
+									textAlign="center"
+									sortable="false"
+									labelFunction="tipoComponenteLabel"							   
+									/>
+				
+				<dc:DataGridColumnFilter id="cEncapsulamento"
+								   headerText = "Encapsulamento"
+								   textAlign="center"
+								   sortable="false"
+								   labelFunction="encapsulamentoComponenteLabel"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cPosicao"
+								   headerText = "Posição"
+								   textAlign="center"
+								   sortable="false"
+								   labelFunction="posicaoComponenteLabel"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQuantidade" width="40"
+								   headerText = "{resourceManager.getString('ApplicationResource','QUANTIDADE_ABREVIADO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="quantidade"							   
+								   />
+				
+				<dc:DataGridColumnFilter id="cPossuiAmostra" width="80"
+								   headerText = "Amostra"
+								   labelFunction="possuiAmostraLabel"
+								   />
+				
+				<dc:DataGridColumnFilter id="cRequisitante" width="80"
+								   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
+								   dataField = "tecnico.usuario"
+								   />
+				
+				<dc:DataGridColumnFilter id="cLaboratorio" width="110"
+								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+								   dataField="ordemServico.unidade.laboratorio.nome"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer"  width="130"
+								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="dataCriacaoString"							   
+								   />
+			</grid:columns>
+		</grid:MantisTable>
+	</mx:TitleWindow>
+	
+	
+	<mx:TitleWindow title="Pré compra" width="100%" height="98%" >
+		<grid:MantisTable id="tabelaCompraListaPedidos"
+						  width="100%"
+						  height="98%"
+						  draggableColumns="true" editable="false"
+						  dataProvider="{_compra.listaItemCompra}"
+						  doubleClickEnabled="false"
+						  >
+			
+			<grid:columns>					
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cComponente2" width="250"
+								   headerText = "Componente"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="componente.nome"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cTecnicos2" width="200"
+								   headerText = "Técnicos"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="tecnicos"
+								   />
+				
+				<dc:DataGridColumnFilter id="cTemAmostra2" width="50"
+								   headerText = "A" 
+								   textAlign="center"
+								   sortable="false"	
+								   labelFunction="possuiAmostraLabel"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroAmostra" width="100"
+								   headerText = "Nº amostra"
+								   textAlign="center"
+								   sortable="false"	
+								   dataField="nAmostra"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdRequisitada" width="130"
+								   headerText = "Qtd Requisitada"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="qtdTotalRequisitada"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.RelacionalFilterRenderer" id="cQtdEsperada" width="130"
+								   headerText = "Qtd Esperada"
+								   dataField="qtdEsperada"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroPedidos" width="130"
+								   headerText = "Nº Pedidos"
+								   dataField="qtdPedido"
+								   />
+				
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false" width="50"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<fx:Script>
+									<![CDATA[
+										protected function image1_clickHandler(event:MouseEvent):void
+										{
+											// TODO Auto-generated method stub
+											
+										}
+									]]>
+								</fx:Script>
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  buttonMode="true" 
+										  useHandCursor="true"
+										  toolTip="Editar item de compra"
+										  />	
+								
+								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+										  buttonMode="true" 
+										  useHandCursor="true"
+										  click="parentDocument.removerItemCompra(data, event)"
+										  toolTip="Excluir item de compra"
+										  />						
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</grid:columns>
+		</grid:MantisTable>
+	</mx:TitleWindow>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<mx:Button id="btSalvar"
+				   label="Salvar"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/user.png')"
+				   click="salvar(event)"/>
+		
+		<s:Spacer width="50" />
+		<mx:Button id="btDeletar"
+				   label="Deletar"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/user.png')"
+				   click="deletar(event)"/>
+		<s:Spacer width="50" />
+		<mx:Button id="btGerarCompra"
+				   label="Gerar Compra"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/user.png')"
+				   click="gerarCompra(event)"/>
+	</mx:HBox>
+	
+</mx:VBox>

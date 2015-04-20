@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple custom MXML TitleWindow component.
+The TitleWindowApp application displays this component. 
+You cannot run it independently. -->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:componente="modules.administrativo.componente.*"
+				title="Saldo insuficiente" borderAlpha="0.75" 
+				xmlns:componentes="components.*" xmlns:texto="components.textInput.*" width="800" height="180">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="componenteService" destination="componenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarComponente"      
+					   fault="onSalvarComponenteFault(event)" 
+					   result="onSalvarComponenteResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[     
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.Componente;
+			
+			import modules.reparoOrcamento.componentesReparoOrcamento.Componentes;
+			
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+						
+			public var myParentObject:DisplayObject;
+			
+			[Bindable]			
+			private var _componente:Componente;
+					
+			private function salvar(event:MouseEvent = null):void
+			{
+				if(dados.validarCampos()){
+					componenteService.salvarComponente(dados.componente);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				_componente = new Componente();
+				dados.limpar();
+			}
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				(myParentObject as Componentes).hideModalCadastroNovoComponente();
+				limpar();
+			}
+			
+			private function onSalvarComponenteResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_componente = event.result as Componente;
+				if(dados.componente.id == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}
+				(myParentObject as Componentes).realizarRequisicao(_componente);
+				(myParentObject as Componentes).hideModalCadastroNovoComponente();
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_ATUALIZAR, _componente);
+				dados.limpar();
+				
+			}
+			
+			private function onSalvarComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','COMPONENTE_SALVAR_ERRO'), MessageType.ERROR, 10000));	
+				}
+				(myParentObject as Componentes).hideModalCadastroNovoComponente();
+			}
+			
+			private function salvarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					salvar();
+				}
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}
+			
+			private function voltarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					voltar();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+		
+	<componente:DadosComponente id="dados"  width="100%" currentState="modal" />
+	
+	<mx:HBox width="100%" >
+		<mx:Button id="saveButton" 
+				   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   keyDown="salvarEnter(event)"
+				   click="salvar(event)"
+				   />
+		<mx:Button id="cleanButton" 
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+		<mx:Button id="voltarButton"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   keyDown="voltarEnter(event)"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+</mx:TitleWindow>

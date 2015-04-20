@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<graficos:GraficoContainer xmlns:fx="http://ns.adobe.com/mxml/2009" width="300" height="300" creationComplete="init()" xmlns:components="components.*"
+						   xmlns:s="library://ns.adobe.com/flex/spark" tituloDoGrafico="Reparos por condição" creationPolicy="all"
+						   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:graficos="modules.consulta.graficos.*" xmlns:combos="components.combos.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="graficoService" destination="graficoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarInfoGraficoReparoFinalizadoPorCondicao"      
+					   fault="onBuscarInfoGraficoReparoFinalizadoPorCondicaoFault(event)" 
+					   result="onBuscarInfoGraficoReparoFinalizadoPorCondicaoResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Pessoa;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var dadosGrafico:ArrayCollection;
+			
+			private function init():void
+			{
+				graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(null,null,null,null,null,null);
+			}
+			
+			protected function aplicar(event:MouseEvent):void
+			{
+				graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(dataDe.inputDate,dataAte.inputDate,cliente.clienteSelecionado,laboratorio.laboratorioSelecionado,tecnico.usuarioSelecionado, unidade.unidadeSelecionado);
+			}
+			
+			protected function cancelar(event:MouseEvent):void
+			{
+				
+				mudarParaGrafico();
+			}
+			
+			protected function limpar(event:MouseEvent=null):void
+			{
+				laboratorio.limpar();
+				tecnico.limpar();
+				cliente.limpar();
+				unidade.limpar();
+				dataDe.inputDate = null;
+				dataAte.inputDate = null;
+			}
+			
+			private function onBuscarInfoGraficoReparoFinalizadoPorCondicaoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				dadosGrafico = event.result as ArrayCollection;
+			}
+			
+			private function onBuscarInfoGraficoReparoFinalizadoPorCondicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarInfoGraficoReparoFinalizadoPorCondicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+		]]>
+	</fx:Script>
+		
+	<graficos:grafico>
+		<mx:VBox width="100%" height="100%" >
+				<mx:PieChart id="myChart" height="100%" width="100%" paddingTop="5" paddingRight="5" paddingLeft="5" 
+							 dataProvider="{dadosGrafico}" showDataTips="true" >
+					<mx:series>
+						<mx:PieSeries 
+							field="valor" 
+							nameField="categoria" 
+							labelPosition="callout"
+							/>
+					</mx:series>
+				</mx:PieChart>
+			<mx:Legend dataProvider="{myChart}"/>
+		</mx:VBox>
+	</graficos:grafico>
+	
+	<graficos:configuracao>
+		<mx:VBox width="100%" height="100%" paddingTop="5" paddingRight="5" paddingLeft="5" >
+			<mx:HBox width="100%">
+				<components:DataInput id="dataDe" labelText="{resourceManager.getString('ApplicationResource','DATA_DE')}" width="50%" inputHeight="20" />
+				<components:DataInput id="dataAte" labelText="{resourceManager.getString('ApplicationResource','DATA_ATE')}" width="50%" inputHeight="20" />
+			</mx:HBox>
+			
+			<combos:ComboCliente id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="100%"  />
+			<combos:ComboLaboratorio id="laboratorio" labelText="Laboratório" width="100%" />
+			<combos:ComboUsuario id="tecnico" labelText="Técnico" width="100%" />
+			<combos:ComboUnidade id="unidade" labelText="Unidade" width="100%" />
+			
+			<mx:HBox bottom="5" width="100%">
+				<s:Button label="Aplicar" click="aplicar(event)" />
+				<s:Button label="Limpar" click="limpar(event)" />
+				<s:Button label="Cancelar" click="cancelar(event)" />
+			</mx:HBox>
+		</mx:VBox>
+
+	</graficos:configuracao>
+	
+</graficos:GraficoContainer>

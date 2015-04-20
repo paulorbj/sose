@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:endereco="modules.administrativo.parceiros.endereco.*"
+		 xmlns:telefone="modules.administrativo.parceiros.telefone.*"
+		 width="90%" paddingLeft="10" paddingTop="5" paddingBottom="5" paddingRight="10"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="enderecoService" destination="enderecoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarEnderecos"      
+					   fault="onListarEnderecosFault(event)" 
+					   result="onListarEnderecosResult(event)"
+					   />
+			<mx:method name="salvarEndereco"      
+					   fault="onSalvarEnderecoFault(event)" 
+					   result="onSalvarEnderecoResult(event)"
+					   />
+			<mx:method name="excluirEndereco"      
+					   fault="onExcluirEnderecoFault(event)" 
+					   result="onExcluirEnderecoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.parceiros.Endereco;
+			import entities.administrativo.parceiros.Pessoa;
+			
+			import modules.administrativo.parceiros.endereco.eventos.EnderecoEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]			
+			private var _endereco:Endereco;
+			
+			
+			private var _cliente:Pessoa;
+			
+			[Bindable]	
+			private var _listaEndereco:ArrayCollection = new ArrayCollection;
+			
+			private function onCreationComplete():void
+			{
+				this.addEventListener(EnderecoEvent.ADICIONAR_ENDERECO,onAdicionar);
+				this.addEventListener(EnderecoEvent.EDITAR_ENDERECO,onEditar);
+				this.addEventListener(EnderecoEvent.EXCLUIR_ENDERECO,onExcluir);
+			}
+			
+			private function onAdicionar(event:EnderecoEvent):void
+			{
+				listagem.adicionarEndereco(event.endereco, event.indice);
+			}
+			
+			private function onEditar(event:EnderecoEvent):void
+			{
+				dados.endereco = event.endereco;
+				dados.indexEnderecoEditado = event.indice;
+			}
+			
+			private function onExcluir(event:EnderecoEvent):void
+			{
+				_endereco = event.endereco;
+				enderecoService.excluirEndereco(event.endereco);
+			}
+			
+			private function onListarEnderecosResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaEndereco.removeAll();
+				_listaEndereco = event.result as ArrayCollection;
+				listagem.setListaEndereco(_listaEndereco);
+			}
+			
+			private function onListarEnderecosFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarEnderecosFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onSalvarEnderecoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_endereco = event.result as Endereco;
+				if(dados.endereco.id == 0){
+					_listaEndereco.addItem(_endereco);
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ENDERECO_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}else{
+					var index:int = _listaEndereco.getItemIndex(dados.endereco);
+					_listaEndereco.removeItemAt(index);
+					_listaEndereco.addItemAt(_endereco, index);
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ENDERECO_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}
+				listagem.setListaEndereco(_listaEndereco);
+				dados.limpar();
+			}
+			
+			private function onSalvarEnderecoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ENDERECO_SALVAR_ERRO'), MessageType.ERROR, 10000));	
+				}			
+			}
+			
+			private function onExcluirEnderecoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _listaEndereco.getItemIndex(_endereco);
+				_listaEndereco.removeItemAt(index);
+				listagem.setListaEndereco(_listaEndereco);
+				limpar();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ENDERECO_REMOVER_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onExcluirEnderecoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ENDERECO_REMOVER_ERRO'), MessageType.ERROR, 10000));	
+				}		
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				enderecoService.salvarEndereco(dados.endereco);
+			}
+			
+			public function limpar(event:MouseEvent = null):void
+			{
+				_endereco = new Endereco();
+				if(dados)
+					dados.limpar();
+				if(listagem)
+					listagem.limpar();
+			}
+			
+			public function get cliente():Pessoa
+			{
+				_cliente.enderecos = listagem.listaEndereco;
+				return _cliente;
+			}
+			
+			public function set cliente(value:Pessoa):void
+			{
+				_cliente = value;
+				if(value.enderecos == null){
+					listagem.listaEndereco = new ArrayCollection();
+				}else{
+					listagem.listaEndereco = value.enderecos;
+					
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<endereco:DadosEndereco id="dados" width="100%" />
+	
+	<endereco:ListagemEnderecoCadastrado id="listagem" width="100%" height="100%" />	
+	
+	
+</mx:VBox>

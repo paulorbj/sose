@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:components="components.*" width="100%" height="100%"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="notaFiscalService" destination="notaFiscalService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId2"      
+					   fault="onBuscarPorIdFault(event)" 
+					   result="onBuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			
+			import entities.administrativo.Usuario;
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.recebimento.NotaFiscal;
+			
+			import modules.administrativo.parceiros.pessoa.eventos.PessoaEvent;
+			import modules.recebimento.eventos.NotaFiscalEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.ScreenUtils;
+			
+			[Bindable]
+			private var listaNotaFiscal:ArrayCollection = new ArrayCollection;
+			
+			[Bindable]
+			private var notaFiscal:NotaFiscal;
+			
+			[Bindable]
+			private var listaNumeroNotaFiscal:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var notaFiscalSelecionada:String;
+			
+			[Bindable]
+			private var listaCliente:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var clienteSelecionado:String;
+			
+			[Bindable]
+			private var listaStatus:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var statusSelecionado:String;
+			
+			[Bindable]
+			private var listaDataAbertura:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			private var dataAberturaSelecionada:String;
+			
+			
+			
+			public function setListaNotaFiscal(lista:ArrayCollection):void
+			{
+				listaNotaFiscal = lista;
+			}
+			
+			function myCompare(a:Object, b:Object, fields:Array = null):int
+			{
+				var valA:int= stringToValue(a);
+				var valB:int = stringToValue(b);
+				
+				if (valA < valB)
+					return -1;
+				
+				if (valA> valB)
+					return 1;
+				
+				return 0;
+				
+			}
+			
+			function stringToValue(a:Object):int
+			{
+				if(a.statusString == 'Nova')
+					return 1;
+				if(a.statusString == 'Processada')
+					return 2;
+				if(a.statusString == 'Aberta')
+					return 3;
+				if(a.statusString == 'Finalizada')
+					return 4;
+				return 0;
+			}
+			
+			private function sortList():void
+			{
+				var sort:Sort = new Sort();
+				sort.compareFunction = myCompare;
+				listaNotaFiscal.sort = sort;
+				listaNotaFiscal.refresh();
+				
+			}
+			
+			public function adicionarNotaFiscal(notaFiscal:NotaFiscal):void
+			{
+				var nfAux:NotaFiscal = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<listaNotaFiscal.length; i++){
+					nfAux = listaNotaFiscal.getItemAt(i) as NotaFiscal; 
+					if(nfAux.id == notaFiscal.id){
+						listaNotaFiscal.removeItemAt(i);
+						listaNotaFiscal.addItemAt(notaFiscal,i);
+						encontrou = true;
+						sortList();
+						break;
+					}
+				}
+				if(!encontrou){
+					listaNotaFiscal.addItemAt(notaFiscal,0);
+				}
+			}
+			
+			public function editItem(data:Object=null, event:Event=null):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaNotaFiscal.getItemAt(event2.rowIndex);				
+				}	
+				
+				if(data)
+					notaFiscal = data as NotaFiscal;
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					notaFiscalService.buscarPorId2(notaFiscal.id);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(editItemAutenticar);
+				}		
+			}
+			
+			public function editItemAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				editItem();
+			}
+			
+			private function onBuscarPorIdResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var notafiscal:NotaFiscal = event.result as NotaFiscal;
+				
+				dispatchEvent(new NotaFiscalEvent(NotaFiscalEvent.EDITAR_NOTA_FISCAL, notaFiscal));
+				
+			}
+			
+			private function onBuscarPorIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				
+			}
+			
+			public function excluirItem(data:Object=null, event:Event=null):void
+			{		
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					dispatchEvent(new NotaFiscalEvent(NotaFiscalEvent.EXCLUIR_NOTA_FISCAL, data as NotaFiscal));	
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(excluirItemAutenticar);
+				}
+			}
+			
+			public function excluirItemAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				excluirItem();
+			}
+			
+			public function labeTipoNF(item:Object, column:DataGridColumn):String
+			{
+				var tipoId:Number = (item as NotaFiscal).tipo;
+				switch (tipoId){
+					case 1:
+						return 'Normal';
+					case 2:
+						return 'Estoque';
+					case 3:
+						return 'Substituição';
+					case 4:
+						return 'Padrão';
+					case 5:
+						return 'Avaya';		
+					default:
+						return '';
+				}
+			}
+			
+			private function getRowColor(item:Object,
+										 rowIndex:int,
+										 dataIndex:int,
+										 color:uint):uint
+			{
+				if(item.statusString == "Aberta"){
+					return 0xD19275;
+				}
+				if(item.statusString == "Nova"){
+					return 0xFDFF00;
+				}
+				if(item.statusString == "Processada"){
+					return 0xFF9900;
+				}
+				if(item.statusString == "Finalizada"){
+					return 0xFFFFFF;
+				}	
+				return 0x5FA6BF;
+			}
+									
+		]]>
+	</fx:Script>		
+	
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="100%"
+					  draggableColumns="true"
+					  rowColorFunction="getRowColor"
+					  dataProvider="{listaNotaFiscal}"
+					  itemDoubleClick="editItem(data, event)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numero"
+							   headerText = "Nº da nota"
+							   textAlign="center" width=".10"
+							   sortable="false"
+							   dataField="numero"							   
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente" dataField="nomeCliente"
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+							   textAlign="center" width=".30"
+							   sortable="false"					   
+							   />
+			
+			
+			<dc:DataGridColumnFilter id="status" 
+							   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+							   dataField = "statusString"
+							   width=".10"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataCriacao" 
+							   headerText = "Dt criação"
+							   dataField = "dataCriacaoString"
+							   width=".08"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataNotaFiscal" 
+							   headerText = "{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}"
+							   dataField = "dataNotaFiscalString"
+							   width=".08"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataChegada" 
+							   headerText = "Dt chegada"
+							   dataField = "dataChegadaString"
+							   width=".08"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="caseAvaya" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CASE_AVAYA')}"
+							   dataField = "caseAvaya"
+							   width=".10"
+							   />
+			
+			<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="clienteAvaya" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE_AVAYA')}"
+							   dataField = "clienteAvaya"
+							   width=".10"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".10"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

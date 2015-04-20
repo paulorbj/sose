@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:texto="components.textInput.*"
+		 preinitialize="onPreinitialize()"
+		 creationComplete="onCreationComplete()"
+		 xmlns:grid="components.grid.*"
+		 width="60%" horizontalAlign="center" height="60%" 
+		 paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="avisoService" destination="avisoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarAvisos"      
+					   fault="onListarAvisosFault(event)" 
+					   result="onListarAvisosResult(event)"
+					   />
+			<mx:method name="salvarAviso"      
+					   fault="onSalvarAvisoFault(event)" 
+					   result="onSalvarAvisoResult(event)"
+					   />
+			<mx:method name="excluirAviso"      
+					   fault="onExcluirAvisoFault(event)" 
+					   result="onExcluirAvisoResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:StringValidator id="mensagemValidator"
+							required="true" 
+							source="{mensagemAviso}" 
+							property="text"
+							triggerEvent = "{FocusEvent.FOCUS_OUT}"
+							requiredFieldError="Campo obrigatório"
+							/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.ConfirmarExclusaoModal;
+			import components.RemoveModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.componentes.Aviso;
+			
+			import modules.administrativo.atividade.eventos.AtividadeEvent;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			[Bindable]			
+			private var _aviso:Aviso;
+			
+			[Bindable]	
+			private var _listaAviso:ArrayCollection = new ArrayCollection;
+			
+			private function onPreinitialize():void
+			{
+				
+			}
+			
+			private function onCreationComplete():void
+			{
+				avisoService.listarAvisos();	
+			}
+						
+			private function excluir():void
+			{
+				avisoService.excluirAviso(_aviso);
+			}
+			
+			private function onListarAvisosResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaAviso.removeAll();
+				_listaAviso = event.result as ArrayCollection;
+			}
+			
+			private function onListarAvisosFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarAvisosFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onSalvarAvisoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				if(_aviso.id == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}
+				_aviso = event.result as Aviso;
+			}
+			
+			private function onSalvarAvisoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_SALVAR_ERRO'), MessageType.ERROR, 10000));	
+				}		
+			}
+			
+			private function onExcluirAvisoResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _listaAviso.getItemIndex(_aviso);
+				_listaAviso.removeItemAt(index);
+				limpar();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_REMOVER_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onExcluirAvisoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var i:Number;
+				if(event.fault.faultString.search("br.com.sose.exceptions") != -1){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ATIVIDADE_REMOVER_ERRO'), MessageType.ERROR, 10000));	
+				}	
+			}
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				if(validarCampos()){
+					avisoService.salvarAviso(_aviso);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				_aviso = new Aviso();
+				_aviso.dataCriacao = new Date();
+				_aviso.criadoPor = Login.currentUser;
+			}
+			
+			private function novo(event:MouseEvent = null):void
+			{
+				this.currentState = "edicao";
+				limpar();			
+			}
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				this.currentState = "listagem";
+			}
+			
+			private function salvarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					salvar();
+				}
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}
+			
+			private function voltarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					voltar();
+				}
+			}
+			
+			public function editItem(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaAviso.getItemAt(event2.rowIndex);				
+				}
+				
+				_aviso = data as Aviso;		
+				this.currentState = "edicao";
+			}
+			
+			public function excluirItem(data:Object, event:Event):void
+			{			
+				_aviso = data as Aviso;
+				var modal:ConfirmarExclusaoModal=ConfirmarExclusaoModal(PopUpManager.createPopUp( this, ConfirmarExclusaoModal , true));
+				modal.addEventListener(RemoveModalEvent.REMOVE_MODAL, excluir);
+				PopUpManager.centerPopUp(modal);		
+			}
+			
+			public function validarCampos():Boolean {	
+				var validatorArr:Array = new Array();
+				validatorArr.push(mensagemValidator);
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArr);;
+				var isValidForm:Boolean = validatorErrorArray.length == 0;			
+				return isValidForm;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:VBox width="100%" horizontalAlign="center">
+		<s:Label fontSize="15" fontWeight="bold" text="Lista de avisos" includeIn="listagem"/>
+		<s:Label fontSize="15" fontWeight="bold" text="Criação/Edição de aviso" excludeFrom="listagem"/>
+	</mx:VBox>	
+	
+	
+	
+	
+	<mx:VBox verticalAlign="bottom" width="100%" includeIn="edicao">
+		<mx:HBox width="100%" verticalAlign="bottom">
+			<mx:CheckBox id="visivel" label="Visível" />
+			<s:Spacer width="100%" />
+			<texto:TextInput id="dataCriacao" habilitado="false" labelText="Data criação" width="30%"  />
+			<texto:TextInput id="criadoPor" habilitado="false" labelText="Criado por" width="50%" />	
+		</mx:HBox>
+		
+		<mx:HBox width="100%" verticalAlign="bottom">
+			<s:Label text="Mensagem" />
+			<s:Spacer width="100%" />
+			<s:Label text="(0 / 3000)" />
+		</mx:HBox>
+		<s:TextArea id="mensagemAviso" width="100%" />
+	</mx:VBox>
+	
+	<mx:VBox width="100%" horizontalAlign="left">
+		<mx:Button id="newButton" includeIn="listagem"
+				   label="{resourceManager.getString('ApplicationResource','NOVO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/new.png')"
+				   click="novo(event)"
+				   />
+	</mx:VBox>
+	
+	<grid:MantisTable id="viewTable"
+					  includeIn="listagem"
+					  width="100%" height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_listaAviso}"
+					  itemDoubleClick="editItem(data, event)"	>
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="cVisivel" width=".40"
+							   headerText = "Visível"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="visivel"							   
+							   />
+			
+			<mx:DataGridColumn id="cDtCriacao" width=".50" textAlign="center"
+							   headerText = "Data criação"
+							   dataField = "dataCriacaoString"
+							   />
+			
+			<mx:DataGridColumn id="ccDtAlteracaoVisivel" width=".50" textAlign="center"
+							   headerText = "Visível alterado em"
+							   dataField = "dataVisivelAlteradooString"
+							   />
+			
+			<mx:DataGridColumn id="cCriadoPor" width=".50" textAlign="center"
+							   headerText = "Criado por"
+							   dataField = "criadoPor.usuario"
+							   />
+			
+			<mx:DataGridColumn id="cMensagem" width=".50" textAlign="center"
+							   headerText = "Mensagem"
+							   dataField = "mensagem"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false" width=".10" textAlign="center"	 						 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</grid:columns>
+	</grid:MantisTable>
+	
+	<mx:HBox width="100%" excludeFrom="listagem">
+		<mx:Button id="saveButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   keyDown="salvarEnter(event)"
+				   click="salvar(event)"
+				   />
+		<mx:Button id="cleanButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+		<mx:Button id="voltarButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   keyDown="voltarEnter(event)"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+</mx:VBox>

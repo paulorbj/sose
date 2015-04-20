@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:componentes="components.*"
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+
+	<fx:Declarations>
+
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.orcamentoreparo.Reparo;
+			
+			[Bindable]
+			private var _reparo:Reparo;
+			
+			public function set reparo(value:Reparo):void
+			{
+				_reparo = value;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="dtEntrada.inputDate" destination="_reparo.dataEntrada" twoWay="true" />
+	<fx:Binding source="dtInicio.inputDate" destination="_reparo.dataInicio" twoWay="true" />
+	<fx:Binding source="dtFim.inputDate" destination="_reparo.dataFim" twoWay="true" />
+	<fx:Binding source="dtLiberacao.inputDate" destination="_reparo.dataLiberacao" twoWay="true" />
+	<fx:Binding source="dtAberturaLider.inputDate" destination="_reparo.dataAberturaLider" twoWay="true" />
+	<fx:Binding source="dtAberturaTecnico.inputDate" destination="_reparo.dataAberturaTecnico" twoWay="true" />
+	<fx:Binding source="dtLaudoTecnicoFinalizado.inputDate" destination="_reparo.dataLaudoTecnicoFinalizado" twoWay="true" />
+	<fx:Binding source="dtEnvioParaLaudoTecnico.inputDate" destination="_reparo.dataEnvioParaLaudoTecnico" twoWay="true" />
+	<fx:Binding source="dtRequisicaoOrcDiferenciado.inputDate" destination="_reparo.dataRequisicaoOrcDiferenciado" twoWay="true" />
+	<fx:Binding source="dtAprovacaoOrcDiferenciadoLider.inputDate" destination="_reparo.dataAprovacaoOrcDiferenciadoLider" twoWay="true" />
+	<fx:Binding source="dtReprovacaoOrcDiferenciadoLider.inputDate" destination="_reparo.dataReprovacaoOrcDiferenciadoLider" twoWay="true" />
+	<fx:Binding source="dtAprovacaoPropostaOrcDiferenciado.inputDate" destination="_reparo.dataAprovacaoPropostaOrcDiferenciado" twoWay="true" />
+	<fx:Binding source="dtReprovacaoPropostaOrcDiferenciadoLider.inputDate" destination="_reparo.dataReprovacaoPropostaOrcDiferenciadoLider" twoWay="true" />
+
+	<mx:states>
+		<s:State name="editar"/>
+		<s:State name="visualizar"/>
+	</mx:states>
+	
+	<mx:HBox>
+		<componentes:DataInput id="dtEntrada" labelText="{resourceManager.getString('ApplicationResource','DATA_ENTRADA')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtInicio" labelText="{resourceManager.getString('ApplicationResource','DATA_INICIO')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtFim" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtLiberacao" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />	
+	</mx:HBox>
+	
+	<mx:HBox>
+		<componentes:DataInput id="dtAberturaLider" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtAberturaTecnico" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtEnvioParaLaudoTecnico" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtLaudoTecnicoFinalizado" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+	</mx:HBox>
+	
+	<mx:HBox>
+		<componentes:DataInput id="dtRequisicaoOrcDiferenciado" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtAprovacaoOrcDiferenciadoLider" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtReprovacaoOrcDiferenciadoLider" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+		<componentes:DataInput id="dtAprovacaoPropostaOrcDiferenciado" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+	</mx:HBox>
+	
+	<mx:HBox>
+		<componentes:DataInput id="dtReprovacaoPropostaOrcDiferenciadoLider" labelText="{resourceManager.getString('ApplicationResource','DATA_NOTA_FISCAL')}" width="200" inputHeight="20" enabled="false" />
+	</mx:HBox>
+	
+	
+</mx:VBox>

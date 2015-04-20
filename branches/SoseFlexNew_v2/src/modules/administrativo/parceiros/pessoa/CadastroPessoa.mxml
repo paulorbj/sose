@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:pessoa="modules.administrativo.parceiros.pessoa.*"
+		 xmlns:endereco="modules.administrativo.parceiros.endereco.*" 
+		 xmlns:contato="modules.administrativo.parceiros.contato.*"
+		 paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10"
+		 width="100%" horizontalAlign="center" height="100%"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPessoas"      
+					   fault="onListarPessoasFault(event)" 
+					   result="onListarPessoasResult(event)"
+					   />
+			<mx:method name="salvarPessoa"      
+					   fault="onSalvarPessoaFault(event)" 
+					   result="onSalvarPessoaResult(event)"
+					   />
+			<mx:method name="excluirPessoa"      
+					   fault="onExcluirPessoaFault(event)" 
+					   result="onExcluirPessoaResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.administrativo.parceiros.Pessoa;
+			
+			import modules.administrativo.parceiros.pessoa.eventos.PessoaEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]			
+			private var _pessoa:Pessoa;
+			
+			[Bindable]	
+			private var _listaPessoa:ArrayCollection = new ArrayCollection;
+			
+			private function onCreationComplete():void
+			{
+				pessoaService.listarPessoas();	
+				this.addEventListener(PessoaEvent.EDITAR_PESSOA,onEditar);
+				this.addEventListener(PessoaEvent.EXCLUIR_PESSOA,onExcluir);
+			}
+			
+			private function onEditar(event:PessoaEvent):void
+			{
+				this.currentState = "edicao";
+				accordion.selectedIndex = 0;
+				limpar();
+				dados.pessoa = event.pessoa;
+				dadosEndereco.cliente = event.pessoa;
+				dadosContatos.cliente = event.pessoa;
+			}
+			
+			private function onExcluir(event:PessoaEvent):void
+			{
+				_pessoa = event.pessoa;
+				pessoaService.excluirPessoa(event.pessoa);
+			}
+			
+			private function onListarPessoasResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaPessoa.removeAll();
+				_listaPessoa = event.result as ArrayCollection;
+				listagem.setListaPessoa(_listaPessoa);
+			}
+			
+			private function onListarPessoasFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarPessoasFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onSalvarPessoaResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_pessoa = event.result as Pessoa;
+				if(dados.pessoa.id == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PESSOA_SALVAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PESSOA_EDITAR_SUCESSO'), MessageType.SUCCESS, 10000));
+				}
+				listagem.adicionarPessoa(_pessoa);
+				limpar();
+			}
+			
+			private function onSalvarPessoaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[SalvarAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var str:String = event.fault.faultString.substr(0,22);
+				var i:Number;
+				if(str == "br.com.sose.exceptions"){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PESSOA_SALVAR_ERRO'), MessageType.ERROR, 10000));	
+				}			
+			}
+			
+			private function onExcluirPessoaResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				var index:int = _listaPessoa.getItemIndex(_pessoa);
+				_listaPessoa.removeItemAt(index);
+				listagem.setListaPessoa(_listaPessoa);
+				limpar();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PESSOA_REMOVER_SUCESSO'), MessageType.SUCCESS, 10000));
+			}
+			
+			private function onExcluirPessoaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ExcluirAtividadeFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				var i:Number;
+				if(event.fault.faultString.search("br.com.sose.exceptions") != -1){
+					i = event.fault.faultString.indexOf(":");
+					dispatchEvent(new MensagemEvent(event.fault.faultString.substring(i+1), MessageType.ERROR, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PESSOA_REMOVER_ERRO'), MessageType.ERROR, 10000));	
+				}
+			}
+			
+			private function novo(event:MouseEvent = null):void
+			{
+				_pessoa = new Pessoa();
+				this.currentState = "insercao";
+				limpar();
+				dados.pessoa = _pessoa;
+				dadosContatos.cliente = _pessoa;
+				dadosEndereco.cliente = _pessoa;
+				
+			}
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				accordion.selectedIndex = 0;
+				this.currentState = "listagem";
+			}
+			
+			
+			
+			private function salvar(event:MouseEvent = null):void
+			{
+				if(dados.validarCampos()){
+					_pessoa = dados.pessoa;
+					_pessoa.contatos = dadosContatos.cliente.contatos;
+					_pessoa.enderecos = dadosEndereco.cliente.enderecos;
+					pessoaService.salvarPessoa(_pessoa);
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 10000));
+				}
+			}
+			
+			private function limpar(event:MouseEvent = null):void
+			{
+				_pessoa = new Pessoa();
+				if(dados)
+					dados.limpar();
+				if(dadosContatos)
+					dadosContatos.limpar();
+				if(dadosEndereco)
+					dadosEndereco.limpar();
+			}
+			private function salvarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					salvar();
+				}
+			}
+			
+			private function limparEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					limpar();
+				}
+			}
+			
+			private function voltarEnter(event:KeyboardEvent):void
+			{		
+				if (event.charCode == 13) {
+					voltar();
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+		<s:State name="insercao"/>
+	</mx:states>
+	
+	<mx:VBox width="100%" horizontalAlign="center">
+		<s:Label fontSize="15" fontWeight="bold" text="{resourceManager.getString('ApplicationResource','LISTA_PESSOA')}" includeIn="listagem"/>
+		<s:Label fontSize="15" fontWeight="bold" text="{resourceManager.getString('ApplicationResource','DETALHAMENTO_PESSOA')}" excludeFrom="listagem"/>
+	</mx:VBox>	
+	
+	<mx:VBox width="100%" horizontalAlign="left">
+		<mx:Button id="newButton" includeIn="listagem"
+				   label="{resourceManager.getString('ApplicationResource','NOVO')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/new.png')"
+				   click="novo(event)"
+				   />
+	</mx:VBox>
+	
+	<pessoa:ListagemPessoaCadastrada id="listagem" includeIn="listagem" width="100%" height="100%"/>
+	
+	<pessoa:DadosPessoa id="dados" excludeFrom="listagem" width="100%" />
+	
+	<mx:Accordion id="accordion" excludeFrom="listagem" width="100%" height="100%">
+		<s:NavigatorContent label="Endereços" width="100%" height="100%">
+			<endereco:CadastroEndereco id="dadosEndereco" width="100%" height="100%" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Contatos" width="100%" height="100%">
+			<contato:CadastroContato id="dadosContatos" width="100%" height="100%" />
+		</s:NavigatorContent>
+	</mx:Accordion>
+	
+	<mx:HBox width="100%">
+		<mx:Button id="saveButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','SALVAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/save.png')"
+				   keyDown="salvarEnter(event)"
+				   click="salvar(event)"
+				   />
+		<mx:Button id="cleanButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','LIMPAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/clean.png')"
+				   keyDown="limparEnter(event)"
+				   click="limpar(event)"
+				   />
+		<mx:Button id="voltarButton" excludeFrom="listagem"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   keyDown="voltarEnter(event)"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+	
+</mx:VBox>

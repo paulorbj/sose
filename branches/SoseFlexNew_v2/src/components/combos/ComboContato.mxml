@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:combo="components.*" 
+		 paddingBottom="0"
+		 paddingLeft="0"
+		 paddingRight="0"
+		 paddingTop="0" width="200"
+		 creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="contatoService" destination="contatoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorCliente"      
+					   fault="onListarLpuPorClienteFault(event)" 
+					   result="onListarLpuPorClienteResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.Lpu;
+			import entities.administrativo.parceiros.Contato;
+			import entities.administrativo.parceiros.Pessoa;
+			
+			import modules.administrativo.parceiros.contato.eventos.ContatoEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var changeFunction:Function = null;
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			private var _cliente:Pessoa;
+			
+			private var _contato:Contato;
+			
+			private function onCreationComplete():void
+			{
+				comboBox.labelField = "nome";
+				comboBox.textoPadrao = "Selecione um contato...";
+			}
+			
+			public function onListarLpuPorClienteResult(event:ResultEvent):void
+			{
+				if(event.result != null){
+					comboBox.dataProvider = event.result as ArrayCollection;
+					if(_contato){
+						comboBox.selectedItem = _contato;
+					}
+				}
+				
+				dispatchEvent(new ContatoEvent(ContatoEvent.COMBO_CONTATO_POPULADO, null));
+
+			}
+			
+			public function onListarLpuPorClienteFault(event:FaultEvent):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarLpuPorClienteFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");	
+			}
+			
+			public function get contatoSelecionado():Contato 
+			{
+				if(comboBox.selectedItem == null || comboBox.selectedItemIndex == -1)
+					return null;
+				else
+					return comboBox.selectedItem as Contato; 
+			}
+			
+			public function set contatoSelecionado(contato:Contato):void 
+			{
+				limpar();
+				for each (var c:Contato in comboBox.dataProvider){
+					if(c.id == contato.id){
+						comboBox.selectedItem = c;
+						break;
+					}
+				}
+				_contato = contato;
+			}
+			
+			public function get cliente():Pessoa
+			{
+				return _cliente;
+			}
+			
+			public function set cliente(value:Pessoa):void
+			{
+				if(value){
+					contatoService.listarPorCliente(value);
+				}else{
+					comboBox.dataProvider = new ArrayCollection();
+				}
+				_cliente = value;
+			}
+			
+			public function get labelText():String
+			{
+				return comboBox.labelText;
+			}
+			
+			public function set labelText(value:String):void
+			{
+				if(comboBox)
+					comboBox.labelText = value;
+			}
+						
+			//TODO - não está removendo o item selecionado
+			public function limpar():void
+			{
+				comboBox.selectedItem = new Contato();
+				//comboBox.clean();
+			}
+		]]>
+	</fx:Script>
+	
+	<combo:ComboBoxInput id="comboBox" required="{required}" editable="{false}" change="{changeFunction}" />
+</mx:VBox>

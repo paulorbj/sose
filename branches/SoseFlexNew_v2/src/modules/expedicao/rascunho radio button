@@ -1,0 +1,11 @@
+							<mx:DataGridColumn dataField="isSelected" headerText="" width="20" >
+								<mx:itemRenderer>
+									<fx:Component>
+										<mx:HBox width="100%" horizontalAlign="center" verticalAlign="middle">
+											<mx:RadioButton
+												group="{outerDocument.enderecoSelecionado}"
+												/>
+										</mx:HBox>	
+									</fx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>

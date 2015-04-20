@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:components="components.*"
+		 xmlns:grid="components.grid.*">
+	
+	<fx:Declarations>
+
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Telefone;
+			
+			import modules.administrativo.parceiros.telefone.eventos.TelefoneEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+		
+			[Bindable]
+			private var listaTelefone:ArrayCollection = new ArrayCollection;
+			
+			public function setListaTelefone(lista:ArrayCollection):void
+			{
+				listaTelefone = lista;
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = listaTelefone.getItemAt(event2.rowIndex);				
+				}
+				
+				dispatchEvent(new TelefoneEvent(TelefoneEvent.EDITAR_TELEFONE, data as Telefone));
+			}
+			
+			public function excluirItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				dispatchEvent(new TelefoneEvent(TelefoneEvent.EXCLUIR_TELEFONE,data as Telefone));
+			}
+		]]>
+	</fx:Script>		
+
+		<grid:MantisTable id="viewTable"
+						  width="100%"
+						  draggableColumns="true"
+						  dataProvider="{listaTelefone}"
+						  itemDoubleClick="editItem(data, event,false)"	>
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				<mx:DataGridColumn id="tipo"
+								   headerText = "{resourceManager.getString('ApplicationResource','TIPO_TELEFONE')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="tipo"							   
+								   />
+				
+				<mx:DataGridColumn id="ddd"
+								   headerText = "{resourceManager.getString('ApplicationResource','DDD_TELEFONE')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="ddd"							   
+								   />
+				
+				<mx:DataGridColumn id="numero" 
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_TELEFONE')}"
+								   dataField = "numero"
+								   width="80"
+								   />
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+								   draggable="false"							 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.editItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />
+								
+								<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+										  click="parentDocument.excluirItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+										  />
+								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</grid:columns>
+		</grid:MantisTable>
+
+</mx:VBox>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:components="components.*" horizontalAlign="center"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:dc="components.grid.filtros.controles.*"
+		 initialize="init()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject id="devolucaoComponenteService" destination="devolucaoComponenteService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarDevolucoesAreaTecnica"      
+					   fault="onListarRequisicaoFault(event)" 
+					   result="onListarRequisicaoResult(event)"
+					   />
+			<mx:method name="receberDevolucaoComponente"      
+					   fault="onReceberComponenteFault(event)" 
+					   result="onReceberComponenteResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Producer id="produtorEstoqueService" destination="EstoqueMessageServicePush" /> 
+		
+		<mx:Consumer id="consumidorEstoqueService" destination="EstoqueMessageServicePush" message="onMsgEstoque(event)" />
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.Componente;
+			import entities.administrativo.Usuario;
+			import entities.estoque.DevolucaoComponente;
+			
+			import modules.view.Login;
+			import modules.view.eventos.LoginEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.messaging.messages.AsyncMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _listaDevolucoes:ArrayCollection;
+			
+			[Bindable]
+			private var _devolucaoComponente:DevolucaoComponente;
+			
+			[Bindable]
+			private var totalComponentes:Number = 0;
+			
+			private function init():void
+			{
+				devolucaoComponenteService.listarDevolucoesAreaTecnica();
+				consumidorEstoqueService.subscribe();
+			}
+						
+			private function onMsgEstoque(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.DEVOLUCAO_COMPONENTE_ATUALIZAR){
+					var req:DevolucaoComponente = globalMessage.conteudo as DevolucaoComponente;
+					addDevolucaoComponente(req);
+				}
+			} 
+			
+			public function addDevolucaoComponente(req:DevolucaoComponente):void
+			{
+				var requisicaoAux:DevolucaoComponente = null;
+				var encontrou:Boolean = false;
+				for(var i:int=0; i<_listaDevolucoes.length; i++){
+					requisicaoAux = _listaDevolucoes.getItemAt(i) as DevolucaoComponente; 
+					if(requisicaoAux.id == req.id){
+						_listaDevolucoes.removeItemAt(i);
+						_listaDevolucoes.addItemAt(req,i);
+						encontrou = true;
+						break;
+					}
+				}
+				if(!encontrou){
+					_listaDevolucoes.addItem(req);
+				}
+			}
+			
+			private function onListarRequisicaoResult(event:ResultEvent = null):void
+			{
+				_listaDevolucoes = event.result as ArrayCollection;
+				atualizaTotalComponentes(_listaDevolucoes);				
+			}
+			
+			private function atualizaTotalComponentes(lista:ArrayCollection):void{
+				totalComponentes = 0;
+				for each (var req:DevolucaoComponente in lista){
+					totalComponentes++;
+				}
+			}
+			
+			private function onListarRequisicaoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+						
+			private function labelFunction(item:Object, column:DataGridColumnFilter):String
+			{
+				if((item as DevolucaoComponente).reparo){
+					return (item as DevolucaoComponente).reparo.ordemServico.unidade.laboratorio.nome;
+				}else if((item as DevolucaoComponente).orcamento){
+					return (item as DevolucaoComponente).orcamento.ordemServico.unidade.laboratorio.nome;
+				}else{
+					return "";
+				}
+			}
+			
+			private function labelFunction2(item:Object, column:DataGridColumnFilter):String
+			{
+				if((item as DevolucaoComponente).reparo){
+					return (item as DevolucaoComponente).reparo.ordemServico.numeroOrdemServico;
+				}else if((item as DevolucaoComponente).orcamento){
+					return (item as DevolucaoComponente).orcamento.ordemServico.numeroOrdemServico;
+				}else{
+					return "";
+				}
+			}
+			
+			private function labelFunction3(item:Object, column:DataGridColumnFilter):String
+			{
+				if((item as DevolucaoComponente).recebidoEm == null){
+					return "Pendente";
+				}else{
+					return "Recebido";
+				}
+			}
+			
+			public function receberComponente(data:Object=null, event:Event=null):void
+			{
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaDevolucoes.getItemAt(event2.rowIndex);				
+				}
+				
+				if(data != null){
+					_devolucaoComponente = data as DevolucaoComponente;
+				}
+				
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					devolucaoComponenteService.receberDevolucaoComponente(_devolucaoComponente,usr)
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(receberMaterialAutenticar);
+				}
+			}
+			
+			public function receberMaterialAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				receberComponente();
+			}
+			
+			private function onReceberComponenteResult(event:ResultEvent = null):void
+			{
+				_devolucaoComponente = event.result as DevolucaoComponente;
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.DEVOLUCAO_COMPONENTE_ATUALIZAR,_devolucaoComponente);
+				//publicarDevolucao(_devolucaoComponente,MensagensAplicacao.DEVOLUCAO_COMPONENTE_ATUALIZAR);
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR,_devolucaoComponente.componente);
+				//publicarComponente(_devolucaoComponente.componente, MensagensAplicacao.COMPONENTE_QUANTIDADE_ATUALIZAR);
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','DEVOLUCAO_COMPONENTE_RECEBIDO_SUCESSO'), MessageType.SUCCESS, 3000));	
+			}
+			
+			private function onReceberComponenteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onCriarNotaFiscalRemessaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				if(event.fault.faultString.indexOf("java.lang.Exception") != -1){
+					var index:Number = event.fault.faultString.lastIndexOf(":");
+					var str:String = event.fault.faultString.substr(index+1);
+					//str = str + ". ";
+					dispatchEvent(new MensagemEvent(str, MessageType.WARNING, 10000));
+				}else{
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','DEVOLUCAO_COMPONENTE_RECEBIDO_ERRO'), MessageType.ERROR, 3000));
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<grid:MantisTable id="requisicoesTable"
+						  width="100%"
+						  height="100%"
+						  draggableColumns="false"
+						  dataProvider="{_listaDevolucoes}"
+						  doubleClickEnabled="false"
+						  >
+			<grid:columns>
+
+				<dc:DataGridColumnFilter id="cStatusRequisicao" 
+								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_COMPONENTE')}"
+								   dataField = "condicao"
+								   width="170"
+								   />
+				
+				<dc:DataGridColumnFilter id="cStatusRecebimento" 
+								   headerText = "{resourceManager.getString('ApplicationResource','STATUS_REQUISICAO')}"
+								   labelFunction="labelFunction3"
+								   width="170"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroRequisicao" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_REQUISICAO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="requisicao.id"							   
+								   />
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumeroOrdemServico" width="70"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+								   textAlign="center"
+								   sortable="false"
+								   labelFunction="labelFunction2"						   
+								   />
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cComponente"
+								   headerText = "{resourceManager.getString('ApplicationResource','COMPONENTE')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="componente.nome"							   
+								   />
+				
+				<dc:DataGridColumnFilter id="cTipo"
+								   headerText = "Tipo"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="componente.tipo.nome"							   
+								   />
+				
+				<dc:DataGridColumnFilter id="cEncapsulamento"
+								   headerText = "Encapsulamento"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="componente.encapsulamento.nome"							   
+								   />
+
+				<dc:DataGridColumnFilter id="cRequisitante" width="80"
+								   headerText = "{resourceManager.getString('ApplicationResource','REQUISITANTE')}"
+								   dataField = "devolvidoPor.usuario"
+								   />
+				
+				<dc:DataGridColumnFilter id="cLaboratorio" width="110"
+								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+								   labelFunction="labelFunction"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="cDataRequisicao"  width="130"
+								   headerText = "{resourceManager.getString('ApplicationResource','DATA_REQUISICAO_CRIACAO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="devolvidoEm"							   
+								   />
+				
+			</grid:columns>
+		</grid:MantisTable>
+		<mx:HBox paddingTop="10">
+			<s:Label text="Total de componentes: {totalComponentes}" fontWeight="bold" fontSize="12"  />
+		</mx:HBox>
+	</mx:VBox>
+	
+	
+	
+	
+</mx:VBox>

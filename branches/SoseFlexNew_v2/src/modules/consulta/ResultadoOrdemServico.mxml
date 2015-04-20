@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:dc="components.grid.filtros.controles.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  horizontalAlign="center"
+		 xmlns:components="components.*" width="100%"  height="100%" paddingBottom="10" verticalScrollPolicy="off"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*" xmlns:texto="components.textInput.*" xmlns:consulta="modules.consulta.*" >
+	
+	<fx:Declarations>
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="ordemServicoService" destination="ordemServicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarConsultaId"      
+					   fault="onBuscarFault(event)" 
+					   result="onBuscarResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="laudoTecnicoService" destination="laudoTecnicoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarUltimoLaudoPorOrdemServico"      
+					   fault="onBuscarLaudoTecnicoFault(event)" 
+					   result="onBuscarLaudoTecnicoResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.consulta.Consulta;
+			import entities.laudoTecnico.LaudoTecnico;
+			import entities.recebimento.ItemNotaFiscal;
+			import entities.recebimento.NotaFiscal;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.events.ScrollEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import to.ConsultaTO;
+			
+			[Bindable]
+			private var _listaOrdemServico:ArrayCollection;
+			
+			[Bindable]
+			public var _listaOrdemServicoEdicao:ArrayCollection;
+			
+			[Bindable]
+			public var _ordemServico:OrdemServico;
+			
+			[Bindable]
+			public var cTo:ConsultaTO
+			
+			//			private var sort:Sort; 
+			
+			public function init():void
+			{
+				this.currentState = "listagem";
+				//				sort = new Sort();
+				//				sort.fields=[new SortField("numeroOrdemServico",true,false,true)];
+			}
+			
+			public function editItem(data:Object, event:Event, edit:Boolean):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent						
+					data = _listaOrdemServico.getItemAt(event2.rowIndex);				
+				}
+				
+				cTo = data as ConsultaTO;
+				ordemServicoService.buscarConsultaId(cTo.id);
+				laudoTecnicoService.buscarUltimoLaudoPorOrdemServico(cTo.id);
+			}
+			
+			private function onBuscarResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_ordemServico = event.result as OrdemServico;
+				if(currentState != "edicao")
+					currentState = "edicao";
+				setAccordion(_ordemServico);
+				_listaOrdemServicoEdicao = new ArrayCollection();
+				_listaOrdemServicoEdicao.addItem(cTo);
+			}
+			
+			private function onBuscarFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[BuscarFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onBuscarLaudoTecnicoResult(event:ResultEvent = null):void
+			{
+				var _laudoTecnico:LaudoTecnico = event.result as LaudoTecnico;
+				if(currentState != "edicao")
+					currentState = "edicao";
+				if(_laudoTecnico)
+					infoLaudoTecnico.laudoTecnico = _laudoTecnico;
+			}
+			
+			private function onBuscarLaudoTecnicoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onBuscarNotaFiscalFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+			}
+			
+			private function setAccordion(os:OrdemServico):void
+			{
+				infoOrdemServico.ordemServico = os;
+				infoAdicionais.ordemServico = os;
+				if(os.notaFiscal){
+					infoNotaFiscal.notaFiscal = os.notaFiscal;
+				}
+				if(os.orcamento)
+					infoOrcamento.orcamento = os.orcamento;
+				if(os.reparo)
+					infoReparo.reparo = os.reparo;
+				if(Login.usuarioAutenticado && !Login.usuarioAutenticado.perfil.acaoDesabilitarAbaPropostaConsulta){
+					if(!accordion.contains(infoPropostaPai))
+						accordion.addChild(infoPropostaPai);
+					if(os.proposta)
+						infoProposta.proposta = os.proposta;
+				}else{
+					if(accordion.contains(infoPropostaPai))
+						accordion.removeChild(infoPropostaPai);
+				}
+				
+				
+				if(os.notaFiscalSaida){
+					infoExpedicao.notaFiscalSaida = os.notaFiscalSaida;
+				}
+				observacoes.entidade = os;
+				observacoes.listarObservacoes();
+				accordion.selectedIndex = 0;
+			}
+			
+			private function voltar(event:MouseEvent = null):void
+			{
+				if(currentState == "edicao"){
+					infoExpedicao.limpar();
+					infoNotaFiscal.limpar();
+					infoOrcamento.limpar();
+					infoProposta.limpar();
+					infoReparo.limpar();
+				}
+				currentState = "listagem";
+			}
+			
+			public function tempoNaServilogi(item:Object, column:DataGridColumn):String
+			{
+				var dataFinal:Date = new Date();
+				// Calcula a diferença entre hoje e da data de inicio
+				if(item.dataChegada == null){
+					return "";
+				}
+				var diferenca:Number = dataFinal.time - item.dataChegada.time;
+				// Quantidade de milissegundos em um dia		
+				var tempoDia:int = 1000 * 60 * 60 * 24;
+				var resultado:int = diferenca / tempoDia;
+				return resultado.toFixed(0);	
+			}
+			
+			[Bindable]
+			public function get listaOrdemServico():ArrayCollection
+			{
+				return _listaOrdemServico;
+			}
+			
+			public function set listaOrdemServico(value:ArrayCollection):void
+			{
+				_listaOrdemServico = value;
+				//				_listaOrdemServico.sort = sort;
+				//				_listaOrdemServico.refresh();
+				voltar();
+			}
+			
+			// Event handler function to display the scroll location.
+			private function myScroll(event:ScrollEvent):void {
+				viewTable.verticalScrollPosition = event.currentTarget.scrollPosition;
+				viewTable.maxVerticalScrollPosition = viewTable.dataProvider.length;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:HBox height="100%" width="100%" excludeFrom="edicao" >
+		<mx:VScrollBar id="bar" excludeFrom="edicao"
+					   height="100%" 
+					   minScrollPosition="0" 
+					   maxScrollPosition="{viewTable.dataProvider.length}"
+					   lineScrollSize="10" 
+					   pageScrollSize="10"  
+					   repeatDelay="1000" 
+					   scroll="myScroll(event);"
+					   repeatInterval="500" />
+		
+		<grid:MantisTable id="viewTable" excludeFrom="edicao"
+						  height="100%"
+						  draggableColumns="true"
+						  dataProvider.listagem="{_listaOrdemServico}" >
+			<grid:columns>
+				
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+				<mx:DataGridColumn headerText = ""	
+								   draggable="false"	width="30"					 
+								   editable="false"
+								   sortable="false">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center"
+									 verticalAlign="middle"
+									 >
+								
+								<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+										  click="parentDocument.editItem(data, event, true)"
+										  buttonMode="true"
+										  useHandCursor="true"
+										  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+										  />								
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumOrdemServico" width="80"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="nOs"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumOrdemServicoPai" width="80"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="nOsPai"							   
+								   />
+				
+				<dc:DataGridColumnFilter id="cStatus" width="120"
+								   headerText = "{resourceManager.getString('ApplicationResource','STATUS')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="status"							   
+								   />
+				
+				<dc:DataGridColumnFilter id="cCondicao" width="120"
+								   headerText = "Condição"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="condicao"							   
+								   />
+				
+				<dc:DataGridColumnFilter  id="cOrigem" width="120"
+								   headerText = "Origem"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="origem"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cCliente" dataField="cliente" width="400"
+								   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
+								   textAlign="center"
+								   sortable="false"					   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cUnidade" dataField="unidade" width="400"
+								   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+								   textAlign="center"
+								   sortable="false"					   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumSerie" dataField="nSerieFabricante" width="120"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+								   textAlign="center"
+								   sortable="false"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNumCliente" width="120"
+								   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+								   dataField = "nSerieCliente"
+								   />
+				
+				<dc:DataGridColumnFilter id="dtFimReparo" filterRenderer="components.grid.filtros.DateFilterRenderer"
+								   headerText = "DT fim reparo"
+								   dataField = "reparoDtFimString"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter id="dtFimOrcamento" filterRenderer="components.grid.filtros.DateFilterRenderer"
+										 headerText = "DT fim orçamento"
+										 dataField = "orcamentoDtFimString"
+										 width="80"
+										 />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNotaFiscal" width="80"
+								   headerText = "Nº NF"
+								   dataField = "nNf"
+								   />
+				
+				<mx:DataGridColumn id="dtNFChegada" 
+								   headerText = "DT da NF"
+								   dataField = "dataEntradaNFString"
+								   width="80"
+								   />
+				
+				<mx:DataGridColumn id="dtNFEntrada" 
+								   headerText = "DT da NF de entrada"
+								   dataField = "dataChegadaNFString"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter  id="cLaboratorio" width="120"
+								   headerText = "{resourceManager.getString('ApplicationResource','LABORATORIO')}"
+								   dataField = "laboratorio"
+								   />	
+				
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cDiasServ" 
+								   headerText = "Serv."
+								   dataField="tempoNaServilogi"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cProposta" 
+								   headerText = "Nº proposta"
+								   dataField = "nProposta"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter id="cAprovadoReprovado" 
+								   headerText = "Aprov/Reprov"
+								   dataField="propostaAprovada"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cCaseAvaya" 
+								   headerText = "Case avaya"
+								   dataField = "caseAvaya"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cClienteAvaya" 
+								   headerText = "Cliente avaya"
+								   dataField = "clienteAvaya"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cNFSaida" 
+								   headerText = "Nº NF saída"
+								   dataField = "nNfSaida"
+								   width="80"
+								   />
+				
+				<mx:DataGridColumn id="dtEmissaoNFSaida" 
+								   headerText = "DT da emissão NF de saída"
+								   dataField = "dataEmissaoNFSaidaString"
+								   width="80"
+								   />
+				
+				<dc:DataGridColumnFilter id="cStatusEstoque"
+								   headerText = "Status estoque"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="statusEstoque"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cPosicaoEstoque"
+								   headerText = "Posição estoque"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="posicaoEstoque"							   
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cObsNotaFiscal" 
+								   headerText = "Obs. Nota Fiscal"
+								   dataField = "obsNotaFiscal"
+								   width="400"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cObsOrdemServico" 
+								   headerText = "Obs. Recebimento"
+								   dataField = "obsOrdemServico"
+								   width="400"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cObsOrcamento" 
+								   headerText = "Obs. Orçamento" 
+								   dataField = "obsOrcamento"
+								   width="400"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cObsProposta" 
+								   headerText = "Obs. Proposta"
+								   dataField = "obsProposta"
+								   width="400"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cObsReparo" 
+								   headerText = "Obs. Reparo"
+								   dataField = "obsReparo"
+								   width="400"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cObsNotaFiscalSaida" 
+								   headerText = "Obs. Nota Fiscal Saída"
+								   dataField = "obsNotaFiscalSaida"
+								   width="400"
+								   />
+				
+				<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cObsConsulta" 
+										 headerText = "Obs. Consulta"
+										 dataField = "obsConsulta"
+										 width="400"
+										 />
+				
+			</grid:columns>
+		</grid:MantisTable>				
+	</mx:HBox>
+	<mx:Accordion id="accordion"  width="100%" height="100%" includeIn="edicao">
+		<s:NavigatorContent label="Ordem serviço" width="100%" height="100%">
+			<consulta:InformacoesOrdemServico id="infoOrdemServico" includeIn="edicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="NotaFiscal" width="100%" height="100%">
+			<consulta:InformacoesNotaFiscal id="infoNotaFiscal" includeIn="edicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Orçamento" width="100%" height="100%">
+			<consulta:InformacoesOrcamento id="infoOrcamento" includeIn="edicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent id="infoPropostaPai" label="Proposta" width="100%" height="100%">
+			<consulta:InformacoesProposta id="infoProposta" includeIn="edicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Reparo" width="100%" height="100%">
+			<consulta:InformacoesReparo id="infoReparo" includeIn="edicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Expedição" width="100%" height="100%">
+			<consulta:InformacoesExpedicao id="infoExpedicao" includeIn="edicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Laudo técnico" width="100%" height="100%">
+			<consulta:InformacoesLaudoTecnico id="infoLaudoTecnico" includeIn="edicao" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Histórico da unidade" width="100%">
+			<consulta:InformacoesHistoricoUnidade id="infoAdicionais" />
+		</s:NavigatorContent>
+		<s:NavigatorContent label="Observações" width="100%" height="100%">
+			<components:Observacoes id="observacoes" origem="Consulta"
+									habilitado="{Login.usuarioAutenticado.perfil.acaoPrioridadeGerencialParaIncluirConsulta}"
+									paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+		</s:NavigatorContent>
+	</mx:Accordion>
+	
+	<mx:HBox verticalAlign="bottom" width="100%" horizontalAlign="left" includeIn="edicao" >
+		<mx:Button id="btVolta1r"
+				   label="{resourceManager.getString('ApplicationResource','VOLTAR')}"
+				   labelPlacement="bottom"
+				   icon="@Embed(source='/assets/icons/back.png')"
+				   click="voltar(event)"
+				   />
+	</mx:HBox>
+</mx:VBox>

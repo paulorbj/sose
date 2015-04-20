@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 horizontalAlign="center"
+		 verticalAlign="middle" xmlns:s="library://ns.adobe.com/flex/spark">
+		
+	<mx:Script>
+		<![CDATA[
+						
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				var urlMiniatura:String = value.caminho + value.tipoEntidade + "/" + value.identificadorEntidade + "/" + value.tipoArquivo + "/" + value.nome;
+				imgMiniatura.source = urlMiniatura;
+				imgLabel.text = value.nomeOriginal;
+			}
+		]]>
+	</mx:Script>
+	<s:Graphic>
+		<s:BitmapImage id="imgMiniatura"
+					   fillMode="scale"
+				  width="50" height="50"
+				  />
+	</s:Graphic>
+	
+	
+	<mx:Label id="imgLabel" width="50" />
+	
+</mx:VBox>

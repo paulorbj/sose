@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<locale lang="pt_BR">
+
+	<!-- Message -->
+	<property key="WELCOME_MESSAGE" value="Seja bem vindo ao SOSE" />
+	<property key="CARREGANDO" value="Carregando..." />
+	<property key="ATIVIDADE_SALVAR_SUCESSO" value="Atividade salva com sucesso" />
+	<property key="ATIVIDADE_EDITAR_SUCESSO" value="Atividade editada com sucesso" />
+	<property key="ATIVIDADE_REMOVER_SUCESSO" value="Atividade removida com sucesso" />
+	<property key="ATIVIDADE_SALVAR_ERRO" value="Erro ao salvar atividade" />
+	<property key="ATIVIDADE_EDITAR_ERRO" value="Erro ao editar atividade" />
+	<property key="ATIVIDADE_REMOVER_ERRO" value="Erro ao remover atividade" />
+	<property key="LPU_SALVAR_SUCESSO" value="Lpu salva com sucesso" />
+	<property key="LPU_EDITAR_SUCESSO" value="Lpu editada com sucesso" />
+	<property key="LPU_REMOVER_SUCESSO" value="Lpu removida com sucesso" />
+	<property key="LPU_SALVAR_ERRO" value="Erro ao salvar Lpu" />
+	<property key="LPU_EDITAR_ERRO" value="Erro ao editar Lpu" />
+	<property key="LPU_REMOVER_ERRO" value="Erro ao remover Lpu" />
+	<property key="LABORATORIO_SALVAR_SUCESSO" value="Laboratório salvo com sucesso" />
+	<property key="LABORATORIO_EDITAR_SUCESSO" value="Laboratório editado com sucesso" />
+	<property key="LABORATORIO_REMOVER_SUCESSO" value="Laboratório removido com sucesso" />
+	<property key="LABORATORIO_SALVAR_ERRO" value="Erro ao salvar laboratório" />
+	<property key="LABORATORIO_EDITAR_ERRO" value="Erro ao editar laboratório" />
+	<property key="LABORATORIO_REMOVER_ERRO" value="Erro ao remover laboratório" />
+	<property key="TIPO_COMPONENTE_SALVAR_SUCESSO" value="Tipo componente salvo com sucesso" />
+	<property key="TIPO_COMPONENTE_EDITAR_SUCESSO" value="Tipo componente editado com sucesso" />
+	<property key="TIPO_COMPONENTE_REMOVER_SUCESSO" value="Tipo componente removido com sucesso" />
+	<property key="TIPO_COMPONENTE_SALVAR_ERRO" value="Erro ao salvar tipo componente" />
+	<property key="TIPO_COMPONENTE_EDITAR_ERRO" value="Erro ao editar tipo componente" />
+	<property key="TIPO_COMPONENTE_REMOVER_ERRO" value="Erro ao remover tipo componente" />
+	<property key="DEFEITO_SALVAR_SUCESSO" value="Defeito salvo com sucesso" />
+	<property key="DEFEITO_EDITAR_SUCESSO" value="Defeito editado com sucesso" />
+	<property key="DEFEITO_REMOVER_SUCESSO" value="Defeito removido com sucesso" />
+	<property key="DEFEITO_SALVAR_ERRO" value="Erro ao salvar defeito" />
+	<property key="DEFEITO_EDITAR_ERRO" value="Erro ao editar defeito" />
+	<property key="DEFEITO_REMOVER_ERRO" value="Erro ao remover defeito" />
+	<property key="USUARIO_SALVAR_SUCESSO" value="Usuário salvo com sucesso" />
+	<property key="USUARIO_EDITAR_SUCESSO" value="Usuário editado com sucesso" />
+	<property key="USUARIO_REMOVER_SUCESSO" value="Usuário removido com sucesso" />
+	<property key="USUARIO_SALVAR_ERRO" value="Erro ao salvar usuário" />
+	<property key="USUARIO_EDITAR_ERRO" value="Erro ao editar usuário" />
+	<property key="USUARIO_REMOVER_ERRO" value="Erro ao remover usuário" />	
+	<property key="EQUIPAMENTO_SALVAR_SUCESSO" value="Equipamento salvo com sucesso" />
+	<property key="EQUIPAMENTO_EDITAR_SUCESSO" value="Equipamento editado com sucesso" />
+	<property key="EQUIPAMENTO_REMOVER_SUCESSO" value="Equipamento removido com sucesso" />
+	<property key="EQUIPAMENTO_SALVAR_ERRO" value="Erro ao salvar equipamento" />
+	<property key="EQUIPAMENTO_EDITAR_ERRO" value="Erro ao editar equipamento" />
+	<property key="EQUIPAMENTO_REMOVER_ERRO" value="Erro ao remover equipamento" />	
+	<property key="FABRICANTE_SALVAR_SUCESSO" value="Fabricante salvo com sucesso" />
+	<property key="FABRICANTE_EDITAR_SUCESSO" value="Fabricante editado com sucesso" />
+	<property key="FABRICANTE_REMOVER_SUCESSO" value="Fabricante removido com sucesso" />
+	<property key="FABRICANTE_SALVAR_ERRO" value="Erro ao salvar fabricante" />
+	<property key="FABRICANTE_EDITAR_ERRO" value="Erro ao editar fabricante" />
+	<property key="FABRICANTE_REMOVER_ERRO" value="Erro ao remover fabricante" />	
+	<property key="UNIDADE_SALVAR_SUCESSO" value="Unidade salva com sucesso" />
+	<property key="UNIDADE_EDITAR_SUCESSO" value="Unidade editada com sucesso" />
+	<property key="UNIDADE_REMOVER_SUCESSO" value="Unidade removida com sucesso" />
+	<property key="UNIDADE_SALVAR_ERRO" value="Erro ao salvar unidade" />
+	<property key="UNIDADE_EDITAR_ERRO" value="Erro ao editar unidade" />
+	<property key="UNIDADE_REMOVER_ERRO" value="Erro ao remover unidade" />	
+	<property key="COMPONENTE_SALVAR_SUCESSO" value="Componente salvo com sucesso" />
+	<property key="COMPONENTE_EDITAR_SUCESSO" value="Componente editado com sucesso" />
+	<property key="COMPONENTE_REMOVER_SUCESSO" value="Componente removido com sucesso" />
+	<property key="COMPONENTE_SALVAR_ERRO" value="Erro ao salvar componente" />
+	<property key="COMPONENTE_EDITAR_ERRO" value="Erro ao editar componente" />
+	<property key="COMPONENTE_REMOVER_ERRO" value="Erro ao remover componente" />
+	<property key="ENCAPSULAMENTO_SALVAR_SUCESSO" value="Encapsulamento salvo com sucesso" />
+	<property key="ENCAPSULAMENTO_EDITAR_SUCESSO" value="Encapsulamento editado com sucesso" />
+	<property key="ENCAPSULAMENTO_REMOVER_SUCESSO" value="Encapsulamento removido com sucesso" />
+	<property key="ENCAPSULAMENTO_SALVAR_ERRO" value="Erro ao salvar Encapsulamento" />
+	<property key="ENCAPSULAMENTO_EDITAR_ERRO" value="Erro ao editar Encapsulamento" />
+	<property key="ENCAPSULAMENTO_REMOVER_ERRO" value="Erro ao remover Encapsulamento" />
+	<property key="PESSOA_SALVAR_SUCESSO" value="Pessoa salva com sucesso" />
+	<property key="PESSOA_EDITAR_SUCESSO" value="Pessoa editada com sucesso" />
+	<property key="PESSOA_REMOVER_SUCESSO" value="Pessoa removida com sucesso" />
+	<property key="PESSOA_SALVAR_ERRO" value="Erro ao salvar Pessoa" />
+	<property key="PESSOA_EDITAR_ERRO" value="Erro ao editar Pessoa" />
+	<property key="PESSOA_REMOVER_ERRO" value="Erro ao remover Pessoa" />
+	<property key="ENDERECO_SALVAR_SUCESSO" value="Endereço salvo com sucesso" />
+	<property key="ENDERECO_EDITAR_SUCESSO" value="Endereço editado com sucesso" />
+	<property key="ENDERECO_REMOVER_SUCESSO" value="Endereço removido com sucesso" />
+	<property key="ENDERECO_SALVAR_ERRO" value="Erro ao salvar Endereço" />
+	<property key="ENDERECO_EDITAR_ERRO" value="Erro ao editar Endereço" />
+	<property key="ENDERECO_REMOVER_ERRO" value="Erro ao remover Endereço" />
+	<property key="CONTATO_SALVAR_SUCESSO" value="Contato salvo com sucesso" />
+	<property key="CONTATO_EDITAR_SUCESSO" value="Contato editado com sucesso" />
+	<property key="CONTATO_REMOVER_SUCESSO" value="Contato removido com sucesso" />
+	<property key="CONTATO_SALVAR_ERRO" value="Erro ao salvar Contato" />
+	<property key="CONTATO_EDITAR_ERRO" value="Erro ao editar Contato" />
+	<property key="CONTATO_REMOVER_ERRO" value="Erro ao remover Contato" />
+	<property key="NENHUM_ITEM_SELECIONADO" value="Nenhum item selecionado" />
+	<property key="ITENS_APROVADOS_COM_SUCESSO" value="Itens aprovados com sucesso" />
+	<property key="ITENS_REPROVADOS_COM_SUCESSO" value="Itens reprovados com sucesso" />
+	<property key="ITEM_APROVADO_COM_SUCESSO" value="Item aprovado com sucesso" />
+	<property key="ITEM_REPROVADO_COM_SUCESSO" value="Item reprovado com sucesso" />	
+	<property key="ITEM_RESTAURADO_COM_SUCESSO" value="Item restaurado com sucesso" />	
+	<property key="PROPOSTA_INICIADA_SUCESSO" value="Proposta foi iniciada com sucesso" />
+	<property key="PROPOSTA_INICIADA_ERRO" value="Erro ao iniciar proposta" />
+	<property key="PROPOSTA_SALVA_SUCESSO" value="Proposta salva com sucesso" />
+	<property key="PROPOSTA_SALVA_ERRO" value="Erro ao salvar proposta" />
+	<property key="PROPOSTA_FINALIZADA_SUCESSO" value="Proposta finalizada com sucesso" />
+	<property key="PROPOSTA_FINALIZADA_ERRO" value="Erro ao finalizar proposta" />
+	<property key="PROPOSTA_ENVIADA_AO_CLIENTE_SUCESSO" value="Proposta enviada ao cliente com sucesso" />
+	<property key="PROPOSTA_ENVIADA_AO_CLIENTE_ERRO" value="Erro ao enviar proposta ao cliente proposta" />
+	<property key="PROPOSTA_CANCELADA_SUCESSO" value="Proposta cancelada com sucesso" />
+	<property key="PROPOSTA_CANCELADA_ERRO" value="Erro ao cancelar proposta" />
+	<property key="PROPOSTA_CRIADA_SUCESSO" value="Proposta criada com sucesso" />
+	<property key="PROPOSTA_CRIADA_ERRO" value="Erro ao criar nova proposta" />
+	<property key="PROPOSTAS_CRIADAS_SUCESSO" value="Propostas criadas com sucesso" />
+	<property key="PROPOSTAS_CRIADAS_ERRO" value="Erro ao criar novas propostas" />
+	<property key="ITENS_LIBERADOS_SUCESSO" value="Os itens foram liberados para os laboratórios" />
+	<property key="NENHUMA_OS_SELECIONADA" value="Nenhuma OS foi selecionada. Selecione pelo menos uma OS" />
+	<property key="REQUISICAO_COMPONENTE_EFETUADA_SUCESSO" value="Requisição realizada com sucesso" />
+	<property key="REQUISICAO_COMPONENTE_EFETUADA_ERRO" value="Erro ao realizar a requisição" />
+	<property key="REQUISICAO_COMPONENTE_CANCELADA_SUCESSO" value="Requisição cancelada com sucesso" />
+	<property key="REQUISICAO_COMPONENTE_CANCELADA_ERRO" value="Erro ao cancelar a requisição" />
+	<property key="REQUISICAO_ATENDIDA_SUCESSO" value="Requisição atendida com sucesso" />
+	<property key="REQUISICAO_ATENDIDA_ERRO" value="Erro ao atender requisição" />
+	<property key="REQUISICOES_ATENDIDAS_SUCESSO" value="Requisições atendidas com sucesso" />
+	<property key="REQUISICOES_ATENDIDAS_ERRO" value="Erro ao atender requisições" />	
+	<property key="REQUISICAO_PRONTA_SUCESSO" value="O material foi coletado com sucesso" />
+	<property key="REQUISICAO_PRONTA_ERRO" value="Erro na coleta do material" />
+	<property key="REQUISICAO_ENTREGUE_SUCESSO" value="O material deve ser entregue ao requisitante" />
+	<property key="REQUISICAO_ENTREGUE_ERRO" value="Erro ao efetivar ação de entrega" />
+	<property key="REQUISICAO_RETIRADA_SUCESSO" value="O material foi retirado com sucesso" />
+	<property key="REQUISICAO_RETIRADA_ERRO" value="Erro na retirada do material" />
+	<property key="REQUISICAO_CANCELADA_SUCESSO" value="Requisição cancelada com sucesso" />
+	<property key="REQUISICAO_CANCELADA_ERRO" value="Erro ao cancelar requisição" />
+	<property key="REQUISICAO_MATERIAL_COLETADO_SUCESSO" value="Componente(s) coletado(s) com sucesso" />
+	<property key="REQUISICAO_MATERIAL_COLETADO_ERRO" value="Erro ao coletar componente" />
+	<property key="MATERIAL_RECEBIDO_SUCESSO" value="O material foi recebido com sucesso" />
+	<property key="MATERIAL_RECEBIDO_ERRO" value="Erro no recebimento do material" />
+	<property key="ADICIONAR_ITEM_NOTA_FISCAL_SUCESSO" value="Item da nota fiscal adicionado com sucesso" />
+	<property key="ADICIONAR_ITEM_NOTA_FISCAL_ERRO" value="Erro ao adicionar item da nota fiscal" />
+	<property key="EDITAR_ITEM_NOTA_FISCAL_SUCESSO" value="Item da nota fiscal editada com sucesso" />
+	<property key="EDITAR_ITEM_NOTA_FISCAL_ERRO" value="Erro ao editar item da nota fiscal" />
+	<property key="EXCLUIR_ITEM_NOTA_FISCAL_SUCESSO" value="Item da nota fiscal excluído com sucesso" />
+	<property key="EXCLUIR_ITEM_NOTA_FISCAL_ERRO" value="Erro ao excluir item da nota fiscal" />
+	<property key="PROCESSAR_NOTA_FISCAL_SUCESSO" value="Nota fiscal processada com sucesso" />
+	<property key="PROCESSAR_NOTA_FISCAL_ERRO" value="Erro ao processar nota fiscal" />
+	<property key="PROCESSAR_NOTA_FISCAL_NAO_HA_ITENS" value="A nota fiscal não possui itens para gerar os's" />
+	<property key="SALVAR_NOTA_FISCAL_SUCESSO" value="Nota fiscal salva com sucesso" />
+	<property key="SALVAR_NOTA_FISCAL_ERRO" value="Erro ao salvar nota fiscal" />
+	<property key="PROCESSAR_ORDEM_SERVICO_SUCESSO" value="Ordem de serviço processada com sucesso" />
+	<property key="PROCESSAR_ORDEM_SERVICO_ERRO" value="Erro ao processar ordem de serviço" />
+	<property key="TECNICO_ATRIBUIDO_SUCESSO" value="Técnico atribuído com sucesso" />
+	<property key="TECNICO_ATRIBUIDO_ERRO" value="Erro ao atribuir técnico" />
+	<property key="REPARO_INICIADO_SUCESSO" value="Reparo iniciado com sucesso" />
+	<property key="REPARO_INICIADO_ERRO" value="Erro ao iniciar reparo" />
+	<property key="ORCAMENTO_INICIADO_SUCESSO" value="Orçamento iniciado com sucesso" />
+	<property key="ORCAMENTO_INICIADO_ERRO" value="Erro ao iniciar orçamento" />
+	<property key="REPARO_SALVO_SUCESSO" value="Reparo salvo com sucesso" />
+	<property key="REPARO_SALVO_ERRO" value="Erro ao salvar reparo" />
+	<property key="ORCAMENTO_SALVO_SUCESSO" value="Orçamento salvo com sucesso" />
+	<property key="ORCAMENTO_SALVO_ERRO" value="Erro ao salvar orçamento" />
+	<property key="ORCAMENTO_INICIADO_SUCESSO" value="Orçamento iniciado com sucesso" />
+	<property key="ORCAMENTO_INICIADO_ERRO" value="Erro ao iniciar orçamento" />
+	<property key="ORCAMENTO_FINALIZADO_SUCESSO" value="Orçamento finalizado com sucesso" />
+	<property key="ORCAMENTO_FINALIZADO_ERRO" value="Erro ao finalizar orçamento" />
+	<property key="ORCAMENTO_REJEITADO_SUCESSO" value="Orçamento rejeitado com sucesso" />
+	<property key="ORCAMENTO_REJEITADO_ERRO" value="Erro ao rejeitar orçamento" />
+	<property key="ORCAMENTO_ENVIADO_PROPOSTA_SUCESSO" value="Orçamento enviado para proposta com sucesso" />
+	<property key="ORCAMENTO_ENVIADO_PROPOSTA_ERRO" value="Erro ao enviar orçamento para proposta" />
+	<property key="ENCAMINHADO_AO_LIDER_SUCESSO" value="Orçamento encaminhado ao líder com sucesso" />
+	<property key="ENCAMINHADO_AO_LIDER_ERRO" value="Erro ao encaminar orçamento ao líder" />
+	<property key="REPARO_EXTERNO_SOLICITADO_SUCESSSO" value="Reparo externo solicitado com sucesso" />
+	<property key="REPARO_EXTERNO_SOLICITADO_ERRO" value="Erro ao solicitar reparo externo" />
+	<property key="DEFEITO_ADICIONADO_SUCESSO" value="Defeito adicionando com sucesso" />
+	<property key="DEFEITO_ADICIONADO_ERRO" value="Erro ao adicionar defeito" />
+	<property key="DEFEITO_EDITADO_SUCESSO" value="Defeito editado com sucesso" />
+	<property key="DEFEITO_EDITADO_ERRO" value="Erro ao editar defeito" />
+	<property key="DEFEITO_EXCLUIDO_SUCESSO" value="Defeito excluído com sucesso" />
+	<property key="DEFEITO_EXCLUIDO_ERRO" value="Erro ao excluir defeito" />	
+	<property key="ATIVIDADE_ADICIONADO_SUCESSO" value="Atividade adicionada com sucesso" />
+	<property key="ATIVIDADE_ADICIONADO_ERRO" value="Erro ao adicionar atividade" />
+	<property key="ATIVIDADE_EDITADO_SUCESSO" value="Atividade editada com sucesso" />
+	<property key="ATIVIDADE_EDITADO_ERRO" value="Erro ao editar atividade" />
+	<property key="ATIVIDADE_EXCLUIDO_SUCESSO" value="Atividade excluída com sucesso" />
+	<property key="ATIVIDADE_EXCLUIDO_ERRO" value="Erro ao excluir atividade" />		
+	<property key="EXCLUIR_PLACA_FILHA_SUCESSO" value="Placa filha excluída com sucesso" />
+	<property key="EXCLUIR_PLACA_FILHA_ERRO" value="Erro ao excluir placa filha" />
+	<property key="EXCLUIR_PLACA_FILHA_NAO_PERMITIDO" value="As placas filhas dessa OS não podem ser excluídas" />
+	<property key="ADICIONAR_PLACA_FILHA_SUCESSO" value="Placa filha adicionada com sucesso" />
+	<property key="ADICIONAR_PLACA_FILHA_ERRO" value="Erro ao adicionar placa filha" />
+	<property key="EDITAR_PLACA_FILHA_SUCESSO" value="Placa filha editada com sucesso" />		
+	<property key="EDITAR_PLACA_FILHA_ERRO" value="Erro ao editar placa filha" />
+	<property key="ERRO_VALIDACAO" value="Campos obrigatórios não foram preenchidos" />
+	<property key="NUMERO_ORDEM_SERVICO_JAH_UTILIZADO_PLACA_FILHA" value="Esse número de ordem de serviço já está sendo utilizado" />
+	<property key="REPARO_ERRO_USUARIO_AUTENTICACAO" value="Usuário e/ou senha inválidos" />
+	<property key="REPARO_SOMENTE_VISUALIZACAO" value="Você não é o técnico responsável por esse reparo e portanto só pode visualizá-lo" />
+	<property key="ORCAMENTO_SOMENTE_VISUALIZACAO" value="Você não é o técnico responsável por esse orçamento e portanto só pode visualizá-lo" />
+	<property key="USUARIO_LOGIN_ERRO" value="Falha ao logar! Usuário/senha inválido" />
+	<property key="USUARIO_BLOQUEADO" value="Usuário bloqueado" />
+	<property key="LAUDO_TECNICO_INICIADA_SUCESSO" value="Laudo técnico iniciado com sucesso" />
+	<property key="LAUDO_TECNICO_INICIADA_ERRO" value="Erro ao iniciar o laudo técnico" />
+	<property key="LAUDO_TECNICO_SALVA_SUCESSO" value="Laudo técnico salvo com sucesso" />
+	<property key="LAUDO_TECNICO_SALVA_ERRO" value="Erro ao salvar o laudo técnico" />
+	<property key="LAUDO_TECNICO_FINALIZADA_SUCESSO" value="Laudo técnico finalizado com sucesso" />
+	<property key="LAUDO_TECNICO_FINALIZADA_ERRO" value="Erro ao finalizar o laudo técnico" />
+	<property key="LAUDO_TECNICO_REJEITADO_SUCESSO" value="Laudo técnico rejeitado com sucesso" />
+	<property key="LAUDO_TECNICO_REJEITADO_ERRO" value="Erro ao rejeitar laudo técnico" />
+	<property key="LAUDO_TECNICO_SOLICITADO_SUCESSO" value="Laudo técnico requisitado com sucesso" />
+	<property key="LAUDO_TECNICO_SOLICITADO_ERRO" value="Erro ao requisitar laudo técnico" />
+
+	<property key="ORCAMENTO_DIFERENCIADO_INICIADA_SUCESSO" value="Orçamento diferenciado iniciado com sucesso" />
+	<property key="ORCAMENTO_DIFERENCIADO_INICIADA_ERRO" value="Erro ao iniciar o orçamento diferenciado" />
+	<property key="ORCAMENTO_DIFERENCIADO_SALVA_SUCESSO" value="Orçamento diferenciado salvo com sucesso" />
+	<property key="ORCAMENTO_DIFERENCIADO_SALVA_ERRO" value="Erro ao salvar o orçamento diferenciado" />
+	<property key="ORCAMENTO_DIFERENCIADO_APROVADO_SUCESSO" value="Orçamento diferenciado aprovado com sucesso" />
+	<property key="ORCAMENTO_DIFERENCIADO_APROVADO_ERRO" value="Erro ao aprovar o orçamento diferenciado" />
+	<property key="ORCAMENTO_DIFERENCIADO_REJEITADO_SUCESSO" value="Orçamento diferenciado rejeitado com sucesso" />
+	<property key="ORCAMENTO_DIFERENCIADO_REJEITADO_ERRO" value="Erro ao rejeitar o orçamento diferenciado" />
+	<property key="REPARO_TECNICO_NAO_ATRIBUIDO" value="Nenhum técnico ainda foi atribuido" />
+	<property key="ATRIBUICAO_REALIZADA_SUCESSO" value="Atribuição de técnico realizada com sucesso" />
+	<property key="ATRIBUICAO_REALIZADA_ERRO" value="Erro ao atribuir técnico" />
+	<property key="REPARO_INICIADO_SUCESSO" value="Reparo iniciado com sucesso" />
+	<property key="REPARO_INICIADO_ERRO" value="Erro ao iniciar reparo" />
+	<property key="REPARO_SALVO_SUCESSO" value="Reparo salvo com sucesso" />
+	<property key="REPARO_SALVO_ERRO" value="Erro ao salvar reparo" />
+	<property key="REPARO_FINALIZADO_SUCESSO" value="Reparo finalizado com sucesso" />
+	<property key="REPARO_FINALIZADO_ERRO" value="Erro ao finalizar reparo" />
+	<property key="ORCAMENTO_DIFERENCIADO_SOLICITADO_SUCESSO" value="Orçamento diferenciado solicitado com sucesso" />
+	<property key="ORCAMENTO_DIFERENCIADO_SOLICITADO_ERRO" value="Erro ao solicitar orçamento diferenciado" />
+	<property key="ACAO_INVALIDA_NESSE_STATUS" value="Ação inválida nesse status" />
+	<property key="NENHUM_ITEM_PENDENTE_DE_LIBERACAO" value="Não há nenhum item a ser liberado para o laboratório" />
+	<property key="ITEM_LIBERADO_NAO_PODE_SER_RESTAURADO" value="O item já foi liberado para o laboratório e não pode mais ser restaurado" />
+	<property key="NOTIFICACAO_REPARO_LAUDO_TECNICO_APROVADO" value="O laudo técnico foi finalizado com sucesso. Realize a finalização do reparo" />
+	<property key="NOTIFICACAO_REPARO_LAUDO_TECNICO_REPROVADO" value="A solicitação de laudo técnico foi rejeitada pelo gerente. A unidade possui condição de reparo" />
+	<property key="NOTIFICACAO_REPARO_ORCAMENTO_DIFERENCIADO_REPROVADO" value="A solicitação de orçamento diferenciado foi rejeitada pelo gerente" />
+	<property key="NOTIFICACAO_REPARO_PROPOSTA_APROVADO" value="A proposta foi aprovada pelo cliente" />
+	<property key="NOTIFICACAO_REPARO_PROPOSTA_REPROVADO" value="A proposta foi reprovada pelo cliente. Providencie a finalização do reparo" />
+	
+	<property key="NOTIFICACAO_ORCAMENTO_LAUDO_TECNICO_APROVADO" value="O laudo técnico foi finalizado com sucesso. Finalize o orçamento" />
+	<property key="NOTIFICACAO_ORCAMENTO_LAUDO_TECNICO_REPROVADO" value="A solicitação de laudo técnico foi rejeitada. A unidade possui condição de reparo" />
+	<property key="NOTIFICACAO_ORCAMENTO_REJEITADO_PELO_LIDER" value="O orçamento foi rejeitado pelo líder. Refaça o orçamento" />
+	<property key="NOTIFICACAO_ORCAMENTO_PROPOSTA_REPROVADO" value="A proposta foi reprovada pelo cliente. Providencie a finalização do orçamento" />
+	
+	<property key="CONFIRMAR_EXCLUSAO" value="Deseja realmente efetivar a exclusão? (Essa é uma ação permanente e não pode ser desfeita)" />
+	<property key="NENHUM_DEFEITO_INFORMADO" value="Nenhum defeito foi informado. Adicione um defeito a lista" />
+	<property key="NENHUMA_ATIVIDADE_INFORMADA" value="Nenhuma atividade foi informada. Adicione uma atividade a lista" />
+	<property key="EXISTEM_REQUISICOES_PENDENTES" value="Existem requisições de componentes pendentes" />
+	<property key="POSICAO_COMPONENTE_NAO_INFORMADA" value="Posições de componentes utilizados não foram informadas" />
+	<property key="TEMPO_GASTO_NAO_PREENCHIDO" value="O tempo gasto não foi preenchido. Favor preencher o tempo gasto no orçamento/reparo" />
+	<property key="ANALISE_TECNICA_NAO_PREENCHIDA" value="O campo análise técnica não foi preenchido" />
+	<property key="PERFIL_SALVAR_SUCESSO" value="Perfil salvo com sucesso" />
+	<property key="PERFIL_EDITAR_SUCESSO" value="Perfil editado com sucesso" />
+	<property key="PERFIL_REMOVER_SUCESSO" value="Perfil removido com sucesso" />
+	<property key="PERFIL_SALVAR_ERRO" value="Erro ao salvar perfil" />
+	<property key="PERFIL_EDITAR_ERRO" value="Erro ao editar perfil" />
+	<property key="PERFIL_REMOVER_ERRO" value="Erro ao remover perfil" />
+	<property key="REQUISICAO_COMPONENTE_PEDIDO_COMPRA_EFETUADA_SUCESSO" value="Requisição salva. O pedido de compra foi criado com sucesso" />
+	<property key="REQUISICAO_COMPONENTE_PEDIDO_COMPRA_EFETUADA_ERRO" value="Erro ao salvar requisição e pedido de compra" />
+	<property key="COMPONENTE_DISPONIBILIZADO_SUCESSO" value="Componente disponibilizado com sucesso" />
+	<property key="COMPONENTE_DISPONIBILIZADO_ERRO" value="Erro ao disponibilizar componente" />
+	<property key="ATRIBUICAO_PRIORIDADE_REALIZADA_SUCESSO" value="Atribuição de prioridade realizada com sucesso" />
+	<property key="ATRIBUICAO_PRIORIDADE_REALIZADA_ERRO" value="Erro ao atribuir prioridade" />
+	<property key="COMPONENTE_PERDIDO_SUCESSO" value="A perda do componente foi informada com sucesso" />
+	<property key="COMPONENTE_PERDIDO_ERRO" value="Erro ao informar a perda do componente" />
+	<property key="COMPONENTE_DEFEITO_SUCESSO" value="O componente defeituoso foi informado com sucesso" />
+	<property key="COMPONENTE_DEFEITO_ERRO" value="Erro ao informar componente defeituoso" />	
+	<property key="COMPONENTE_DEVOLVIDO_SUCESSO" value="A operação foi realizada. Retornar o componente ao estoque" />
+	<property key="COMPONENTE_DEVOLVIDO_ERRO" value="Erro ao devolver componente" />
+	
+	<!-- Loging -->
+	<property key="LOGIN" value="Logar" />
+	<property key="USERNAME" value="Usuário" />
+	<property key="PASSWORD" value="Senha" />
+	<property key="BLOQUEADO" value="Bloqueado" />
+	<property key="FORGOT_PASS" value="Esqueceu a senha?" />
+	
+	<property key="ACTION_COLUMN" value="Ações" />
+	<property key="SALVAR" value="Salvar" />
+	<property key="ADICIONAR" value="Adicionar" />
+	<property key="LIMPAR" value="Limpar" />
+	<property key="VOLTAR" value="Voltar" />
+	<property key="NOVO" value="Novo" />
+	<property key="EXPORTAR" value="Exportar" />
+	<property key="PROCESSAR_ORDEM_SERVICO" value="Processar OS" />
+	<property key="GERAR_ORDEM_SERVICO" value="Gerar OS's" />
+			
+	<!-- Fabricante -->
+	<property key="NOME_FABRICANTE" value="Nome do fabricante" />
+	<property key="LISTA_FABRICANTE" value="Lista de fabricantes" />
+	<property key="DETALHAMENTO_FABRICANTE" value="Detalhamento de fabricante" />
+	<property key="DESCRICAO" value="Descrição" />
+	<property key="CADASTRO_ATIVO" value="Ativo no sistema" />
+	<property key="EDIT" value="Editar" />	
+	
+	<!-- Atividade -->
+	<property key="CADASTRO_ATIVIDADES" value="Cadastro de atividades" />
+	<property key="LISTA_ATIVIDADE" value="Lista de atividades" />
+	<property key="DETALHAMENTO_ATIVIDADE" value="Detalhamento da atividade" />
+	<property key="ATIVIDADES" value="Atividades" />
+	<property key="ATIVIDADE" value="Atividade" />	
+	<property key="NOME_ATIVIDADE" value="Nome da Atividade" />	
+	
+	<!-- Componente -->
+	<property key="CADASTRO_COMPONENTES" value="Cadastro de componentes" />
+	<property key="LISTA_COMPONENTE" value="Lista de componente" />
+	<property key="DETALHAMENTO_COMPONENTE" value="Detalhamento de componente" />
+	<property key="COMPONENTES" value="Componentes" />
+	<property key="COMPONENTE" value="Componente" />	
+	<property key="NOME_COMPONENTE" value="Nome do componente" />	
+	<property key="PINOS" value="Pinos" />	
+	
+	
+	<!-- Defeito -->
+	<property key="CADASTRO_DEFEITOS" value="Cadastro de defeitos" />
+	<property key="LISTA_DEFEITO" value="Lista de defeitos" />
+	<property key="DETALHAMENTO_DEFEITO" value="Detalhamento de defeito" />
+	<property key="DEFEITOS" value="Defeitos" />
+	<property key="DEFEITO" value="Defeito" />		
+	<property key="NOME_DEFEITO" value="Nome do defeito" />	
+	
+	<!-- Encapsulamento -->
+	<property key="CADASTRO_ENCAPSULAMENTOS" value="Cadastro de encapsulamentos" />
+	<property key="LISTA_ENCAPSULAMENTO" value="Lista de encapsulamentos" />
+	<property key="DETALHAMENTO_ENCAPSULAMENTO" value="Detalhamento de encapsulamento" />
+	<property key="ENCAPSULAMENTOS" value="Encapsulamentos" />
+	<property key="ENCAPSULAMENTO" value="Encapsulamento" />	
+	<property key="NOME_ENCAPSULAMENTO" value="Nome do encapsulamento" />	
+	
+	<!-- Equipamento -->
+	<property key="CADASTRO_EQUIPAMENTOS" value="Cadastro de equipamentos" />
+	<property key="LISTA_EQUIPAMENTO" value="Lista de equipamentos" />
+	<property key="DETALHAMENTO_EQUIPAMENTO" value="Detalhamento de equipamento" />
+	<property key="EQUIPAMENTOS" value="Equipamentos" />
+	<property key="EQUIPAMENTO" value="Equipamento" />	
+	<property key="NOME_EQUIPAMENTO" value="Nome do equipamento" />
+	
+	<!-- Fabricante -->
+	<property key="CADASTRO_FABRICANTES" value="Cadastro de fabricantes" />
+	<property key="FABRICANTES" value="Fabricantes" />
+	<property key="FABRICANTE" value="Fabricante" />		
+	<property key="NOME_FABRICANTE" value="Nome do fabricante" />	
+	
+	<!-- Laboratorio -->
+	<property key="CADASTRO_LABORATORIOS" value="Cadastro de laboratórios" />
+	<property key="LISTA_LABORATORIO" value="Lista de laboratórios" />
+	<property key="DETALHAMENTO_LABORATORIO" value="Detalhamento de laboratório" />
+	<property key="LABORATORIOS" value="Laboratórios" />
+	<property key="LABORATORIO" value="Laboratório" />	
+	<property key="NOME_LABORATORIO" value="Nome do laboratório" />	
+	<property key="LIDER" value="Líder" />	
+	
+	<!-- Lpu -->
+	<property key="CADASTRO_LPUS" value="Cadastro de lpus" />
+	<property key="LISTA_LPUS" value="Lista de lpus" />
+	<property key="DETALHAMENTO_LPU" value="Detalhamento de lpu" />
+	<property key="LPUS" value="Lpus" />
+	<property key="LPU" value="Lpu" />	
+	<property key="NOME_LPU" value="Nome da lpu" />	
+	<property key="UNIDADE_LPU" value="Unidade da lpu" />
+	<property key="CODIGO1_LPU" value="Código 1" />
+	<property key="CODIGO2_LPU" value="Código 2" />
+	<property key="MOEDA_LPU" value="Moeda" />
+	<property key="VALOR_LPU" value="Valor do reparo" />
+		
+	<!-- Tipo Componente -->
+	<property key="CADASTRO_TIPOS_COMPONENTES" value="Cadastro de tipos de componentes" />
+	<property key="LISTA_TIPO_COMPONENTE" value="Lista de tipos de componentes" />
+	<property key="DETALHAMENTO_TIPO_COMPONENTE" value="Detalhamento de tipo de componente" />
+	<property key="TIPOS_COMPONENTE" value="Tipos componentes" />	
+	<property key="TIPO_COMPONENTE" value="Tipo componente" />	
+	<property key="NOME_TIPO_COMPONENTE" value="Nome do tipo componente" />	
+	
+	<!-- Unidade -->
+	<property key="CADASTRO_UNIDADES" value="Cadastro de unidades" />
+	<property key="LISTA_UNIDADE" value="Lista de unidades" />
+	<property key="DETALHAMENTO_UNIDADE" value="Detalhamento de unidade" />
+	<property key="UNIDADES" value="Unidades" />
+	<property key="UNIDADE" value="Unidade" />	
+	<property key="NOME_UNIDADE" value="Nome da unidade" />	
+	<property key="CODIGO_UNIDADE" value="Código da unidade" />	
+
+	<!-- Usuario -->
+	<property key="CADASTRO_USUARIOS" value="Cadastro de usuários" />
+	<property key="LISTA_USUARIO" value="Lista de usuários" />
+	<property key="DETALHAMENTO_USUARIO" value="Detalhamento de usuário" />
+	<property key="USUARIOS" value="Usuários" />
+	<property key="USUARIO" value="Usuário" />	
+	<property key="NOME_USUARIO" value="Nome do usuário" />	
+	<property key="DATA_NASCIMENTO" value="Data de nascimento" />	
+	
+	<!-- Perfil -->
+	<property key="CADASTRO_PERFIS" value="Cadastro de perfis" />
+	<property key="LISTA_PERFIL" value="Lista de perfis" />
+	<property key="DETALHAMENTO_PERFIL" value="Detalhamento de perfil" />
+	<property key="PERFIS" value="Perfis" />
+	<property key="PERFIL" value="Perfil" />
+	<property key="NOME_PERFIL" value="Nome do perfil" />
+	
+	<!-- Contato -->
+	<property key="CONTATO" value="Contato" />	
+	<property key="NOME_CONTATO" value="Nome do contato" />	
+	<property key="CARGO_CONTATO" value="Cargo" />	
+	<property key="EMAIL_CONTATO" value="Email" />	
+	<property key="DEPARTAMENTO_CONTATO" value="Departamento" />	
+	<property key="INFO_ADICIONAIS_CONTATO" value="Informações adicionais" />	
+	<property key="PESSOA" value="Pessoa" />
+	
+	<!-- Telefone -->
+	<property key="DDD_TELEFONE" value="DDD" />	
+	<property key="NUMERO_TELEFONE" value="Telefone" />	
+	<property key="TIPO_TELEFONE" value="Tipo" />
+	<property key="TELEFONE" value="Telefone" />	
+	<property key="FAX" value="Fax" />
+	<property key="CELULAR" value="Celular" />
+	
+	<!-- Endereco -->
+	<property key="LOGRADOURO" value="Logradouro" />	
+	<property key="NUMERO" value="Número" />	
+	<property key="COMPLEMENTO" value="Complemento" />
+	<property key="BAIRRO" value="Bairro" />
+	<property key="CIDADE" value="Cidade" />
+	<property key="CEP" value="CEP" />
+	<property key="PAIS" value="País" />
+	<property key="ESTADO" value="Estado" />
+	<property key="TIPO_ENDERECO" value="Tipo de endereço" />
+	<property key="SELECIONE_TIPO_ENDERECO" value="Selecione o tipo de endereço:" />
+	<property key="COMERCIAL" value="Comercial" />
+	<property key="COBRANCA" value="Cobrança" />
+	<property key="ENTREGA" value="Entrega" />
+	
+	<!-- Pessoa -->
+	<property key="PESSOAS" value="Pessoas" />
+	<property key="CADASTRO_PESSOAS" value="Cadastro de pessoas" />
+	<property key="LISTA_PESSOA" value="Lista de pessoas" />
+	<property key="DETALHAMENTO_PESSOA" value="Detalhamento de pessoa" />
+	<property key="PRESTADOR_SERVICO" value="Prestador de serviço" />
+	<property key="TRANSPORTADORA" value="Transportadora" />
+	<property key="FORNECEDOR" value="Fornecedor" />
+	<property key="TIPO" value="Tipo" />
+	<property key="TIPO_PESSOA" value="Tipo pessoa" />
+	<property key="CPF" value="CPF" />
+	<property key="CPFCNPJ" value="CPF/CNPJ" />	
+	<property key="RG" value="RG" />
+	<property key="RGIE" value="RG/IE" />
+	<property key="CNPJ" value="CNPJ" />
+	<property key="IE" value="IE" />
+	<property key="NOME" value="Nome" />
+	<property key="NOME_SISTEMA" value="Nome no sistema" />
+	<property key="RAZAO_SOCIAL" value="Razão social" />
+	<property key="TEMPO_GARANTIA" value="Tempo garantia" />
+	<property key="POSSUI_CONTRATO" value="Possui contrato" />
+	<property key="POSSUI_PEDIDO_COMPRA" value="Possui pedido de compra" />
+	<property key="CLIENTE" value="Cliente" />
+	
+	<property key="NCM" value="NCM" />
+	<property key="CST" value="CST" />
+	<property key="CODIGO_PRODUTO" value="Código produto" />
+	<property key="DESCRICAO_PRODUTO" value="Descrição produto" />
+	<property key="CFOP" value="CFOP" />
+	<property key="QUANTIDADE" value="Quantidade" />
+	<property key="QUANTIDADE_ABREVIADO" value="Qtd." />
+	<property key="UNIDADE_SERVILOGI" value="Unidade servilogi" />
+	<property key="UNIDADE_MEDIDA" value="UN. Medida" />
+	<property key="UNIDADE_LPU" value="Unidade lpu" />
+	<property key="VALOR_UNITARIO" value="Valor unitário" />
+	<property key="VALOR_TOTAL" value="Valor total" />
+	<property key="ITEM_NOTA_FISCAL" value="Item da nota fiscal" />
+
+	<property key="TIPO_NOTA_FISCAL" value="Tipo da nota fiscal" />
+	<property key="NUMERO_NOTA_FISCAL" value="Nº da nota fiscal" />
+	<property key="NUMERO_NOTA_FISCAL_ABREVIADO" value="Nº NF" />
+	<property key="CASE_AVAYA" value="Case avaya" />
+	<property key="CLIENTE_AVAYA" value="Cliente avaya" />
+	<property key="DATA_NOTA_FISCAL" value="Data NF" />
+	<property key="DATA_RECEBIMENTO_NOTA_FISCAL" value="Data chegada NF" />
+	<property key="VALOR_NOTA_FISCAL" value="Valor total NF" />
+	<property key="OBSERVACAO" value="Observação" />
+	
+	<property key="NUMERO_ORDEM_SERVICO" value="Nº OS" />
+	<property key="NUMERO_ORDEM_SERVICO_PAI" value="Nº OS PAI" />
+	<property key="NUMERO_SERIE" value="Nº Série fabricante" />
+	<property key="NUMERO_CLIENTE" value="Nº do cliente" />
+	<property key="NUMERO_ORDEM_CLIENTE" value="Nº OS cliente" />
+	
+	<property key="RECEBIMENTO" value="Recebimento" />
+	<property key="NOTAS_FISCAIS" value="Notas fiscais" />
+	<property key="ETIQUETAS" value="Etiquetas" />
+	<property key="LISTA_NOTA_FISCAL" value="Lista de notas fiscais" />
+	<property key="DETALHAMENTO_NOTA_FISCAL" value="Detalhamento de nota fiscal" />
+	<property key="INFORMACAO_NOTA_FISCAL" value="Informações da nota fiscal" />
+	<property key="ORDEM_SERVICO_PENDENTES" value="Ordem de serviço - Pendentes" />
+	<property key="ORDEM_SERVICO_PROCESSADAS" value="Ordem de serviço - Processadas" />
+	<property key="INFORMACOES_CLIENTE" value="Informações do cliente" />
+	<property key="INFORMACOES_NOTA_FISCAL" value="Informações da nota fiscal" />
+	<property key="INFORMACOES_ITEM_NOTA_FISCAL" value="Informações da nota" />
+	<property key="PLACAS_FILHAS" value="Placas filhas" />
+	<property key="FILTRO" value="Filtro" />
+	<property key="STATUS" value="Status" />
+	
+	<property key="LISTAGEM_GERAL" value="Listagem geral" />
+	<property key="JUSTIFICATIVA" value="Justificativa" />	
+	<property key="DESCRICAO" value="Descrição" />	
+	<property key="DATA" value="Data" />	
+	<property key="TECNICO" value="Técnico" />
+	<property key="GARANTIA" value="Garantia" />
+	<property key="TEMPO_ORCAMENTO" value="Tempo de orçamento" />
+	<property key="TEMPO_REPARO" value="Tempo de reparo" />
+	<property key="JA_REPARADO" value="Já reparado" />
+	<property key="ANALISE_TECNICA" value="Análise técnica" />
+	<property key="COM_CONDICAO_REPARO" value="Com condição de reparo" />
+	<property key="SEM_CONDICAO_REPARO" value="Sem condição de reparo" />
+	<property key="DEVOLUCAO_SEM_REPARO" value="Devolução sem reparo" />	
+	
+	<property key="DATA_ENTRADA" value="Entrada" />	
+	<property key="DATA_LIBERACAO" value="Liberação" />
+	<property key="DATA_INICIO" value="Início" />
+	<property key="DATA_ENCAMINHADO_AO_LIDER" value="Encaminhado ao líder" />
+	<property key="DATA_ENVIADO_PARA_PROPOSTA" value="Enviado para proposta" />
+	<property key="DATA_FINALIZACAO_PROPOSTA" value="Finalização da proposta" />
+	<property key="DATA_INICIO_ORCAMENTO" value="Início do orçamento" />
+	<property key="DATA_INICIO_REPARO" value="Início do reparo" />
+	<property key="DATA_FIM" value="Fim" />
+	<property key="DATA_FINALIZACAO_REPARO" value="Finalização do reparo" />
+	<property key="DATA_FINALIZACAO_ORCAMENTO" value="Finalização do orçamento" />
+
+	<property key="INICIAR_ORCAMENTO" value="Iniciar" />
+	<property key="SALVAR_ORCAMENTO" value="Salvar" />
+	<property key="INICIAR_REPARO" value="Iniciar" />
+	<property key="SALVAR_REPARO" value="Salvar" />
+	<property key="REQUISITAR_ORCAMENTO_DIFERENCIADO" value="Requisitar orç. diferenciado" />
+	<property key="REQUISITAR_LAUDO_TECNICO" value="Requisitar laudo técnico" />
+	<property key="REQUISITAR_REPARO_EXTERNO" value="Requisitar reparo externo" />
+	<property key="FINALIZAR_REPARO" value="Finalizar" />
+	<property key="EDITAR_REPARO" value="Editar" />	
+	<property key="ENCAMINHAR_AO_LIDER" value="Encaminhar ao líder" />
+	<property key="ENVIAR_PARA_PROPOSTA" value="Aprovar" />
+	<property key="REJEITAR_ORCAMENTO" value="Rejeitar" />
+	<property key="FINALIZAR_ORCAMENTO" value="Finalizar" />
+	<property key="EDITAR_ORCAMENTO" value="Editar" />
+	
+	<property key="DIAS_SERVILOGI" value="Dias Servilogi" />
+	<property key="DIAS_LABORATORIO" value="Dias Laboratório" />
+	<property key="TEXTO" value="Texto" />
+	
+	<property key="FINALIDADE" value="Finalidade" />
+	<property key="ORIGEM" value="Origem" />
+	<property key="ATRIBUIR_USUARIO" value="Atribuir usuário" />	
+	
+	<property key="REALIZAR_BAIXA" value="Realizar baixa" />	
+	
+	<property key="LISTAGEM_NOTA_FISCAL_SAIDA" value="Listagem de nota fiscal de saída" />
+	<property key="BAIXA_ORDEM_SERVICO" value="Realizar baixa de os" />		
+	
+	<property key="LISTAGEM_PROPOSTA" value="Listagem de proposta" />
+	<property key="DATA_CRIACAO" value="Criado em" />
+	<property key="GERAR_PROPOSTA" value="Gerar proposta" />	
+	<property key="DESCONTO_PORCENTAGEM" value="Desconto %" />	
+	<property key="DESCONTO_DINHEIRO" value="Desconto $" />	
+	<property key="VALOR_FRETE" value="Frete" />		
+	<property key="TOTAL_SEM_DESCONTO" value="Total sem desc." />	
+	<property key="TOTAL_COM_DESCONTO" value="Total com desc." />	
+	<property key="TOTAL_SEM_DESCONTO_COM_FRETE" value="Total + frete" />	
+	<property key="TOTAL_COM_DESCONTO_COM_FRETE" value="Total desc. + frete" />	
+	<property key="APLICAR" value="Aplicar" />	
+	<property key="PRECO" value="Preço" />	
+
+	<property key="FINALIZAR_PROPOSTA" value="Finalizar" />	
+	<property key="SALVAR_PROPOSTA" value="Salvar" />	
+	<property key="ENVIAR_PARA_CLIENTE" value="Enviar ao cliente" />	
+	<property key="APROVAR_PROPOSTA" value="Aprovar" />	
+	<property key="REPROVAR_PROPOSTA" value="Reprovar" />	
+	<property key="INICIAR_PROPOSTA" value="Iniciar" />	
+	<property key="ADICIONAR_CONTATO" value="Adicionar contato" />
+	<property key="SALVAR_CONTATO_PROPOSTA" value="Salvar" />
+	<property key="CANCELAR_CONTATO_PROPOSTA" value="Cancelar" />	
+	<property key="NUMERO_PROPOSTA" value="Nº proposta" />
+	<property key="APROVAR" value="Aprovar" />
+	<property key="REPROVAR" value="Reprovar" />
+	<property key="RESTAURAR" value="Restaurar" />
+	<property key="LIBERAR_ITENS" value="Liberar itens" />
+	
+	<property key="NUMERO_NOTA_FISCAL_SAIDA" value="Nº NF Saída" />
+	<property key="TIPO_EMBALAGEM" value="Tipo de embalagem" />
+	<property key="TOTAL_DE_ITENS" value="Total de itens" />
+	<property key="PESO_BRUTO" value="Peso bruto" />
+	<property key="INICIAR_NF_SAIDA" value="Iniciar" />
+	<property key="SALVAR_NF_SAIDA" value="Salvar" />
+	<property key="EMITIR_NF_SAIDA" value="Emitir" />	
+	<property key="IMPRIMIR_NF_SAIDA" value="Imprimir" />
+	<property key="FINALIZAR_NF_SAIDA" value="Finalizar" />
+	<property key="GERAR_ETIQUETAS" value="Gerar etiquetas" />
+	<property key="TIPO_EMBALAGEM" value="Tipo de embalagem" />
+
+	<property key="REMOVER_REQUISICAO" value="Remover requisição" />
+	<property key="QTD_REQUISICAO" value="Qtd." />
+	<property key="STATUS_REQUISICAO" value="Status requisição" />
+	<property key="STATUS_COMPONENTE" value="Status componente" />
+	<property key="REMOVER_COMPONENTE" value="Remover componente" />
+	<property key="POSICAO" value="Posição" />
+	<property key="REQUISITAR_COMPONENTE" value="Requisitar componente" />
+	<property key="ESTOQUE_MINIMO" value="Estoque mínimo" />
+	<property key="QTD_ESTOQUE" value="Qtd. em estoque" />
+	<property key="ESTOQUE_MINIMO_ABREVIADO" value="Min" />
+	<property key="QTD_ESTOQUE_ABREVIADO" value="Qtd" />
+	<property key="ADICIONAR_REQUISICAO" value="Adicionar requisição" />
+	<property key="EFETIVAR_PEDIDO" value="Efetivar pedido" />
+	
+
+	<property key="REQUISICAO_ATENDER" value="Atender requisição" />
+	<property key="REQUISICAO_PRONTO" value="Pedido pronto" />
+	<property key="REQUISICAO_ENTREGUE" value="Entregar requisição" />
+	<property key="REQUISICAO_RETIRADA" value="Retirar requisição" />
+	<property key="CANCELAR_REQUISICAO" value="Cancelar requisição" />
+	<property key="RECEBER_MATERIAL" value="Receber material" />
+	<property key="SELECIONAR_COMPONENTE" value="Selecionar componente" />
+	<property key="COMPONENTE_DISPONIVEL" value="Componente disponível" />
+	<property key="NUMERO_REQUISICAO" value="Nº req." />
+	<property key="REQUISITANTE" value="Requisitante" />
+	<property key="DATA_REQUISICAO_CRIACAO" value="Dt requisição" />
+	<property key="DATA_REQUISICAO_ATENDIMENTO" value="Dt atendimento" />
+	<property key="DATA_REQUISICAO_ENTREGA" value="Dt entrega" />
+	<property key="DATA_REQUISICAO_RECEBIMENTO" value="Dt recebimento" />
+	<property key="MATERIAL_RECEBIDO" value="Material recebido" />
+	<property key="DATA_REQUISICAO" value="Data requisição" />
+	<property key="POSSUI_AMOSTRA" value="Possui amostra" />
+
+	<property key="REPARO_LEGENDA" value="Legenda" />
+	<property key="REPARO_LEGENDA_AGUARDANDO_LIBERACAO" value="Aguardando liberação" />
+	<property key="REPARO_LEGENDA_NAO_INICIADO" value="Não iniciado" />
+	<property key="REPARO_LEGENDA_INICIADO" value="Iniciado" />
+	<property key="REPARO_LEGENDA_AGUARDANDO_PROPOSTA" value="Aguardando proposta" />
+	<property key="REPARO_LEGENDA_FINALIZADO" value="Finalizado" />
+	<property key="REPARO_LEGENDA_ORCAMENTO_REJEITADO_PELO_LIDER" value="Orç. rejeitado pelo líder" />
+	<property key="REPARO_LEGENDA_AGUARDANDO_LAUDO_TECNICO" value="Aguardando laudo técnico" />
+	<property key="REPARO_LEGENDA_AGUARDANDO_ORCAMENTO_DIFERENCIADO" value="Aguardando orç. diferenciado" />
+	<property key="REPARO_LEGENDA_LAUDO_TECNICO_APROVADO" value="Laudo técnico aprovado" />
+	<property key="REPARO_LEGENDA_LAUDO_TECNICO_REJEITADO" value="Laudo técnico rejeitado" />
+	<property key="REPARO_LEGENDA_ORCAMENTO_DIFERENCIADO_REJEITADO" value="Orç. diferenciado rejeitado" />
+	<property key="REPARO_LEGENDA_PROPOSTA_APROVADA" value="Proposta aprovada" />
+	<property key="REPARO_LEGENDA_PROPOSTA_REPROVADA" value="Proposta reprovada" />
+	<property key="REPARO_LEGENDA_AGUARDANDO_COMPONENTE" value="Aguardando componente" />
+	<property key="REPARO_LEGENDA_COMPONENTE_EM_FALTA" value="Componente em falta" />
+	<property key="REPARO_LEGENDA_AGUARDANDO_APROVACAO_LIDER" value="Aguardando aprovação líder" />
+		
+	<property key="ORCAMENTO_SIGLA" value="O" />
+	<property key="REPARO_SIGLA" value="R" />
+	<property key="TOTAL" value="T" />
+	
+	<property key="AUTENTICAR" value="Autenticar" />
+	<property key="CANCELAR" value="Cancelar" />
+	<property key="LAUDO_TECNICO" value="Laudo técnico" />
+	<property key="ORCAMENTO_DIFERENCIADO" value="Orçamento diferenciado" />
+	<property key="INICIAR_LAUDO_TECNICO" value="Iniciar" />
+	<property key="SALVAR_LAUDO_TECNICO" value="Salvar" />
+	<property key="FINALIZAR_LAUDO_TECNICO" value="Finalizar" />
+	<property key="REJEITAR_LAUDO_TECNICO" value="Rejeitar" />
+	<property key="GERAR_PDF_LAUDO_TECNICO" value="Gerar PDF" />	
+	<property key="INICIAR_ORCAMENTO_DIFERENCIADO" value="Iniciar" />
+	<property key="SALVAR_ORCAMENTO_DIFERENCIADO" value="Salvar" />
+	<property key="APROVAR_ORCAMENTO_DIFERENCIADO" value="Aprovar" />
+	<property key="REJEITAR_ORCAMENTO_DIFERENCIADO" value="Rejeitar" />
+	<property key="CONTROLE" value="Controle" />
+	<property key="INFORMACOES_TECNICAS" value="Informações técnicas" />
+	<property key="REQUISICAO_COMPONENTES" value="Requisição de componentes" />
+	<property key="DEVOLUCAO_COMPONENTES" value="Devolução de componentes" />
+	<property key="PEDIDOS_COMPRA" value="Pedidos de compra" />	
+	<property key="COMPONENTE_POSICAO" value="Posição no estoque" />
+	<property key="ESTOQUE_QUANTIDADE" value="Quantidade em estoque" />	
+	<property key="DATA_PRIORIDADE" value="Data prioridade" />
+	<property key="PRIORIDADE" value="Prioridade" />
+	<property key="PRAZO" value="Prazo" />
+	<property key="DIAS_DEVOLUCAO" value="Prazo de devolução" />
+	
+	<property key="MENU_CADASTRO" value="Módulo cadastro (Habilita/Desabilita o módulo de cadastro do sistema)" />
+	<property key="MENU_RECEBIMENTO" value="Módulo recebimento" />
+	<property key="MENU_AREA_TECNICA" value="Módulo área técnica" />
+	<property key="MENU_EXPEDICAO" value="Módulo expedição" />
+	<property key="MENU_PROPOSTA" value="Módulo proposta" />
+	<property key="MENU_ESTOQUE" value="Módulo estoque" />
+	<property key="MENU_EXTERNO" value="Módulo externo" />
+	<property key="MENU_FATURAMENTO" value="Módulo faturamento" />
+	<property key="MENU_AVAYA" value="Módulo avaya" />
+	<property key="MENU_CONSULTA" value="Módulo consulta" />
+	
+	<property key="SUB_MENU_CADASTRO_ATIVIDADE" value="Menu cadastro atividade" />
+	<property key="SUB_MENU_CADASTRO_COMPONENTE" value="Menu cadastro componente" />
+	<property key="SUB_MENU_CADASTRO_DEFEITO" value="Menu cadatro defeito" />
+	<property key="SUB_MENU_CADASTRO_ENCAPSULAMENTO" value="Menu cadastro encapsulamento" />
+	<property key="SUB_MENU_CADASTRO_TIPO_COMPONENTE" value="Menu cadastro tipo componente" />
+	<property key="SUB_MENU_CADASTRO_EQUIPAMENTO" value="Menu cadastro equipamento" />
+	<property key="SUB_MENU_CADASTRO_FABRICANTE" value="Menu cadastro fabricante" />
+	<property key="SUB_MENU_CADASTRO_LABORATORIO" value="Menu cadastro laboratório" />
+	<property key="SUB_MENU_CADASTRO_PESSOA" value="Menu cadastro pessoa" />
+	<property key="SUB_MENU_CADASTRO_UNIDADE" value="Menu cadastro unidade" />
+	<property key="SUB_MENU_CADASTRO_USUARIO" value="Menu cadastro usuário" />
+	<property key="SUB_MENU_CADASTRO_PERFIL" value="Menu cadastro perfil" />
+	
+	<property key="SUB_MENU_RECEBIMENTO_NOTA_FISCAL" value="Menu recebimento nota fiscal" />
+	<property key="SUB_MENU_RECEBIMENTO_LPU" value="Menu recebimento lpu" />
+	<property key="SUB_MENU_RECEBIMENTO_ETIQUETA" value="Menu recebimento etiqueta" />
+	
+	<property key="SUB_MENU_AREA_TECNICA_LISTAGEM_GERAL" value="Menu área técnica listagem geral" />
+	<property key="SUB_MENU_AREA_TECNICA_REQUISICAO_COMPONENTE" value="Menu área técnica requisição componente" />
+	<property key="SUB_MENU_AREA_TECNICA_LAUDO_TECNICO" value="Menu área técnica laudo técnico" />
+	<property key="SUB_MENU_AREA_TECNICA_ORCAMENTO_DIFERENCIADO" value="Menu área técnica orçamento diferenciado" />
+	
+	<property key="SUB_MENU_EXPEDICAO_BAIXA_OS" value="Menu expedição baixa de os" />
+	<property key="SUB_MENU_EXPEDICAO_LISTAGEM_NF_SAIDA" value="Menu expedição listagem nota fiscal saída" />
+	
+	<property key="SUB_MENU_PROPOSTA_BAIXA_OS" value="Menu proposta baixa de os" />
+	<property key="SUB_MENU_PROPOSTA_LISTAGEM_PROPOSTA" value="Menu proposta listagem de propostas" />
+	
+	<property key="SUB_MENU_ESTOQUE_REQUISICAO_COMPONENTE" value="Menu estoque requisição de componente" />
+	<property key="SUB_MENU_ESTOQUE_COMPONENTE" value="Menu estoque componentes" />
+	
+	<property key="SUB_MENU_CONSULTA_CONSULTA_GERAL" value="Sub Menu consulta geral" />
+	
+	<property key="ACAO_ATRIBUIR_TECNICO" value="Permitir atribuir técnico" />
+	<property key="ACAO_ATRIBUIR_PRIORIDADE" value="Permitir atribuir prioridade" />
+	
+	<property key="CONSULTA_GERAL" value="Consulta geral" />
+	<property key="CONSULTAR" value="Consultar" />
+	<property key="DATA_DE" value="De" />
+	<property key="DATA_ATE" value="Até" />
+	
+	<property key="CONDICAO" value="Condição" />
+	
+	<property key="NUMERO_PEDIDO_COMPRA" value="Nº" />
+	
+	<property key="DEVOLUCAO_COMPONENTE_RECEBIDO_SUCESSO" value="Componente recebido com sucesso" />
+	<property key="DEVOLUCAO_COMPONENTE_RECEBIDO_ERRO" value="Erro ao receber componente" />
+	
+	
+	<property key="URL_SERVIDOR_SOSE" value="http://192.168.0.105:8080/SoseWeb/" />
+	<property key="URL_VISUALIZAR_ARQUIVO" value="http://192.168.0.105:8080/SoseWeb/arquivo_servilogi/" />
+		
+	<property key="LAUDO_TECNICO_MSG_PADRAO_INFORMACAO_TECNICA" value="Informamos que esta unidade está sem condições de reparo, devido a uma provável descarga elétrica, pois alguns componentes dedicados do circuito impresso estão danificados." />
+	
+</locale>

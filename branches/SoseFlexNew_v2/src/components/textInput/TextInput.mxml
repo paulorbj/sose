@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 horizontalAlign="left"  verticalGap="0" preinitialize="vbox1_preinitializeHandler(event)">
+	
+	<!-- Action Scripts -->
+	<fx:Script>
+		<![CDATA[
+			import flash.desktop.Clipboard;
+			import flash.desktop.ClipboardFormats;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.FlexEvent;
+			/** Exposed text property */
+			[Bindable]
+			public var labelText:String;
+			
+			/** Exposed input width property */
+			
+			[Bindable]
+			public var inputText:String;
+			
+			[Bindable]
+			public var editableFlag:Boolean = true;
+			
+			[Bindable]
+			public var change:Function;
+			
+			[Bindable]
+			public var enter:Function;
+			
+			[Bindable]
+			public var restrict:String = null;
+			
+			[Bindable]
+			public var maxLength:int = 255;
+			
+			[Bindable]
+			public var minLength:int;
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			[Bindable]
+			public var validateEmail:Boolean = false;
+			
+			[Bindable]
+			public var habilitado:Boolean = true;
+			
+			private function onChange():void
+			{
+				if(change != null){
+					change();	
+				}
+				
+			}
+			
+//			private function init():void
+//			{
+//				input.addEventListener (KeyboardEvent.KEY_DOWN, onKeyDown);
+//			}
+//			
+//			private function onKeyDown ( ev : KeyboardEvent ) : void 
+//			{
+//				if (ev.keyCode != 67 || !ev.ctrlKey) return;
+//				var text:String = input.text;
+//				input.text = "TESTE 12345";
+//				System.setClipboard(text);
+//				Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT,text);
+//			}
+			
+			protected function vbox1_preinitializeHandler(event:FlexEvent):void
+			{
+				BindingManager.debugBinding("input.text");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="inputText" destination="input.text" twoWay="true"/>
+	
+	<fx:Declarations>
+		
+		<mx:StringValidator id="stringValidator"
+							required="{required}" 
+							source="{input}" 
+							property="text"
+							triggerEvent = "{FocusEvent.FOCUS_OUT}"
+							requiredFieldError="Campo obrigatório"
+							/>
+		
+	</fx:Declarations>
+	
+	
+	
+	<s:Label text="{labelText}" enabled="true" />
+	
+	<s:TextInput width="100%" maxChars="{maxLength}" enabled="{habilitado}" id="input" enter="{enter()}"  height="25" text="{inputText}"  editable="{editableFlag}" restrict="{restrict}" change="onChange()"/>
+	
+</mx:VBox>

@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  height="100%" paddingBottom="20" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:components="components.*" horizontalAlign="center"
+		 xmlns:grid="components.grid.*" xmlns:combos="components.combos.*"
+		 initialize="init()">
+	
+	<fx:Declarations>
+		<mx:RemoteObject concurrency="single" showBusyCursor="true" id="propostaService" destination="propostaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarOrdemServicoBaixaProposta"      
+					   fault="onListarOrdemServicoBaixaPropostaFault(event)" 
+					   result="onListarOrdemServicoBaixaPropostaResult(event)"
+					   />
+			<mx:method name="criarPropostaOrcamento"      
+					   fault="onCriarPropostaFault(event)" 
+					   result="onCriarPropostaResult(event)"
+					   />
+			<mx:method name="criarPropostaOrcamentoDiferenciado"      
+					   fault="onCriarPropostaFault(event)" 
+					   result="onCriarPropostaResult(event)"
+					   />
+			<mx:method name="criarMultiplasPropostaOrcamento"      
+					   fault="onCriarMultiplasPropostasFault(event)" 
+					   result="onCriarMultiplasPropostasResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+		<mx:Producer id="produtorPropostaService" destination="PropostaMessageServicePush" /> 
+		
+		<mx:Consumer id="consumidorPropostaService" destination="PropostaMessageServicePush" message="onMsgProposta(event)" />
+
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.GlobalMessage;
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.proposta.Proposta;
+			import entities.recebimento.OrdemServico;
+			
+			import modules.proposta.eventos.PropostaEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.messaging.events.MessageEvent;
+			import mx.messaging.messages.AsyncMessage;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import utils.MensagensAplicacao;
+			import utils.Publicador;
+			
+			[Bindable]
+			private var _listaOrdemServico:ArrayCollection;
+			
+			[Bindable]
+			private var _ordensServicoSelecionadas:ArrayCollection;
+			
+			[Bindable]
+			private var _ordensServicoSelecionadasOrcDiferenciado:ArrayCollection;
+			
+			[Bindable]
+			private var _ordensServicoNaoSelecionadas:ArrayCollection;
+			
+			[Bindable]
+			private var _proposta:Proposta;
+			
+			[Embed(source='/assets/icon_synchronize.png')]
+			public static var synchronized:Class;
+			[Embed(source='/assets/icon_synchronize_green.png')]
+			public static var synchronized_verde:Class;
+			
+			var sortA:Sort = new Sort();
+			
+			private function init():void
+			{
+				this.addEventListener(PropostaEvent.COMBO_CLIENTE_POPULADO,onPopular);
+				btAtualizar.setStyle("icon", synchronized);
+				btAtualizar.enabled = false;
+				consumidorPropostaService.subscribe();
+				
+				sortA.fields=[new SortField("osPaiOrdenar",false,false,true),new SortField("osFilhaOrdenar",false,false,true)];
+			}
+			
+			private function onMsgProposta(event:MessageEvent):void{ 
+				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
+				
+				if (globalMessage.mensagem==MensagensAplicacao.PROPOSTA_OS_AGUARDANDO_BAIXA){
+					btAtualizar.setStyle("icon", synchronized_verde);
+					btAtualizar.enabled = true;
+				}
+			} 
+			
+//			private function publicarProposta(rep:Proposta, msg:String):void   { 								
+//				var message:AsyncMessage = new AsyncMessage();
+//				var messageGlobal:GlobalMessage=new GlobalMessage();
+//				messageGlobal.mensagem=msg;
+//				messageGlobal.conteudo = rep;				
+//				message.body=messageGlobal;
+//				produtorPropostaService.send(message);	
+//			}
+			
+			private function onPopular(evento:PropostaEvent):void
+			{
+				if(clientes.comboBox.dataProvider != null && clientes.comboBox.dataProvider.length > 0){
+					propostaService.listarOrdemServicoBaixaProposta(clientes.comboBox.dataProvider.getItemAt(0));
+					clientes.clienteSelecionado = clientes.comboBox.dataProvider.getItemAt(0) as Pessoa;
+				}
+			}
+			
+			private function onListarOrdemServicoBaixaPropostaResult(event:ResultEvent = null):void
+			{
+				_listaOrdemServico = event.result as ArrayCollection;
+				
+				_listaOrdemServico.sort = sortA;
+				_listaOrdemServico.refresh();
+				
+			}
+			
+			private function onListarOrdemServicoBaixaPropostaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onCriarPropostaResult(event:ResultEvent = null):void
+			{
+				_proposta = event.result as Proposta;
+				Publicador.enviarMensagemProposta(MensagensAplicacao.PROPOSTA_CRIADA,_proposta);
+				//publicarProposta(_proposta, MensagensAplicacao.PROPOSTA_CRIADA);
+				_listaOrdemServico = _ordensServicoNaoSelecionadas;
+				_ordensServicoNaoSelecionadas = new ArrayCollection();
+				_ordensServicoSelecionadas = new ArrayCollection();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PROPOSTA_CRIADA_SUCESSO'), MessageType.SUCCESS, 10000));	
+			}
+			
+			private function onCriarPropostaFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onCriarNotaFiscalRemessaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			private function onCriarPropostasOrcamentoDiferenciadoResult(event:ResultEvent = null):void
+			{
+				var propostas:ArrayCollection = event.result as ArrayCollection;
+				for each(var p:Proposta in propostas){
+					Publicador.enviarMensagemProposta(MensagensAplicacao.PROPOSTA_CRIADA,p);
+				}
+				_listaOrdemServico = _ordensServicoNaoSelecionadas;
+				_ordensServicoNaoSelecionadas = new ArrayCollection();
+				_ordensServicoSelecionadas = new ArrayCollection();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PROPOSTAS_CRIADAS_SUCESSO'), MessageType.SUCCESS, 10000));	
+			}
+			
+			private function onCriarPropostasOrcamentoDiferenciadoFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onCriarNotaFiscalRemessaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function visualizarDetalhe(data:Object, event:Event):void
+			{					
+				//for double click
+				if(data==null && event is ListEvent){
+					var event2:ListEvent = event as ListEvent;						
+					data = _listaOrdemServico.getItemAt(event2.rowIndex);				
+				}	
+				
+			}
+			
+			private function realizarBaixa(event:MouseEvent):void
+			{
+				_ordensServicoSelecionadas = new ArrayCollection();
+				_ordensServicoNaoSelecionadas = new ArrayCollection();
+				_ordensServicoSelecionadasOrcDiferenciado = new ArrayCollection();
+
+				var notasDiferentes:Number = 0;
+				var ultimaOS:OrdemServico = null;
+				for each (var os:OrdemServico in _listaOrdemServico){
+
+					if(os.isSelected){
+						if(ultimaOS != null){
+							if(os.idNotaFiscal != ultimaOS.idNotaFiscal){
+								notasDiferentes++;
+							}
+							ultimaOS = os
+						}else{
+							ultimaOS = os;
+						}
+						
+						if(os.idReparo != 0){
+							_ordensServicoSelecionadasOrcDiferenciado.addItem(os);
+						}else{
+							_ordensServicoSelecionadas.addItem(os);
+						}			
+					}else{
+						_ordensServicoNaoSelecionadas.addItem(os);
+					}
+				}
+				
+				if(_ordensServicoSelecionadas.length == 0 && _ordensServicoSelecionadasOrcDiferenciado.length == 0){
+					dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','NENHUMA_OS_SELECIONADA'), MessageType.WARNING, 10000));
+				}else{
+					if(_ordensServicoSelecionadas.length > 0 && notasDiferentes > 0){
+						showModalNotasDiferentes();
+					}else{
+						if(_ordensServicoSelecionadas.length > 0){
+							propostaService.criarPropostaOrcamento(_ordensServicoSelecionadas)
+						}
+						if(_ordensServicoSelecionadasOrcDiferenciado.length > 0){
+							propostaService.criarPropostaOrcamentoDiferenciado(_ordensServicoSelecionadasOrcDiferenciado);
+						}
+					}
+				}
+			}
+			
+			private function atualizar(event:MouseEvent):void
+			{
+				btAtualizar.setStyle("icon", synchronized);
+				btAtualizar.enabled = false;
+				clientes.recarregar();
+			}
+			
+			public function criarUnicaProposta():void
+			{
+				propostaService.criarPropostaOrcamento(_ordensServicoSelecionadas);
+			}
+			
+			public function criarMutiplasProposta():void
+			{
+				if(_ordensServicoSelecionadas.length > 0)
+				propostaService.criarMultiplasPropostaOrcamento(_ordensServicoSelecionadas);
+			}
+			
+			private function onCriarMultiplasPropostasResult(event:ResultEvent = null):void
+			{
+				var propostas:ArrayCollection = event.result as ArrayCollection;
+				for each(var p:Proposta in propostas){
+					Publicador.enviarMensagemProposta(MensagensAplicacao.PROPOSTA_CRIADA,p);
+				}
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PROPOSTAS_CRIADAS_SUCESSO'), MessageType.SUCCESS, 10000));
+				
+			}
+			
+			private function onCriarMultiplasPropostasFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','PROPOSTAS_CRIADAS_ERRO'), MessageType.ERROR, 10000));
+				trace("[onCriarNotaFiscalRemessaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+			
+			public function inserirEmPropostaExistente():void
+			{
+				propostaService.criarPropostaOrcamento(_ordensServicoSelecionadas);
+			}
+			
+			private function showModalNotasDiferentes():void {
+				var modal:ModalNotasDiferentes=ModalNotasDiferentes(PopUpManager.createPopUp( this, ModalNotasDiferentes , true));
+				PopUpManager.centerPopUp(modal);
+				modal.baixaOSModule = this;
+			}
+			
+			private function onClienteChange(event:Event):void
+			{
+				propostaService.listarOrdemServicoBaixaProposta(clientes.clienteSelecionado);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<combos:ComboClienteProposta id="clientes" labelText="{resourceManager.getString('ApplicationResource','CLIENTES')}" width="200" changeFunction="onClienteChange" />
+		<mx:Button id="btRealizarBaixa"
+				   label="{resourceManager.getString('ApplicationResource','GERAR_PROPOSTA')}"
+				   height="25"
+				   icon="@Embed(source='/assets/icons/user.png')"
+				   click="realizarBaixa(event)"/>
+		<mx:Button id="btAtualizar"
+				   height="25"
+				   icon="@Embed(source='/assets/icon_synchronize.png')"
+				   click="atualizar(event)"/>
+	</mx:HBox>
+	<grid:MantisTable id="viewTable"
+					  width="100%"
+					  height="98%"
+					  draggableColumns="true"
+					  dataProvider="{_listaOrdemServico}"
+					  doubleClickEnabled="false"
+					  >
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<mx:DataGridColumn headerText = ""	width=".05"						   
+							   itemRenderer="components.grid.CheckBoxItemRenderer"
+							   headerRenderer="components.grid.CheckBoxItemRenderer"
+							    resizable="false" draggable="false" sortable="false"
+							   dataField="isSelected"
+							   />
+			
+			<mx:DataGridColumn id="numeroNF" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_NOTA_FISCAL')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="numeroNotaFiscal"							   
+							   />
+			
+			<mx:DataGridColumn id="nNomeLaboratorio" width=".15"
+							   headerText = "Laboratório"
+							   dataField = "nomeLaboratorio" textAlign="center"
+							   />
+			
+			<mx:DataGridColumn id="numeroOs" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="numeroOrdemServico"							   
+							   />
+			
+			<mx:DataGridColumn id="numeroOsPai" width=".10"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_ORDEM_SERVICO_PAI')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="numeroOrdemServicoPai"							   
+							   />
+			
+			
+			<mx:DataGridColumn id="unidade" width=".20"
+							   headerText = "{resourceManager.getString('ApplicationResource','UNIDADE')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="nomeUnidade"							   
+							   />
+			
+			<mx:DataGridColumn id="nSerieFabricante" 
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_SERIE')}"
+							   dataField = "serieFabricante"
+							   width=".15" textAlign="center"
+							   />
+			
+			<mx:DataGridColumn id="nSerieCliente" width=".15"
+							   headerText = "{resourceManager.getString('ApplicationResource','NUMERO_CLIENTE')}"
+							   dataField = "serieCliente" textAlign="center"
+							   />
+			
+			<mx:DataGridColumn id="clienteAvaya" width=".10" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','CLIENTE_AVAYA')}"
+							   dataField = "clienteAvaya"
+							   />
+			
+		</grid:columns>
+	</grid:MantisTable>
+	
+</mx:VBox>

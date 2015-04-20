@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%"
+		 xmlns:texto="components.textInput.*"
+		 xmlns:combos="components.combos.*"
+		 initialize="init()">
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.recebimento.NotaFiscal;
+			
+			[Bindable]
+			private var _notaFiscal:NotaFiscal;
+
+			
+			private function init():void
+			{
+				cliente.addEventListener("change",atualiza);
+				boxCliente.visible = true;
+			}
+			
+			public function get notaFiscal():NotaFiscal
+			{
+				return _notaFiscal;
+			}
+			
+			public function set notaFiscal(value:NotaFiscal):void
+			{
+				_notaFiscal = value;
+			}
+			
+			public function atualiza(event:Event):void{
+				if(cliente.clienteSelecionado != null){
+					var pf:Pessoa = cliente.clienteSelecionado as Pessoa;
+//					nome.inputText = pf.tipoPessoa == 1 ? {resourceManager.getString('ApplicationResource','NOME')} : {resourceManager.getString('ApplicationResource','RAZAO_SOCIAL')};
+//					rg.inputText = pf.tipoPessoa == 1 ? {resourceManager.getString('ApplicationResource','RG')} : {resourceManager.getString('ApplicationResource','IE')};
+//					cpf.inputText = pf.tipoPessoa == 1 ? {resourceManager.getString('ApplicationResource','CPF')} : {resourceManager.getString('ApplicationResource','CNPJ')};
+					boxCliente.visible = true;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="cliente.clienteSelecionado" destination="_notaFiscal.cliente" twoWay="true" />
+	
+	<combos:ComboCliente id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" changeFunction="atualiza" />
+	<mx:HBox id="boxCliente"  >
+		<texto:TextInput id="nome" labelText="{resourceManager.getString('ApplicationResource','RG')}" enabled="false" />
+		<texto:TextInput id="rg" labelText="{resourceManager.getString('ApplicationResource','NOME')}" enabled="false" />
+		<texto:TextInput id="cpf" labelText="{resourceManager.getString('ApplicationResource','CPF')}" enabled="false" />
+	</mx:HBox>
+	
+	
+</mx:VBox>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple custom MXML TitleWindow component.
+The TitleWindowApp application displays this component. 
+You cannot run it independently. -->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
+				title="Ordens de serviços pertencentes a notas fiscais diferentes" x="168" y="86" 
+				borderAlpha="0.75" xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<fx:Script>
+		<![CDATA[     
+			import mx.managers.PopUpManager;
+			
+			public var baixaOSModule:BaixaOrdemServico;
+			
+			// Event handler for the OK button.
+			private function criarUnicaProposta():void {
+				baixaOSModule.criarUnicaProposta()
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function criarMutiplasProposta():void {
+				baixaOSModule.criarMutiplasProposta()
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function inserirEmPropostaExistente():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function cancelar():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function mouseOverBotao(event:Event=null):void
+			{
+				if(event){
+					event.target.setStyle("borderColor", "#009dff");
+					event.target.setStyle("fillColors", [0xfcfcfc, 0xf0f0f0]);
+				}
+			}
+			
+			private function mouseOutBotao(event:Event=null):void
+			{
+				if(event){
+					event.target.setStyle("borderColor", "#b7babc");
+					event.target.setStyle("fillColors", [0xfbfbfb, 0xe4e4e4]);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="listagem"/>
+		<s:State name="edicao"/>
+	</mx:states>
+	
+	<mx:VBox>
+		<mx:Label text="As OS selecionadas pertencem a notas diferentes. O que deseja fazer?" fontSize="15" fontWeight="bold" />
+	</mx:VBox>
+	
+	<mx:HBox>
+		<mx:VBox id="boxUnicaProposta" height="100" width="200" click="criarUnicaProposta();" mouseOver="mouseOverBotao(event);" mouseOut="mouseOutBotao(event)"
+				 borderStyle="solid" horizontalAlign="center" verticalAlign="middle"
+				 paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" >
+			<mx:Image  source="@Embed('/assets/icons/report6.gif')" />
+			<s:Label textAlign="center" lineBreak="toFit" fontSize="10"  text="Criar uma única proposta para todas as OS's selecionadas?" width="100%" height="100%" />
+		</mx:VBox>
+		<mx:VBox height="100" width="200" click="criarMutiplasProposta();"  mouseOver="mouseOverBotao(event);" mouseOut="mouseOutBotao(event)"
+				 borderStyle="solid" horizontalAlign="center" verticalAlign="middle"
+				 paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" >
+			<mx:Image  source="@Embed('/assets/icons/reports.gif')" />
+			<s:Label textAlign="center" lineBreak="toFit" fontSize="10" text="Criar uma proposta para cada grupo de nota fiscais?" width="100%" height="100%" />
+		</mx:VBox>
+		<mx:VBox height="100" width="200" click="cancelar();"  mouseOver="mouseOverBotao(event);" mouseOut="mouseOutBotao(event)"
+				 borderStyle="solid" horizontalAlign="center" verticalAlign="middle"
+				 paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" >
+			<mx:Image  source="@Embed('/assets/icons/back2.png')" />
+			<s:Label textAlign="center" lineBreak="toFit" fontSize="10" text="Voltar" width="100%" height="100%" />
+		</mx:VBox>
+	</mx:HBox>
+	
+</mx:TitleWindow>
