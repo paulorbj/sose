@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ehcache.xsd">
+	<diskStore path="java.io.tmpdir" />
+	<defaultCache maxElementsInMemory="500" eternal="true"
+		overflowToDisk="true"
+		diskPersistent="true" diskExpiryThreadIntervalSeconds="120"
+		memoryStoreEvictionPolicy="LRU" />
+
+	<cache name="br.com.sose.entity.recebimento.OrdemServico" maxElementsInMemory="2000"
+		eternal="true" overflowToDisk="false" />
+		
+	<cache name="br.com.sose.entity.recebimento.NotaFiscal" maxElementsInMemory="2000"
+		eternal="true" overflowToDisk="false" />
+
+	<cache name="br.com.sose.entity.recebimento.ItemNotaFiscal" maxElementsInMemory="2000"
+		eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.admistrativo.parceiros.Contato" maxElementsInMemory="2000"
+		eternal="true" overflowToDisk="false" />	
+		
+	<cache name="br.com.sose.entity.admistrativo.parceiros.Endereco" maxElementsInMemory="2000"
+		eternal="true" overflowToDisk="false" />
+
+	<cache name="br.com.sose.entity.admistrativo.parceiros.Pessoa" maxElementsInMemory="2000"
+		eternal="true" overflowToDisk="false" />
+		
+	<cache name="br.com.sose.entity.admistrativo.Atividade" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Componente" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Defeito" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Encapsulamento" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Fabricante" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Laboratorio" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.lpu.Lpu" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Observacao" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Perfil" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.TipoComponente" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Unidade" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.admistrativo.Usuario" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.compra.PedidoCompra" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.estoque.DevolucaoComponente" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.estoque.avaya.ItemEstoqueAvaya" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.expedicao.NotaFiscalRemessa" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.expedicao.Volume" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />			
+	
+	<cache name="br.com.sose.entity.faturamento.Faturamento" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.laudoTecnico.LaudoTecnico" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.orcamento.Orcamento" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.orcamento.OrcamentoDiferenciado" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	
+	<cache name="br.com.sose.entity.orcrepGenerico.AtividadeOrcRep" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.orcrepGenerico.ComponenteOrcRep" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.orcrepGenerico.DefeitoOrcRep" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.orcrepGenerico.OrcRepGenerico" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.orcrepGenerico.RequisicaoComponente" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+
+	<cache name="br.com.sose.entity.proposta.ItemProposta" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+	<cache name="br.com.sose.entity.proposta.Proposta" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+
+	<cache name="br.com.sose.entity.reparo.Reparo" maxElementsInMemory="2000"	eternal="true" overflowToDisk="false" />
+
+</ehcache>

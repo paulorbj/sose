@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services-config>
+	<channels>
+		<channel-definition id="my-amf"
+			class="mx.messaging.channels.AMFChannel">
+			<endpoint
+				url="http://{server.name}:{server.port}/SoseWeb/messagebroker/amf"
+				class="flex.messaging.endpoints.AMFEndpoint" />
+			<properties>
+				<connect-timeout-seconds>0</connect-timeout-seconds>
+			</properties>
+		</channel-definition>
+
+		<channel-definition id="my-streaming-amf"
+			class="mx.messaging.channels.StreamingAMFChannel">
+			<endpoint
+				url="http://{server.name}:{server.port}/SoseWeb/messagebroker/streamingamf"
+				class="flex.messaging.endpoints.StreamingAMFEndpoint" />
+			<properties>
+				<idle-timeout-minutes>0</idle-timeout-minutes>
+				<max-streaming-clients>100</max-streaming-clients>
+				<user-agent-settings>
+					<user-agent match-on="MSIE" kickstart-bytes="2048"
+						max-streaming-connections-per-session="50" />
+					<user-agent match-on="Firefox" kickstart-bytes="2048"
+						max-streaming-connections-per-session="50" />
+				</user-agent-settings>
+			</properties>
+		</channel-definition>
+
+		<channel-definition id="my-polling-amf"
+			class="mx.messaging.channels.AMFChannel">
+			<endpoint
+				url="http://{server.name}:{server.port}/SoseWeb/messagebroker/amfpolling"
+				class="flex.messaging.endpoints.StreamingAMFEndpoint" />
+		</channel-definition>
+
+	</channels>
+
+	<services>
+		<service-include file-path="remoting-config.xml" />
+		<service-include file-path="messaging-config.xml" />
+		<service-include file-path="proxy-config.xml" />
+	</services>
+
+<!-- 
+	<logging>
+		<target class="flex.messaging.log.ConsoleTarget" level="All">
+			<properties>
+				<prefix>[BlazeDS] </prefix>
+				<includeDate>false</includeDate>
+				<includeTime>false</includeTime>
+				<includeLevel>false</includeLevel>
+				<includeCategory>false</includeCategory>
+			</properties>
+			<filters>
+				<pattern>Endpoint.*</pattern>
+				<pattern>Service.*</pattern>
+				<pattern>Configuration</pattern>
+			</filters>
+		</target>
+	</logging>
+ -->
+	<flex-client>
+		<timeout-minutes>0</timeout-minutes>
+	</flex-client>
+
+</services-config>
+
