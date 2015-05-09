@@ -14,7 +14,8 @@
 		 xmlns:componentesReparo="modules.reparoOrcamento.componentesReparo.*"
 		 verticalScrollPolicy="on" horizontalScrollPolicy="on"
 		 width = "100%" height="100%" initialize="init()" horizontalAlign="left" 
-		 paddingBottom="15" paddingLeft="10" paddingRight="10" paddingTop="10" >
+		 paddingBottom="15" paddingLeft="10" paddingRight="10" paddingTop="10" 
+		 xmlns:externo="modules.reparoOrcamento.externo.*" >
 	
 	<fx:Declarations>
 		
@@ -1617,6 +1618,8 @@
 				return true;
 			}	
 			
+
+				
 			private function validateEncaminharAoLider():Boolean {	
 				var isValidAreaTecnica:Boolean = false;
 				if(_orcamento){
@@ -1833,7 +1836,18 @@
 				trace("[ListarOrcamentoReparoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
 				dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','LAUDO_TECNICO_SOLICITADO_ERRO'), MessageType.ERROR, 10000));
 			}
+		/* 	private function unidadeExterno (event:FaultEvent = null):Boolean
+			{	
+				if( _reparo.ordemServico.unidade.laboratorio.nome.toString() = resourceManager.getString('ApplicationResource','EXTERNO')) return true;
+				else return false;
+			//checar se é assim que compara
+			} */
 			
+			private function isExterno():Boolean {
+				if (_reparo.ordemServico.unidade.laboratorio.nome == resourceManager.getString('ApplicationResource','EXTERNOM')) return true;
+				return false;
+				
+			}
 		]]>
 	</fx:Script>
 	
@@ -1848,8 +1862,11 @@
 	
 	<reparoOrcamento:ListagemGeral id="listagemGeral" includeIn="listagem" />
 	
+	<!--Tabbar é a tab em si, que recebe o dataprovider -->
+	<!--Olhar a documentacao de tudo isso-->
 	<s:TabBar id="tabs" left="8" y="2" dataProvider="{vs}" includeIn="edicaoOrcamento, edicaoReparo"/>
 
+	<!--Viewstack é o dataprovider das tabs-->
 	<mx:ViewStack id="vs" width="1000" height="100%" left="8" y="23" includeIn="edicaoOrcamento, edicaoReparo">
 		<s:NavigatorContent label="Informações Ordem Serviço"  width="100%" height="100%">
 				<componentesReparoOrcamento:InformacaoOrdemServico  id="infoOrdemServico" includeIn="edicaoOrcamento,edicaoReparo" />
@@ -1885,7 +1902,10 @@
 											 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
 				</mx:VBox>
 		</s:NavigatorContent>
-		
+<!--		Nova aba aqui-->
+		<s:NavigatorContent label="Externo"  width="100%" height="100%" enabled="{isExterno()}">
+			<externo:Externo id="externo"  width="100%"   />
+		</s:NavigatorContent>
 
 	</mx:ViewStack>
 	
