@@ -4,7 +4,9 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 width="100%" height="100%" creationComplete="configurarSubMenu();"
 		 verticalGap="0"  xmlns:orcamentoDiferenciado="modules.orcamentoDiferenciado.*"
-		 xmlns:laudoTecnico="modules.laudoTecnico.*" xmlns:reparoOrcamento="modules.reparoOrcamento.*">
+		 xmlns:laudoTecnico="modules.laudoTecnico.*" 
+		 xmlns:reparoOrcamento="modules.reparoOrcamento.*" 
+		 xmlns:externo="modules.reparoOrcamento.externo.*">
 	<fx:Script>
 		<![CDATA[
 			import components.messages.NotificationEvent;
@@ -81,6 +83,11 @@
 				   showEffect="fadeIn" hideEffect="fadeOut"  >
 			<orcamentoDiferenciado:ListagemOrcamentoDiferenciado/>
 		</mx:Canvas>
+<!--		<mx:Canvas id="listagemExterno" width = "100%" height="100%" 
+				   label = "{resourceManager.getString('ApplicationResource','EXTERNO')}"  
+				   showEffect="fadeIn" hideEffect="fadeOut"  >
+			<externo:Externo/>
+		</mx:Canvas>-->
 	</mx:ViewStack>
 	
 </mx:VBox>
