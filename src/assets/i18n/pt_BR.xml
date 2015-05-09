@@ -729,5 +729,7 @@
 	<property key="URL_VISUALIZAR_ARQUIVO" value="http://192.168.0.105:8080/SoseWeb/arquivo_servilogi/" />
 		
 	<property key="LAUDO_TECNICO_MSG_PADRAO_INFORMACAO_TECNICA" value="Informamos que esta unidade está sem condições de reparo, devido a uma provável descarga elétrica, pois alguns componentes dedicados do circuito impresso estão danificados." />
+	<property key="EXTERNO" value="Externo" />
+	<property key="EXTERNOM" value="EXTERNO" />
 	
 </locale>
