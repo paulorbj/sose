@@ -304,7 +304,7 @@
 	<mx:Canvas id="header" top="0" left="0" right="0">
 		
 		<mx:VBox right="730" verticalCenter="0" verticalGap="0">
-			<s:Label text="Versão: 07/04/2015" fontSize="12" color="red" />
+			<s:Label text="Versão: 07/05/2015" fontSize="12" color="red" />
 			<mx:HBox>
 				<s:Label text="USUÁRIO LOGADO:" styleName="welcome" fontSize="12"  />
 				<s:Spacer width="100%" />
