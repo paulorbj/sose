@@ -139,7 +139,7 @@
 			private function onMsgEstoque(event:MessageEvent):void{ 
 				var globalMessage:GlobalMessage = event.message.body as GlobalMessage;	
 				
-				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA){
+				if (globalMessage.mensagem==MensagensAplicacao.ESTOQUE_REQUISICAO_RELOAD){
 					//adicionarRequisicao(globalMessage.conteudo as RequisicaoComponente);
 					btAtualizar.setStyle("icon", synchronized_verde);
 				}
