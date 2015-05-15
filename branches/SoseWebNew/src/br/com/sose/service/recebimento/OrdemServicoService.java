@@ -588,9 +588,10 @@ public class OrdemServicoService {
 		List<OrdemServico> osRetornadas = ordemServicoDao.buscarOSporSeries(ordemServico.getCliente(),ordemServico.getSerieFabricante(),ordemServico.getSerieCliente(),ordemServico.getUnidade());
 		Long  maiorNumeroOS = ordemServicoDao.buscarMaiorNumeroOrdemServico();
 		try{
-			if(Integer.parseInt(ordemServico.getNumeroOrdemServico()) > maiorNumeroOS.intValue() + 3000){
-				throw new NumeroOrdemServicoMaiorQuePermitidoException(ordemServico.getNumeroOrdemServico(),  maiorNumeroOS.intValue() + 3000);
-			}
+//Walmir pediu para tirar a restrição de limite maximo para o número da ordem de servico			
+//			if(Integer.parseInt(ordemServico.getNumeroOrdemServico()) > maiorNumeroOS.intValue() + 3000){
+//				throw new NumeroOrdemServicoMaiorQuePermitidoException(ordemServico.getNumeroOrdemServico(),  maiorNumeroOS.intValue() + 3000);
+//			}
 
 
 			if(osRetornadas == null || osRetornadas.isEmpty()){
