@@ -42,4 +42,10 @@ public class AguardandoProposta extends StatusReparo {
 		return reparoService.atribuirPrioridade(reparo,date, usuario);
 	}
 	
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public Reparo salvarReparo(Reparo reparo) throws Exception {
+		return reparoService.salvarReparo(reparo);
+	}
+	
 }

@@ -42,4 +42,10 @@ public class AguardandoProposta extends StatusOrcamento {
 		return orcamentoService.atribuirPrioridade(orcamento,date, usuario);
 	}
 	
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public Orcamento salvarOrcamento(Orcamento orcamento) throws Exception {
+		return orcamentoService.salvarOrcamento(orcamento);
+	}
+	
 }

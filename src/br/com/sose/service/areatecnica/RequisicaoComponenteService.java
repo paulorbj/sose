@@ -37,6 +37,7 @@ import br.com.sose.status.estoque.Coletado;
 import br.com.sose.status.estoque.ColetandoMaterial;
 import br.com.sose.status.estoque.ComponenteEmFalta;
 import br.com.sose.status.estoque.ComponenteNaoEncontrado;
+import br.com.sose.status.estoque.NotificarEstoque;
 import br.com.sose.status.estoque.Recebido;
 import br.com.sose.status.estoque.Retirado;
 import br.com.sose.status.estoque.SendoEntregue;
@@ -259,7 +260,7 @@ public class RequisicaoComponenteService {
 		Componente componente;
 		try {
 			requisicaoComponente.setDataRequisicao(new Date());
-			requisicaoComponente.setStatusString(AguardandoAtendimento.nome);
+			requisicaoComponente.setStatusString(NotificarEstoque.nome);
 			requisicaoComponenteSalva =(RequisicaoComponente) salvarRequisicao(requisicaoComponente);
 
 			//TODO - Controle do estoque de componentes
@@ -329,6 +330,25 @@ public class RequisicaoComponenteService {
 			throw e;
 		}
 		return requisicaoComponenteSalva;
+	}
+	
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public List<RequisicaoComponente> notificarEstoque(List<RequisicaoComponente> requisicoes) throws Exception {
+		try {
+			for(RequisicaoComponente req : requisicoes) {
+				if(req.getStatusString().equals(NotificarEstoque.nome)){
+					req.setStatusString(AguardandoAtendimento.nome);
+					req = requisicaoComponenteDao.save(req);
+				}
+			}
+			
+		}catch (Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			throw e;
+		}
+		return requisicoes;
 	}
 
 	@RemotingInclude
