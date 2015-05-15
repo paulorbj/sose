@@ -385,7 +385,7 @@
 	<mx:HBox width="100%" verticalAlign="middle">
 		<texto:TextInput id="qtdComprada" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" required="true" labelText="Qtd comprada" width="10%"  />
 		<texto:TextInputDinheiro2d id="valorUnitario" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"  labelText="Valor unitário (R$)" width="10%"  />
-		<texto:TextInputDinheiro2d id="valorUnitarioDolar" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"  labelText="Valor unitário (US$)" width="10%"  />
+		<texto:TextInputDinheiro2dDolar id="valorUnitarioDolar" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}"  labelText="Valor unitário (US$)" width="10%"  />
 		<texto:TextInput id="nNotaFiscal" habilitado="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" labelText="Nº NF" width="15%"  />
 		
 		<combos:ComboFornecedor id="cbFornecedor" labelText="Fornecedor" width="25%" enabled="{_itemCompra.status != 'Notificado' &amp;&amp; _itemCompra.status != 'Finalizado'}" changeFunction="atualizarComboFornecedor"  />

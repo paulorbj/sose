@@ -39,6 +39,10 @@
 					   fault="onEfetivarRequisicaoFault(event)" 
 					   result="onEfetivarRequisicaoResult(event)"
 					   />
+			<mx:method name="notificarEstoque"      
+					   fault="onNotificarEstoqueFault(event)" 
+					   result="onNotificarEstoqueResult(event)"
+					   />
 			<mx:method name="receberMaterial"      
 					   fault="onReceberMaterialFault(event)" 
 					   result="onReceberMaterialResult(event)"
@@ -346,7 +350,24 @@
 			
 			private function notificarEstoque(event:MouseEvent=null):void
 			{
-				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_CRIADA,null);
+				requisicaoComponenteService.notificarEstoque(listaRequisicoes);
+			
+			}
+			
+			private function onNotificarEstoqueResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				listaRequisicoes = event.result as ArrayCollection;
+				
+				Publicador.enviarMensagemEstoque(MensagensAplicacao.ESTOQUE_REQUISICAO_RELOAD,null);
+			
+			}
+			
+			private function onNotificarEstoqueFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onNotificarEstoqueFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao notificar estoque", MessageType.ERROR, 10000));
 			}
 			
 			public function efetivarRequisicaoAutenticar(event:UserRegisterNumberModalEvent=null):void{
