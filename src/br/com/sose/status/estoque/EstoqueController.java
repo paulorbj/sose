@@ -30,6 +30,8 @@ public class EstoqueController {
 	private Cancelado canceladoEstoqueStatus;
 	@Autowired
 	private ComponenteEmFalta componenteEmFaltaEstoqueStatus;
+	@Autowired
+	private NotificarEstoque notificarEstoqueStatus;	
 	
 	private RequisicaoComponente getStatus(RequisicaoComponente requisicaoComponente){
 		if(requisicaoComponente.getStatusString() == null || requisicaoComponente.getStatusString().equals("") || requisicaoComponente.getStatusString().equals(AguardandoAtendimento.nome)){
@@ -56,6 +58,9 @@ public class EstoqueController {
 		}else if(requisicaoComponente.getStatusString().equals(ComponenteEmFalta.nome)){
 			componenteEmFaltaEstoqueStatus.setRequisicaoComponente(requisicaoComponente);
 			requisicaoComponente.setStatus(componenteEmFaltaEstoqueStatus);
+		}else if(requisicaoComponente.getStatusString().equals(NotificarEstoque.nome)){
+			notificarEstoqueStatus.setRequisicaoComponente(requisicaoComponente);
+			requisicaoComponente.setStatus(notificarEstoqueStatus);
 		}
 		return requisicaoComponente;
 	}

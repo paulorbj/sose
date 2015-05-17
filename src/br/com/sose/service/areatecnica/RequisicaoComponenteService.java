@@ -335,11 +335,13 @@ public class RequisicaoComponenteService {
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public List<RequisicaoComponente> notificarEstoque(List<RequisicaoComponente> requisicoes) throws Exception {
+		int i = 0;
 		try {
 			for(RequisicaoComponente req : requisicoes) {
 				if(req.getStatusString().equals(NotificarEstoque.nome)){
 					req.setStatusString(AguardandoAtendimento.nome);
-					req = requisicaoComponenteDao.save(req);
+					requisicaoComponenteDao.update(req);
+					i++;
 				}
 			}
 			
