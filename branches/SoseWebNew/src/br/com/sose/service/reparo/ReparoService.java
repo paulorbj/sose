@@ -192,6 +192,8 @@ public class ReparoService {
 			if(ordemServico.getOrcamento() != null){
 				reparo.setStatusString(NaoIniciado.nome);
 				reparo.setCriadoFromOrcamento(true);
+				reparo.setComponentePendente(ordemServico.getOrcamento().getComponentePendente());
+				reparo.setComponenteEmFalta(ordemServico.getOrcamento().getComponenteEmFalta());
 				reparo.setTecnicoResponsavel(ordemServico.getOrcamento().getTecnicoResponsavel());
 				reparo.setJaReparado(ordemServico.getOrcamento().getJaReparado());
 			}else{
