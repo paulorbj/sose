@@ -202,7 +202,7 @@
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   click="salvar(event)"
-				   enabled.editar="{_reparo.statusString == 'Iniciado'}" enabled.visualizar="false"
+				   enabled.editar="{_reparo.statusString == 'Iniciado' || _reparo.statusString == 'Aguardando proposta'}" enabled.visualizar="false"
 				   />
 		<s:Spacer width="17" />
 		<mx:Button id="btDevolverSemReparo" 

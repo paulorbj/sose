@@ -178,7 +178,7 @@
 				   labelPlacement="bottom"
 				   icon="@Embed(source='/assets/icons/save.png')"
 				   click="salvar(event)"
-				   enabled.editar="{_orcamento.statusString == 'Iniciado'}" enabled.visualizar="false"
+				   enabled.editar="{_orcamento.statusString == 'Iniciado' || _orcamento.statusString == 'Aguardando proposta'}" enabled.visualizar="false"
 				   />
 		<s:Spacer width="17" />
 		<mx:Button id="btEncaminhar" width="70"
