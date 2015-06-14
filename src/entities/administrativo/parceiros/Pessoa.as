@@ -30,6 +30,7 @@ package entities.administrativo.parceiros
 		private var _tempoGarantia:Number;
 		private var _prazoDevolucao:Number;
 		private var _estenderGarantia:Boolean;
+		private var _assigned:Boolean;
 
 		public function Pessoa()
 		{
@@ -240,6 +241,16 @@ package entities.administrativo.parceiros
 		public function set estenderGarantia(value:Boolean):void
 		{
 			_estenderGarantia = value;
+		}
+
+		public function get assigned():Boolean
+		{
+			return _assigned;
+		}
+
+		public function set assigned(value:Boolean):void
+		{
+			_assigned = value;
 		}
 
 

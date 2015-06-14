@@ -185,6 +185,7 @@
 			
 			public function validarCamposPesquisa():Boolean {	
 				var validatorArr:Array = new Array();
+				//Ao descomentar a linha do combocheckcliente, comentar a linha abaixo
 				validatorArr.push(cbCliente.comboBox.comboValidator);
 				validatorArr.push(dataDe.stringValidator);
 				validatorArr.push(dataAte.stringValidator);
@@ -582,6 +583,7 @@
 	
 	<mx:HBox verticalAlign="bottom" width="100%">
 		<combos:ComboCliente id="cbCliente" labelText="Cliente" width="200" required="true"  />
+		<!--<combos:ComboCheckCliente id="cbCliente" labelText="Cliente" width="200" required="true"  />-->
 		<components:DataInput id="dataDe" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_DE')}" width="10%" inputHeight="20" />
 		<components:DataInput id="dataAte" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_ATE')}" width="10%" inputHeight="20" />
 		<mx:Button id="btPesquisar"
