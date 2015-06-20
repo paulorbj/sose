@@ -100,5 +100,5 @@
 		]]>
 	</fx:Script>
 	
-	<combo:ComboCheck id="comboBox"  change="{changeFunction}"  />
+	<combo:ComboCheck id="comboBox"  change="{changeFunction}"  width="100%"/>
 </mx:VBox>
