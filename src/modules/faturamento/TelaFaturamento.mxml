@@ -44,6 +44,9 @@
 		<mx:Canvas id="listagem" label = "Listagem de faturas"  showEffect="fadeIn" hideEffect="fadeOut"  >
 			<faturamento:ListagemFatura />
 		</mx:Canvas>
+		<mx:Canvas id="consulta" label = "Consultas Faturamento"  showEffect="fadeIn" hideEffect="fadeOut"  >
+			<faturamento:ConsultaFaturamento />
+		</mx:Canvas>
 	</mx:ViewStack>
 	
 </mx:VBox>
