@@ -455,10 +455,26 @@
 											dataIndex:int,
 											color:uint):uint {
 				//Implementar a logica de colorir tabela de fatura
+				var faturamento:Faturamento = item as Faturamento;
+				
 				SoseFlex.dataAtual 
-				return 0;
+					
+ 				if(faturamento.statusString == "Aberta"){
+					return 0xD19275;
+				}
+				if(faturamento.statusString == "Nova"){
+					return 0xFDFF00;
+				}
+				if(faturamento.statusString == "Processada"){
+					return 0xFF9900;
+				}
+				if(faturamento.statusString == "Finalizada"){
+					return 0xFFFFFF;
+				} 
+				return 0x5FA6BF;
 			}
 			
+
 		]]>
 	</fx:Script>
 	
