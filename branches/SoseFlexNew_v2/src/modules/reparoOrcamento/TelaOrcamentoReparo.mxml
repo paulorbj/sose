@@ -456,6 +456,9 @@
 				infoComponentes.setReparo(value);
 				infoDefeitos.setDefeitos(value.listaDefeito,value,null);
 				infoAtividades.setAtividades(value.listaAtividade,value,null);
+				externo.orcRep = value;
+				/* externo.usuario =  */
+				
 				controlesReparo.reparo = value;
 				
 				listagemGeral.adicionarOrcRep(ScreenUtils.converterReparoToOrcRep(value));
@@ -494,6 +497,7 @@
 				infoComponentes.setOrcamento(value);
 				infoDefeitos.setDefeitos(value.listaDefeito,null, value);
 				infoAtividades.setAtividades(value.listaAtividade,null,value);
+				externo.orcRep = value;
 				controlesOrcamento.orcamento = value;
 				
 				listagemGeral.adicionarOrcRep(ScreenUtils.converterOrcamentoToOrcRep(value));
@@ -1843,8 +1847,8 @@
 			//checar se é assim que compara
 			} */
 			
-			private function isExterno():Boolean {
-				if (_reparo.ordemServico.unidade.laboratorio.nome == resourceManager.getString('ApplicationResource','EXTERNOM')) return true;
+			public function isExterno():Boolean {
+				if (externo.orcRep.ordemServico.unidade.laboratorio.nome == resourceManager.getString('ApplicationResource','EXTERNOM')) return true;
 				return false;
 				
 			}
@@ -1903,8 +1907,8 @@
 				</mx:VBox>
 		</s:NavigatorContent>
 <!--		Nova aba aqui-->
-		<s:NavigatorContent label="Externo"  width="100%" height="100%" enabled="{isExterno()}">
-			<externo:Externo id="externo"  width="100%"   />
+		<s:NavigatorContent label="Externo"  width="100%" height="100%" enabled="{isExterno}">
+			<externo:TelaExterno id="externo"  width="100%"   />
 		</s:NavigatorContent>
 
 	</mx:ViewStack>
