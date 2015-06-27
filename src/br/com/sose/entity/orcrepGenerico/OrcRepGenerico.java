@@ -2,6 +2,7 @@
 package br.com.sose.entity.orcrepGenerico;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -12,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -21,6 +23,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import br.com.sose.entity.admistrativo.Usuario;
+import br.com.sose.entity.externo.ObservacaoExterno;
 
 @MappedSuperclass
 @Configurable
@@ -98,6 +101,11 @@ public class OrcRepGenerico {
 	
 	@Column(name = "tempo_gasto")
 	protected Integer tempoGasto;
+	
+
+//	@OneToMany(mappedBy="id", fetch=FetchType.LAZY)
+//	@JoinColumn(name = "externo", referencedColumnName = "id")
+//	private Set<ObservacaoExterno> historico;
 
 	protected Date prioridade;
 	
