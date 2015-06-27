@@ -1,6 +1,7 @@
 package entities.orcamentoreparo
 {
 	import entities.administrativo.Usuario;
+	import entities.orcamentoreparo.Externo;
 	import entities.recebimento.OrdemServico;
 	
 	import mx.collections.ArrayCollection;
@@ -49,6 +50,7 @@ package entities.orcamentoreparo
 		private var _dataRequisicaoLaudoTecnico:Date;
 		private var _componentePendente:Boolean;
 		private var _componenteEmFalta:Boolean;
+		private var _externo:ArrayCollection;
 		
 		public function get id():Number
 		{
@@ -482,6 +484,16 @@ package entities.orcamentoreparo
 		public function set componenteEmFalta(value:Boolean):void
 		{
 			_componenteEmFalta = value;
+		}
+
+		public function get externo():ArrayCollection
+		{
+			return _externo;
+		}
+
+		public function set externo(value:ArrayCollection):void
+		{
+			_externo = value;
 		}
 
 
