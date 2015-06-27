@@ -2,33 +2,54 @@
 <mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 width="100%" height="100%" creationComplete="configurarSubMenu();"
+		 width="100%" height="100%" 
 		 verticalGap="0" 
 		 xmlns:faturamento="modules.faturamento.*" 
 		 xmlns:components="components.*"
 		 xmlns:grid="components.grid.*" 
 		 xmlns:dc="components.grid.filtros.controles.*"
 		 xmlns:combos="components.combos.*">
+<!--	creationComplete="configurarSubMenu();"-->
+	<fx:Declarations>
+		<mx:Fade id="fadeIn" duration="100" alphaFrom="0" alphaTo="1"/>
+		<mx:Fade id="fadeOut" duration="100" alphaFrom="1" alphaTo="0"/>
+		
+
+	
+		
+		<mx:RemoteObject id="faturamentoService" destination="faturamentoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarFaturas"      
+					   fault="onListarFaturasFault(event)" 
+					   result="onListarFaturasResult(event)"
+					   />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
 	<fx:Script>
 		<![CDATA[
+			import components.messages.MensagemEvent;
+			import components.messages.MessageType;
+			
+			import entities.faturamento.Faturamento;
 			
 			import modules.view.Login;
-			import entities.faturamento.Faturamento;
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.SortField;
-			import mx.managers.CursorManager;
-			
-			import mx.messaging.events.MessageEvent;
+			import mx.controls.List;
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.messaging.events.MessageEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			import mx.collections.Sort;
-			import mx.collections.SortField;
 			
 			
 			private var sortListagem:Sort;
+			
+			private var listaStatusArray:Array = new Array("Pendente", "Faturado", "Todos");
+			private var listaStatus:ArrayCollection = new ArrayCollection(listaStatusArray);
 			
 			[Bindable]
 			private var _listaOrdemServico:ArrayCollection;
@@ -39,70 +60,65 @@
 			[Bindable]
 			public var _fatura:Faturamento;
 			
-			private function configurarSubMenu():void
+/* 			private function configurarSubMenu():void
 			{
-/* 				if(Login.currentUser){
+				if(Login.currentUser){
 					if(!Login.currentUser.perfil.subMenuBaixaFaturamento){
 						subMenu.removeChild(baixa);
 					}
 					if(!Login.currentUser.perfil.subMenuListagemFaturamento){
 						subMenu.removeChild(listagem);
 					}
-				} */
-			}
+				} 
+			} */
 			
 			private function pesquisar(event:MouseEvent):void
 			{
-				//if(validarCamposPesquisa()){
-					ordemServicoService.showBusyCursor = true;
-					ordemServicoService.channelSet = parentApplication.channelSet;
-					ordemServicoService.listarOrdemServicoAFaturar(cbcCliente.clienteSelecionado,dataDe.inputDate,dataAte.inputDate);
-				//}else{
-				//	dispatchEvent(new MensagemEvent(resourceManager.getString('ApplicationResource','ERRO_VALIDACAO'), MessageType.WARNING, 3000));
-				//}
+				faturamentoService.listarFaturas();
+				
 			}
 			
-			private function onListarOrdemServicoAFaturarResult(event:ResultEvent = null):void
+			private function onListarFaturasResult(event:ResultEvent = null):void
 			{
-				_listaOrdemServico = event.result as ArrayCollection;
-				_listaOrdemServico.sort = sortListagem;
-				_listaOrdemServico.refresh();
+				_listaFatura = event.result as ArrayCollection;
 			}
 			
-			private function initializeListagem():void
+			private function onListarFaturasFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");
+				dispatchEvent(new MensagemEvent("Erro ao listar faturas", MessageType.ERROR, 5000));
+				
+			}
+			
+/* 			private function initializeListagem():void
 			{
 				sortListagem = new Sort();
 				sortListagem.fields=[new SortField("nomeCliente",false,false,false),new SortField("numeroOrdemServico",false,false,true)];
-			}		
+			}	 */	
 			
-			private function onListarOrdemServicoAFaturarFault(event:FaultEvent = null):void
+			private function get totalFaturas():Number
 			{
-				CursorManager.removeAllCursors();
-				trace("[onListarOrdemServicoBaixaExpedicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+				var total:Number = 0;
+				faturamentoService.listarFaturas();
+				if(_listaFatura){
+					for each(var fat:Faturamento in _listaFatura){
+						total = total + fat.totalFatura;
+					}
+				}
+				return total;
 			}
-			
 		]]>
 	</fx:Script>
 	
-	<fx:Declarations>
-		<mx:Fade id="fadeIn" duration="100" alphaFrom="0" alphaTo="1"/>
-		<mx:Fade id="fadeOut" duration="100" alphaFrom="1" alphaTo="0"/>
-	
-		<mx:RemoteObject id="ordemServicoService" destination="ordemServicoService" requestTimeout="-1" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="listarOrdemServicoAFaturar"      
-					   fault="onListarOrdemServicoAFaturarFault(event)" 
-					   result="onListarOrdemServicoAFaturarResult(event)"
-					   />
-		</mx:RemoteObject>
-		
-	
-	</fx:Declarations>
+
 	
 
 			<mx:HBox verticalAlign="middle" width="100%">
 				<combos:ComboCheckCliente id="cbcCliente" labelText="Cliente" width="200" required="true"  />
 				<components:DataInput id="dataDe" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_DE')}" width="10%" inputHeight="20" />
 				<components:DataInput id="dataAte" required="true" labelText="{resourceManager.getString('ApplicationResource','DATA_ATE')}" width="10%" inputHeight="20" />
+				<components:ComboBoxInput id="statusFaturamento" required="true" labelText="Status" width="200" dataProvider="{listaStatus}"/>
 				<mx:Button id="btPesquisar"
 						   label="Pesquisar"
 						   height="25"
@@ -112,11 +128,11 @@
 	
 	
 			<mx:TitleWindow title="Lista de ordens de serviço - Nº de OSs: {_listaOrdemServico.length}" width="100%" height="98%" >
-				<grid:MantisTable id="tabelaListaOs"
+				<grid:MantisTable id="viewTable"
 								  width="100%"
-								  height="98%"
-								  draggableColumns="true" editable="false"
-								  dataProvider="{_listaOrdemServico}"
+								  height="100%"
+								  draggableColumns="true"
+								  dataProvider="{_listaFatura}"
 								  doubleClickEnabled="false"
 								  >
 					<grid:columns>
@@ -125,55 +141,76 @@
 						
 						<!-- EDIT/REMOVE COLUMNS -->
 						
-					
-						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="dtFaturamento" width=".10"
-												 headerText = "Data Faturamento"
+						<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+										   draggable="false"							 
+										   editable="false"
+										   sortable="false">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center"
+											 verticalAlign="middle"
+											 >
+										
+										<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+												  click="parentDocument.visualizarDetalhe(data, event)"
+												  buttonMode="true"
+												  useHandCursor="true"
+												  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+												  />						
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						
+						
+						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataEmissaoFatura"
+												 headerText = "Data emissão"
 												 textAlign="center"
 												 sortable="false"
-												 dataField="dtFaturamento"							   
+												 dataField="dataEmissaoFaturaString"							   
 												 />
 						
-						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cCliente" width=".10"
-												 headerText = "Cliente"
+						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="cliente"
+												 headerText = "{resourceManager.getString('ApplicationResource','CLIENTE')}"
 												 textAlign="center"
 												 sortable="false"
 												 dataField="cliente.nomeSistema"							   
 												 />
 						
-
-						
-						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="numeroNFSaida" width=".10"
+						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="dataCriacao"
 												 headerText = "Nº Fatura"
 												 textAlign="center"
 												 sortable="false"
-												 dataField="notaFiscalSaida.numero"							   
+												 dataField="numeroFatura"							   
 												 />
 						
-						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="unidade" width=".10"
-												 headerText = "Valor Faturado" 
-												 textAlign="center"
-												 sortable="false"
-												 dataField="unidade.nome"							   
+						<dc:DataGridColumnFilter id="valor" 
+												 headerText = "**Valor"
+												 dataField = "totalFatura"
+												 width="80"
 												 />
-				
-						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="dtVencimento" width=".10"
-												 headerText = "Data Vencimento"
+						
+						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataVencimentoFatura"
+												 headerText = "Data vencimento"
 												 textAlign="center"
 												 sortable="false"
-												 dataField="dtVencimento"							   
+												 dataField="dataVencimentoFaturaString"							   
 												 />
-						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.BeginWithFilterRenderer" id="dtPagamento" width=".10"
-												 headerText = "Data Pagamento"
+						
+						<dc:DataGridColumnFilter filterRenderer="components.grid.filtros.DateFilterRenderer" id="dataPagamentoFatura"
+												 headerText = "Data pagamento"
 												 textAlign="center"
 												 sortable="false"
-												 dataField="dtPagamento"							   
+												 dataField="dataPagamentoFaturaString"							   
 												 />
 						
 					</grid:columns>
 				</grid:MantisTable>
 			</mx:TitleWindow>
-		
-			
+
+	<mx:HBox paddingTop="10">
+		<s:Label text="Somatória das Faturas: {totalFaturas}" textAlign="right" fontWeight="bold" fontSize="14"  />
+	</mx:HBox>
 			<!--<faturamento:DetalhamentoFatura id="detalhamentoFatura" />-->
 			
 		
