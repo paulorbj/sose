@@ -6,19 +6,48 @@
 		 paddingRight="12"
 		 paddingBottom="20" paddingTop="20"
 		 width="100%" height="100%"
-		 verticalGap="0"  >
+		 verticalGap="0" xmlns:home="modules.home.*"  >
 	<fx:Script>
 		<![CDATA[
 
+			[bindable]
+			private var mwidth:Number;
 			
-	
+			[bindable]
+			private var mheight:Number;
+			
+			private function CapabilitiesMax():void
+			{
+				mwidth = 0.33*Capabilities.screenResolutionX;
+				mheight = 0.33*Capabilities.screenResolutionY;
+				aviso1.height = mheight;
+				aviso1.width = mwidth;
+			}
 
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
-
-	</fx:Declarations>
 		
 
+
+	</fx:Declarations>
+	<mx:HBox verticalAlign="bottom" width="100%" height="100%">	
+	<mx:Tile id="home"
+			 width = "100%"
+			 height="100%"
+			 
+			 direction="horizontal" 
+			 borderStyle="solid"
+			 paddingTop="10" paddingBottom="10" 
+			 paddingRight="10" paddingLeft="10" 
+			 verticalGap="15" horizontalGap="10"
+			 initialize="{CapabilitiesMax()}">
+		
+		<home:AvisoComTexto id="aviso1" tituloDoAviso="Aviso 1" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso2" tituloDoAviso="Aviso 2" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso3" tituloDoAviso="Aviso 3" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso4" tituloDoAviso="Aviso 4" height="{mheight}" width="{mwidth}" />
+		</mx:Tile>
+</mx:HBox>
 </mx:VBox>

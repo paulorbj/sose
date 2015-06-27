@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   width="100%" 
+		   height="100%" 
+		   borderStyle="solid" 
+		   creationComplete="init()"  
+		   creationPolicy="all"
+		   >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			//public var cancelar:Function;
+			
+			public function mudarParaConfiguracao():void
+			{
+				this.currentState = "config";
+				if(!containerConfiguracao.contains(configuracao)){
+					containerConfiguracao.addElement(configuracao);
+				}
+			}
+			
+			public function fechar():void
+			{
+				
+			}
+			
+			public function abrirConfig():void
+			{
+				
+			}
+			
+			public function mudarParaVisualizacao():void
+			{
+				this.currentState = "normal";
+			}
+			
+			
+			// Define a property for the top component.
+			public var visualizacao:UIComponent;
+			
+			public var configuracao:UIComponent;
+			
+			[Bindable]
+			public var tituloDoAviso:String;
+			
+			private function init():void {            				
+				containerVisualizacao.addElement(visualizacao);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:states>
+		<s:State name="normal"/>
+		<s:State name="config"/>
+	</mx:states>
+	
+	<s:Label text="{tituloDoAviso}" top="10" left="5" includeIn="normal" />
+	<mx:Image source="@Embed(source='/assets/icons/cog.png')" top="10" right="5" includeIn="normal" click="abrirConfig()" />
+	<s:Label text="Configurações" top="10" left="5" includeIn="config" />
+	<mx:Image source="@Embed(source='/assets/icons/black_cross.png')" width="16" height="16" top="10" right="5" includeIn="config" click="fechar()" />
+	
+	<mx:VBox top="30" bottom="10" backgroundColor="0xFFFFFF" id="containerVisualizacao" includeIn="normal" creationPolicy="all"
+			 height="100%" width="100%" />
+	
+	<mx:VBox top="30" bottom="10" backgroundColor="0xFFFFFF" id="containerConfiguracao" includeIn="config" creationPolicy="all"
+			 height="100%" width="100%" />
+</mx:Canvas>
