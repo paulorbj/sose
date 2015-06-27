@@ -457,23 +457,36 @@
 				//Implementar a logica de colorir tabela de fatura
 				var faturamento:Faturamento = item as Faturamento;
 				
-				SoseFlex.dataAtual 
-					
+				//SoseFlex.dataAtual 
+				var CurrentDateTime:Date = SoseFlex.dataAtual;
+				var seteDiasEmMili:Number = 1000*60*60*24*7;
+				
+				if ((faturamento.statusString == null) || (faturamento.dataVencimentoFatura == null)) return 0x330066; //roxo --> eh pau, fatura mal preenchida
+				
  				if(faturamento.statusString == "Aberta"){
-					return 0xD19275;
+					return 0xD19275;//descobrir a cor
 				}
 				if(faturamento.statusString == "Nova"){
-					return 0xFDFF00;
+					return 0xFDFF00;//descobrir a cor
 				}
 				if(faturamento.statusString == "Processada"){
-					return 0xFF9900;
+					return 0xFF9900;//descobrir a cor
 				}
 				if(faturamento.statusString == "Finalizada"){
-					return 0xFFFFFF;
-				} 
+					return 0xFFFFFF; //branco
+				}
+				if((faturamento.statusString != "Finalizada") && ((faturamento.dataVencimentoFatura.time - CurrentDateTime.time) > seteDiasEmMili)){
+					return 0x99FF00 ;//Faturado --> verde
+				}
+				if((faturamento.statusString != "Finalizada") && ((faturamento.dataVencimentoFatura.time - CurrentDateTime.time) <= seteDiasEmMili) && ((faturamento.dataVencimentoFatura.time - CurrentDateTime.time) > 0)){
+					return 0xFFFF33;//Proximo --> Amarelo claro
+				}
+				if((faturamento.statusString != "Finalizada") && ((faturamento.dataVencimentoFatura.time - CurrentDateTime.time) < 0)){
+					return 0xFF3333;//Atrasado --> Vermelho claro
+				}
+					
 				return 0x5FA6BF;
 			}
-			
 
 		]]>
 	</fx:Script>
