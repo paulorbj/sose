@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+		 paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		 xmlns:texto="components.textInput.*" 
+		 xmlns:componentes="components.*" 
+		 xmlns:combos="components.combos.*"
+		 xmlns:combo="components.*" 
+		 xmlns:grid="components.grid.*">
+	
+	<!--creationComplete="onCreationComplete()"-->
+	
+	
+	<fx:Declarations>
+		
+<!--		<mx:RemoteObject id="contatoService" destination="contatoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarPorCliente"      
+					   fault="onlistarPorClienteFault(event)" 
+					   result="onlistarPorClienteResult(event)"
+					   />
+		</mx:RemoteObject>-->
+		
+		<mx:RemoteObject id="pessoaService" destination="pessoaService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="buscarPorId"      
+					   fault="onbuscarPorIdFault(event)" 
+					   result="onbuscarPorIdResult(event)"
+					   />
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import components.PopupModalController;
+			import components.events.UserRegisterNumberModalEvent;
+			
+			import entities.administrativo.Observacao;
+			import entities.administrativo.ObservacaoExterno;
+			import entities.administrativo.Usuario;
+			import entities.administrativo.parceiros.Contato;
+			import entities.administrativo.parceiros.Endereco;
+			import entities.administrativo.parceiros.Pessoa;
+			import entities.orcamentoreparo.Externo;
+			import entities.orcamentoreparo.OrcRepGenerico;
+			import entities.orcamentoreparo.Reparo;
+			
+			import modules.administrativo.parceiros.contato.eventos.ContatoEvent;
+			import modules.administrativo.parceiros.endereco.eventos.EnderecoEvent;
+			import modules.administrativo.parceiros.pessoa.CadastroPessoaModal;
+			import modules.view.Login;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.containers.TitleWindow;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+			
+			import utils.TipoPessoa;
+			
+			private var _pessoa:Pessoa;
+			
+/* 			[Bindable]
+			public var listaEndereco:ArrayCollection = new ArrayCollection; */
+			
+/* 			private var endereco:Endereco; */
+			
+			private var _usuario:Usuario;
+			
+			[Bindable]
+			public var _listaEndereco:ArrayCollection; /*  = new ArrayCollection; */
+			
+/* 			private var contato:Contato; */
+			
+			[Bindable]
+			public var habilitado:Boolean = true;
+			
+			[Bindable]
+			public var habilitadoNFR:Boolean = false;
+			
+			[Bindable]
+			private var _observacao:Observacao = new Observacao();
+			
+/* 			[Bindable]
+			private var _listaObservacao:ArrayCollection = new ArrayCollection(); */
+			
+			
+			[Bindable]
+			private var _orcRep:OrcRepGenerico;
+			
+			[Bindable]
+			private var _dataCriacao:Date;
+			
+			[Bindable]
+			private var listaExterno:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var listaObsExterno:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _listaContato:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _externo:Externo;
+			
+			/* [Bindable] */
+			/* public var changeFunction:Function = null; */
+			
+			[Bindable]
+			public var required:Boolean = false;
+			
+			
+			[Bindable]
+			
+			
+			[Bindable]
+			public function get orcRep():OrcRepGenerico
+			{
+				return _orcRep;
+			}
+			
+			public function set orcRep(value:OrcRepGenerico):void
+			{
+				_orcRep = value;
+				_orcRep.externo = new ArrayCollection();
+				listaExterno = _orcRep.externo;
+				
+			}
+			
+			public function changeFunction(event:Event = null):void
+			{
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){				
+				_pessoa = comboBox.prestadorServicoSelecionado as Pessoa;
+				pessoaService.buscarPorId(_pessoa.id);
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onAdicionarObservacaoAutenticar);
+				}
+
+				/* contatoService.listarPorCliente(_pessoa); */
+
+			}
+			
+			public function onAdicionarObservacaoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				changeFunction();
+			}
+			
+			public function onAdicionarExternoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				adicionarExterno();
+			}
+			
+			public function onAdicionarNfRetornoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				adicionarNfRetorno();
+			}
+			
+			public function onAdcionarObservacaoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				adicionarObservacao();
+			}
+			
+			public function onNovoExternoAutenticar(event:UserRegisterNumberModalEvent=null):void{
+				novoExterno();
+			}
+
+			public function adicionarExterno(event:MouseEvent = null):void
+			{	
+				var usr:Usuario = Login.usuarioAutenticado;
+				var obsExt:ObservacaoExterno;
+				
+				
+				if(usr){
+					obsExt = new ObservacaoExterno(new Date(), _pessoa, usr, nfSaidaExterno.inputText, "---------", "[INCLUSÃO] Obs: " + _obs.inputText);
+					if(_externo != null) {
+			if (listaObsExterno == null) {
+							listaObsExterno = new ArrayCollection();
+							listaObsExterno.addAll(_externo.historico);
+							
+						}			
+						
+		
+						
+						
+					}
+					_externo = new Externo(_dataCriacao, _pessoa, usr, nfSaidaExterno.inputText, "------");
+					
+					_externo.historico.addItem(obsExt);
+					if (_orcRep.externo == null) _orcRep.externo = new ArrayCollection();
+					_orcRep.externo.addItem(_externo);
+					if (listaObsExterno == null) listaObsExterno = new ArrayCollection();
+					listaObsExterno.addItem(obsExt);
+						
+					
+					habilitado = false;
+					habilitadoNFR = true;
+					_obs.inputText = "";
+					//if(listaObsExterno == null) listaObsExterno = _externo.historico;
+				}else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onAdicionarExternoAutenticar);
+				}			
+			}
+			
+			public function adicionarNfRetorno(event:MouseEvent = null):void
+			{	
+				var usr:Usuario = Login.usuarioAutenticado;
+				var _dataCriacao:Date = new Date();
+				var obs:ObservacaoExterno;
+				if(usr){
+					
+				_externo.nfRetorno = nfRetornoExterno.inputText;
+				obs = new ObservacaoExterno(_dataCriacao, _externo.pessoaExterno, usr, _externo.nfSaida, _externo.nfRetorno, ("[NF Retorno Adicionada] Obs: " + _obs.inputText));
+				_externo.historico.addItem(obs);
+				listaObsExterno.addItem(obs);
+				habilitadoNFR = false;
+				
+				}
+				else{
+				PopupModalController.getInstance().showModalAutenticacaoUsuario(onAdicionarNfRetornoAutenticar);
+				}
+			}
+			
+			public function adicionarObservacao(event:MouseEvent = null):void
+			{	
+				var usr:Usuario = Login.usuarioAutenticado;
+				var obsExt:ObservacaoExterno;
+				if(usr){
+				if (_externo == null) {
+					_externo = new Externo(new Date(), null, usr, "--------", "--------");
+					listaObsExterno = new ArrayCollection();
+					obsExt = new ObservacaoExterno(new Date(), null, usr, "--------", "--------",  "[EXTERNO NAO SELECIONADO] Obs: " + _obs.inputText);
+				
+				_externo.historico.addItem(obsExt);
+				listaObsExterno.addItem(obsExt);
+				}
+				
+				else {
+					
+					obsExt = new ObservacaoExterno(new Date(), _externo.pessoaExterno, usr, _externo.nfSaida, _externo.nfRetorno,  "[OBSERVAÇÃO] " + _obs.inputText);			
+					_externo.historico.addItem(obsExt);
+					listaObsExterno.addItem(obsExt);
+				}
+				_obs.inputText = "";
+				}
+				else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onAdicionarObservacaoAutenticar);
+				}
+			}
+			
+			public function novoExterno(event:MouseEvent = null):void
+			{	
+				var usr:Usuario = Login.usuarioAutenticado;
+				if(usr){
+					_externo.historico.addItem(new ObservacaoExterno(new Date(), null, usr, "--------", "--------","[Novo Externo Sera Selecionado] Obs: " + _obs.inputText));
+				
+				/* 		_orcRep.externo.addItem(new Externo(new Date(), _externo.pessoaExterno, usr, _externo.nfSaida)); */
+				comboBox.limpar();
+				_listaContato.removeAll();
+				_listaEndereco.removeAll();
+				_obs.inputText = "";
+				nfSaidaExterno.inputText = "";
+				nfRetornoExterno.inputText = "";
+				habilitado = true;
+				habilitadoNFR = false;
+				//listaObsExterno = _externo.historico;
+				}
+				else{
+					PopupModalController.getInstance().showModalAutenticacaoUsuario(onNovoExternoAutenticar);
+				}
+			}	
+
+/* 			private function onlistarPorClienteResult(event:ResultEvent = null):void
+			{
+				CursorManager.removeAllCursors(); 
+				_listaContato.removeAll();
+				_listaContato = event.result as ArrayCollection;
+			
+			}
+			
+			private function onlistarPorClienteFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarContatosFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			} */
+
+			private function onbuscarPorIdResult(event:ResultEvent = null):void
+			{
+				_pessoa = event.result as Pessoa;
+				_listaContato = _pessoa.contatos;
+				_listaEndereco = _pessoa.enderecos;
+			}
+			
+			private function onbuscarPorIdFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[ListarContatosFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
+
+			[Bindable]
+			public function get usuario():Usuario
+			{
+				return _usuario;
+			}
+
+			public function set usuario(value:Usuario):void
+			{
+				_usuario = value;
+			}
+
+
+		]]>
+	</fx:Script>
+	
+	<!--<fx:Binding source="unidade.inputText" destination="orcRep.ordemServico.unidade.nome" twoWay="true" />
+	<fx:Binding source="fornecedor.inputText" destination="orcRep.ordemServico.unidade.prestadorServicoExterno.nomeSistema" twoWay="true" />
+	<fx:Binding source="fabricante.inputText" destination="orcRep.ordemServico.unidade.fabricante.nome" twoWay="true" />
+	<fx:Binding source="equipamento.inputText" destination="orcRep.ordemServico.unidade.equipamento.nome" twoWay="true" />
+	<fx:Binding source="laboratorio.inputText" destination="orcRep.ordemServico.unidade.laboratorio.nome" twoWay="true" />
+	<fx:Binding source="tecnico.inputText" destination="orcRep.tecnicoResponsavel.usuario" twoWay="true" />-->
+	<!--<fx:Binding source="enderecoPrestador.inputText" destination="prestadorServicoEndereco1" twoWay="true" />
+	<fx:Binding source="telefonePrestador.inputText" destination="prestadorServicoTelefone1" twoWay="true" />-->
+	
+	
+	<!--<fx:Binding source="razaoFornecedor.inputText" destination="comboBox.selectedItem.nome" twoWay="true" />-->
+	<!--<fx:Binding source="nfRetornoExterno.inputText" destination="_externo.nfRetorno" twoWay="true" />
+	<fx:Binding source="_obs.inputText" destination="orcRep.ordemServico.ordemServicoCliente" twoWay="true" />-->
+	
+	<!--<fx:Binding source="nClienteAvaya.inputText" destination="orcRep.ordemServico.clienteAvaya" twoWay="true" />
+	<fx:Binding source="nCaseAvaya.inputText" destination="orcRep.ordemServico.caseAvaya" twoWay="true" />-->
+	<!--<fx:Binding source="cliente.inputText" destination="orcRep.ordemServico.cliente.nomeSistema" twoWay="true" />-->
+	
+	<mx:states>
+		<s:State name="editar"/>
+		<s:State name="visualizar"/>
+	</mx:states>
+	
+	
+	<mx:HBox verticalAlign="bottom" width="100%" height="100%">
+		<grid:MantisTable id="tabelaExterno"
+						  width="100%"
+						  height="100%"
+						  draggableColumns="true"
+						  variableRowHeight="true"
+						  dataProvider="{listaObsExterno}">
+			<grid:columns>
+				
+				<!-- CHANGE HERE THE ENTITY COLUMNS -->
+				
+				
+				<mx:DataGridColumn id="cData" width=".13"
+								   headerText = "{resourceManager.getString('ApplicationResource','DATA')}"
+								   textAlign="center"
+								   sortable="false"
+								   dataField="dataCriacao"							   
+								   />
+				<mx:DataGridColumn id="cCriadoPor" dataField="criadoPor.nome" width=".20"
+								   headerText = "Usuário"
+								   textAlign="left" wordWrap="true"
+								   sortable="false"							   
+								   />
+				
+				<mx:DataGridColumn id="cPessoaExterno" dataField="pessoaExterno.nomeSistema" width=".30"
+								   headerText = "Prestador de Serviço"
+								   textAlign="center"
+								   sortable="false"					   
+								   />
+
+				<mx:DataGridColumn id="cNfSaida" dataField="nfSaida" width=".20"
+								   headerText = "NF SAIDA"
+								   textAlign="center"
+								   sortable="false"					   
+								   />
+				
+				<mx:DataGridColumn id="cNfRetorno" dataField="nfRetorno" width=".20"
+								   headerText = "NF Retorno"
+								   textAlign="left" wordWrap="true"
+								   sortable="false"							   
+								   />
+				
+				<mx:DataGridColumn id="obss" dataField="observacoes" width=".40"
+								   headerText = "Observações"
+								   textAlign="left" wordWrap="true"
+								   />
+				<!-- EDIT/REMOVE COLUMNS -->
+				
+			</grid:columns>
+		</grid:MantisTable>	
+			
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		<!--<componentes:TextAreaInput width="70%" id="txtObservacao"  enabled="{habilitado}" required="true"
+								   heightInLines="2" labelText="{resourceManager.getString('ApplicationResource','OBSERVACAO')}" />-->
+	<!--	<mx:CheckBox id="sigiloso" label="Sigiloso" />-->
+		
+		<combos:ComboPrestadorServico id="comboBox" labelText="Selecione o Prestador de Serviço" required="{required}" changeFunction="changeFunction" width="40%" enabled="{habilitado}" />
+	<!--	<combo:ComboBoxInput id="comboBox" labelText="Selecione o Prestador de Serviço" required="{required}" change="{changeFunction}" width="40%" />-->
+		<texto:TextInput id="nfSaidaExterno" labelText="NF de Saida" width="20%" habilitado="{habilitado}" />
+		<mx:Button id="btAdicionarNFS" enabled="{habilitado}"
+				   label="Salvar NF Saída"
+				   height="32" width="20%"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionarExterno(event)"
+				   />
+		
+		
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		
+		
+		<texto:TextInput id="nfRetornoExterno" labelText="NF de Retorno" width="60%" habilitado="{habilitadoNFR}" />
+
+		<mx:Button id="btAdicionarNFR" enabled="{habilitadoNFR}"
+				   label="Salvar NF Retorno"
+				   height="32" width="20%"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionarNfRetorno(event)"
+				   />
+		
+		
+	</mx:HBox>
+	
+	<mx:HBox verticalAlign="bottom" width="100%">
+		
+		
+		<texto:TextInput id="_obs" labelText="Observaçoes" width="60%" habilitado="true" />
+		<mx:Button id="btAdicionarObservacao" enabled="true"
+				   label="Salvar Observação"
+				   height="32" width="20%"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="adicionarObservacao(event)"
+				   />
+		
+		
+	</mx:HBox>
+	
+<!--	<mx:HBox verticalAlign="middle" width="100%">
+		
+			<texto:TextInput id="nCaseAvaya" labelText="Unidade avaya" width="14%" habilitado="false" />
+		<texto:TextInput id="nClienteAvaya" labelText="Case avaya" width="14%" habilitado="false" />
+		<texto:TextInput id="cliente" labelText="{resourceManager.getString('ApplicationResource','CLIENTE')}" width="40%" habilitado="false" />
+	</mx:HBox>
+-->
+	<!--<texto:TextInput id="razaoFornecedor" labelText="Nome do fornecedor" width="30%" habilitado="true" />
+	<texto:TextInput id="enderecoPrestador" labelText="Endereço cadastrado" width="40%" habilitado="false" />
+	<texto:TextInput id="telefonePrestador" labelText="Telefone" width="25%" habilitado="false" />-->
+
+	<grid:MantisTable id="fornecedorTable"
+					  width="100%"
+					  height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_listaEndereco}" >
+					 <!-- itemDoubleClick="editItem(data, event,false)"	-->
+					  
+		<grid:columns>
+			
+			
+			<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','TIPO')}"	
+							   draggable="false" width="70"	textAlign="center"						 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/house.png')" visible="{data.enderecoComercial}"
+									  toolTip="{resourceManager.getString('ApplicationResource','COMERCIAL')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/money_dollar.png')" visible="{data.enderecoCobranca}"
+									  toolTip="{resourceManager.getString('ApplicationResource','COBRANCA')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/car.png')" visible="{data.enderecoEntrega}"
+									  toolTip="{resourceManager.getString('ApplicationResource','ENTREGA')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<!--	labelFunction="labelFunction"-->
+			<mx:DataGridColumn id="logradouro" 
+							   headerText = "{resourceManager.getString('ApplicationResource','LOGRADOURO')}"
+							   textAlign="center" width="290"
+							   sortable="false"
+							   dataField="logradouro"							   
+							   />
+			
+			<mx:DataGridColumn id="cep" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','CEP')}"
+							   dataField = "cep"
+							   width="78"
+							   />
+			
+			<mx:DataGridColumn id="cidade" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','CIDADE')}"
+							   dataField = "cidade"
+							   width="138"
+							   />
+			
+			<mx:DataGridColumn id="estado" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','ESTADO')}"
+							   dataField = "estado"
+							   width="130"
+							   />
+			
+			<mx:DataGridColumn id="telefone" textAlign="center"
+							   headerText = "{resourceManager.getString('ApplicationResource','TELEFONE')}"
+							   dataField = "telefone"
+							   width="100"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+		</grid:columns>
+	</grid:MantisTable>
+	
+	<grid:MantisTable id="contatoTable"
+					  width="100%"
+					  height="100%"
+					  draggableColumns="true"
+					  dataProvider="{_listaContato}">
+		<grid:columns>
+			
+			<!-- CHANGE HERE THE ENTITY COLUMNS -->
+			<mx:DataGridColumn id="nome"
+							   headerText = "{resourceManager.getString('ApplicationResource','NOME_CONTATO')}"
+							   textAlign="center"
+							   sortable="false"
+							   dataField="nome"							   
+							   />
+			
+			<mx:DataGridColumn id="cargo" 
+							   headerText = "{resourceManager.getString('ApplicationResource','CARGO_CONTATO')}"
+							   dataField = "cargo"
+							   />
+			
+			<mx:DataGridColumn id="email" 
+							   headerText = "{resourceManager.getString('ApplicationResource','EMAIL_CONTATO')}"
+							   dataField = "email"
+							   />
+			
+			<mx:DataGridColumn id="departamento" 
+							   headerText = "{resourceManager.getString('ApplicationResource','DEPARTAMENTO_CONTATO')}"
+							   dataField = "departamento"
+							   />
+			
+			<mx:DataGridColumn id="infoAdicionais" 
+							   headerText = "{resourceManager.getString('ApplicationResource','INFO_ADICIONAIS_CONTATO')}"
+							   dataField = "informacoesAdicionais"
+							   />
+			
+			<mx:DataGridColumn id="pessoa2" 
+							   headerText = "{resourceManager.getString('ApplicationResource','PESSOA')}"
+							   dataField = "cliente.nome"
+							   />
+			
+			<!-- EDIT/REMOVE COLUMNS -->
+			
+			<!--<mx:DataGridColumn headerText = "{resourceManager.getString('ApplicationResource','ACTION_COLUMN')}"	
+							   draggable="false"							 
+							   editable="false"
+							   sortable="false">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:HBox horizontalAlign="center"
+								 verticalAlign="middle"
+								 >
+							
+							<mx:Image source="@Embed(source='/assets/icons/edit.png')"
+									  click="parentDocument.editItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EDIT')}"
+									  />
+							
+							<mx:Image source="@Embed(source='/assets/icons/delete.png')"
+									  click="parentDocument.excluirItem(data, event, true)"
+									  buttonMode="true"
+									  useHandCursor="true"
+									  toolTip="{resourceManager.getString('ApplicationResource','EXCLUIR')}"
+									  />
+							
+						</mx:HBox>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>-->
+		</grid:columns>
+
+	</grid:MantisTable>
+	<mx:HBox verticalAlign="bottom" width="100%">
+		
+		
+		<mx:Button id="btlimpar" enabled="true"
+				   label="Novo Fornecedor"
+				   height="40" width="20%"
+				   icon="@Embed(source='/assets/icons/add.png')"
+				   click="novoExterno(event)"
+				   />
+		
+		
+	</mx:HBox>
+</mx:VBox>
