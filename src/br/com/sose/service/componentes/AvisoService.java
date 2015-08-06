@@ -37,6 +37,17 @@ public class AvisoService {
 		return avisos;
 	}
 	
+	@RemotingInclude
+	@Transactional(readOnly = true)
+	public Aviso buscarPorId(Long id) throws Exception {
+		try {
+			return avisoDao.findById(id);
+		} catch (Exception e) {
+			logger.info("Erro");
+		}
+		return null;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<Aviso> listarAvisosVisiveis() throws Exception {
 		List<Aviso> avisos = null;
