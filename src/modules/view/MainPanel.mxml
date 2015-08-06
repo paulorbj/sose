@@ -68,6 +68,9 @@
 				notificationBar.addMessage(msg.toString(), MessageType.INFO);
 				barraNotificacao = notificationBar;
 				Publicador.configurarProdutores();
+				
+				containerPrincipal.removeAllChildren();
+				containerPrincipal.addChild(moduloCorrente = new TelaHome());
 			}
 			
 			private function configurarMenuBar():void

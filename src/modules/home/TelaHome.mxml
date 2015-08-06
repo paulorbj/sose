@@ -6,15 +6,37 @@
 		 paddingRight="12"
 		 paddingBottom="20" paddingTop="20"
 		 width="100%" height="100%"
+		 creationComplete="creationCompleteHandler()"
 		 verticalGap="0" xmlns:home="modules.home.*"  >
 	<fx:Script>
 		<![CDATA[
+			import entities.componentes.Aviso;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
 			[bindable]
 			private var mwidth:Number;
 			
 			[bindable]
 			private var mheight:Number;
+			
+			[bindable]
+			private var _listaAviso:ArrayCollection;
+			
+			[bindable]
+			private var _aviso1:Aviso;
+			
+			[bindable]
+			private var _aviso2:Aviso;
+			
+			[bindable]
+			private var _aviso3:Aviso;
+			
+			[bindable]
+			private var _aviso4:Aviso;
 			
 			private function CapabilitiesMax():void
 			{
@@ -23,13 +45,36 @@
 				aviso1.height = mheight;
 				aviso1.width = mwidth;
 			}
+			
+			public function creationCompleteHandler():void
+			{
+				avisoService.listarAvisos();	
+			}
+			
+			private function onListarAvisosResult(event:ResultEvent = null):void
+			{
+				_listaAviso = event.result as ArrayCollection;
+				_aviso1 = _listaAviso.getItemAt(0);
+				_aviso2 = _listaAviso.getItemAt(1);
+			}
+			
+			private function onListarAvisosFault(event:FaultEvent = null):void
+			{
+				CursorManager.removeAllCursors();
+				trace("[onListarAvisosFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+			}
 
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
 		
-
+		<mx:RemoteObject id="avisoService" destination="avisoService" requestTimeout="-1" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="listarAvisos"      
+					   fault="onListarAvisosFault(event)" 
+					   result="onListarAvisosResult(event)"
+					   />
+		</mx:RemoteObject>
 
 	</fx:Declarations>
 	<mx:HBox verticalAlign="bottom" width="100%" height="100%">	
@@ -44,10 +89,10 @@
 			 verticalGap="15" horizontalGap="10"
 			 initialize="{CapabilitiesMax()}">
 		
-		<home:AvisoComTexto id="aviso1" tituloDoAviso="Aviso 1" height="{mheight}" width="{mwidth}" />
-		<home:AvisoComTexto id="aviso2" tituloDoAviso="Aviso 2" height="{mheight}" width="{mwidth}" />
-		<home:AvisoComTexto id="aviso3" tituloDoAviso="Aviso 3" height="{mheight}" width="{mwidth}" />
-		<home:AvisoComTexto id="aviso4" tituloDoAviso="Aviso 4" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso1" objetoAviso={_aviso1} height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso2" tituloDoAviso="{_aviso2.titulo}" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso3" tituloDoAviso="{_aviso3.titulo}" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso4" tituloDoAviso="{_aviso4.titulo}" height="{mheight}" width="{mwidth}" />
 		</mx:Tile>
 </mx:HBox>
 </mx:VBox>

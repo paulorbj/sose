@@ -101,6 +101,7 @@
 		<s:Graphic>
 			<s:BitmapImage  id="img"
 				  fillMode="scale"
+				  scaleMode="letterbox"
 				  horizontalAlign="center"
 				  width="100%"
 				  height="100%" />
