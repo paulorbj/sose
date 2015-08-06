@@ -9,6 +9,7 @@ package entities.componentes
 		
 		private var _id:Number;
 		private var _mensagem:String;
+		private var _titulo:String;
 		private var _dataCriacao:Date;
 		private var _dataVisivelAlterado:Date;
 		private var _visivel:Boolean;
@@ -77,6 +78,16 @@ package entities.componentes
 		public function set criadoPor(value:Usuario):void
 		{
 			_criadoPor = value;
+		}
+
+		public function get titulo():String
+		{
+			return _titulo;
+		}
+
+		public function set titulo(value:String):void
+		{
+			_titulo = value;
 		}
 
 

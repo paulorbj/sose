@@ -16,8 +16,8 @@
 	xmlns:textInput="components.textInput.*" >
 	
 	<fx:Declarations>
-		<mx:RemoteObject id="graficoService" destination="graficoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
-			<mx:method name="buscarInfoGraficoReparoFinalizadoPorCondicao"      
+		<mx:RemoteObject id="avisoService" destination="avisoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
+			<mx:method name="salvarAviso"      
 					   fault="onBuscarInfoGraficoReparoFinalizadoPorCondicaoFault(event)" 
 					   result="onBuscarInfoGraficoReparoFinalizadoPorCondicaoResult(event)"
 					   />
@@ -28,6 +28,7 @@
 	<fx:Script>
 		<![CDATA[
 			import entities.administrativo.parceiros.Pessoa;
+			import entities.componentes.Aviso;
 			
 			import flashx.textLayout.conversion.ConversionType;
 			import flashx.textLayout.conversion.TextConverter;
@@ -47,6 +48,9 @@
 			
 			[bindable]
 			private var mheight:Number;
+			
+			[bindable]
+			public var objetoAviso:Aviso;
 			
 			private function CapabilitiesMax():void
 			{
@@ -72,13 +76,14 @@
 				super.mudarParaVisualizacao();
 				tituloDoAviso = textoTitulo.inputText;
 				textoRich.textFlow = TextConverter.importToFlow(myRTE.htmlText, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				avisoService.salvarAviso()
 			}
 			
 			override public function abrirConfig():void
 			{
 				
 				super.mudarParaConfiguracao();
-				textoTitulo.inputText = tituloDoAviso;
+				textoTitulo.inputText = objetoAviso.titulo;
 				myRTE.htmlText = TextConverter.export(textoRich.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
 			}
 			
@@ -129,7 +134,7 @@
 			</mx:HBox>
 			
 			<mx:HBox bottom="5" width="100%" height="100%">
-				<mx:RichTextEditor id="myRTE" text="Congratulations, winner!" height="100%" width="100%" />
+				<mx:RichTextEditor id="myRTE" text="{objetoAviso.mensagem}" height="100%" width="100%" />
 			</mx:HBox>
 		</mx:VBox>
 
