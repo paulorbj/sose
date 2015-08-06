@@ -2,20 +2,10 @@ package br.com.sose.daoImpl.laudoTecnico;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 import org.hibernate.Query;
-
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.stereotype.Repository;
 
 import br.com.sose.daoImpl.HibernateDaoGenerico;
-import br.com.sose.daoImpl.JpaDao;
-import br.com.sose.entity.admistrativo.Atividade;
 import br.com.sose.entity.laudoTecnico.LaudoTecnico;
 
 @Repository("laudoTecnicoDao")

@@ -34,6 +34,16 @@ public class Aviso implements Serializable {
 	@Column(length = 3100)
 	private String mensagem;
 	
+	private String titulo;
+	
+	public String getTitulo() {
+		return titulo;
+	}
+
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
+	}
+
 	private Date dataCriacao;
 	
 	private Date dataVisivelAlterado;

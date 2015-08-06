@@ -1,7 +1,5 @@
 package br.com.sose.listeners;
 
-import java.util.Date;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
@@ -12,8 +10,10 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import br.com.sose.entity.admistrativo.Perfil;
 import br.com.sose.entity.admistrativo.Usuario;
+import br.com.sose.entity.componentes.Aviso;
 import br.com.sose.service.administrativo.PerfilService;
 import br.com.sose.service.administrativo.UsuarioService;
+import br.com.sose.service.componentes.AvisoService;
 
 public class ApplicationListener extends HttpServlet implements	ServletContextListener {
 
@@ -25,6 +25,8 @@ public class ApplicationListener extends HttpServlet implements	ServletContextLi
 	private UsuarioService usuarioService;
 	
 	private PerfilService perfilService;
+	
+	private AvisoService avisoService;
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 
@@ -138,6 +140,15 @@ public class ApplicationListener extends HttpServlet implements	ServletContextLi
 			} catch (Exception e) {
 				logger.debug("Error inserting administrator.",e);
 				e.printStackTrace(); logger.error(e);
+			}
+		}
+		
+		for(int i = 1; i<=4; i++) {
+			if(avisoService.buscarPorId(i) == null){
+				Aviso aviso = new Aviso();
+				aviso.setTitulo("Novo aviso");
+				aviso.setMensagem("Nenhum aviso disponível");
+				avisoService.salvarAviso(aviso);
 			}
 		}
 	}
