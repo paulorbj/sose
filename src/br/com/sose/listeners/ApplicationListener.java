@@ -142,13 +142,19 @@ public class ApplicationListener extends HttpServlet implements	ServletContextLi
 				e.printStackTrace(); logger.error(e);
 			}
 		}
-		
+		long il = 0;
 		for(int i = 1; i<=4; i++) {
-			if(avisoService.buscarPorId(i) == null){
-				Aviso aviso = new Aviso();
-				aviso.setTitulo("Novo aviso");
-				aviso.setMensagem("Nenhum aviso disponível");
-				avisoService.salvarAviso(aviso);
+			il = (long)i;
+			try {
+				if(avisoService.buscarPorId(il) == null){
+					Aviso aviso = new Aviso();
+					aviso.setTitulo("Novo aviso");
+					aviso.setMensagem("Nenhum aviso disponível");
+					avisoService.salvarAviso(aviso);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
