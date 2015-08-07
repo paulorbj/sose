@@ -1,5 +1,6 @@
 package br.com.sose.daoImpl.faturamento;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -36,6 +37,16 @@ public class FaturamentoDao extends HibernateDaoGenerico<Faturamento, Long> {
 
 	@SuppressWarnings("unchecked")
 	public List<Faturamento> listarFaturas(final String status) {
+		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h WHERE h.dataCriacaoFatura IS NOT NULL AND h.statusString = :status ORDER BY h.dataCriacaoFatura DESC");
+		Query query = sessionFactory.getCurrentSession().createQuery(sb.toString());
+		query.setParameter("status", status);
+		return query.list();
+	}
+	
+//	Feito por Nik
+	@SuppressWarnings("unchecked")
+	public List<Faturamento> listarFaturasNaoFinalizadas(final Date dataInicio, final Date dataFim) {
+		String status = "nao finalizada";//  --> verificar o texto certo
 		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h WHERE h.dataCriacaoFatura IS NOT NULL AND h.statusString = :status ORDER BY h.dataCriacaoFatura DESC");
 		Query query = sessionFactory.getCurrentSession().createQuery(sb.toString());
 		query.setParameter("status", status);
