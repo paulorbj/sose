@@ -64,15 +64,15 @@
 				trace("[Inicializao do combo cliente] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
 			
+			
+		/* 	Aqui nao deveriamos ter um array na saida?? ja q eh combocheck, saida tem mais de um cliente. */
 			[Bindable]
 			public function get clienteSelecionado():Pessoa 
 			{
-				//if(comboBox.selectedItem == null)
-				
-				//	return null;
-				//else
-					//return comboBox.selectedItem as Pessoa; 
-					return null;
+				if(comboBox.selectedItem == null) return null;
+				else
+				return comboBox.selectedItem as Pessoa; 
+				/* 	return null; */
 			}
 			
 			public function set clienteSelecionado(cliente:Pessoa):void 
