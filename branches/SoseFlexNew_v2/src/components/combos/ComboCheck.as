@@ -107,26 +107,27 @@ package components.combos
 					selectedItems = new Vector.<Object>();
 				}
 				selectedItems.push(obj);
-				if (obj.nomeSistema == itemAllValue) {
+/*				if (obj.nomeSistema == itemAllValue) {
 					dispatchEvent(new Event("selectAll"));   
 					selectAllCheckBox(true);
-				} else {
+				}
+				else {*/
 					if (selectedItems.length == dataProvider.length - 1) {
 						selectAllItem (true);
 					}
-				}
+	/*			}*/
 				dispatchEvent(new Event("addItem"));
 			} else {
 				var index:int=selectedItems.indexOf(obj);
 				selectedItems.splice(index,1);
-				if (obj.nomeSistema == itemAllValue) {
+/*				if (obj.nomeSistema == itemAllValue) {
 					dispatchEvent(new Event("deSelectAll"));    
 					selectAllCheckBox(false);
 				} else {
 					if (selectedItems.length == dataProvider.length - 1) {
 						selectAllItem (false);
 					}
-				}
+				}*/
 				dispatchEvent(new Event("removeItem"));
 			}
 			setText();
