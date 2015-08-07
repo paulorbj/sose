@@ -3,7 +3,6 @@ package br.com.sose.service.componentes;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
@@ -12,10 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.sose.daoImpl.componentes.AvisoDao;
-import br.com.sose.entity.admistrativo.Atividade;
 import br.com.sose.entity.componentes.Aviso;
-import br.com.sose.exceptions.AtividadeExistenteException;
-import br.com.sose.exceptions.AtividadeNaoExclusaoDependenciaExistenteException;
 
 @Service(value="avisoService")
 @RemotingDestination(value="avisoService")
@@ -26,6 +22,9 @@ public class AvisoService {
 	@Autowired
 	private AvisoDao avisoDao;
 	
+	
+	@RemotingInclude
+	@Transactional(readOnly = true)
 	public List<Aviso> listarAvisos() throws Exception {
 		List<Aviso> avisos = null;
 		try {
