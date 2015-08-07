@@ -44,6 +44,8 @@
 				mheight = 0.33*Capabilities.screenResolutionY;
 				aviso1.height = mheight;
 				aviso1.width = mwidth;
+				
+				
 			}
 			
 			public function creationCompleteHandler():void
@@ -54,8 +56,10 @@
 			private function onListarAvisosResult(event:ResultEvent = null):void
 			{
 				_listaAviso = event.result as ArrayCollection;
-				_aviso1 = _listaAviso.getItemAt(0);
-				_aviso2 = _listaAviso.getItemAt(1);
+				_aviso1 = _listaAviso.getItemAt(0) as Aviso;
+				_aviso2 = _listaAviso.getItemAt(1) as Aviso;
+				_aviso3 = _listaAviso.getItemAt(2) as Aviso;
+				_aviso4 = _listaAviso.getItemAt(3) as Aviso;
 			}
 			
 			private function onListarAvisosFault(event:FaultEvent = null):void
@@ -89,10 +93,10 @@
 			 verticalGap="15" horizontalGap="10"
 			 initialize="{CapabilitiesMax()}">
 		
-		<home:AvisoComTexto id="aviso1" objetoAviso={_aviso1} height="{mheight}" width="{mwidth}" />
-		<home:AvisoComTexto id="aviso2" tituloDoAviso="{_aviso2.titulo}" height="{mheight}" width="{mwidth}" />
-		<home:AvisoComTexto id="aviso3" tituloDoAviso="{_aviso3.titulo}" height="{mheight}" width="{mwidth}" />
-		<home:AvisoComTexto id="aviso4" tituloDoAviso="{_aviso4.titulo}" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso1" aviso="{_aviso1}" height="30%" width="30%" />
+		<home:AvisoComTexto id="aviso2" aviso="{_aviso2}" height="30%" width="30%" />
+		<home:AvisoComTexto id="aviso3" aviso="{_aviso3}" height="30%" width="30%" />
+		<home:AvisoComTexto id="aviso4" aviso="{_aviso4}" height="30%" width="30%" />
 		</mx:Tile>
 </mx:HBox>
 </mx:VBox>
