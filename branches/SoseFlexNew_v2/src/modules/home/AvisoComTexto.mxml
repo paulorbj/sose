@@ -18,8 +18,8 @@
 	<fx:Declarations>
 		<mx:RemoteObject id="avisoService" destination="avisoService" endpoint="{resourceManager.getString('ConfigurationResource','amf')}">			
 			<mx:method name="salvarAviso"      
-					   fault="onBuscarInfoGraficoReparoFinalizadoPorCondicaoFault(event)" 
-					   result="onBuscarInfoGraficoReparoFinalizadoPorCondicaoResult(event)"
+					   fault="onSalvarAvisoFault(event)" 
+					   result="onSalvarAvisoResult(event)"
 					   />
 		</mx:RemoteObject>
 	</fx:Declarations>
@@ -40,8 +40,9 @@
 			
 			import spark.utils.TextFlowUtil;
 			
-			[Bindable]
+			/* [Bindable]
 			public var dadosGrafico:ArrayCollection;
+			 */
 			
 			[bindable]
 			private var mwidth:Number;
@@ -50,7 +51,10 @@
 			private var mheight:Number;
 			
 			[bindable]
-			public var objetoAviso:Aviso;
+			public var aviso:Aviso;
+			
+			[bindable]
+			private var mensagemRT:RichText;
 			
 			private function CapabilitiesMax():void
 			{
@@ -63,6 +67,20 @@
 				//graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(null,null,null,null,null,null);
 				//textoTitulo.inputText = tituloDoAviso;
 				//super.cancelar = cancelar;
+				mensagemRT = converteHTMLparaRTF(aviso.mensagem);
+				
+			}
+			
+			private function converteRTFparaHTML(myRTE:RichText):String{
+				//var saidaRTE:String ;
+				
+				return TextConverter.export(myRTE.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+			}
+			
+			private function converteHTMLparaRTF(stringHTML:String ):RichText{
+				var myRT:RichText;
+				myRT.textFlow = TextConverter.importToFlow(myRTE.htmlText, TextConverter.TEXT_FIELD_HTML_FORMAT);
+			return myRT;
 			}
 			
 			protected function aplicar(event:MouseEvent):void
@@ -74,17 +92,19 @@
 			{
 				
 				super.mudarParaVisualizacao();
-				tituloDoAviso = textoTitulo.inputText;
-				textoRich.textFlow = TextConverter.importToFlow(myRTE.htmlText, TextConverter.TEXT_FIELD_HTML_FORMAT);
-				avisoService.salvarAviso()
+				//tituloDoAviso = aviso.mensagem;
+				//textoRich.textFlow = TextConverter.importToFlow(myRTE.htmlText, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				
+				avisoService.salvarAviso(aviso);
 			}
 			
 			override public function abrirConfig():void
 			{
 				
 				super.mudarParaConfiguracao();
-				textoTitulo.inputText = objetoAviso.titulo;
-				myRTE.htmlText = TextConverter.export(textoRich.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+				textoTitulo.inputText = aviso.titulo;
+				//myRTE.htmlText = TextConverter.export(textoRich.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+				myRTE.htmlText = aviso.mensagem;			
 			}
 			
 			
@@ -92,17 +112,18 @@
 			{
 
 			}
+
 			
-			private function onBuscarInfoGraficoReparoFinalizadoPorCondicaoResult(event:ResultEvent = null):void
+			private function onSalvarAvisoResult(event:ResultEvent = null):void
 			{
 				CursorManager.removeAllCursors(); 
-				dadosGrafico = event.result as ArrayCollection;
+				// = event.result as ArrayCollection;
 			}
 			
-			private function onBuscarInfoGraficoReparoFinalizadoPorCondicaoFault(event:FaultEvent = null):void
+			private function onSalvarAvisoFault(event:FaultEvent = null):void
 			{
 				CursorManager.removeAllCursors();
-				trace("[onBuscarInfoGraficoReparoFinalizadoPorCondicaoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
+				trace("[onSalvarAvisoFault] [" +	event.fault.faultCode + "] " + event.fault.faultString + " (" +	event.fault.faultDetail + ")");		
 			}
 			
 		]]>
@@ -134,7 +155,7 @@
 			</mx:HBox>
 			
 			<mx:HBox bottom="5" width="100%" height="100%">
-				<mx:RichTextEditor id="myRTE" text="{objetoAviso.mensagem}" height="100%" width="100%" />
+				<mx:RichTextEditor id="myRTE" text="{aviso.mensagem}" height="100%" width="100%" />
 			</mx:HBox>
 		</mx:VBox>
 
