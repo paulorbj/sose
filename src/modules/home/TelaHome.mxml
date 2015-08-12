@@ -40,12 +40,18 @@
 			
 			private function CapabilitiesMax():void
 			{
-				mwidth = 0.33*Capabilities.screenResolutionX;
-				mheight = 0.33*Capabilities.screenResolutionY;
+				mwidth = 0.25*Capabilities.screenResolutionX;
+				mheight = 0.25*Capabilities.screenResolutionY;
 				aviso1.height = mheight;
 				aviso1.width = mwidth;
-				
-				
+				aviso1.height = mheight;
+				aviso2.width = mwidth;
+				aviso2.height = mheight;
+				aviso3.width = mwidth;
+				aviso3.height = mheight;
+				aviso4.width = mwidth;
+				aviso4.height = mheight;
+								
 			}
 			
 			public function creationCompleteHandler():void
@@ -60,6 +66,10 @@
 				_aviso2 = _listaAviso.getItemAt(1) as Aviso;
 				_aviso3 = _listaAviso.getItemAt(2) as Aviso;
 				_aviso4 = _listaAviso.getItemAt(3) as Aviso;
+				aviso1.aviso = _aviso1;
+				aviso2.aviso = _aviso2;
+				aviso3.aviso = _aviso3;
+				aviso4.aviso = _aviso4;
 			}
 			
 			private function onListarAvisosFault(event:FaultEvent = null):void
@@ -93,10 +103,10 @@
 			 verticalGap="15" horizontalGap="10"
 			 initialize="{CapabilitiesMax()}">
 		
-		<home:AvisoComTexto id="aviso1" aviso="{_aviso1}" height="30%" width="30%" />
-		<home:AvisoComTexto id="aviso2" aviso="{_aviso2}" height="30%" width="30%" />
-		<home:AvisoComTexto id="aviso3" aviso="{_aviso3}" height="30%" width="30%" />
-		<home:AvisoComTexto id="aviso4" aviso="{_aviso4}" height="30%" width="30%" />
+		<home:AvisoComTexto id="aviso1" aviso="{_aviso1}" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso2" aviso="{_aviso2}" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso3" aviso="{_aviso3}" height="{mheight}" width="{mwidth}" />
+		<home:AvisoComTexto id="aviso4" aviso="{_aviso4}" height="{mheight}" width="{mwidth}" />
 		</mx:Tile>
 </mx:HBox>
 </mx:VBox>

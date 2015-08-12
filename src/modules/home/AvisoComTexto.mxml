@@ -3,10 +3,10 @@
 	xmlns:fx="http://ns.adobe.com/mxml/2009" 
 	width="100%" 
 	height="100%" 
-	creationComplete="init()" 
+	
 	xmlns:components="components.*"			   
 	xmlns:s="library://ns.adobe.com/flex/spark" 
-	tituloDoAviso="Reparos por condição" 
+	tituloDoAviso="{aviso.titulo}" 
 	creationPolicy="all" 
 	horizontalScrollPolicy="off" 
 	verticalScrollPolicy="off"
@@ -32,6 +32,7 @@
 			
 			import flashx.textLayout.conversion.ConversionType;
 			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.TextFlow;
 			
 			import mx.collections.ArrayCollection;
 			import mx.managers.CursorManager;
@@ -54,12 +55,15 @@
 			public var aviso:Aviso;
 			
 			[bindable]
-			private var mensagemRT:RichText;
+			private var mensagemRT:TextFlow;
+			
+			[bindable]
+			private var mensagemString:String;
 			
 			private function CapabilitiesMax():void
 			{
-				mwidth = 0.3*Capabilities.screenResolutionX;
-				mheight = 0.3*Capabilities.screenResolutionY;
+				//mwidth = 0.3*Capabilities.screenResolutionX;
+				//mheight = 0.3*Capabilities.screenResolutionY;
 			}
 			
 			private function init():void
@@ -67,20 +71,32 @@
 				//graficoService.buscarInfoGraficoReparoFinalizadoPorCondicao(null,null,null,null,null,null);
 				//textoTitulo.inputText = tituloDoAviso;
 				//super.cancelar = cancelar;
-				mensagemRT = converteHTMLparaRTF(aviso.mensagem);
+				//textoTitulo.inputText = aviso.titulo;
+				if (aviso){
+					mensagemString = aviso.mensagem;
+					mensagemRT = converteHTMLparaRTF(aviso.mensagem);
+				}
+				else{
+					aviso = new Aviso();
+					aviso.mensagem = "Aviso estava como null";
+					aviso.titulo = "Titulo do aviso null";
+					aviso.id = 999;
+					
+				}
+				
+				//myRTE.htmlText = aviso.mensagem;
+				//textoRich.textFlow = mensagemRT;
 				
 			}
 			
-			private function converteRTFparaHTML(myRTE:RichText):String{
-				//var saidaRTE:String ;
-				
-				return TextConverter.export(myRTE.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+			private function converteRTFparaHTML(myRTE:TextFlow):String{
+							
+				return TextConverter.export(myRTE, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
 			}
 			
-			private function converteHTMLparaRTF(stringHTML:String ):RichText{
-				var myRT:RichText;
-				myRT.textFlow = TextConverter.importToFlow(myRTE.htmlText, TextConverter.TEXT_FIELD_HTML_FORMAT);
-			return myRT;
+			private function converteHTMLparaRTF(stringHTML:String ):TextFlow{
+				return TextConverter.importToFlow(stringHTML, TextConverter.TEXT_FIELD_HTML_FORMAT) as TextFlow;
+			
 			}
 			
 			protected function aplicar(event:MouseEvent):void
@@ -92,9 +108,14 @@
 			{
 				
 				super.mudarParaVisualizacao();
-				//tituloDoAviso = aviso.mensagem;
+				mensagemString = aviso.mensagem;
+				aviso.mensagem = myRTE.htmlText;
+				aviso.titulo = textoTitulo.inputText;
+				mensagemRT = converteHTMLparaRTF(aviso.mensagem);
+				//tituloDoAviso = aviso.titulo;
 				//textoRich.textFlow = TextConverter.importToFlow(myRTE.htmlText, TextConverter.TEXT_FIELD_HTML_FORMAT);
-				
+				textoTitulo.inputText = aviso.titulo;
+				//mensagemString = aviso.mensagem;
 				avisoService.salvarAviso(aviso);
 			}
 			
@@ -102,9 +123,10 @@
 			{
 				
 				super.mudarParaConfiguracao();
-				textoTitulo.inputText = aviso.titulo;
+				mensagemString = aviso.mensagem;
 				//myRTE.htmlText = TextConverter.export(textoRich.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
-				myRTE.htmlText = aviso.mensagem;			
+				//myRTE.htmlText = aviso.mensagem;
+				
 			}
 			
 			
@@ -117,7 +139,7 @@
 			private function onSalvarAvisoResult(event:ResultEvent = null):void
 			{
 				CursorManager.removeAllCursors(); 
-				// = event.result as ArrayCollection;
+				aviso = event.result as Aviso;
 			}
 			
 			private function onSalvarAvisoFault(event:FaultEvent = null):void
@@ -128,12 +150,14 @@
 			
 		]]>
 	</fx:Script>
+
 		
 	<home:visualizacao>
+		 
 <!--		<mx:VBox width="100%" height="100%" >-->
 			<s:Scroller width="100%"  height="100%" focusEnabled="false">
 				<s:Group clipAndEnableScrolling="true"  >
-					<s:RichText text="Texto do aviso" id="textoRich" width="100%" height="100%" />
+					<s:RichText textFlow="{converteHTMLparaRTF(aviso.mensagem)}" id="textoRich" width="100%" height="100%" creationComplete="init()" />
 						
 					
 				</s:Group>
@@ -150,12 +174,12 @@
 	<home:configuracao>
 		<mx:VBox width="100%" height="100%" paddingTop="5" paddingRight="5" paddingLeft="5" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 			<mx:HBox width="100%" verticalAlign="middle">
-				<s:Label text="Titulo do quadro" />
+				<s:Label text="Titulo do aviso:" />
 				<textInput:TextInput id="textoTitulo" width="100%" />
 			</mx:HBox>
 			
 			<mx:HBox bottom="5" width="100%" height="100%">
-				<mx:RichTextEditor id="myRTE" text="{aviso.mensagem}" height="100%" width="100%" />
+				<mx:RichTextEditor id="myRTE" htmlText="{aviso.mensagem}"  height="100%" width="100%" />
 			</mx:HBox>
 		</mx:VBox>
 
