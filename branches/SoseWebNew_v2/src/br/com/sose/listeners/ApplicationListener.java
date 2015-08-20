@@ -41,6 +41,7 @@ public class ApplicationListener extends HttpServlet implements	ServletContextLi
 		context = WebApplicationContextUtils.getWebApplicationContext(servletContextEvent.getServletContext());
 		usuarioService = context.getBean(UsuarioService.class);
 		perfilService = context.getBean(PerfilService.class);
+		avisoService = context.getBean(AvisoService.class);
 
 		if(perfilService.buscarPorNome("Administrativo") == null){
 			Perfil perfil = new Perfil();
@@ -148,6 +149,7 @@ public class ApplicationListener extends HttpServlet implements	ServletContextLi
 			try {
 				if(avisoService.buscarPorId(il) == null){
 					Aviso aviso = new Aviso();
+					aviso.setId(il);
 					aviso.setTitulo("Novo aviso");
 					aviso.setMensagem("Nenhum aviso disponível");
 					avisoService.salvarAviso(aviso);
