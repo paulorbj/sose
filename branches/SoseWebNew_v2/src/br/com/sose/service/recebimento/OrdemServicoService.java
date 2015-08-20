@@ -140,6 +140,14 @@ public class OrdemServicoService {
 		ordemServicoRetorno = ordemServicoDao.listarOrdemFaturamentoAFaturar(cliente, de, ate);		
 		return ordemServicoRetorno;
 	}
+	
+	@RemotingInclude
+	@Transactional(readOnly=true)
+	public List<OrdemServico> listarOrdemServicoAFaturarN(Pessoa cliente, Date de, Date ate){
+		List<OrdemServico> ordemServicoRetorno = null;
+		ordemServicoRetorno = ordemServicoDao.listarOrdemFaturamentoAFaturarN(cliente, de, ate);		
+		return ordemServicoRetorno;
+	}
 	/********************** Metodos de listagem *********************/
 
 	/*********************** Metodos de busca ***********************/
