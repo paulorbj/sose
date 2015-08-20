@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.sose.daoImpl.faturamento.FaturamentoDao;
 import br.com.sose.daoImpl.recebimento.OrdemServicoDao;
 import br.com.sose.entity.admistrativo.Usuario;
+import br.com.sose.entity.admistrativo.parceiros.Pessoa;
 import br.com.sose.entity.faturamento.Faturamento;
 import br.com.sose.entity.recebimento.OrdemServico;
 import br.com.sose.service.administrativo.ObservacaoService;
@@ -306,6 +307,26 @@ public class FaturamentoService {
 		return faturamento;
 	}
 
+	@RemotingInclude
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public List<Faturamento> listarFaturasFinalizadasPorDataECliente(final Pessoa cliente, final Date de, final Date ate)  throws Exception {
+		List<Faturamento> faturamentos = null;
+		try {
+			faturamentos = faturamentoDao.listarFaturasFinalizadasPorDataECliente(cliente, de, ate);	
+			//			logger.info("Atividade com o nome: "+faturamento.getNome()+" foi removido do sistema");
+		} catch (ConstraintViolationException e) {
+			//			logger.error(e);
+			e.printStackTrace(); logger.error(e);
+			//			throw new AtividadeNaoExclusaoDependenciaExistenteException(atividade.getNome());
+		}catch (Exception e) {
+			//			logger.error(e);
+			e.printStackTrace(); logger.error(e);
+
+			throw e;
+		}
+		return faturamentos;
+	}
+	
 	@RemotingInclude
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public Faturamento excluirFaturamento(Faturamento faturamento) throws Exception {
