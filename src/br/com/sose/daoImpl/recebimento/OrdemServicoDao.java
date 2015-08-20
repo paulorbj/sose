@@ -600,6 +600,30 @@ public class OrdemServicoDao extends HibernateDaoGenerico<OrdemServico, Long> {
 		return query.list();
 	}
 
+	//Feito por NIk
+	//Nao sei pq h.unidadePai IS NULL, tirei, tirei (h.faturamento IS NULL)...statusString NOT LIKE 'Finalizada' serviria ao inves de data_finalizacao not null
+	@SuppressWarnings("unchecked")
+	public List<OrdemServico> listarOrdemFaturamentoAFaturarN(final Pessoa cliente, final Date de, final Date ate) {
+		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h LEFT JOIN FETCH h.faturamento LEFT JOIN FETCH h.lpu WHERE (h.cliente = :cliente) AND (h.dataFinalizacao IS NULL ) AND (h.dataChegadaNotaFiscal BETWEEN :dataDe AND :dataAte) ORDER BY h.dataChegadaNotaFiscal");
+		
+		Query query = sessionFactory.getCurrentSession().createQuery(sb.toString());
+
+		query.setParameter("cliente", cliente);
+
+		if(de != null){
+			query.setParameter("dataDe", de);
+		}else{
+			query.setParameter("dataDe", new Date(0));
+		}
+
+		if(ate != null){
+			query.setParameter("dataAte", DateUtils.nextDay(ate));
+		}else{
+			query.setParameter("dataAte", DateUtils.nextDay(new Date()));
+		}
+		return query.list();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public OrdemServico verificarDisponibilidadeNumeroOrdemServico(final String nOrdemServico) {
 		StringBuilder sb = new StringBuilder("SELECT h FROM "+ entityClass.getName() + " h WHERE (h.numeroOrdemServico  = :nOrdemServico)");							
